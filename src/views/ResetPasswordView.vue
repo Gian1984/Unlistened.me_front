@@ -12,12 +12,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <div class="space-y-6">
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-white">Username</label>
-          <div class="mt-2">
-            <input v-model="username" type="text" name="username" id="username" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
-          </div>
-        </div>
-        <div>
           <label for="email" class="block text-sm font-medium leading-6 text-white">Email address</label>
           <div class="mt-2">
             <input v-model="email" id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
@@ -33,19 +27,18 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
           </div>
         </div>
 
+
         <div>
           <div class="flex items-center justify-between">
-            <label for="terms" class="block text-sm font-medium leading-6"><router-link to="/terms" class="text-indigo-400 hover:text-indigo-300">Terms & conditions</router-link></label>
+            <label for="password_confirmation" class="block text-sm font-medium leading-6 text-white">Confirm password</label>
           </div>
-          <div class="mt-2 flex items-center">
-            <input v-model="checked" name="terms" id="terms" type="checkbox" checked required />
-            <p id="candidates-description" class="text-white text-sm ml-2">
-              I understand and accept
-            </p>
+          <div class="mt-2">
+            <input v-model="password_confirmation" id="password_confirmation" name="password_confirmation" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
           </div>
         </div>
 
-        <div v-if="errorsRegister" class="rounded-md bg-red-50 p-4">
+
+        <div v-if="errors" class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <button v-on:click="closeAlert()" type="button">
@@ -56,8 +49,8 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
               <h3 class="text-sm font-medium text-red-800">Error</h3>
               <div class="mt-2 text-sm text-red-700">
                 <ul role="list" class="list-disc space-y-1 pl-5">
-                  <li v-if="errorsRegister.password">{{errorsRegister.password[0]}}</li>
-                  <li v-if="errorsRegister.email">{{errorsRegister.email[0]}}</li>
+                  <li v-if="errors.password">{{errors.password[0]}}</li>
+                  <li v-if="errors.email">{{errors.email[0]}}</li>
                 </ul>
               </div>
             </div>
@@ -83,15 +76,10 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
         </div>
 
         <div>
-          <button @click="signup" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign up</button>
+          <button type="button" @click="resetPassword" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Reset password</button>
         </div>
       </div>
 
-      <p class="mt-10 text-center text-sm text-gray-400">
-        Not a member?
-        {{ ' ' }}
-        <a href="#" class="font-semibold leading-6 text-indigo-400 hover:text-indigo-300">Start a 14 day free trial</a>
-      </p>
     </div>
   </div>
 
@@ -105,18 +93,53 @@ export default {
 
   data(){
     return {
+      token: '',
       username:'',
       email : '',
       password :'',
-      submitted: false,
-      errorsRegister:'',
-      checked: false,
-      alertOpen: true,
-      empty:''
+      password_confirmation: '',
+      errors:'',
+      empty:'',
     }
   },
 
   methods : {
+
+    async resetPassword(e) {
+      e.preventDefault()
+
+      try {
+
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        if (this.password !== this.password_confirmation || this.password.length <= 0) {
+          this.password = ""
+          this.password_confirmation = ""
+          return alert('Passwords do not match')
+        }
+
+        let email = this.email
+        let password = this.password
+        let password_confirmation = this.password_confirmation
+        let token = this.$route.params.token
+
+        const response = await this.axios.post(base_Url + 'api/reset-password', {
+          email: email,
+          password: password,
+          password_confirmation: password_confirmation,
+          token: token
+        });
+        console.log(response.data)
+        //this.$router.push({name: 'Login'})
+
+      } catch (error) {
+          console.error('Login error', error);
+          this.errors = error.response.data
+          this.password = ''
+        }
+      },
 
     async signup() {
       try {
@@ -148,7 +171,7 @@ export default {
     },
 
     closeAlert: function () {
-      this.errorsRegister = '';
+      this.errors = '';
     },
     closeAlertEmpty:function () {
       this.empty = '';

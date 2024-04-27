@@ -330,7 +330,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/reset_password',
+      path: '/reset_password/:token',
       name: 'Reset',
       component: ResetPasswordView,
       meta: {
