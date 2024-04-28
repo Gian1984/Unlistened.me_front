@@ -5,6 +5,9 @@ import {
   TrashIcon,
 } from '@heroicons/vue/24/outline'
 import Footer from '../components/Footer.vue'
+import {useAuthStore} from "@/stores/authStore.js";
+import { useMessageStore } from '@/stores/messageStore'
+
 </script>
 
 <template>
@@ -79,7 +82,12 @@ export default {
         this.favorites = response.data
 
       } catch (error) {
-        console.error('Login error', error);
+
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Yours session has expire due to lack of activity.')
+          this.$router.push({ name: 'Login' });
 
       }
     },
@@ -97,7 +105,19 @@ export default {
 
       } catch (error) {
 
-        console.error('Error removing', error);
+        if (error.response.status === 401) {
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Yours session has expire due to lack of activity.')
+          this.$router.push({ name: 'Login' });
+        } else {
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Something went wrong, please try again.')
+          this.$router.push({ name: 'Login' });
+        }
 
       }
     },

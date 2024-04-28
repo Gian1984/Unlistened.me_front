@@ -1,5 +1,7 @@
 <script setup>
 import { XCircleIcon } from '@heroicons/vue/20/solid'
+import { useAuthStore } from '@/stores/authStore';
+import { useMessageStore } from '@/stores/messageStore';
 </script>
 
 <template>
@@ -7,6 +9,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
+      <p v-if="message" class="mt-5 text-center text-white font-bold">{{ message }}</p>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -30,7 +33,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
           </div>
         </div>
 
-        <div v-if="errorLogin" class="rounded-md bg-red-50 p-4">
+        <div v-if="errors" class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <button v-on:click="closeAlert()" type="button">
@@ -41,7 +44,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
               <h3 class="text-sm font-medium text-red-800">Error</h3>
               <div class="mt-2 text-sm text-red-700">
                 <ul role="list" class="list-disc space-y-1 pl-5">
-                  <li>{{errorLogin.error}}</li>
+                  <li>{{errors.error}}</li>
                 </ul>
               </div>
             </div>
@@ -49,7 +52,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
         </div>
 
         <div>
-          <button @click="login" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign in</button>
+          <button @click="login" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Login</button>
         </div>
       </div>
 
@@ -64,14 +67,20 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
 <script>
 
 const base_Url = import.meta.env.VITE_BASE_URL
-import { useAuthStore } from '@/stores/authStore';
+
 export default {
   data() {
     return {
       email: '',
       password: '',
-      errorLogin: false,
+      errors: false,
     };
+  },
+  computed: {
+    message() {
+      const messageStore = useMessageStore()
+      return messageStore.message
+    }
   },
   methods: {
     async login() {
@@ -85,18 +94,18 @@ export default {
           password: this.password
         });
 
-        console.log('Login successful', response.data);
         const authStore = useAuthStore();
         authStore.setUser(response.data.user);
+        const messageStore = useMessageStore();
+        messageStore.clearMessage();
         this.$router.push('/');
       } catch (error) {
-        console.error('Login error', error);
-        this.errorLogin = error.response.data
+        this.errors = error.response.data
       }
     },
 
     closeAlert: function () {
-      this.errorLogin = '';
+      this.errors = '';
     },
   }
 };
