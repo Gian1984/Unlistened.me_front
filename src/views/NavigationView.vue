@@ -24,9 +24,6 @@ import {
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
 let authStore = useAuthStore();
-console.log(authStore)
-
-
 
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },

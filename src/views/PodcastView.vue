@@ -68,10 +68,10 @@ import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
                       </p>
                     </div>
                     <div class="text-sm leading-6 flex">
-                      <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                      <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
                         <play-icon class="h-5 w-5" />
                       </router-link>
-                      <button @click="addFavourite(podcast.id, podcast.title)" class="bg-pink-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                      <button @click="addFavourite(podcast.id, podcast.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                         <StarIcon class="h-5 w-5" />
                       </button>
                     </div>
@@ -79,7 +79,7 @@ import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
                 </div>
               </div>
             </article>
-            <button class="text-gray-600" v-if="visibleCount < podcasts.length" @click="loadMore">Load More</button>
+            <button class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex" v-if="visibleCount < podcasts.length" @click="loadMore">Load More</button>
           </div>
         </div>
       </div>

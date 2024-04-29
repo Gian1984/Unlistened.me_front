@@ -1,6 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import {BookmarkIcon, PlayIcon} from "@heroicons/vue/24/outline/index.js";
+import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon} from "@heroicons/vue/24/outline/index.js";
 </script>
 <template>
   <div class="bg-white py-24 sm:py-32">
@@ -59,11 +59,14 @@ import {BookmarkIcon, PlayIcon} from "@heroicons/vue/24/outline/index.js";
               <div class="mt-6 flex border-b border-gray-900/5 pt-3 pb-6">
                 <div class="relative flex items-center gap-x-4">
                   <div class="text-sm leading-6 flex">
-                    <button @click="playEpisode(episode)" class="bg-pink-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                    <button @click="playEpisode(episode)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
                       <play-icon class="h-5 w-5" />
                     </button>
-                    <button @click="addBookmarks(episode.id, episode.title)" class="bg-pink-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                    <button @click="addBookmarks(episode.id, episode.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                       <BookmarkIcon class="h-5 w-5"/>
+                    </button>
+                    <button @click="downloadPodcast(episode.title, episode.enclosureUrl)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                      <ArrowDownTrayIcon class="h-5 w-5"/>
                     </button>
                   </div>
                 </div>
@@ -105,6 +108,7 @@ export default {
     this.fetchPodcastInfo(podcastId);
     this.fetchEpisodes(podcastId);
   },
+
   methods: {
     loadMore() {
       const increment = 5; // Number of podcasts to add each time
@@ -120,7 +124,6 @@ export default {
     fetchEpisodes(podcastId) {
       this.axios.get(base_Url+`api/podcast_episodes/${podcastId}`)
           .then(response => {
-            console.log(response.data.items)
             this.episodes = response.data.items;
           })
           .catch(error => {
@@ -131,12 +134,33 @@ export default {
     fetchPodcastInfo(podcastId) {
       this.axios.get(base_Url+`api/podcast_info/${podcastId}`)
           .then(response => {
-            console.log('PodcastInfo',response.data.feed)
             this.podcastInfo = response.data.feed;
           })
           .catch(error => {
             console.error('Error fetching episodes:', error);
           });
+    },
+
+    downloadPodcast(title, url) {
+      const sanitizedTitle = this.sanitizeFilename(title) + '.mp3';
+
+      const link = document.createElement('a');
+      link.href = url;
+
+      link.setAttribute('download', sanitizedTitle); // Suggests a filename to save as
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    sanitizeFilename(title) {
+      // Strip any HTML tags
+      let cleanTitle = title.replace(/<\/?[^>]+(>|$)/g, "");
+      // Remove characters that are not allowed in filenames
+      cleanTitle = cleanTitle.replace(/[\?\*\/\\\|:"<>]+/g, '');
+      // Trim whitespace and replace spaces with underscores
+      cleanTitle = cleanTitle.trim().replace(/\s+/g, '_');
+      return cleanTitle;
     },
 
     async addBookmarks(episodeId, episodeTitle) {
@@ -149,7 +173,6 @@ export default {
           episode_id: episodeId,
           title: episodeTitle,
         });
-        console.log(' successful', response.data);
 
       } catch (error) {
 
