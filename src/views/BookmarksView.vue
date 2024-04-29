@@ -99,13 +99,13 @@ export default {
         this.bookmarks = response.data
 
       } catch (error) {
-
-        const authStore = useAuthStore();
-        authStore.clearUser();
-        const messageStore = useMessageStore()
-        messageStore.setMessage('Yours session has expire due to lack of activity.')
-        this.$router.push({ name: 'Login' });
-
+        if (error.response.status === 401) {
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Yours session has expire due to lack of activity.')
+          this.$router.push({name: 'Login'});
+        }
       }
     },
     async deleteBookmark(episodeId, index) {
