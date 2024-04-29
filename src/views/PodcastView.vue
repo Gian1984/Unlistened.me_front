@@ -113,7 +113,6 @@ export default {
       this.axios.get(base_Url + 'api/index')
           .then(response => {
             this.podcasts= response.data.feeds
-            console.log(this.podcasts)
             this.loading = false;
           })
           .catch(error => {
@@ -137,7 +136,6 @@ export default {
           podcast_id: podcastId,
           title: podcastTitle,
         });
-        console.log(' successful', response.data);
 
       } catch (error) {
 

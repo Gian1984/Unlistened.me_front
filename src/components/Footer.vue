@@ -3,12 +3,10 @@ import {defineComponent, h} from "vue";
 
 const FooterNavigation = {
   main: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Jobs', href: '#' },
-    { name: 'Press', href: '#' },
-    { name: 'Accessibility', href: '#' },
-    { name: 'Partners', href: '#' },
+    { name: 'About', href: '/about', current: false },
+    { name: 'Podcasts', href: '/podcast_listing', current: false },
+    { name: 'Favourites', href: '/favourites', current: false },
+    { name: 'Bookmarks', href: '/bookmarks', current: false },
   ],
   social: [
     {
@@ -83,11 +81,13 @@ const FooterNavigation = {
 }
 </script>
 <template>
-  <div class="bg-white">
+  <div class="bg-white border-t-gray-100 border-2">
     <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
       <nav class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12" aria-label="Footer">
         <div v-for="item in FooterNavigation.main" :key="item.name" class="pb-6">
-          <a :href="item.href" class="text-sm leading-6 text-gray-600 hover:text-gray-900">{{ item.name }}</a>
+          <router-link :to="item.href" :class="[$route.path === item.href ? 'text-indigo-600 font-bold' : 'text-gray-600 hover:text-pink-500']">
+            {{ item.name }}
+          </router-link>
         </div>
       </nav>
       <div class="mt-10 flex justify-center space-x-10">
