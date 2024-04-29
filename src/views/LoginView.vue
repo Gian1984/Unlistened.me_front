@@ -10,6 +10,7 @@ import { useMessageStore } from '@/stores/messageStore';
       <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
       <p v-if="message" class="mt-5 text-center text-white font-bold">{{ message }}</p>
+      <p v-if="loginMessage" class="mt-5 text-center text-white font-bold">{{ loginMessage }}</p>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -55,12 +56,7 @@ import { useMessageStore } from '@/stores/messageStore';
           <button @click="login" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Login</button>
         </div>
       </div>
-
-      <p class="mt-10 text-center text-sm text-gray-400">
-        Not a member?
-        {{ ' ' }}
-        <a href="#" class="font-semibold leading-6 text-indigo-400 hover:text-indigo-300">Start a 14 day free trial</a>
-      </p>
+      
     </div>
   </div>
 </template>
@@ -80,6 +76,10 @@ export default {
     message() {
       const messageStore = useMessageStore()
       return messageStore.message
+    },
+    loginMessage(){
+      const loginMessage = useAuthStore()
+      return loginMessage.loginMessage
     }
   },
   methods: {
@@ -98,8 +98,14 @@ export default {
         authStore.setUser(response.data.user);
         const messageStore = useMessageStore();
         messageStore.clearMessage();
+        const loginMessage = useAuthStore()
+        loginMessage.clearLoginMessage()
         this.$router.push('/');
       } catch (error) {
+        const messageStore = useMessageStore();
+        messageStore.clearMessage();
+        const loginMessage = useAuthStore()
+        loginMessage.clearLoginMessage()
         this.errors = error.response.data
       }
     },

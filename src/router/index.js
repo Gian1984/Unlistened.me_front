@@ -12,6 +12,7 @@ import BookmarksView from "../views/BookmarksView.vue"
 import ForgotPasswordView from "../views/ForgotPasswordView.vue"
 import ResetPasswordView from "../views/ResetPasswordView.vue";
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -409,6 +410,7 @@ router.beforeEach((to, from, next) => {
       const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
       if (requiresAuth && !authStore.isAuthenticated) {
+        authStore.setLoginMessage('To access this page you have to be logged in.');
         next({ name: 'Login' });
       } else {
         next();

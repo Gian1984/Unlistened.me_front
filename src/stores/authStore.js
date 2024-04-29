@@ -5,6 +5,7 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         isAuthenticated: false,
         user: null,
+        loginMessage: '',
     }),
     actions: {
         initializeAuth() {
@@ -24,6 +25,12 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false;
             this.user = null;
             localStorage.removeItem('auth');
+        },
+        setLoginMessage(loginMessage) {
+            this.loginMessage = loginMessage;
+        },
+        clearLoginMessage() {
+            this.loginMessage = null;
         }
     },
 });
