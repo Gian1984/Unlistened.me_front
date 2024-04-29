@@ -1,6 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
+import { StarIcon, ArrowRightIcon } from '@heroicons/vue/24/outline/index.js'
 </script>
 <template>
 
@@ -8,8 +8,8 @@ import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
   <div v-if="loading">
     <div class="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
       <div class="text-center">
-        <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">We are looking for</h1>
-        <p class="mt-6 text-base leading-7 text-gray-600">the most listened podcasts for you.</p>
+        <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Hang tight!</h1>
+        <p class="mt-6 text-base leading-7 text-gray-900">We're scouring the high seas for the latest updates to bring you the freshest podcast treasures.</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <button type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-indigo-700 bg-white hover:bg-white transition ease-in-out duration-150 cursor-not-allowed" disabled="">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -27,8 +27,16 @@ import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
     <div class="bg-white py-24 sm:py-32">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:max-w-4xl">
-          <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">From the blog</h2>
-          <p class="mt-2 text-lg leading-8 text-gray-600">Learn how to grow your business with our expert advice.</p>
+          <h2 class="mb-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Dive into</h2>
+          <p class="mt-2 text-lg leading-8 text-gray-900">
+            Here, you can browse through our comprehensive list of podcast feeds,
+            featuring a variety of genres that cater to all tastes and interests.
+            <br><br>
+            Whether you're in the mood for thrilling mysteries, educational content, or light-hearted comedy,
+            our expansive library has something for everyone.
+            Dive in, explore at your leisure, and uncover new favorites that resonate with your unique preferences.
+            Happy listening!
+          </p>
           <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
             <article v-for="(podcast, index) in visiblePodcasts" :key="podcast.id"  class="relative isolate flex flex-col gap-8 lg:flex-row">
               <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
@@ -68,12 +76,12 @@ import { StarIcon, PlayIcon } from '@heroicons/vue/24/outline/index.js'
                       </p>
                     </div>
                     <div class="text-sm leading-6 flex">
-                      <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
-                        <play-icon class="h-5 w-5" />
-                      </router-link>
                       <button @click="addFavourite(podcast.id, podcast.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                         <StarIcon class="h-5 w-5" />
                       </button>
+                      <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                        <ArrowRightIcon class="h-5 w-5" />
+                      </router-link>
                     </div>
                   </div>
                 </div>

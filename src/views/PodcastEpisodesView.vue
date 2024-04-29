@@ -1,6 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon} from "@heroicons/vue/24/outline/index.js";
+import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
 </script>
 <template>
   <div class="bg-white py-24 sm:py-32">
@@ -31,7 +31,9 @@ import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon} from "@heroicons/vue/24/outli
                 <div class="relative flex items-center gap-x-4">
                   <img :src="podcastInfo.image" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                   <div class="text-sm leading-6 flex">
-
+                    <button @click="addFavourite(podcastInfo.id, podcastInfo.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                      <StarIcon class="h-5 w-5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -139,6 +141,24 @@ export default {
           .catch(error => {
             console.error('Error fetching episodes:', error);
           });
+    },
+
+    async addFavourite(podcastId, podcastTitle) {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const response = await this.axios.post(base_Url + 'api/add-favorite', {
+          podcast_id: podcastId,
+          title: podcastTitle,
+        });
+
+      } catch (error) {
+
+        console.error('Login error', error);
+
+      }
     },
 
     downloadPodcast(title, url) {
