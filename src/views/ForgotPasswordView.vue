@@ -5,7 +5,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
 <template>
   <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Your Company" />
+      <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo" />
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Reset Your Password</h2>
     </div>
 
@@ -36,6 +36,24 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
           </div>
         </div>
 
+        <div v-if="validation" class="rounded-md bg-green-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <button v-on:click="closeAlert()" type="button">
+                <XCircleIcon class="h-5 w-5 text-green-800" aria-hidden="true" />
+              </button>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-green-800">Success!</h3>
+              <div class="mt-2 text-sm text-green-700">
+                <ul role="list" class="list-disc space-y-1 pl-5">
+                  <li>{{validation}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div>
           <button @click="reset" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
             Proceed
@@ -49,7 +67,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
 <script>
 
 const base_Url = import.meta.env.VITE_BASE_URL
-import { useAuthStore } from '@/stores/authStore';
 export default {
   data() {
     return {
@@ -69,7 +86,6 @@ export default {
 
         this.axios.post(base_Url+'api/forgot-password',{email}).then(response=>{
           this.validation = response.data.message
-          console.log(response)
         }).catch((error)=>{
           this.errors = error
         });
@@ -86,18 +102,18 @@ export default {
         const response = await this.axios.post(base_Url+'api/forgot-password', {
           email: this.email,
         });
-
-        console.log('Login successful', response.data);
-
+        this.email = ''
+        this.validation = response.data.message
 
       } catch (error) {
-        console.error('Login error', error);
-        this.errors = error.response.data
+        this.email = ''
+        this.errors = error.response.data.message
       }
     },
 
     closeAlert: function () {
-      this.errorLogin = '';
+      this.errors = '';
+      this.validation = '';
     },
   }
 };

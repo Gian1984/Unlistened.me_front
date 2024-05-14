@@ -6,7 +6,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
   <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Your Company" />
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
+      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Select new password</h2>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -117,7 +117,7 @@ export default {
         if (this.password !== this.password_confirmation || this.password.length <= 0) {
           this.password = ""
           this.password_confirmation = ""
-          return alert('Passwords do not match')
+          this.errors = 'Passwords do not match'
         }
 
         let email = this.email
@@ -131,11 +131,10 @@ export default {
           password_confirmation: password_confirmation,
           token: token
         });
-        console.log(response.data)
-        //this.$router.push({name: 'Login'})
+
+        this.$router.push({name: 'Login'})
 
       } catch (error) {
-          console.error('Login error', error);
           this.errors = error.response.data
           this.password = ''
         }

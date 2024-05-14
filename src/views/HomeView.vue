@@ -1,10 +1,13 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import { CheckCircleIcon, InformationCircleIcon } from '@heroicons/vue/20/solid'
+import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 </script>
 <template>
-  <div class="bg-white px-6 py-32 lg:px-8">
+  <div class="bg-white px-6 py-24 lg:px-8">
     <div class="mx-auto max-w-3xl text-base leading-7 text-gray-700">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
+        <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+      </div>
       <p class="text-base font-semibold leading-7 text-indigo-600">Introducing</p>
       <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Unlistened.me</h1>
       <p class="mt-6 text-xl leading-8 text-gray-900">
