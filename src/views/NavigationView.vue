@@ -76,17 +76,7 @@ const sidebarOpen = ref(false)
                         </li>
                       </ul>
                     </li>
-                    <li>
-                      <div class="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                      <ul role="list" class="-mx-2 mt-2 space-y-1">
-                        <li v-for="team in teams" :key="team.name">
-                          <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">{{ team.initial }}</span>
-                            <span class="truncate">{{ team.name }}</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
+
                     <li class="mt-auto">
                       <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
                         <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
@@ -118,17 +108,6 @@ const sidebarOpen = ref(false)
                     <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                     {{ item.name }}
                   </router-link>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <div class="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-              <ul role="list" class="-mx-2 mt-2 space-y-1">
-                <li v-for="team in teams" :key="team.name">
-                  <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">{{ team.initial }}</span>
-                    <span class="truncate">{{ team.name }}</span>
-                  </a>
                 </li>
               </ul>
             </li>
@@ -185,16 +164,16 @@ const sidebarOpen = ref(false)
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                   <MenuItem v-if="!authStore.user">
-                    <router-link  to="/signin" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:text-indigo-600">Sign in</router-link>
+                    <router-link  to="/signin" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Sign in</router-link>
                   </MenuItem>
                   <MenuItem v-if="authStore.user">
-                    <router-link  to="/profile" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>
+                    <router-link  to="/profile" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>
                   </MenuItem>
                   <MenuItem v-if="!authStore.user">
-                    <router-link  to="/login" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:text-indigo-600">Login</router-link>
+                    <router-link  to="/login" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Login</router-link>
                   </MenuItem>
                   <MenuItem v-if="authStore.user">
-                    <button  class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:text-indigo-600" @click="logout">Sign out</button>
+                    <button  class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600" @click="logout">Sign out</button>
                   </MenuItem>
                 </MenuItems>
               </transition>
