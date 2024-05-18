@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
 import HomeView from '../views/HomeView.vue'
-import AboutView from "@/views/AboutView.vue";
+import AboutView from "../views/AboutView.vue";
 import PodcastEpisodesView from '../views/PodcastEpisodesView.vue'
 import PodcastView from "../views/PodcastView.vue";
 import SearchResultView from "../views/SearchResultView.vue";
@@ -11,6 +11,7 @@ import FavouritesView from "../views/FavouritesView.vue"
 import BookmarksView from "../views/BookmarksView.vue"
 import ForgotPasswordView from "../views/ForgotPasswordView.vue"
 import ResetPasswordView from "../views/ResetPasswordView.vue";
+import SettingsView from "@/views/SettingsView.vue";
 
 
 const router = createRouter({
@@ -22,28 +23,27 @@ const router = createRouter({
       component: HomeView,
       meta: {
         requiresAuth: false,
-        title: "L'Artigiano della Farina - Home",
+        title: "Unlistened - Home",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Discover new podcasts on Unlistened, a free podcast app without cookies or profiling."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Home"
+            content: "Unlistened - Home"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Discover new podcasts on Unlistened, a free podcast app without cookies or profiling."
           }
         ]
       }
@@ -55,10 +55,9 @@ const router = createRouter({
       meta: {
         title: "Unlistened - Podcasts",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Browse and listen to a variety of podcasts on Unlistened. Enjoy your favorite shows without tracking."
           },
           {
             name: 'og:title',
@@ -66,15 +65,15 @@ const router = createRouter({
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/podcast_listing"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Browse and listen to a variety of podcasts on Unlistened. Enjoy your favorite shows without tracking."
           }
         ]
       }
@@ -84,60 +83,57 @@ const router = createRouter({
       name: 'episodes',
       component: PodcastEpisodesView,
       meta: {
-        title: "L'Artigiano della Farina - Accueil",
+        title: "Unlistened - Podcast Episodes",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Podcast Episodes"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/podcast/:id"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
           }
         ]
       }
     },
-
     {
       path: '/search-results',
       name: 'SearchResults',
       component: SearchResultView,
       meta: {
-        title: "L'Artigiano della Farina - Search",
+        title: "Unlistened - Search Results",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Find your favorite podcasts with Unlistened's powerful search feature."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Search Results"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/search-results"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Find your favorite podcasts with Unlistened's powerful search feature."
           }
         ]
       }
@@ -147,28 +143,27 @@ const router = createRouter({
       name: 'Login',
       component: LoginView,
       meta: {
-        title: "L'Artigiano della Farina - Accueil",
+        title: "Unlistened - Login",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Log in to Unlistened to access your favorite podcasts and bookmarks."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Login"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/login"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Log in to Unlistened to access your favorite podcasts and bookmarks."
           }
         ]
       }
@@ -178,28 +173,27 @@ const router = createRouter({
       name: 'SignIn',
       component: SignInView,
       meta: {
-        title: "L'Artigiano della Farina - Accueil",
+        title: "Unlistened - Sign In",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Sign in to Unlistened to save your favorite podcasts and access them anytime."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Sign In"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/signin"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Sign in to Unlistened to save your favorite podcasts and access them anytime."
           }
         ]
       }
@@ -210,28 +204,27 @@ const router = createRouter({
       component: FavouritesView,
       meta: {
         requiresAuth: true,
-        title: "Favourites - Unreaded.me",
+        title: "Unlistened - Favourites",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Access your favorite podcasts on Unlistened. Log in to save and retrieve your favorites."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Favourites"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/favourites"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Access your favorite podcasts on Unlistened. Log in to save and retrieve your favorites."
           }
         ]
       }
@@ -242,28 +235,27 @@ const router = createRouter({
       component: BookmarksView,
       meta: {
         requiresAuth: true,
-        title: "Bookmarks - Unreaded.me",
+        title: "Unlistened - Bookmarks",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Bookmark your favorite podcast episodes on Unlistened for easy access later."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Bookmarks"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/bookmarks"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Bookmark your favorite podcast episodes on Unlistened for easy access later."
           }
         ]
       }
@@ -273,28 +265,27 @@ const router = createRouter({
       name: 'About',
       component: AboutView,
       meta: {
-        title: "About - Unlistened.me",
+        title: "About Unlistened",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Learn more about Unlistened, the free podcast app that respects your privacy."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "About Unlistened"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/about"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Learn more about Unlistened, the free podcast app that respects your privacy."
           }
         ]
       }
@@ -304,28 +295,27 @@ const router = createRouter({
       name: 'Forgot',
       component: ForgotPasswordView,
       meta: {
-        title: "Forgot password - Unlistened.me",
+        title: "Unlistened - Forgot Password",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Reset your password on Unlistened to regain access to your account."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Forgot Password"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/forgot_password"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Reset your password on Unlistened to regain access to your account."
           }
         ]
       }
@@ -335,33 +325,62 @@ const router = createRouter({
       name: 'Reset',
       component: ResetPasswordView,
       meta: {
-        title: "Reset Password - Unlistened.me",
+        title: "Unlistened - Reset Password",
         metaTags: [
-
           {
             name: 'description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Reset your password on Unlistened using the link sent to your email."
           },
           {
             name: 'og:title',
-            content: "L'Artigiano della Farina - Accueil"
+            content: "Unlistened - Reset Password"
           },
           {
             name: 'og:url',
-            content: "https://www.artigianodellafarina.be"
+            content: "https://www.unlistened.me/reset_password/:token"
           },
           {
             name: 'og:type',
-            content: "website/homepage"
+            content: "website"
           },
           {
             property: 'og:description',
-            content: "Célébrant l'art de la boulangerie, L'Artigiano della Farina propose une expérience culinaire extraordinaire, transformant avec amour la farine en pizzas et sandwiches sublimes, un véritable voyage de saveurs authentiques."
+            content: "Reset your password on Unlistened using the link sent to your email."
           }
         ]
       }
     },
-
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: SettingsView,
+      meta: {
+        requiresAuth: true,
+        title: "Unlistened - Settings",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Manage your account settings on Unlistened. Customize your experience and preferences."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Settings"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/settings"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Manage your account settings on Unlistened. Customize your experience and preferences."
+          }
+        ]
+      }
+    }
   ],
 
   scrollBehavior(to, from, savedPosition) {
