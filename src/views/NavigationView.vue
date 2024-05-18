@@ -12,7 +12,6 @@ import {
 } from '@headlessui/vue'
 import {
   Bars3Icon,
-  BellIcon,
   Cog6ToothIcon,
   StarIcon,
   FolderIcon,
@@ -111,11 +110,11 @@ const sidebarOpen = ref(false)
                 </li>
               </ul>
             </li>
-            <li class="mt-auto">
-              <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
+            <li v-if="authStore.user" class="mt-auto">
+              <router-link   to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
                 <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                 Settings
-              </a>
+              </router-link>
             </li>
           </ul>
         </nav>
@@ -136,9 +135,9 @@ const sidebarOpen = ref(false)
           <div class="relative flex flex-1">
             <label for="search-field" class="sr-only">Search</label>
             <button @click="onSearchClick">
-              <MagnifyingGlassIcon class=" absolute inset-y-0 left-0 h-full w-5 text-gray-400" />
+              <MagnifyingGlassIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" />
             </button>
-            <input id="search-field" v-model="searchQuery" class="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search" />
+            <input id="search-field" v-model="searchQuery" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
 
@@ -167,7 +166,7 @@ const sidebarOpen = ref(false)
                     <router-link  to="/signin" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Sign in</router-link>
                   </MenuItem>
                   <MenuItem v-if="authStore.user">
-                    <router-link  to="/profile" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>
+                    <router-link  to="/settings" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>
                   </MenuItem>
                   <MenuItem v-if="!authStore.user">
                     <router-link  to="/login" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Login</router-link>
@@ -211,3 +210,22 @@ export default {
 
 };
 </script>
+
+<style scoped>
+input:-webkit-autofill,
+input:-webkit-autofill:enabled,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:enabled,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:enabled,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  background-color: #ffffff;
+}
+</style>

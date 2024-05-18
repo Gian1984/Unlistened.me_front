@@ -1,9 +1,11 @@
 <script setup>
 import {
-  PlayIcon,
-  BookmarkIcon,
+  ArrowRightIcon,
   TrashIcon,
 } from '@heroicons/vue/24/outline'
+import {
+  BookmarkIcon,
+} from '@heroicons/vue/24/solid'
 import Footer from '../components/Footer.vue'
 import {useAuthStore} from "@/stores/authStore.js";
 import { useMessageStore } from '@/stores/messageStore'
@@ -12,6 +14,9 @@ import { useMessageStore } from '@/stores/messageStore'
 <template>
   <div class="bg-white px-6 py-24 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-7xl">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-12">
+        <img class="mx-auto h-24 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+      </div>
       <p class="text-base font-semibold leading-7 text-indigo-600">Your Treasure Trove of Tunes & Talks</p>
       <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">& Bookmarks</h2>
       <p class="mt-6 text-lg leading-8 text-gray-900">
@@ -25,7 +30,7 @@ import { useMessageStore } from '@/stores/messageStore'
   </div>
 
   <div v-if="bookmarks" class="bg-white px-6 pb-24 sm:pb-32 lg:px-8">
-    <div v-for="(bookmark, index) in bookmarks" :key="bookmark.id" class="bg-indigo-600 border-solid border-4 border-white">
+    <div v-for="(bookmark, index) in bookmarks" :key="bookmark.id" class="bg-indigo-600 border-solid border-4 border-white rounded-2xl">
       <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
         <div class="flex flex-wrap items-center justify-between">
           <div class="flex w-0 flex-1 items-center">
@@ -37,14 +42,14 @@ import { useMessageStore } from '@/stores/messageStore'
             </p>
           </div>
           <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-            <router-link :to="'/podcast/' + bookmark.episode_id" type="button" class="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow-sm hover:bg-indigo-50 w-full">
-              <play-icon class="h-6 text-indigo-800" aria-hidden="true" />
+            <router-link :to="'/podcast/' + bookmark.episode_id" type="button" class="py-2 px-4 mx-1 rounded-full flex items-center justify-center border border-transparent bg-white text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white w-full">
+              <ArrowRightIcon class="h-6" aria-hidden="true" />
             </router-link>
           </div>
           <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-            <button @click="deleteBookmark(bookmark.episode_id, index)" type="button" class="-mr-1 flex rounded-md p-2 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2">
+            <button @click="deleteBookmark(bookmark.episode_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
               <span class="sr-only">Dismiss</span>
-              <TrashIcon class="h-6 w-6 text-white" aria-hidden="true" />
+              <TrashIcon class="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
         </div>

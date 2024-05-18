@@ -29,12 +29,12 @@ import { StarIcon, ArrowRightIcon } from '@heroicons/vue/24/outline/index.js'
   <div v-else>
     <div class="bg-white py-24 sm:py-32">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
-          <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-12">
+          <img class="mx-auto h-24 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
         </div>
         <div class="mx-auto max-w-2xl lg:max-w-4xl">
-          <h2 class="mb-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Dive into</h2>
-          <p class="mt-2 text-lg leading-8 text-gray-900">
+          <h1 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Dive into</h1>
+          <p class="mt-2 text-lg leading-6 text-gray-900">
             Here, you can browse through our comprehensive list of podcast feeds,
             featuring a variety of genres that cater to all tastes and interests.
             <br><br>
