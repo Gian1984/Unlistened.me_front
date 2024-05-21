@@ -2,6 +2,7 @@
 import {TrashIcon, PaperAirplaneIcon} from "@heroicons/vue/24/outline/index.js";
 import {ArrowPathIcon} from "@heroicons/vue/24/solid/index.js";
 import {useAuthStore} from "@/stores/authStore.js";
+import {XCircleIcon} from "@heroicons/vue/20/solid/index.js";
 let authStore = useAuthStore();
 </script>
 <template>
@@ -36,6 +37,54 @@ let authStore = useAuthStore();
               <label for="email" class="sr-only">Email address</label>
               <div class="mt-2">
                 <input v-model="email" id="email" name="email" type="email" :placeholder="authStore.user.email" autocomplete="email" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
+              </div>
+            </div>
+          </dd>
+        </div>
+        <div v-if="successUpdate" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm font-medium leading-6 text-gray-900">Success</dt>
+          <dd class="mt-1 sm:col-span-2 sm:mt-0">
+            <div class="max-w-xl">
+              <div class="rounded-md bg-green-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <button v-on:click="closeAlert()" type="button">
+                      <XCircleIcon class="h-5 w-5 text-green-800" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                      <ul role="list" class="list-disc space-y-1 pl-5">
+                        <li>{{successUpdate}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dd>
+        </div>
+        <div v-if="errorUpdate" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm font-medium leading-6 text-gray-900">Error</dt>
+          <dd class="mt-1 sm:col-span-2 sm:mt-0">
+            <div class="max-w-xl">
+              <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <button v-on:click="closeAlert()" type="button">
+                      <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                      <ul role="list" class="list-disc space-y-1 pl-5">
+                        <li>{{errorUpdate}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </dd>
@@ -81,6 +130,54 @@ let authStore = useAuthStore();
             </div>
           </dd>
         </div>
+        <div v-if="successFaq" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm font-medium leading-6 text-gray-900">Success</dt>
+          <dd class="mt-1 sm:col-span-2 sm:mt-0">
+            <div class="max-w-xl">
+              <div class="rounded-md bg-green-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <button v-on:click="closeAlert()" type="button">
+                      <XCircleIcon class="h-5 w-5 text-green-800" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                      <ul role="list" class="list-disc space-y-1 pl-5">
+                        <li>{{successFaq}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dd>
+        </div>
+        <div v-if="errorFaq" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm font-medium leading-6 text-gray-900">Error</dt>
+          <dd class="mt-1 sm:col-span-2 sm:mt-0">
+            <div class="max-w-xl">
+              <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <button v-on:click="closeAlert()" type="button">
+                      <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                      <ul role="list" class="list-disc space-y-1 pl-5">
+                        <li>{{errorFaq}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dd>
+        </div>
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
           <dt class="text-sm font-medium leading-6 text-gray-900">Send</dt>
           <dd class="mt-1 sm:col-span-2 sm:mt-0">
@@ -117,25 +214,87 @@ let authStore = useAuthStore();
 </template>
 
 <script>
+const base_Url = import.meta.env.VITE_BASE_URL
 export default {
   data() {
     return {
         username: '',
         email: '',
+        successUpdate:'',
+        errorUpdate:'',
         object: '',
-        description: ''
+        description: '',
+        successFaq:'',
+        errorFaq:'',
     };
   },
   methods: {
-    updateAccount() {
-      console.log('Update');
+    async updateAccount() {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const authStore = useAuthStore();
+
+        const payload = {};
+        if (this.username) {
+          payload.name = this.username;
+        }
+        if (this.email) {
+          payload.email = this.email;
+        }
+
+        const response = await this.axios.post(base_Url +'api/update_user', payload);
+        authStore.updateUser(payload);
+        this.successUpdate = response.data.message;
+        this.errorUpdate = '';
+      } catch (error) {
+        if (error.response && error.response.data && error.response.data.errors) {
+          this.errorUpdate = Object.values(error.response.data.errors).join(', ');
+        } else {
+          this.errorUpdate = 'There was an error updating your information. Please try again.';
+        }
+        this.successUpdate = '';
+        console.error('Update error', error);
+      }
     },
-    sendReq() {
-      console.log('sentReq', this.form);
+    async sendReq() {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const response = await this.axios.post(base_Url + 'api/new-faq', {
+          message_obj:this.object,
+          message_desc:this.description,
+        });
+
+        this.successFaq = 'Your message has been sent successfully.';
+        this.errorFaq = ''; // Clear any previous error message
+
+        this.object = '';
+        this.description= '';
+
+      } catch (error) {
+        this.errorFaq = 'There was an error sending your message. Please try again.';
+        this.successFaq = ''; // Clear any previous success message
+
+        this.object = '';
+        this.description= '';
+        console.error('Login error', error);
+
+      }
     },
     deleteAccount(){
-
-    }
+      console.log('sentReq');
+    },
+    closeAlert: function () {
+      this.errorFaq = '';
+      this.successFaq = '';
+      this.successUpdate = '';
+      this.errorUpdate = '';
+    },
   }
 };
 </script>

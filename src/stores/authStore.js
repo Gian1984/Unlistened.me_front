@@ -21,6 +21,12 @@ export const useAuthStore = defineStore('auth', {
             this.user = user;
             localStorage.setItem('auth', JSON.stringify({ isAuthenticated: true, user }));
         },
+        updateUser(updatedData) {
+            if (this.user) {
+                this.user = { ...this.user, ...updatedData };
+                localStorage.setItem('auth', JSON.stringify({ isAuthenticated: this.isAuthenticated, user: this.user }));
+            }
+        },
         clearUser() {
             this.isAuthenticated = false;
             this.user = null;
