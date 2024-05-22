@@ -31,11 +31,6 @@ const navigation = [
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
   { name: 'About', href: '/about', icon: UsersIcon, current: false },
 ]
-const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-]
 
 const sidebarOpen = ref(false)
 </script>
@@ -68,19 +63,18 @@ const sidebarOpen = ref(false)
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.name">
-                          <router-link :to="item.href" :class="[ $route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
+                          <router-link :to="item.href" :class="[ $route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" @click.native="sidebarOpen = false">
                             <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                             {{ item.name }}
                           </router-link>
                         </li>
                       </ul>
                     </li>
-
-                    <li class="mt-auto">
-                      <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
+                    <li v-if="authStore.user" class="mt-auto">
+                      <router-link to="/settings"  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
                         <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                         Settings
-                      </a>
+                      </router-link>
                     </li>
                   </ul>
                 </nav>
@@ -141,13 +135,13 @@ const sidebarOpen = ref(false)
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
 
-            <!-- <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+             <router-link to="/" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 lg:hidden">
               <span class="sr-only">View notifications</span>
-              <BellIcon class="h-6 w-6" aria-hidden="true" />
-            </button> -->
+               <img class="h-8 w-8 " src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
+            </router-link>
 
             <!-- Separator -->
-            <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true" />
+            <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
 
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
