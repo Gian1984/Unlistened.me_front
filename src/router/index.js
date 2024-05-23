@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
-import HomeView from '../views/HomeView.vue'
-import AboutView from "../views/AboutView.vue";
-import PodcastEpisodesView from '../views/PodcastEpisodesView.vue'
-import PodcastView from "../views/PodcastView.vue";
-import SearchResultView from "../views/SearchResultView.vue";
-import LoginView from "../views/LoginView.vue";
-import SignInView from "../views/SignInView.vue";
-import FavouritesView from "../views/FavouritesView.vue"
-import BookmarksView from "../views/BookmarksView.vue"
-import ForgotPasswordView from "../views/ForgotPasswordView.vue"
-import ResetPasswordView from "../views/ResetPasswordView.vue";
+import HomeView from '@/views/HomeView.vue'
+import AboutView from "@/views/AboutView.vue";
+import PodcastEpisodesView from '@/views/PodcastEpisodesView.vue'
+import PodcastView from "@/views/PodcastView.vue";
+import SearchResultView from "@/views/SearchResultView.vue";
+import LoginView from "@/views/LoginView.vue";
+import SignInView from "@/views/SignInView.vue";
+import FavouritesView from "@/views/FavouritesView.vue"
+import BookmarksView from "@/views/BookmarksView.vue"
+import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import SettingsView from "@/views/SettingsView.vue";
+import TermsView from "@/views/TermsView.vue";
 
 
 const router = createRouter({
@@ -377,6 +378,36 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Manage your account settings on Unlistened. Customize your experience and preferences."
+          }
+        ]
+      }
+    },
+    {
+      path: '/terms',
+      name: 'TermsAndConditions',
+      component: TermsView,
+      meta: {
+        title: "Unlistened - Terms and Conditions",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Read the terms and conditions of Unlistened, including content responsibility, trademarks, user information, and our non-profit service policy."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Terms and Conditions"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/terms"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Read the terms and conditions of Unlistened, including content responsibility, trademarks, user information, and our non-profit service policy."
           }
         ]
       }

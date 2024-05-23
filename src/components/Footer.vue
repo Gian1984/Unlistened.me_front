@@ -96,7 +96,17 @@ const FooterNavigation = {
           <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
         </a>
       </div>
-      <p class="mt-10 text-center text-xs leading-5 text-gray-500">&copy; 2020 Your Company, Inc. All rights reserved.</p>
+      <p class="mt-10 text-center text-xs leading-5 text-gray-500">&copy; {{ currentYear }} Unlistened.me  all rights reserved.</p>
     </div>
   </div>
 </template>
+<script>
+export default {
+  data() {
+    return {
+      currentYear: new Date().getFullYear()
+    };
+  }
+};
+</script>
+

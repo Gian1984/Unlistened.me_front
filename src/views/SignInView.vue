@@ -85,11 +85,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
         </div>
       </div>
 
-      <p class="mt-10 text-center text-sm text-gray-400">
-        Not a member?
-        {{ ' ' }}
-        <a href="#" class="font-semibold leading-6 text-indigo-400 hover:text-indigo-300">Start a 14 day free trial</a>
-      </p>
     </div>
   </div>
 
