@@ -196,13 +196,33 @@ let authStore = useAuthStore();
         If you are certain you want to proceed, please confirm your decision below. Should you have any questions or need assistance, feel free to reach out to our support team before finalizing this action.<br><br>
         Thank you for being a part of Unlistened.me. We hope to see you again in the future.
       </p>
+
+      <div v-if="errorDelete" class="max-w-xl mt-3">
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <button v-on:click="closeAlert()" type="button">
+                <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
+              </button>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul role="list" class="list-disc space-y-1 pl-5">
+                  <li>{{errorDelete}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="mt-6 border-t border-gray-100">
       <dl class="divide-y divide-gray-100">
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
           <dt class="text-sm font-medium leading-6 text-gray-900 sr-only">Delete</dt>
           <dd class="mt-1 sm:col-span-2 sm:mt-0">
-            <button @click="deleteAccount()" class="flex bg-red-500 text-white hover:bg-red-50 hover:text-gray-900 font-bold text-sm py-2 px-4 mx-1 rounded-full">
+            <button @click="deleteAccount(authStore.user)" class="flex bg-red-500 text-white hover:bg-red-50 hover:text-gray-900 font-bold text-sm py-2 px-4 mx-1 rounded-full">
               <TrashIcon class="h-5 w-5 mr-1" />
               Delete
             </button>
@@ -214,18 +234,21 @@ let authStore = useAuthStore();
 </template>
 
 <script>
+import {useAuthStore} from "@/stores/authStore.js";
+
 const base_Url = import.meta.env.VITE_BASE_URL
 export default {
   data() {
     return {
-        username: '',
-        email: '',
-        successUpdate:'',
-        errorUpdate:'',
-        object: '',
-        description: '',
-        successFaq:'',
-        errorFaq:'',
+      username: '',
+      email: '',
+      successUpdate:'',
+      errorUpdate:'',
+      object: '',
+      description: '',
+      successFaq:'',
+      errorFaq:'',
+      errorDelete:'',
     };
   },
   methods: {
@@ -286,14 +309,29 @@ export default {
 
       }
     },
-    deleteAccount(){
-      console.log('sentReq');
+    async deleteAccount(user){
+      console.log('deleteAccount',user);
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const response = await this.axios.delete(base_Url + `api/delete_users/${user.id}`);
+        const authStore = useAuthStore();
+        authStore.clearUser();
+        this.$router.push({ name: 'SignIn' });
+
+      } catch (error) {
+        console.error(error);
+        this.errorDelete = 'User not find, please try again later.'
+      }
     },
     closeAlert: function () {
       this.errorFaq = '';
       this.successFaq = '';
       this.successUpdate = '';
       this.errorUpdate = '';
+      this.errorDelete = '';
     },
   }
 };
