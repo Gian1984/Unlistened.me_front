@@ -27,7 +27,7 @@ const jobOpenings = [
       <div class="mx-auto flex max-w-2xl flex-col items-end justify-between gap-16 lg:mx-0 lg:max-w-none lg:flex-row">
         <div class="w-full lg:max-w-lg lg:flex-auto">
           <p class="text-base font-semibold leading-7 text-indigo-600">About</p>
-          <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Unlistened.me</h1>
+          <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Unlistened.me</h1>
           <p class="mt-6 text-xl leading-8 text-gray-900">Welcome to Unlistened.me, a podcast player designed to enhance your listening experience. Whether you're a podcast enthusiast or a casual listener, Unlistened.me offers a seamless and personalized platform to discover, enjoy, and share your favorite podcasts.</p>
           <img src="/images/unlistened_transparen_logo_1563.png" alt="" class="mt-16 lg:max-w-75 mx-auto object-cover" />
         </div>
