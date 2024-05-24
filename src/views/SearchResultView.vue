@@ -6,8 +6,8 @@ import {ArrowRightIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
 
   <div v-if="noResult">
     <div class="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-12">
-        <img class="mx-auto h-24 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
+        <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
       <div class="text-center">
         <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Sorry</h1>
@@ -22,10 +22,13 @@ import {ArrowRightIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
   <div v-else class="bg-white py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:max-w-4xl">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-12">
-          <img class="mx-auto h-24 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
+          <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
         </div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Search result:</h2>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Search result</h1>
+        <p class="mt-2 text-lg leading-6 text-gray-900">
+          Sit back, relax, and dive into these selections, knowing that they've been handpicked just for you. Happy listening!
+        </p>
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article v-for="podcast in podcasts" :key="podcast.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
             <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">

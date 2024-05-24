@@ -39,33 +39,7 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
             <span><strong class="font-semibold text-gray-900">Sign Up / Log In.</strong> Required only to enable you to save your favorite episodes and manage your bookmarks seamlessly across devices.</span>
           </li>
         </ul>
-        <p class="mt-8">Join me at Unlistened.me to explore, learn, and grow through the vast world of podcasts, completely free and with total privacy."</p>
-        <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">
-          Hey there!
-        </h2>
-        <p class="mt-6">
-          I’m Gianluca Tiengo, a passionate web developer dedicated to turning complex problems into simple, beautiful, and intuitive website designs. I thrive on creating digital spaces that not only look good but also provide a seamless and engaging user experience.
-          <br><br>
-          As a self-made developer, I've poured heart and determination into mastering the craft of web development. It's been a challenging journey, filled with endless learning and growth. Every line of code I write is a reflection of the effort it took to
-          transform my passion into my profession, bringing me to where I am today.
-        </p>
-        <figure class="mt-10 border-l border-indigo-600 pl-9">
-          <blockquote class="font-semibold text-gray-900">
-            <p>“One of the important skills as a Self-taught developer is to be resourceful, my father taught me this skill when I was still very young, and I didn’t know it would take me far in life. I started with wordpress for fun, and my curiosity led me to my first HTML / CSS site. Working during the day,
-              at night I took courses on SoloLearn and all the online platforms that could satiate my desire to learn.
-              <br><br>
-              I realized then that making websites was what I wanted for myself, and I took the time to attend a bootcamp in programming to get better and learn more.
-              Through this learning journey that continues to this day, I am happy and I continue to apply the same principles to what is finally my job today.”
-            </p>
-          </blockquote>
-          <figcaption class="mt-6 flex gap-x-4">
-            <div class="text-sm leading-6"><strong class="font-semibold text-gray-900">Re-source-ful</strong> – Having the ability to find clever ways to overcome difficulties.</div>
-          </figcaption>
-        </figure>
-        <p class="mt-10">
-          Here bellow you can find some important resources that I've collected during my experience and that i want to share. I am not affiliated with any of it, I am just using them personally and would want to share it with you, especially to all self-taught developer.
-        </p>
-        <a href="https://letudev.com/" target="_blank" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full mt-5 inline-flex">More...</a>
+        <p class="mt-8">Join me at Unlistened.me to explore, learn, and grow through the vast world of podcasts, completely free and with total privacy.</p>
       </div>
     </div>
   </div>

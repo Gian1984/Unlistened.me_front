@@ -15,11 +15,11 @@ import { useMessageStore } from '@/stores/messageStore'
 <template>
   <div class="bg-white px-6 py-24 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-7xl">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-12">
-        <img class="mx-auto h-24 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
+        <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
       <p class="text-base font-semibold leading-7 text-indigo-600">All in one</p>
-      <h2 class="mt-2 mb-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Your Favorite Podcasts</h2>
+      <h1 class="mt-2 mb-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Your Favorite Podcasts</h1>
       <p class="mt-6 text-lg leading-8 text-gray-900">
         Welcome to your personal hub for all things podcast! This special section is designed just for you,
         here you can easily access and manage your favorite feeds. Whether you're revisiting an old favorite or keeping tabs

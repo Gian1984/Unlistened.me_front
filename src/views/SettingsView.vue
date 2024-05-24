@@ -11,7 +11,7 @@ let authStore = useAuthStore();
       <img class="mx-auto h-24 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
     </div>
     <div class="px-4 sm:px-0">
-      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Personal information</h1>
+      <h1 class="mt-2 mb-6 text-3xl font-bold tracking-tight text-white sm:text-5xl">Personal information</h1>
       <p class="mt-3 max-w-2xl text-base leading-6 text-white">
         Welcome to the Settings page of Unlistened.me. From here, you can easily update your personal information to better tailor your podcast listening experience. Modify your profile details, and customize your preferences to ensure Unlistened meets your needs.<br><br>
         Take control of your account and make the most out of your podcast journey with Unlistened.
