@@ -45,48 +45,47 @@ import { StarIcon, ArrowRightIcon } from '@heroicons/vue/24/outline/index.js'
             Happy listening!
           </p>
           <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            <article v-for="(podcast, index) in visiblePodcasts" :key="podcast.id"  class="relative isolate flex flex-col gap-8 lg:flex-row">
+            <article v-for="(feed, index) in visiblePodcasts" :key="feed.id"  class="relative isolate flex flex-col gap-8 lg:flex-row">
               <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-                <img :src="podcast.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
+                <img :src="feed.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
                 <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
               </div>
               <div>
                 <div class="flex items-center gap-x-4 text-xs">
-                  <time :datetime="podcast.newestItemPubdate" class="text-gray-500">{{ getReadableDate( podcast.newestItemPublishTime) }}</time>
+                  <time :datetime="feed.newestItemPubdate" class="text-gray-500">{{ getReadableDate( feed.newestItemPublishTime) }}</time>
                 </div>
                 <div class="group relative max-w-xl">
                   <h3 class="mt-3 text-lg font-bold leading-6 text-gray-900 group-hover:text-indigo-600">
-                    <router-link :to="'/podcast/' + podcast.id">
+                    <router-link :to="'/feed/' + feed.id">
                         <span class="text-gray-900 font-bold hover:text-indigo-600">
-                        {{ podcast.title }}
+                        {{ feed.title }}
                         </span>
                     </router-link>
                   </h3>
-                  <p class="mt-5 text-sm leading-6 text-gray-600 text-ellipsis overflow-hidden">{{ stripHtmlTags(podcast.description ) }}</p>
+                  <p class="mt-5 text-sm leading-6 text-gray-600 text-ellipsis overflow-hidden">{{ stripHtmlTags(feed.description ) }}</p>
                   <div class="mt-5">
                     <span class="font-semibold text-gray-900">Categories:</span>
                   </div>
-                  <div class="flex items-center gap-x-1" v-for="category in podcast.categories">
+                  <div class="flex items-center gap-x-1" v-for="category in feed.categories">
                     <span  class="text-gray-600">{{ category }}</span>
                   </div>
                 </div>
                 <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                   <div class="relative flex items-center gap-x-6">
-                    <img :src="podcast.artwork" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
+                    <img :src="feed.artwork" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                     <div class="text-sm leading-6">
                       <div>
                         <span  class="text-gray-600">Author:</span>
                       </div>
                       <p class="font-semibold text-gray-900">
-                          <span class="" />
-                          {{ podcast.author }}
+                          {{ feed.author }}
                       </p>
                     </div>
                     <div class="text-sm leading-6 flex">
-                      <button @click="addFavourite(podcast.id, podcast.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                      <button @click="addFavourite(feed.id, feed.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                         <StarIcon class="h-5 w-5" />
                       </button>
-                      <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                      <router-link :to="'/feed/' + feed.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
                         <ArrowRightIcon class="h-5 w-5" />
                       </router-link>
                     </div>
@@ -94,7 +93,7 @@ import { StarIcon, ArrowRightIcon } from '@heroicons/vue/24/outline/index.js'
                 </div>
               </div>
             </article>
-            <button class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex" v-if="visibleCount < podcasts.length" @click="loadMore">Load More</button>
+            <button class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex" v-if="visibleCount < feeds.length" @click="loadMore">Load More</button>
           </div>
         </div>
       </div>
@@ -108,14 +107,14 @@ export default {
 
   data() {
     return {
-      podcasts: [], // Array to store podcasts
+      feeds: [], // Array to store podcasts
       visibleCount: 5,
       loading: true // Flag to indicate loading state
     };
   },
   computed: {
     visiblePodcasts() {
-      return this.podcasts.slice(0, this.visibleCount);
+      return this.feeds.slice(0, this.visibleCount);
     }
   },
 
@@ -127,7 +126,7 @@ export default {
      fetchPodcasts() {
       this.axios.get(base_Url + 'api/index')
           .then(response => {
-            this.podcasts= response.data.feeds
+            this.feeds= response.data.feeds
             this.loading = false;
           })
           .catch(error => {
@@ -138,24 +137,22 @@ export default {
 
     loadMore() {
       const increment = 5; // Number of podcasts to add each time
-      this.visibleCount = Math.min(this.visibleCount + increment, this.podcasts.length);
+      this.visibleCount = Math.min(this.visibleCount + increment, this.feeds.length);
     },
 
-    async addFavourite(podcastId, podcastTitle) {
+    async addFavourite(feedId, feedTitle) {
       try {
         this.axios.defaults.withCredentials = true;
         this.axios.defaults.withXSRFToken = true;
         await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
         const response = await this.axios.post(base_Url + 'api/add-favorite', {
-          podcast_id: podcastId,
-          title: podcastTitle,
+          feed_id: feedId,
+          title: feedTitle,
         });
 
       } catch (error) {
-
-        console.error('Login error', error);
-
+        console.error('Error', error);
       }
     },
 

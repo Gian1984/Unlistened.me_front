@@ -4,7 +4,7 @@ import {defineComponent, h} from "vue";
 const FooterNavigation = {
   main: [
     { name: 'About', href: '/about', current: false },
-    { name: 'Podcasts', href: '/podcast_listing', current: false },
+    { name: 'Podcasts', href: '/feed_listing', current: false },
     { name: 'Favourites', href: '/favourites', current: false },
     { name: 'Bookmarks', href: '/bookmarks', current: false },
   ],

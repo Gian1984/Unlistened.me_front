@@ -42,12 +42,12 @@ import { useMessageStore } from '@/stores/messageStore'
             </p>
           </div>
           <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-            <router-link :to="'/podcast/' + favorite.podcast_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+            <router-link :to="'/feed/' + favorite.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
               <ArrowRightIcon class="h-6" aria-hidden="true" />
             </router-link>
           </div>
           <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-            <button @click="deleteFavourite(favorite.podcast_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+            <button @click="deleteFavourite(favorite.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
               <span class="sr-only">Dismiss</span>
               <TrashIcon class="h-6 w-6" aria-hidden="true" />
             </button>
@@ -66,7 +66,7 @@ import { useMessageStore } from '@/stores/messageStore'
         Start exploring now and build your collection of favorites!
       </p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
-        <router-link to="/podcast_listing" class="bg-pink-500 hover:bg-indigo-700 text-white font-semibold py-2 px-4 mx-1 rounded-full">Start now &nbsp<span aria-hidden="true">&rarr;</span></router-link>
+        <router-link to="/feed_listing" class="bg-pink-500 hover:bg-indigo-700 text-white font-semibold py-2 px-4 mx-1 rounded-full">Start now &nbsp<span aria-hidden="true">&rarr;</span></router-link>
       </div>
     </div>
   </div>
@@ -85,15 +85,9 @@ export default {
   },
 
   created() {
-    const podcastId = this.$route.params.id;
     this.fetchFavorites();
   },
   methods: {
-    loadMore() {
-      const increment = 5; // Number of podcasts to add each time
-      this.visibleCount = Math.min(this.visibleCount + increment, this.episodes.length);
-    },
-
     async fetchFavorites() {
       try {
         this.axios.defaults.withCredentials = true;
@@ -114,15 +108,14 @@ export default {
 
       }
     },
-    async deleteFavourite(podcastId, index) {
-      console.log(podcastId)
+    async deleteFavourite(feedId, index) {
       try {
         this.axios.defaults.withCredentials = true;
         this.axios.defaults.withXSRFToken = true;
         await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
         const response = await this.axios.post(base_Url + 'api/delete-favorite', {
-          podcast_id: podcastId,
+          feed_id: feedId,
         });
         this.favorites.splice(index, 1);
 

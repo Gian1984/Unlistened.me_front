@@ -29,7 +29,9 @@ const jobOpenings = [
           <p class="text-base font-semibold leading-7 text-indigo-600">About</p>
           <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Unlistened.me</h1>
           <p class="mt-6 text-xl leading-8 text-gray-900">Welcome to Unlistened.me, a podcast player designed to enhance your listening experience. Whether you're a podcast enthusiast or a casual listener, Unlistened.me offers a seamless and personalized platform to discover, enjoy, and share your favorite podcasts.</p>
-          <img src="/images/unlistened_transparen_logo_1563.png" alt="" class="mt-16 lg:max-w-75 mx-auto object-cover" />
+          <div class="sm:mx-auto sm:w-full sm:max-w-sm mb-16 mt-16">
+            <img class="mx-auto w-72" src="/images/unlistened_transparen_logo_1563.png" alt="Unlistened.me logo" />
+          </div>
         </div>
         <div class="w-full lg:max-w-xl lg:flex-auto">
           <h3 class="sr-only">Job openings</h3>
@@ -68,7 +70,7 @@ const jobOpenings = [
           </div>
           <div>
             <p>
-              At Unlistened.me, my mission is to create a community of informed, engaged, and curious listeners. I'm constantly evolving and would love to hear your feedback on how i can improve. Feel free to reach out with any suggestions or questions!
+              At Unlistened.me, my mission is to create a community of informed, engaged, and curious listeners. I'm constantly evolving and would love to hear your feedback on how i can improve. Feel free to reach out at <a class="text-sm font-semibold leading-6 text-indigo-600 hover:text-pink-500" href="mailto:support@unlistened.me?subject=Mail from about unlistened.me">support@unlistened.me</a> with any suggestions or questions!
             </p>
             <p class="mt-8">Here bellow you can find some important resources that I've collected during my experience and that i want to share. I am not affiliated with any of it, I am just using them personally and would want to share it with you, especially to all self-taught developer.</p>
           </div>

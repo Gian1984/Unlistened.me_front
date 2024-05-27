@@ -26,7 +26,7 @@ let authStore = useAuthStore();
 
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
-  { name: 'Podcasts', href: '/podcast_listing', icon: FolderIcon, current: false },
+  { name: 'Podcasts', href: '/feed_listing', icon: FolderIcon, current: false },
   { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
   { name: 'About', href: '/about', icon: UsersIcon, current: false },

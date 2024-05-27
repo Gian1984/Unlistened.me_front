@@ -4,7 +4,7 @@ import {PlayIcon, PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
 
 
 <template>
-  <div v-if="isVisible" class="fixed bottom-1 p-4 border-2 bg-gray-400 border-gray-400 overflow-hidden object-contain right-1 rounded-2xl">
+  <div v-if="isVisible" class="fixed mx-auto max-w-7xl bottom-1 p-4 border-2 bg-gray-400 border-gray-400 overflow-hidden object-contain right-1 rounded-2xl">
     <div class="flex justify-end mb-5">
       <button class="bg-pink-500 hover:bg-indigo-500 text-white font-bold py-2 px-2 rounded-full block ml-0" @click="closePlayer">
         <XMarkIcon class="h-4 w-4 text-white" aria-hidden="true" />
@@ -119,6 +119,7 @@ export default {
     closePlayer() {
       this.isVisible = false;
       const audioPlayer = this.$refs.audioPlayer;
+      this.selectedEpisode='';
       if (audioPlayer) {
         audioPlayer.pause();
       }

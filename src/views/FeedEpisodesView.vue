@@ -3,12 +3,9 @@ import Footer from '../components/Footer.vue'
 import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
 </script>
 <template>
-  <div class="bg-white py-24 sm:py-32">
+  <div class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:max-w-4xl">
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Episodes</h1>
-        <p class="mt-2 text-lg leading-8 text-gray-600">Learn how to grow your business with our expert advice.</p>
-
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article class="relative isolate flex flex-col gap-8 lg:flex-row">
             <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
@@ -38,9 +35,6 @@ import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vu
             </div>
           </article>
         </div>
-
-
-
 
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article v-for="episode in visibleEpisodes" :key="episode.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
@@ -104,9 +98,9 @@ export default {
     }
   },
   created() {
-    const podcastId = this.$route.params.id;
-    this.fetchPodcastInfo(podcastId);
-    this.fetchEpisodes(podcastId);
+    const feedId = this.$route.params.id;
+    this.fetchFeedInfo(feedId);
+    this.fetchEpisodes(feedId);
   },
 
   methods: {
@@ -121,24 +115,33 @@ export default {
       if (!str) return '';
       return str.replace(/<[^>]*>/g, ''); // Regular expression to remove HTML tags
     },
-    fetchEpisodes(podcastId) {
-      this.axios.get(base_Url+`api/podcast_episodes/${podcastId}`)
-          .then(response => {
-            this.episodes = response.data.items;
-          })
-          .catch(error => {
-            console.error('Error fetching episodes:', error);
-          });
+
+    async fetchFeedInfo(feedId) {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const response = await this.axios.get(base_Url + `api/feed_info/${feedId}`);
+        this.podcastInfo = response.data.feed;
+
+      } catch (error) {
+        console.error('Error fetching episodes:', error);
+      }
     },
 
-    fetchPodcastInfo(podcastId) {
-      this.axios.get(base_Url+`api/podcast_info/${podcastId}`)
-          .then(response => {
-            this.podcastInfo = response.data.feed;
-          })
-          .catch(error => {
-            console.error('Error fetching episodes:', error);
-          });
+    async fetchEpisodes(feedId) {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        const response = await this.axios.get(base_Url + `api/search_feed/${feedId}`);
+        this.episodes = response.data.items;
+
+      } catch (error) {
+        console.error('Error fetching episodes:', error);
+      }
     },
 
     async addFavourite(podcastId, podcastTitle) {

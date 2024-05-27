@@ -27,10 +27,6 @@ const features = [
     description: 'We do not collect any personal information about our users or their habits. The only information we collect is your email address, which is solely used to offer our services to you.',
   },
   {
-    name: 'Non-Profit Service',
-    description: 'Unlistened.me does not generate any revenue. Our service is provided for the purpose of public culture and diffusion. We are committed to offering this service to enhance public access to valuable content.',
-  },
-  {
     name: 'Limitation of Liability',
     description: 'Unlistened.me and its directors, officers, employees, partners, agents, suppliers, and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the service; (ii) any conduct or content of any third party on the service; (iii) any content obtained from the service; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage.',
   },
@@ -50,6 +46,10 @@ const features = [
     name: 'Changes',
     description: 'We reserve the right, at our sole discretion, to modify or replace these terms at any time. If a revision is material we will provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion. By continuing to access or use our service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the service.',
   },
+  {
+    name: 'Non-Profit Service',
+    description: 'Unlistened.me does not generate any revenue. Our service is provided for the purpose of public culture and diffusion. We are committed to offering this service to enhance public access to valuable content.',
+  },
 ]
 </script>
 
@@ -57,7 +57,7 @@ const features = [
   <div class="bg-white py-24 sm:py-24">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
-        <img class="mx-auto h-24 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
+        <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
       <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
         <div>

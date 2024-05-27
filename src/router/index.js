@@ -2,8 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
 import HomeView from '@/views/HomeView.vue'
 import AboutView from "@/views/AboutView.vue";
-import PodcastEpisodesView from '@/views/PodcastEpisodesView.vue'
-import PodcastView from "@/views/PodcastView.vue";
+import FeedEpisodesView from '@/views/FeedEpisodesView.vue'
 import SearchResultView from "@/views/SearchResultView.vue";
 import LoginView from "@/views/LoginView.vue";
 import SignInView from "@/views/SignInView.vue";
@@ -13,6 +12,8 @@ import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import SettingsView from "@/views/SettingsView.vue";
 import TermsView from "@/views/TermsView.vue";
+import FeedsView from "@/views/FeedsView.vue";
+import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
 
 
 const router = createRouter({
@@ -50,11 +51,11 @@ const router = createRouter({
       }
     },
     {
-      path: '/podcast_listing',
-      name: 'podcast',
-      component: PodcastView,
+      path: '/feed_listing',
+      name: 'Feeds',
+      component: FeedsView,
       meta: {
-        title: "Unlistened - Podcasts",
+        title: "Unlistened - Feeds",
         metaTags: [
           {
             name: 'description',
@@ -66,7 +67,7 @@ const router = createRouter({
           },
           {
             name: 'og:url',
-            content: "https://www.unlistened.me/podcast_listing"
+            content: "https://www.unlistened.me/feed_listing"
           },
           {
             name: 'og:type',
@@ -80,9 +81,9 @@ const router = createRouter({
       }
     },
     {
-      path: '/podcast/:id',
+      path: '/feed/:id',
       name: 'episodes',
-      component: PodcastEpisodesView,
+      component: FeedEpisodesView,
       meta: {
         title: "Unlistened - Podcast Episodes",
         metaTags: [
@@ -96,7 +97,7 @@ const router = createRouter({
           },
           {
             name: 'og:url',
-            content: "https://www.unlistened.me/podcast/:id"
+            content: "https://www.unlistened.me/feed/:id"
           },
           {
             name: 'og:type',
@@ -105,6 +106,36 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
+          }
+        ]
+      }
+    },
+    {
+      path: '/episode/:id',
+      name: 'episode',
+      component: SingleEpisodeView,
+      meta: {
+        title: "Unlistened - Podcast",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Listen episode from your favorite podcasts on Unlistened. No cookies, no profiling."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Podcast"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/podcast/:id"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Listen to episode from your favorite podcasts on Unlistened. No cookies, no profiling."
           }
         ]
       }

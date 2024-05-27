@@ -30,37 +30,37 @@ import {ArrowRightIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
           Sit back, relax, and dive into these selections, knowing that they've been handpicked just for you. Happy listening!
         </p>
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-          <article v-for="podcast in podcasts" :key="podcast.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
+          <article v-for="feed in feeds" :key="feed.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
             <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-              <img :src="podcast.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
+              <img :src="feed.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
               <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
             </div>
             <div>
               <div class="flex items-center gap-x-4 text-xs">
-                <time :datetime="podcast.newestItemPubdate" class="text-gray-500">{{ getReadableDate( podcast.newestItemPubdate) }}</time>
+                <time :datetime="feed.newestItemPubdate" class="text-gray-500">{{ getReadableDate( feed.newestItemPubdate) }}</time>
               </div>
               <div class="group relative max-w-xl">
                 <h3 class="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-                  <router-link :to="'/podcast/' + podcast.id">
+                  <router-link :to="'/feed/' + feed.id">
                     <span class="absolute inset-0" />
-                    {{ podcast.title }}
+                    {{ feed.title }}
                   </router-link>
                 </h3>
-                <p class="mt-5 text-sm leading-6 text-gray-600">{{ podcast.description }}</p>
+                <p class="mt-5 text-sm leading-6 text-gray-600">{{ feed.description }}</p>
               </div>
               <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                 <div class="relative flex items-center gap-x-4">
-                  <img :src="podcast.artwork" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
+                  <img :src="feed.artwork" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                   <div class="text-sm leading-6">
                     <p class="font-semibold text-gray-900">
-                        {{ podcast.author }}
+                        {{ feed.author }}
                     </p>
                   </div>
                   <div class="text-sm leading-6 flex">
-                    <router-link :to="'/podcast/' + podcast.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                    <router-link :to="'/feed/' + feed.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
                       <ArrowRightIcon class="h-5 w-5" />
                     </router-link>
-                    <button @click="addFavourite(podcast.id, podcast.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                    <button @click="addFavourite(feed.id, feed.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                       <StarIcon class="h-5 w-5"/>
                     </button>
                   </div>
@@ -80,7 +80,7 @@ export default {
 
   data() {
     return {
-      podcasts: [], // Array to store podcasts
+      feeds: [], // Array to store podcasts
       noResult:false,
     };
   },
@@ -96,13 +96,13 @@ export default {
     this.fetchSearchResults(podcastTitle);
   },
   methods: {
-    fetchSearchResults(podcastTitle) {
-      this.axios.get(base_Url + `api/search-podcast/${podcastTitle}`)
+    fetchSearchResults(feedTitle) {
+      this.axios.get(base_Url + `api/search-podcast/${feedTitle}`)
           .then(response => {
-            this.podcasts = ''
+            this.feeds = ''
             console.log(response.data.feeds)
-            this.podcasts = response.data.feeds
-            if (this.podcasts == ''){
+            this.feeds = response.data.feeds
+            if (this.feeds == ''){
               this.noResult = true;
             }
           })
@@ -123,28 +123,22 @@ export default {
       });
     },
 
-    async addFavourite(podcastId, podcastTitle) {
-      console.log(podcastId, podcastTitle)
+    async addFavourite(feedId, feedTitle) {
       try {
         this.axios.defaults.withCredentials = true;
         this.axios.defaults.withXSRFToken = true;
         await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
         const response = await this.axios.post(base_Url + 'api/add-favorite', {
-          podcast_id: podcastId,
-          title: podcastTitle,
+          feed_id: feedId,
+          title: feedTitle,
         });
-
-        console.log(' successful', response.data);
-
+        console.log(' successful');
       } catch (error) {
-
-        console.error('Login error', error);
-
+        console.error('Error');
       }
     },
   },
-
 
   mounted() {
     this.noResult = false; // Reset data when the component is mounted
