@@ -1,10 +1,10 @@
 <script setup>
 import Footer from '../components/Footer.vue'
 import OffcanvasPlayer from '../components/OffcanvasPlayer.vue';
-import {ArrowDownTrayIcon, ArrowRightIcon, BookmarkIcon, PlayIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
+import {ArrowDownTrayIcon, PlayIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 </script>
 <template>
-  <div class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
+  <div v-if="episode" class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:max-w-4xl">
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
@@ -34,6 +34,9 @@ import {ArrowDownTrayIcon, ArrowRightIcon, BookmarkIcon, PlayIcon, StarIcon} fro
                       <button @click="downloadPodcast(episode.title, episode.enclosureUrl)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                         <ArrowDownTrayIcon class="h-5 w-5"/>
                       </button>
+                      <button @click="deleteBookmark(episode.id)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                        <TrashIcon class="h-5 w-5"/>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -55,6 +58,7 @@ export default {
     return {
       episode: [],
       selectedEpisode: null,
+      error: false,
     };
   },
   async created() {
@@ -79,9 +83,9 @@ export default {
 
         const response = await this.axios.get(base_Url + `api/search_episode/${podcastId}`);
         this.episode = response.data.episode;
-        console.log(response)
 
       } catch (error) {
+        this.error = true
         console.error('Error fetching episodes:', error);
       }
     },
@@ -108,23 +112,35 @@ export default {
       return cleanTitle;
     },
 
-    async addBookmarks(episodeId, episodeTitle) {
+    async deleteBookmark(episodeId) {
       try {
         this.axios.defaults.withCredentials = true;
         this.axios.defaults.withXSRFToken = true;
         await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
-        const response = await this.axios.post(base_Url + 'api/add-bookmark', {
+        const response = await this.axios.post(base_Url + 'api/delete-bookmark', {
           episode_id: episodeId,
-          title: episodeTitle,
         });
 
+        this.$router.push({ name: 'Bookmarks' });
+
       } catch (error) {
-
-        console.error('Login error', error);
-
+        if (error.response.status === 401) {
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Yours session has expire due to lack of activity.')
+          this.$router.push({ name: 'Login' });
+        } else {
+          const authStore = useAuthStore();
+          authStore.clearUser();
+          const messageStore = useMessageStore()
+          messageStore.setMessage('Something went wrong, please try again.')
+          this.$router.push({ name: 'Login' });
+        }
       }
     },
+
   }
 };
 </script>

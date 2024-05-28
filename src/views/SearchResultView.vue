@@ -100,7 +100,6 @@ export default {
       this.axios.get(base_Url + `api/search-podcast/${feedTitle}`)
           .then(response => {
             this.feeds = ''
-            console.log(response.data.feeds)
             this.feeds = response.data.feeds
             if (this.feeds == ''){
               this.noResult = true;
@@ -113,7 +112,7 @@ export default {
     },
     getReadableDate(unixTimestamp) {
       const date = new Date(unixTimestamp * 1000);
-      // Format the date as you need
+      // Format the date as needed
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

@@ -35,7 +35,7 @@ import { useMessageStore } from '@/stores/messageStore'
         <div class="flex flex-wrap items-center justify-between">
           <div class="flex w-0 flex-1 items-center">
             <span class="flex rounded-lg bg-indigo-800 p-2">
-              <StarIcon class="h-6 w-6 text-yellow-300" aria-hidden="true" />
+              <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
             </span>
             <p class="ml-3 truncate font-medium text-white">
               <span>{{favorite.title}}</span>
@@ -43,13 +43,13 @@ import { useMessageStore } from '@/stores/messageStore'
           </div>
           <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
             <router-link :to="'/feed/' + favorite.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
-              <ArrowRightIcon class="h-6" aria-hidden="true" />
+              <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
             </router-link>
           </div>
           <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
             <button @click="deleteFavourite(favorite.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
               <span class="sr-only">Dismiss</span>
-              <TrashIcon class="h-6 w-6" aria-hidden="true" />
+              <TrashIcon class="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>

@@ -35,21 +35,21 @@ import { useMessageStore } from '@/stores/messageStore'
         <div class="flex flex-wrap items-center justify-between">
           <div class="flex w-0 flex-1 items-center">
               <span class="flex rounded-lg bg-indigo-800 p-2">
-                <BookmarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
+                <BookmarkIcon class="h-5 w-5 text-white" aria-hidden="true" />
               </span>
             <p class="ml-3 truncate font-medium text-white">
               <span>{{bookmark.title}}</span>
             </p>
           </div>
           <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-            <router-link :to="'/episode/' + bookmark.episode_id" type="button" class="py-2 px-4 mx-1 rounded-full flex items-center justify-center border border-transparent bg-white text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white w-full">
-              <ArrowRightIcon class="h-6" aria-hidden="true" />
+            <router-link :to="'/episode/' + bookmark.episode_id" type="button" class=" mx-1 px-4 py-2 rounded-full border border-transparent flex bg-white text-sm leading-6 font-bold text-indigo-600  hover:bg-pink-500 hover:text-white w-full justify-center">
+              <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
             </router-link>
           </div>
           <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-            <button @click="deleteBookmark(bookmark.episode_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+            <button @click="deleteBookmark(bookmark.episode_id, index)" type="button" class="-mr-1 mx-1 px-4 py-2 rounded-full hover:bg-white focus:outline-none leading-6 font-bold focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
               <span class="sr-only">Dismiss</span>
-              <TrashIcon class="h-6 w-6" aria-hidden="true" />
+              <TrashIcon class="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -96,8 +96,8 @@ export default {
         await this.axios.get(base_Url+'sanctum/csrf-cookie');
 
         const response = await this.axios.get(base_Url+'api/user-bookmarks');
+        console.log('get bookmarks successful');
 
-        console.log('get bookmarks successful', response);
         this.bookmarks = response.data
 
       } catch (error) {

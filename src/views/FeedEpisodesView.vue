@@ -70,10 +70,10 @@ import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vu
           <button class="text-gray-600" v-if="visibleCount < episodes.length" @click="loadMore">Load More</button>
         </div>
       </div>
+      <OffcanvasPlayer :episode="selectedEpisode" />
     </div>
   </div>
-  <!-- Offcanvas Player -->
-  <OffcanvasPlayer :episode="selectedEpisode" />
+
   <Footer />
 </template>
 <script>

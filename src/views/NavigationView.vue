@@ -136,9 +136,9 @@ const sidebarOpen = ref(false)
           <div class="flex items-center gap-x-4 lg:gap-x-6">
 
              <router-link to="/" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 lg:hidden">
-              <span class="sr-only">View notifications</span>
+               <span class="sr-only">View notifications</span>
                <img class="h-8 w-8 " src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
-            </router-link>
+             </router-link>
 
             <!-- Separator -->
             <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
@@ -194,6 +194,7 @@ export default {
   methods: {
     onSearchClick() {
       this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
+      this.searchQuery='';
     },
     logout() {
       const authStore = useAuthStore();
