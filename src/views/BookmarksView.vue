@@ -97,7 +97,8 @@ export default {
 
         const response = await this.axios.get(base_Url+'api/user-bookmarks');
         console.log('get bookmarks successful');
-
+        const authStore = useAuthStore();
+        console.log(authStore)
         this.bookmarks = response.data
 
       } catch (error) {

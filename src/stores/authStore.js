@@ -4,6 +4,7 @@ export const useAuthStore = defineStore('auth', {
 
     state: () => ({
         isAuthenticated: false,
+        isAdmin: false,
         user: null,
         loginMessage: '',
     }),
@@ -14,11 +15,13 @@ export const useAuthStore = defineStore('auth', {
                 const { isAuthenticated, user } = JSON.parse(savedState);
                 this.isAuthenticated = isAuthenticated;
                 this.user = user;
+                this.isAdmin = user?.is_admin === 1;
             }
         },
         setUser(user) {
             this.isAuthenticated = true;
             this.user = user;
+            this.isAdmin = user?.is_admin === 1;
             localStorage.setItem('auth', JSON.stringify({ isAuthenticated: true, user }));
         },
         updateUser(updatedData) {
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
         },
         clearUser() {
             this.isAuthenticated = false;
+            this.isAdmin = false;
             this.user = null;
             localStorage.removeItem('auth');
         },
@@ -37,6 +41,6 @@ export const useAuthStore = defineStore('auth', {
         },
         clearLoginMessage() {
             this.loginMessage = null;
-        }
+        },
     },
 });

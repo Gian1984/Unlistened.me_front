@@ -14,6 +14,7 @@ import SettingsView from "@/views/SettingsView.vue";
 import TermsView from "@/views/TermsView.vue";
 import FeedsView from "@/views/FeedsView.vue";
 import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
+import DashboardView from "@/views/DashboardView.vue";
 
 
 const router = createRouter({
@@ -442,7 +443,39 @@ const router = createRouter({
           }
         ]
       }
-    }
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: DashboardView,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: "Unlistened - Settings",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Manage Unlistened."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Dashboard"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/dashboard"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Unlistened - Dashboard"
+          }
+        ]
+      }
+    },
   ],
 
   scrollBehavior(to, from, savedPosition) {
@@ -494,10 +527,14 @@ router.beforeEach((to, from, next) => {
 
       const authStore = useAuthStore();
       const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+      const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
       if (requiresAuth && !authStore.isAuthenticated) {
         authStore.setLoginMessage('To access this page you have to be logged in.');
         next({ name: 'Login' });
+      } else if (requiresAdmin && !authStore.isAdmin) {
+        authStore.setLoginMessage('You must be an admin to access this page.');
+        next({ name: 'Login' }); // or another route to redirect non-admin users
       } else {
         next();
       }
