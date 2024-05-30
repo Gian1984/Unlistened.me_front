@@ -16,6 +16,7 @@ app.use(router);
 app.use(VueAxios, axios);
 app.use(pinia);
 
+
 const authStore = useAuthStore();
 authStore.initializeAuth();
 

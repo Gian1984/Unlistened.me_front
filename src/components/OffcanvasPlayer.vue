@@ -33,7 +33,7 @@ import {PlayIcon, PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
 </template>
 
 <script>
-
+const base_Url = import.meta.env.VITE_BASE_URL
 export default {
   props: {
     episode: Object,
@@ -63,12 +63,28 @@ export default {
       }
     },
   },
-  computed: {
-    playPauseText() {
-      return this.isPlaying ? 'Pause' : 'Play';
-    },
-  },
   methods: {
+    async sendPlayData() {
+      try {
+        this.axios.defaults.withCredentials = true;
+        this.axios.defaults.withXSRFToken = true;
+        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+
+        let epID = this.currentEpisode.id
+        let epTI = this.currentEpisode.title
+
+        const response = await this.axios.post(base_Url + 'api/add_click', {
+          episode_id: epID,
+          episode_title: epTI,
+        });
+
+        console.log('Play data sent:', response.data);
+
+      } catch (error) {
+        console.error('Error sending play data:', error);
+      }
+    },
+
     initializePlayer() {
       const audioPlayer = this.$refs.audioPlayer;
       if (audioPlayer) {
@@ -84,6 +100,7 @@ export default {
       if (audioPlayer) {
         if (audioPlayer.paused) {
           audioPlayer.play();
+          this.sendPlayData();
         } else {
           audioPlayer.pause();
         }
@@ -133,6 +150,7 @@ export default {
       const secs = Math.floor(seconds % 60);
       return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     },
+
   },
   mounted() {
     this.initializePlayer();
