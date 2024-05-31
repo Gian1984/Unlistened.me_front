@@ -54,10 +54,15 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
           </div>
         </div>
 
-        <div>
+        <div v-if="!validation">
           <button @click="reset" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
             Proceed
           </button>
+        </div>
+        <div v-if="validation">
+          <router-link to="/login" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+            Go to login
+          </router-link>
         </div>
       </div>
 
@@ -92,23 +97,22 @@ export default {
       }
     },
 
+    reset() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-    async reset() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url+'sanctum/csrf-cookie');
-
-        const response = await this.axios.post(base_Url+'api/forgot-password', {
-          email: this.email,
-        });
-        this.email = ''
-        this.validation = response.data.message
-
-      } catch (error) {
-        this.email = ''
-        this.errors = error.response.data.message
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/forgot-password', {
+            email: this.email,
+          }))
+          .then(response => {
+            this.email = '';
+            this.validation = response.data.message;
+          })
+          .catch(error => {
+            this.email = '';
+            this.errors = error.response.data.message;
+          });
     },
 
     closeAlert: function () {

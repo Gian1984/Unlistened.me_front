@@ -133,74 +133,68 @@ export default {
       return str.replace(/<[^>]*>/g, ''); // Regular expression to remove HTML tags
     },
 
-    async fetchFeedInfo(feedId) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    fetchFeedInfo(feedId) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url + `api/feed_info/${feedId}`);
-        this.podcastInfo = response.data.feed;
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + `api/feed_info/${feedId}`))
+          .then(response => {
+            this.podcastInfo = response.data.feed;
 
-        if( !this.podcastInfo || Object.keys(this.podcastInfo).length === 0 ){
-          this.error = "No podcast information found.";
-        }
-
-      } catch (error) {
-
-        this.error = error
-        console.error('Error fetching episodes:', error);
-      }
+            if (!this.podcastInfo || Object.keys(this.podcastInfo).length === 0) {
+              this.error = "No podcast information found.";
+            }
+          })
+          .catch(error => {
+            this.error = error;
+            console.error('Error fetching episodes:', error);
+          });
     },
 
-    async fetchEpisodes(feedId) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    fetchEpisodes(feedId) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url + `api/search_feed/${feedId}`);
-        this.episodes = response.data.items;
-
-      } catch (error) {
-        console.error('Error fetching episodes:', error);
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + `api/search_feed/${feedId}`))
+          .then(response => {
+            this.episodes = response.data.items;
+          })
+          .catch(error => {
+            console.error('Error fetching episodes:', error);
+          });
     },
 
-    async addFavourite(podcastId, podcastTitle) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    addFavourite(podcastId, podcastTitle) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add-favorite', {
-          podcast_id: podcastId,
-          title: podcastTitle,
-        });
-
-      } catch (error) {
-
-        console.error('Login error', error);
-
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add-favorite', {
+            podcast_id: podcastId,
+            title: podcastTitle,
+          }))
+          .catch(error => {
+            console.error('Login error', error);
+          });
     },
 
-    async sendDownloadData(id, title) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    sendDownloadData(id, title) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add_download_click', {
-          episode_id: id,
-          episode_title: title,
-        });
-
-        console.log('Download data sent');
-
-      } catch (error) {
-        console.error('Error sending download data:', error);
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add_download_click', {
+            episode_id: id,
+            episode_title: title,
+          }))
+          .then(response => {
+            console.log('Download data sent');
+          })
+          .catch(error => {
+            console.error('Error sending download data:', error);
+          });
     },
 
     downloadPodcast(title, url, id) {
@@ -230,22 +224,18 @@ export default {
       return cleanTitle;
     },
 
-    async addBookmarks(episodeId, episodeTitle) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    addBookmarks(episodeId, episodeTitle) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add-bookmark', {
-          episode_id: episodeId,
-          title: episodeTitle,
-        });
-
-      } catch (error) {
-
-        console.error('Login error', error);
-
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add-bookmark', {
+            episode_id: episodeId,
+            title: episodeTitle,
+          }))
+          .catch(error => {
+            console.error('Login error', error);
+          });
     },
   }
 };

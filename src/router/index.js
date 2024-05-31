@@ -5,7 +5,7 @@ import AboutView from "@/views/AboutView.vue";
 import FeedEpisodesView from '@/views/FeedEpisodesView.vue'
 import SearchResultView from "@/views/SearchResultView.vue";
 import LoginView from "@/views/LoginView.vue";
-import SignInView from "@/views/SignInView.vue";
+import SignUpView from "@/views/SignUpView.vue";
 import FavouritesView from "@/views/FavouritesView.vue"
 import BookmarksView from "@/views/BookmarksView.vue"
 import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
@@ -205,23 +205,23 @@ const router = createRouter({
       }
     },
     {
-      path: '/signin',
-      name: 'SignIn',
-      component: SignInView,
+      path: '/signup',
+      name: 'Signup',
+      component: SignUpView,
       meta: {
-        title: "Unlistened - Sign In",
+        title: "Unlistened - Sign up",
         metaTags: [
           {
             name: 'description',
-            content: "Sign in to Unlistened to save your favorite podcasts and access them anytime."
+            content: "Sign up to Unlistened to save your favorite podcasts and access them anytime."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Sign In"
+            content: "Unlistened - Sign up"
           },
           {
             name: 'og:url',
-            content: "https://www.unlistened.me/signin"
+            content: "https://www.unlistened.me/signup"
           },
           {
             name: 'og:type',
@@ -229,7 +229,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Sign in to Unlistened to save your favorite podcasts and access them anytime."
+            content: "Sign up to Unlistened to save your favorite podcasts and access them anytime."
           }
         ]
       }

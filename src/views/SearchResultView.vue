@@ -122,21 +122,22 @@ export default {
       });
     },
 
-    async addFavourite(feedId, feedTitle) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    addFavourite(feedId, feedTitle) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add-favorite', {
-          feed_id: feedId,
-          title: feedTitle,
-        });
-        console.log(' successful');
-      } catch (error) {
-        console.error('Error');
-      }
-    },
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add-favorite', {
+            feed_id: feedId,
+            title: feedTitle,
+          }))
+          .then(response => {
+            console.log('Add favorite successful');
+          })
+          .catch(error => {
+            console.error('Error', error);
+          });
+    }
   },
 
   mounted() {

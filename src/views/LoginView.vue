@@ -83,31 +83,31 @@ export default {
     }
   },
   methods: {
-    async login() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url+'sanctum/csrf-cookie');
+    login() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url+'api/login', {
-          email: this.email,
-          password: this.password
-        });
-
-        const authStore = useAuthStore();
-        authStore.setUser(response.data.user);
-        const messageStore = useMessageStore();
-        messageStore.clearMessage();
-        const loginMessage = useAuthStore()
-        loginMessage.clearLoginMessage()
-        this.$router.push('/');
-      } catch (error) {
-        const messageStore = useMessageStore();
-        messageStore.clearMessage();
-        const loginMessage = useAuthStore()
-        loginMessage.clearLoginMessage()
-        this.errors = error.response.data
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/login', {
+            email: this.email,
+            password: this.password
+          }))
+          .then(response => {
+            const authStore = useAuthStore();
+            authStore.setUser(response.data.user);
+            const messageStore = useMessageStore();
+            messageStore.clearMessage();
+            const loginMessage = useAuthStore();
+            loginMessage.clearLoginMessage();
+            this.$router.push('/');
+          })
+          .catch(error => {
+            const messageStore = useMessageStore();
+            messageStore.clearMessage();
+            const loginMessage = useAuthStore();
+            loginMessage.clearLoginMessage();
+            this.errors = error.response.data;
+          });
     },
 
     closeAlert: function () {

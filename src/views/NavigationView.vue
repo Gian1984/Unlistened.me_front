@@ -159,7 +159,7 @@ const sidebarOpen = ref(false)
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                   <MenuItem v-if="!authStore.user">
-                    <router-link  to="/signin" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Sign in</router-link>
+                    <router-link  to="/signup" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Create Account</router-link>
                   </MenuItem>
                   <MenuItem v-if="authStore.user">
                     <router-link  to="/settings" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>

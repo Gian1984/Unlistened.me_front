@@ -88,54 +88,52 @@ export default {
     this.fetchFavorites();
   },
   methods: {
-    async fetchFavorites() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url+'sanctum/csrf-cookie');
+    fetchFavorites() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url+'api/user-favorites');
-        this.favorites = response.data
-
-      } catch (error) {
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({name: 'Login'});
-        }
-
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + 'api/user-favorites'))
+          .then(response => {
+            this.favorites = response.data;
+          })
+          .catch(error => {
+            if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              console.error('Error fetching favorites:', error);
+            }
+          });
     },
-    async deleteFavourite(feedId, index) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    deleteFavourite(feedId, index) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/delete-favorite', {
-          feed_id: feedId,
-        });
-        this.favorites.splice(index, 1);
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/delete-favorite', {
+            feed_id: feedId,
+          }))
+          .then(response => {
+            this.favorites.splice(index, 1);
+          })
+          .catch(error => {
+            const authStore = useAuthStore();
+            const messageStore = useMessageStore();
 
-      } catch (error) {
-
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({ name: 'Login' });
-        } else {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Something went wrong, please try again.')
-          this.$router.push({ name: 'Login' });
-        }
-
-      }
+            if (error.response && error.response.status === 401) {
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              authStore.clearUser();
+              messageStore.setMessage('Something went wrong, please try again.');
+              this.$router.push({ name: 'Login' });
+            }
+          });
     },
   }
 };

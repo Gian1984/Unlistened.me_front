@@ -185,37 +185,29 @@ export default {
     this.fetchStats();
   },
   methods: {
-    async fetchStats() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    fetchStats() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url + 'api/get_stats');
-        console.log(response)
-        this.status = response.data;
-
-      } catch (error) {
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({ name: 'Login' });
-        } else if (error.response.status === 403){
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({ name: 'Login' });
-        } else {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Something went wrong, please try again.')
-          this.$router.push({ name: 'Login' });
-        }
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + 'api/get_stats'))
+          .then(response => {
+            console.log(response);
+            this.status = response.data;
+          })
+          .catch(error => {
+            const authStore = useAuthStore();
+            const messageStore = useMessageStore();
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              authStore.clearUser();
+              messageStore.setMessage('Something went wrong, please try again.');
+              this.$router.push({ name: 'Login' });
+            }
+          });
     },
   }
 }

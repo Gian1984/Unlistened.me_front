@@ -88,56 +88,56 @@ export default {
   created() {
     this.fetchBookmarks();
   },
+
   methods: {
-    async fetchBookmarks() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url+'sanctum/csrf-cookie');
+    fetchBookmarks() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url+'api/user-bookmarks');
-        console.log('get bookmarks successful');
-        const authStore = useAuthStore();
-        console.log(authStore)
-        this.bookmarks = response.data
-
-      } catch (error) {
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({name: 'Login'});
-        }
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + 'api/user-bookmarks'))
+          .then(response => {
+            this.bookmarks = response.data;
+          })
+          .catch(error => {
+            if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              console.error('Error fetching bookmarks:', error);
+            }
+          });
     },
-    async deleteBookmark(episodeId, index) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
-        const response = await this.axios.post(base_Url + 'api/delete-bookmark', {
-          episode_id: episodeId,
-        });
-        this.bookmarks.splice(index, 1);
+    deleteBookmark(episodeId, index) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-      } catch (error) {
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({ name: 'Login' });
-        } else {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Something went wrong, please try again.')
-          this.$router.push({ name: 'Login' });
-        }
-      }
-    },
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/delete-bookmark', {
+            episode_id: episodeId,
+          }))
+          .then(response => {
+            this.bookmarks.splice(index, 1);
+          })
+          .catch(error => {
+            const authStore = useAuthStore();
+            const messageStore = useMessageStore();
+
+            if (error.response && error.response.status === 401) {
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              authStore.clearUser();
+              messageStore.setMessage('Something went wrong, please try again.');
+              this.$router.push({ name: 'Login' });
+            }
+          });
+    }
   }
 };
 </script>

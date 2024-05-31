@@ -6,7 +6,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
   <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Your Company" />
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
+      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Create your account</h2>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -111,32 +111,30 @@ export default {
 
   methods : {
 
-    async signup() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    signup() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        if ( this.checked != false ) {
-
-          const response = await this.axios.post(base_Url + 'api/register', {
-            name: this.username,
-            email: this.email,
-            password: this.password
-          });
-          this.$router.push('/login');
-          console.log('Sign up successful', response.data);
-
-        } else{
-          this.password = ''
-          this.empty = 'Please accept Terms & conditions'
-        }
-
-      } catch (error) {
-        console.error('Login error', error);
-        this.errorsRegister = error.response.data
-        this.password = ''
-        this.checked = false
+      if (this.checked) {
+        this.axios.get(base_Url + 'sanctum/csrf-cookie')
+            .then(() => this.axios.post(base_Url + 'api/register', {
+              name: this.username,
+              email: this.email,
+              password: this.password
+            }))
+            .then(response => {
+              this.$router.push('/login');
+              console.log('Sign up successful');
+            })
+            .catch(error => {
+              this.errorsRegister = error.response.data;
+              this.password = '';
+              this.checked = false;
+              console.error('Sign up error', error);
+            });
+      } else {
+        this.password = '';
+        this.empty = 'Please accept Terms & conditions';
       }
     },
 

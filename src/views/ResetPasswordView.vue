@@ -38,7 +38,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
         </div>
 
 
-        <div v-if="errors" class="rounded-md bg-red-50 p-4">
+        <div v-if="errors || match" class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <button v-on:click="closeAlert()" type="button">
@@ -49,8 +49,9 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
               <h3 class="text-sm font-medium text-red-800">Error</h3>
               <div class="mt-2 text-sm text-red-700">
                 <ul role="list" class="list-disc space-y-1 pl-5">
-                  <li v-if="errors.password">{{errors.password[0]}}</li>
+                  <li v-if="match">{{match}}</li>
                   <li v-if="errors.email">{{errors.email[0]}}</li>
+                  <li v-if="errors.password">{{errors.password[0]}}</li>
                 </ul>
               </div>
             </div>
@@ -99,78 +100,53 @@ export default {
       password :'',
       password_confirmation: '',
       errors:'',
+      match:'',
       empty:'',
     }
   },
 
   methods : {
 
-    async resetPassword(e) {
-      e.preventDefault()
+    resetPassword(e) {
+      e.preventDefault();
 
-      try {
-
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
-
-        if (this.password !== this.password_confirmation || this.password.length <= 0) {
-          this.password = ""
-          this.password_confirmation = ""
-          this.errors = 'Passwords do not match'
-        }
-
-        let email = this.email
-        let password = this.password
-        let password_confirmation = this.password_confirmation
-        let token = this.$route.params.token
-
-        const response = await this.axios.post(base_Url + 'api/reset-password', {
-          email: email,
-          password: password,
-          password_confirmation: password_confirmation,
-          token: token
-        });
-
-        this.$router.push({name: 'Login'})
-
-      } catch (error) {
-          this.errors = error.response.data
-          this.password = ''
-        }
-      },
-
-    async signup() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
-
-        if ( this.checked != false ) {
-
-          const response = await this.axios.post(base_Url + 'api/register', {
-            name: this.username,
-            email: this.email,
-            password: this.password
-          });
-          this.$router.push('/login');
-          console.log('Sign up successful', response.data);
-
-        } else{
-          this.password = ''
-          this.empty = 'Please accept Terms & conditions'
-        }
-
-      } catch (error) {
-        console.error('Login error', error);
-        this.errorsRegister = error.response.data
-        this.password = ''
-        this.checked = false
+      if (this.password !== this.password_confirmation || this.password.length <= 0) {
+        this.password = "";
+        this.password_confirmation = "";
+        this.match = 'Passwords do not match';
+        return; // Stop execution if passwords do not match
       }
+
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => {
+            let email = this.email;
+            let password = this.password;
+            let password_confirmation = this.password_confirmation;
+            let token = this.$route.params.token;
+
+            return this.axios.post(base_Url + 'api/reset-password', {
+              email: email,
+              password: password,
+              password_confirmation: password_confirmation,
+              token: token
+            });
+          })
+          .then(response => {
+            this.$router.push({ name: 'Login' });
+          })
+          .catch(error => {
+            this.errors = error.response ? error.response.data : 'An error occurred';
+            this.email = '';
+            this.password = '';
+          });
     },
 
     closeAlert: function () {
       this.errors = '';
+      this.match = '';
     },
     closeAlertEmpty:function () {
       this.empty = '';

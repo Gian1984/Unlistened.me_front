@@ -252,80 +252,86 @@ export default {
     };
   },
   methods: {
-    async updateAccount() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    updateAccount() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const authStore = useAuthStore();
-
-        const payload = {};
-        if (this.username) {
-          payload.name = this.username;
-        }
-        if (this.email) {
-          payload.email = this.email;
-        }
-
-        const response = await this.axios.post(base_Url +'api/update_user', payload);
-        authStore.updateUser(payload);
-        this.successUpdate = response.data.message;
-        this.errorUpdate = '';
-      } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
-          this.errorUpdate = Object.values(error.response.data.errors).join(', ');
-        } else {
-          this.errorUpdate = 'There was an error updating your information. Please try again.';
-        }
-        this.successUpdate = '';
-        console.error('Update error', error);
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => {
+            const payload = {};
+            if (this.username) {
+              payload.name = this.username;
+            }
+            if (this.email) {
+              payload.email = this.email;
+            }
+            return this.axios.post(base_Url + 'api/update_user', payload);
+          })
+          .then(response => {
+            const payload = {};
+            if (this.username) {
+              payload.name = this.username;
+            }
+            if (this.email) {
+              payload.email = this.email;
+            }
+            const authStore = useAuthStore();
+            authStore.updateUser(payload);
+            this.successUpdate = response.data.message;
+            this.errorUpdate = '';
+          })
+          .catch(error => {
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.errorUpdate = Object.values(error.response.data.errors).join(', ');
+            } else {
+              this.errorUpdate = 'There was an error updating your information. Please try again.';
+            }
+            this.successUpdate = '';
+            console.error('Update error', error);
+          });
     },
-    async sendReq() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
-        const response = await this.axios.post(base_Url + 'api/new-faq', {
-          message_obj:this.object,
-          message_desc:this.description,
-        });
+    sendReq() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        this.successFaq = 'Your message has been sent successfully.';
-        this.errorFaq = ''; // Clear any previous error message
-
-        this.object = '';
-        this.description= '';
-
-      } catch (error) {
-        this.errorFaq = 'There was an error sending your message. Please try again.';
-        this.successFaq = ''; // Clear any previous success message
-
-        this.object = '';
-        this.description= '';
-        console.error('Login error', error);
-
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/new-faq', {
+            message_obj: this.object,
+            message_desc: this.description,
+          }))
+          .then(response => {
+            this.successFaq = 'Your message has been sent successfully.';
+            this.errorFaq = ''; // Clear any previous error message
+            this.object = '';
+            this.description = '';
+          })
+          .catch(error => {
+            this.errorFaq = 'There was an error sending your message. Please try again.';
+            this.successFaq = ''; // Clear any previous success message
+            this.object = '';
+            this.description = '';
+            console.error('Send request error', error);
+          });
     },
-    async deleteAccount(user){
-      console.log('deleteAccount',user);
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
-        const response = await this.axios.delete(base_Url + `api/delete_users/${user.id}`);
-        const authStore = useAuthStore();
-        authStore.clearUser();
-        this.$router.push({ name: 'SignIn' });
+    deleteAccount(user) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-      } catch (error) {
-        console.error(error);
-        this.errorDelete = 'User not find, please try again later.'
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.delete(base_Url + `api/delete_users/${user.id}`))
+          .then(response => {
+            const authStore = useAuthStore();
+            authStore.clearUser();
+            this.$router.push({ name: 'SignIn' });
+          })
+          .catch(error => {
+            console.error('Delete account error', error);
+            this.errorDelete = 'User not found, please try again later.';
+          });
     },
+
     closeAlert: function () {
       this.errorFaq = '';
       this.successFaq = '';

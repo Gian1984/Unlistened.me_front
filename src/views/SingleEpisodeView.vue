@@ -90,42 +90,38 @@ export default {
     },
 
     async fetchEpisode(podcastId) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.get(base_Url + `api/search_episode/${podcastId}`);
-        this.episode = response.data.episode;
-
-        console.log(response)
-
-        if( !this.episode || Object.keys(this.episode).length === 0 ){
-          this.error = "No podcast information found.";
-        }
-
-      } catch (error) {
-        this.error = 'Error fetching episodes'
-        console.error('Error fetching episodes:', error);
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + `api/search_episode/${podcastId}`))
+          .then(response => {
+            this.episode = response.data.episode;
+            if (!this.episode || Object.keys(this.episode).length === 0) {
+              this.error = "No podcast information found.";
+            }
+          })
+          .catch(error => {
+            this.error = 'Error fetching episodes';
+            console.error('Error fetching episodes:', error);
+          });
     },
 
     async sendDownloadData(id, title) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add_download_click', {
-          episode_id: id,
-          episode_title: title,
-        });
-
-        console.log('Download data sent:');
-
-      } catch (error) {
-        console.error('Error sending download data:', error);
-      }
+      await this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add_download_click', {
+            episode_id: id,
+            episode_title: title,
+          }))
+          .then(response => {
+            console.log('Download data sent');
+          })
+          .catch(error => {
+            console.error('Error sending download data:', error);
+          });
     },
 
     downloadPodcast(title, url, id) {
@@ -155,35 +151,33 @@ export default {
       return cleanTitle;
     },
 
-    async deleteBookmark(episodeId) {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
+    deleteBookmark(episodeId) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/delete-bookmark', {
-          episode_id: episodeId,
-        });
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/delete-bookmark', {
+            episode_id: episodeId,
+          }))
+          .then(response => {
+            this.$router.push({ name: 'Bookmarks' });
+          })
+          .catch(error => {
+            const authStore = useAuthStore();
+            const messageStore = useMessageStore();
 
-        this.$router.push({ name: 'Bookmarks' });
-
-      } catch (error) {
-        if (error.response.status === 401) {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Yours session has expire due to lack of activity.')
-          this.$router.push({ name: 'Login' });
-        } else {
-          const authStore = useAuthStore();
-          authStore.clearUser();
-          const messageStore = useMessageStore()
-          messageStore.setMessage('Something went wrong, please try again.')
-          this.$router.push({ name: 'Login' });
-        }
-      }
-    },
-
+            if (error.response && error.response.status === 401) {
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              authStore.clearUser();
+              messageStore.setMessage('Something went wrong, please try again.');
+              this.$router.push({ name: 'Login' });
+            }
+          });
+    }
   }
+
 };
 </script>
