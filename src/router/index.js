@@ -15,6 +15,9 @@ import TermsView from "@/views/TermsView.vue";
 import FeedsView from "@/views/FeedsView.vue";
 import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
 import DashboardView from "@/views/DashboardView.vue";
+import ForbiddenView from "@/views/ForbiddenView.vue";
+import NotFoundView from "@/views/NotFoundView.vue";
+import DocumentationView from "@/views/DocumentationView.vue";
 
 
 const router = createRouter({
@@ -476,6 +479,97 @@ const router = createRouter({
         ]
       }
     },
+    {
+      path: '/documentation',
+      name: 'Documentation',
+      component: DocumentationView,
+      meta: {
+        title: "Unlistened - Documentation",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Find out more about Unlistened, including used technologies, key features, and installation instructions."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Documentation"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/documentation"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Find out more about Unlistened, including used technologies, key features, and installation instructions."
+          }
+        ]
+      }
+    },
+    {
+      path: '/forbidden',
+      name: 'Forbidden',
+      component: ForbiddenView,
+      meta: {
+        title: "Unlistened - Forbidden",
+        metaTags: [
+          {
+            name: 'description',
+            content: "You do not have permission to access this page."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Forbidden"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/forbidden"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "You do not have permission to access this page."
+          }
+        ]
+      }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFoundView,
+      meta: {
+        title: "Unlistened - 404 Not Found",
+        metaTags: [
+          {
+            name: 'description',
+            content: "The page you are looking for does not exist."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - 404 Not Found"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/404"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "The page you are looking for does not exist."
+          }
+        ]
+      }
+    }
+
   ],
 
   scrollBehavior(to, from, savedPosition) {

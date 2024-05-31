@@ -19,6 +19,7 @@ import {
   UsersIcon,
   XMarkIcon,
   BookmarkIcon,
+  PaperClipIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
   { name: 'About', href: '/about', icon: UsersIcon, current: false },
+  { name: 'Documentation', href: '/documentation', icon: PaperClipIcon, current: false },
 ]
 
 const sidebarOpen = ref(false)
