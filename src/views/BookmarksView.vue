@@ -17,14 +17,14 @@ import { useMessageStore } from '@/stores/messageStore'
       <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
         <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
-      <p class="text-base font-semibold leading-7 text-indigo-600">Your Treasure Trove of Tunes & Talks</p>
-      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">& Bookmarks</h1>
+      <p class="text-base font-semibold leading-7 text-indigo-600">Your Favorites</p>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Bookmarks</h1>
       <p class="mt-6 text-lg leading-8 text-gray-900">
-        Ahoy there, podcast pirates! Welcome aboard your Bookmark Bonanza, where every saved episode
-        is a gem just waiting to be unearthed. Navigate through your treasured collection of mind-boggling mysteries,
-        laugh-out-loud comedies, and brain-boosting documentaries.
-        Ready to revisit your favorites or discover new audio adventures?
-        Your playlist paradise awaits—let the binge-listening begin!
+        Here you can find all the podcast episodes you have saved.
+        This feature allows you to easily access and enjoy your favorite episodes
+        at any time. Whether you want to revisit a thought-provoking discussion or
+        catch up on missed content, your bookmarks keep everything in one convenient
+        place for quick and easy listening.
       </p>
     </div>
   </div>

@@ -73,7 +73,7 @@ export default {
         let epID = this.currentEpisode.id
         let epTI = this.currentEpisode.title
 
-        const response = await this.axios.post(base_Url + 'api/add_click', {
+        const response = await this.axios.post(base_Url + 'api/add_play_click', {
           episode_id: epID,
           episode_title: epTI,
         });

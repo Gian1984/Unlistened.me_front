@@ -4,17 +4,17 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 </script>
 <template>
   <div class="bg-white px-6 py-32 lg:px-8">
-    <div class="mx-auto max-w-3xl text-base leading-7 text-gray-700">
+    <div class="mx-auto max-w-7xl text-base leading-7 text-gray-700">
       <p class="text-base font-semibold leading-7 text-indigo-600">Documentation</p>
       <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-6xl">Unlistened.me</h1>
       <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">Overview</h2>
-      <div class="mt-10 max-w-2xl">
+      <div class="mt-10 max-w-7xl">
 
         <p>Unlistened.me is a modern podcast player application designed to provide a seamless and enjoyable listening experience. The app is built using the latest web technologies to ensure high performance, security, and a user-friendly interface.</p>
 
-        <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">Technologies Used</h2>
+        <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900 md:text-center">Technologies Used</h2>
 
-        <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-600">
+        <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-600 md:mx-auto">
           <li class="flex gap-x-3">
             <CheckCircleIcon class="mt-1 h-5 w-5 flex-none text-indigo-600" aria-hidden="true" />
             <span>
@@ -46,9 +46,9 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
         </ul>
 
 
-        <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">Key Features</h2>
+        <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900 md:text-center">Key Features</h2>
 
-        <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-600">
+        <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-600 md:mx-auto">
           <li class="flex gap-x-3">
             <CheckCircleIcon class="mt-1 h-5 w-5 flex-none text-indigo-600" aria-hidden="true" />
             <span>
