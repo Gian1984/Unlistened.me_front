@@ -2,12 +2,6 @@
 import {useAuthStore} from "@/stores/authStore.js";
 import { useMessageStore } from '@/stores/messageStore'
 
-const stats = [
-  { name: 'Number of deploys', value: '405' },
-  { name: 'Average deploy time', value: '3.65', unit: 'mins' },
-  { name: 'Number of servers', value: '3' },
-  { name: 'Success rate', value: '98.5%' },
-]
 const statuses = { Completed: 'text-green-400 bg-green-400/10', Error: 'text-rose-400 bg-rose-400/10' }
 const activityItems = [
   {
@@ -65,11 +59,10 @@ const activityItems = [
         <div class="bg-gray-900">
           <div class="mx-auto max-w-7xl">
             <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
-              <div v-for="stat in stats" :key="stat.name" class="bg-gray-900 px-4 py-6 sm:px-6 lg:px-8">
-                <p class="text-sm font-medium leading-6 text-gray-400">{{ stat.name }}</p>
+              <div v-for="(value, key) in topStats" :key="key" class="bg-gray-900 px-4 py-6 sm:px-6 lg:px-8">
+                <p class="text-sm font-medium leading-6 text-gray-400">{{ key }}</p>
                 <p class="mt-2 flex items-baseline gap-x-2">
-                  <span class="text-4xl font-semibold tracking-tight text-white">{{ stat.value }}</span>
-                  <span v-if="stat.unit" class="text-sm text-gray-400">{{ stat.unit }}</span>
+                  <span class="text-4xl font-semibold tracking-tight text-white">{{ value }}</span>
                 </p>
               </div>
             </div>
@@ -165,7 +158,7 @@ export default {
   components: { Pie },
   data() {
     return {
-      status:null,
+      topStats:null,
 
       chartData: {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -192,8 +185,9 @@ export default {
       this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.get(base_Url + 'api/get_stats'))
           .then(response => {
-            console.log(response);
-            this.status = response.data;
+            const {  'Podcasts downloaded per month': clicksDownloadPerMonth, 'Podcasts listened per month': clicksPlayPerMonth, ...filteredData } = response.data;
+            console.log(filteredData);
+            this.topStats = filteredData;
           })
           .catch(error => {
             const authStore = useAuthStore();

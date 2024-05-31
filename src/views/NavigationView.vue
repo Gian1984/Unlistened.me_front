@@ -1,5 +1,6 @@
 <script setup>
 import {ref} from 'vue'
+import { computed } from 'vue';
 import {
   Dialog,
   DialogPanel,
@@ -24,6 +25,11 @@ import {
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
 let authStore = useAuthStore();
+authStore.initializeAuth(); // Ensure the store is initialized
+
+// Create computed properties to check authentication and admin status
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isAdmin = computed(() => authStore.isAdmin);
 
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
@@ -72,10 +78,16 @@ const sidebarOpen = ref(false)
                         </li>
                       </ul>
                     </li>
-                    <li v-if="authStore.user" class="mt-auto">
+                    <li v-if="isAuthenticated" class="mt-auto">
                       <router-link to="/settings"  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
                         <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                         Settings
+                      </router-link>
+                    </li>
+                    <li v-if="isAuthenticated && isAdmin">
+                      <router-link to="/dashboard"  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
+                        <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                        Dashboard
                       </router-link>
                     </li>
                   </ul>
@@ -106,10 +118,16 @@ const sidebarOpen = ref(false)
                 </li>
               </ul>
             </li>
-            <li v-if="authStore.user" class="mt-auto">
+            <li v-if="isAuthenticated" class="mt-auto">
               <router-link   to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
                 <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                 Settings
+              </router-link>
+            </li>
+            <li v-if="isAuthenticated && isAdmin">
+              <router-link to="/dashboard" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
+                <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                Dashboard
               </router-link>
             </li>
           </ul>
@@ -186,6 +204,7 @@ const sidebarOpen = ref(false)
 </template>
 <script>
 import {useAuthStore} from "@/stores/authStore.js";
+
 export default {
   data() {
     return {
