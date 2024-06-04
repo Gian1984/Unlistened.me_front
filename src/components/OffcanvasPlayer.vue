@@ -78,7 +78,7 @@ export default {
           episode_title: epTI,
         });
 
-        console.log('Play data sent:', response.data);
+        console.log('Play data sent');
 
       } catch (error) {
         console.error('Error sending play data:', error);

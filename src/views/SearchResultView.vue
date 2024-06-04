@@ -1,6 +1,11 @@
 <script setup>
 import Footer from '../components/Footer.vue'
 import {ArrowRightIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
+let authStore = useAuthStore();
+authStore.initializeAuth();
+import {useMessageStore} from "@/stores/messageStore.js";
+let messageStore = useMessageStore();
+messageStore.initializeMessage();
 </script>
 <template>
 
@@ -31,9 +36,9 @@ import {ArrowRightIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
         </p>
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article v-for="feed in feeds" :key="feed.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
-            <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-              <img :src="feed.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
-              <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
+            <div class="relative aspect-square lg:w-64 lg:shrink-0">
+              <img :src="feed.image" alt="" class="absolute inset-0 aspect-square w-full rounded-2xl bg-gray-50 object-cover" />
+              <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
             </div>
             <div>
               <div class="flex items-center gap-x-4 text-xs">
@@ -135,7 +140,17 @@ export default {
             console.log('Add favorite successful');
           })
           .catch(error => {
-            console.error('Error', error);
+            if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              const messageStore = useMessageStore();
+              messageStore.setMessage('To access this functionality you have to be logged in');
+              this.$router.push({ name: 'Login' });
+            }
           });
     }
   },

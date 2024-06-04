@@ -1,32 +1,37 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";
+import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vue/24/outline/index.js";import {useAuthStore} from "@/stores/authStore.js";
+let authStore = useAuthStore();
+authStore.initializeAuth();
+import {useMessageStore} from "@/stores/messageStore.js";
+let messageStore = useMessageStore();
+messageStore.initializeMessage();
 </script>
 <template>
-  <div v-if="podcastInfo && !error" class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
+  <div v-if="feedInfo && !error" class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:max-w-4xl">
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article class="relative isolate flex flex-col gap-8 lg:flex-row">
-            <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-              <img :src="podcastInfo.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
-              <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
+            <div class="relative aspect-square lg:w-64 lg:shrink-0">
+              <img :src="feedInfo.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
+              <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
             </div>
             <div>
               <div class="flex items-center gap-x-4 text-xs">
-                <time :datetime="podcastInfo.newestItemPubdate" class="text-gray-500">{{ podcastInfo.datePublishedPretty }}</time>
+                <time :datetime="feedInfo.newestItemPubdate" class="text-gray-500">{{ feedInfo.datePublishedPretty }}</time>
               </div>
               <div class="group relative max-w-xl">
                 <h1 class="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    {{ podcastInfo.title }}
+                    Ciao {{ feedInfo.title }}
                 </h1>
-                <p class="mt-5 text-sm leading-6 text-gray-600">{{ stripHtmlTags(podcastInfo.description ) }}</p>
+                <p class="mt-5 text-sm leading-6 text-gray-600">{{ stripHtmlTags( feedInfo.description ) }}</p>
               </div>
               <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                 <div class="relative flex items-center gap-x-4">
-                  <img :src="podcastInfo.image" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
+                  <img :src="feedInfo.image" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                   <div class="text-sm leading-6 flex">
-                    <button @click="addFavourite(podcastInfo.id, podcastInfo.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                    <button @click="addFavourite( feedInfo.id, feedInfo.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                       <StarIcon class="h-5 w-5" />
                     </button>
                   </div>
@@ -95,6 +100,7 @@ import {BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon} from "@heroicons/vu
 <script>
 import OffcanvasPlayer from '../components/OffcanvasPlayer.vue';
 const base_Url = import.meta.env.VITE_BASE_URL
+
 export default {
   components: {
     OffcanvasPlayer
@@ -102,7 +108,7 @@ export default {
 
   data() {
     return {
-      podcastInfo:[],
+      feedInfo:[],
       episodes: [],
       error:null,
       selectedEpisode: null,
@@ -140,9 +146,8 @@ export default {
       this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.get(base_Url + `api/feed_info/${feedId}`))
           .then(response => {
-            this.podcastInfo = response.data.feed;
-
-            if (!this.podcastInfo || Object.keys(this.podcastInfo).length === 0) {
+            this.feedInfo = response.data.feed;
+            if (!this.feedInfo || Object.keys(this.feedInfo).length === 0) {
               this.error = "No podcast information found.";
             }
           })
@@ -166,17 +171,27 @@ export default {
           });
     },
 
-    addFavourite(podcastId, podcastTitle) {
+    addFavourite(feedId, feedTitle) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
       this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.post(base_Url + 'api/add-favorite', {
-            podcast_id: podcastId,
-            title: podcastTitle,
+            feed_id: feedId,
+            title: feedTitle,
           }))
           .catch(error => {
-            console.error('Login error', error);
+            if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              const messageStore = useMessageStore();
+              messageStore.setMessage('To access this functionality you have to be logged in');
+              this.$router.push({ name: 'Login' });
+            }
           });
     },
 
@@ -234,7 +249,17 @@ export default {
             title: episodeTitle,
           }))
           .catch(error => {
-            console.error('Login error', error);
+            if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
+              authStore.clearUser();
+              messageStore.setMessage('Your session has expired due to lack of activity.');
+              this.$router.push({ name: 'Login' });
+            } else {
+              const messageStore = useMessageStore();
+              messageStore.setMessage('To access this functionality you have to be logged in');
+              this.$router.push({ name: 'Login' });
+            }
           });
     },
   }

@@ -5,6 +5,9 @@ export const useMessageStore = defineStore('message', {
         message: ''
     }),
     actions: {
+        initializeMessage() {
+            this.message = null;
+        },
         setMessage(message) {
             this.message = message
         },

@@ -1,8 +1,15 @@
 <script setup>
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
 import { useMessageStore } from '@/stores/messageStore'
 
-const statuses = { Completed: 'text-green-400 bg-green-400/10', Error: 'text-rose-400 bg-rose-400/10' }
+const statuses = {
+  Complete: 'text-green-700 bg-green-50 ring-green-600/20',
+  'In progress': 'text-gray-600 bg-gray-50 ring-gray-500/10',
+  Archived: 'text-yellow-800 bg-yellow-50 ring-yellow-600/20',
+}
+
 const activityItems = [
   {
     user: {
@@ -69,55 +76,59 @@ const activityItems = [
           </div>
         </div>
         <!-- Activity list -->
-        <div class="border-t border-white/10 pt-11">
-          <h2 class="px-4 text-base font-semibold leading-7 text-white sm:px-6 lg:px-8">Latest activity</h2>
-          <table class="mt-6 w-full whitespace-nowrap text-left">
-            <colgroup>
-              <col class="w-full sm:w-4/12" />
-              <col class="lg:w-4/12" />
-              <col class="lg:w-2/12" />
-              <col class="lg:w-1/12" />
-              <col class="lg:w-1/12" />
-            </colgroup>
-            <thead class="border-b border-white/10 text-sm leading-6 text-white">
-            <tr>
-              <th scope="col" class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8">User</th>
-              <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">Commit</th>
-              <th scope="col" class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">Status</th>
-              <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20">Duration</th>
-              <th scope="col" class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">Deployed at</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-            <tr v-for="item in activityItems" :key="item.commit">
-              <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                <div class="flex items-center gap-x-4">
-                  <img :src="item.user.imageUrl" alt="" class="h-8 w-8 rounded-full bg-gray-800" />
-                  <div class="truncate text-sm font-medium leading-6 text-white">{{ item.user.name }}</div>
+
+
+        <div class="border-t border-white/10 py-24">
+          <h2 class="text-2xl font-bold leading-7 text-white">Users list</h2>
+          <ul role="list" class="divide-y divide-gray-100">
+            <li v-for="user in users" :key="user.id" class="flex items-center justify-between gap-x-6 py-5">
+              <div class="min-w-0">
+                <div class="flex items-start gap-x-3">
+                  <p class="text-sm font-semibold leading-6 text-white">{{ user.name }}</p>
+                  <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset">{{ user.email }}</p>
                 </div>
-              </td>
-              <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                <div class="flex gap-x-3">
-                  <div class="font-mono text-sm leading-6 text-gray-400">{{ item.commit }}</div>
-                  <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">{{ item.branch }}</span>
+                <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                  <p class="whitespace-nowrap">
+                    Created at <time :datetime="user.created_at">{{ user.created_at }}</time>
+                  </p>
+                  <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
+                    <circle cx="1" cy="1" r="1" />
+                  </svg>
+                  <p class="truncate">Role: {{ user.is_admin === 1 ? 'Admin' : 'User' }}</p>
                 </div>
-              </td>
-              <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
-                <div class="flex items-center justify-end gap-x-2 sm:justify-start">
-                  <time class="text-gray-400 sm:hidden" :datetime="item.dateTime">{{ item.date }}</time>
-                  <div :class="[statuses[item.status], 'flex-none rounded-full p-1']">
-                    <div class="h-1.5 w-1.5 rounded-full bg-current" />
-                  </div>
-                  <div class="hidden text-white sm:block">{{ item.status }}</div>
-                </div>
-              </td>
-              <td class="hidden py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-20">{{ item.duration }}</td>
-              <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                <time :datetime="item.dateTime">{{ item.date }}</time>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+              </div>
+              <div class="flex flex-none items-center gap-x-4">
+                <a href="#" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
+                >View project<span class="sr-only">, {{ user.name }}</span></a
+                >
+                <Menu as="div" class="relative flex-none">
+                  <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900">
+                    <span class="sr-only">Open options</span>
+                    <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
+                  </MenuButton>
+                  <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                      <MenuItem v-slot="{ active }">
+                        <a href="#" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
+                        >Edit<span class="sr-only">, {{ user.name }}</span></a
+                        >
+                      </MenuItem>
+                      <MenuItem v-slot="{ active }">
+                        <a href="#" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
+                        >Move<span class="sr-only">, {{ user.name }}</span></a
+                        >
+                      </MenuItem>
+                      <MenuItem v-slot="{ active }">
+                        <a href="#" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"
+                        >Delete<span class="sr-only">, {{ user.name }}</span></a
+                        >
+                      </MenuItem>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+              </div>
+            </li>
+          </ul>
         </div>
 
       </div>
@@ -158,6 +169,7 @@ export default {
   components: { Pie },
   data() {
     return {
+      users:null,
       topStats:null,
 
       chartData: {
@@ -176,6 +188,7 @@ export default {
   },
   created() {
     this.fetchStats();
+    this.getAllUsers();
   },
   methods: {
     fetchStats() {
@@ -203,6 +216,20 @@ export default {
             }
           });
     },
+    getAllUsers() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + 'api/users'))
+          .then(response => {
+            console.log(response)
+            this.users = response.data;
+          })
+          .catch(error => {
+            console.log(error)
+          });
+    }
   }
 }
 </script>

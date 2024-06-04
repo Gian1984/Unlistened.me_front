@@ -2,6 +2,11 @@
 import Footer from '../components/Footer.vue'
 import OffcanvasPlayer from '../components/OffcanvasPlayer.vue';
 import {ArrowDownTrayIcon, PlayIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
+let authStore = useAuthStore();
+authStore.initializeAuth();
+import {useMessageStore} from "@/stores/messageStore.js";
+let messageStore = useMessageStore();
+messageStore.initializeMessage();
 </script>
 <template>
   <div v-if="episode && !error" class="bg-white pb-24 sm:pb-32 pt-4 sm:pt-6">
@@ -9,9 +14,9 @@ import {ArrowDownTrayIcon, PlayIcon, TrashIcon} from "@heroicons/vue/24/outline/
       <div class="mx-auto max-w-2xl lg:max-w-4xl">
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article class="relative isolate flex flex-col gap-8 lg:flex-row">
-            <div class="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
+            <div class="relative aspect-square lg:w-64 lg:shrink-0">
               <img :src="episode.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
-              <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
+              <div class="bsolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
             </div>
             <div>
               <div class="flex items-center gap-x-4 text-xs">
@@ -67,6 +72,7 @@ import {ArrowDownTrayIcon, PlayIcon, TrashIcon} from "@heroicons/vue/24/outline/
 </template>
 <script>
 const base_Url = import.meta.env.VITE_BASE_URL
+
 export default {
   data() {
     return {
@@ -163,16 +169,15 @@ export default {
             this.$router.push({ name: 'Bookmarks' });
           })
           .catch(error => {
-            const authStore = useAuthStore();
-            const messageStore = useMessageStore();
-
             if (error.response && error.response.status === 401) {
+              const authStore = useAuthStore();
+              const messageStore = useMessageStore();
               authStore.clearUser();
               messageStore.setMessage('Your session has expired due to lack of activity.');
               this.$router.push({ name: 'Login' });
             } else {
-              authStore.clearUser();
-              messageStore.setMessage('Something went wrong, please try again.');
+              const messageStore = useMessageStore();
+              messageStore.setMessage('To access this functionality you have to be logged in');
               this.$router.push({ name: 'Login' });
             }
           });
