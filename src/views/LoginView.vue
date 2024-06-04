@@ -10,7 +10,6 @@ import { useMessageStore } from '@/stores/messageStore';
       <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Your Company" />
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
       <p v-if="message" class="mt-5 text-center text-white font-bold">{{ message }}</p>
-      <p v-if="loginMessage" class="mt-5 text-center text-white font-bold">{{ loginMessage }}</p>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -30,7 +29,7 @@ import { useMessageStore } from '@/stores/messageStore';
             </div>
           </div>
           <div class="mt-2">
-            <input  v-model="password" id="password" name="password" type="password" autocomplete="current-password" required="" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
+            <input  v-model="password" id="password" name="password" type="password"  required="" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
           </div>
         </div>
 
@@ -77,10 +76,6 @@ export default {
       const messageStore = useMessageStore()
       return messageStore.message
     },
-    loginMessage(){
-      const loginMessage = useAuthStore()
-      return loginMessage.loginMessage
-    }
   },
   methods: {
     login() {
@@ -97,15 +92,11 @@ export default {
             authStore.setUser(response.data.user);
             const messageStore = useMessageStore();
             messageStore.clearMessage();
-            const loginMessage = useAuthStore();
-            loginMessage.clearLoginMessage();
             this.$router.push('/');
           })
           .catch(error => {
             const messageStore = useMessageStore();
             messageStore.clearMessage();
-            const loginMessage = useAuthStore();
-            loginMessage.clearLoginMessage();
             this.errors = error.response.data;
           });
     },

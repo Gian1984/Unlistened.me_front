@@ -10,48 +10,6 @@ const statuses = {
   Archived: 'text-yellow-800 bg-yellow-50 ring-yellow-600/20',
 }
 
-const activityItems = [
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-          'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '2d89f0c8',
-    branch: 'main',
-    status: 'Completed',
-    duration: '25s',
-    date: '45 minutes ago',
-    dateTime: '2023-01-23T11:00',
-  },
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-          'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '2d89f0c8',
-    branch: 'main',
-    status: 'Completed',
-    duration: '25s',
-    date: '45 minutes ago',
-    dateTime: '2023-01-23T11:00',
-  },
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-          'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '2d89f0c8',
-    branch: 'main',
-    status: 'Completed',
-    duration: '25s',
-    date: '45 minutes ago',
-    dateTime: '2023-01-23T11:00',
-  },
-  // More items...
-]
 </script>
 <template>
   <div class="min-h-full">
@@ -134,19 +92,12 @@ const activityItems = [
       </div>
 
       <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-
         <div class="grid grid-cols-1 grid-rows-2 lg:grid-cols-2 lg:grid-rows-1">
-          <div class="relative flex">
-            <Pie
-                :options="chartOptions"
-                :data="chartData"
-            />
+          <div class="relative flex" v-if="downloadChartData">
+            <Pie :options="chartOptions" :data="downloadChartData" />
           </div>
-          <div class="relative flex">
-            <Pie
-                :options="chartOptions"
-                :data="chartData"
-            />
+          <div class="relative flex" v-if="playChartData">
+            <Pie :options="chartOptions" :data="playChartData" />
           </div>
         </div>
       </div>
@@ -170,20 +121,12 @@ export default {
   data() {
     return {
       users:null,
-      topStats:null,
-
-      chartData: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        datasets: [
-          {
-            backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600'],
-            data: [65, 59, 80, 81, 56, 55, 40, 59, 60, 62, 70, 72],
-          }
-        ]
-      },
+      downloadChartData: null,
+      playChartData: null,
       chartOptions: {
         responsive: true,
-      }
+      },
+      topStats:null,
     }
   },
   created() {
@@ -198,9 +141,34 @@ export default {
       this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.get(base_Url + 'api/get_stats'))
           .then(response => {
+            console.log(response.data)
+
             const {  'Podcasts downloaded per month': clicksDownloadPerMonth, 'Podcasts listened per month': clicksPlayPerMonth, ...filteredData } = response.data;
-            console.log(filteredData);
             this.topStats = filteredData;
+
+            const currentYear = new Date().getFullYear();
+
+            const prepareChartData = (data, backgroundColor) => ({
+              labels: data.map(item => `Month ${item.month}`),
+              datasets: [{
+                backgroundColor,
+                data: data.map(item => item.clicks),
+              }]
+            });
+
+            this.downloadChartData = prepareChartData(
+                clicksDownloadPerMonth.filter(item => item.year === currentYear),
+                ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
+            );
+
+            console.log(this.downloadChartData)
+
+            this.playChartData = prepareChartData(
+                clicksPlayPerMonth.filter(item => item.year === currentYear),
+                ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
+            );
+
+
           })
           .catch(error => {
             const authStore = useAuthStore();

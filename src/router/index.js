@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
+import { useMessageStore } from '@/stores/messageStore'
 import HomeView from '@/views/HomeView.vue'
 import AboutView from "@/views/AboutView.vue";
 import FeedEpisodesView from '@/views/FeedEpisodesView.vue'
@@ -619,15 +620,16 @@ router.beforeEach((to, from, next) => {
       // Add the meta tags to the document head.
       .forEach(tag => document.head.appendChild(tag));
 
+      const messageStore = useMessageStore()
       const authStore = useAuthStore();
       const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
       const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
       if (requiresAuth && !authStore.isAuthenticated) {
-        authStore.setLoginMessage('To access this page you have to be logged in.');
+        messageStore.setMessage('To access this page you have to be logged in.');
         next({ name: 'Login' });
       } else if (requiresAdmin && !authStore.isAdmin) {
-        authStore.setLoginMessage('You must be an admin to access this page.');
+        messageStore.setMessage('You must be an admin to access this page.');
         next({ name: 'Login' }); // or another route to redirect non-admin users
       } else {
         next();

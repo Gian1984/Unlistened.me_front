@@ -36,11 +36,5 @@ export const useAuthStore = defineStore('auth', {
             this.user = null;
             localStorage.removeItem('auth');
         },
-        setLoginMessage(loginMessage) {
-            this.loginMessage = loginMessage;
-        },
-        clearLoginMessage() {
-            this.loginMessage = null;
-        },
     },
 });

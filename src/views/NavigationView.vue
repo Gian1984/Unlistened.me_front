@@ -203,7 +203,9 @@ const sidebarOpen = ref(false)
   </div>
 </template>
 <script>
+const base_Url = import.meta.env.VITE_BASE_URL
 import {useAuthStore} from "@/stores/authStore.js";
+import {useMessageStore} from "@/stores/messageStore.js";
 
 export default {
   data() {
@@ -217,11 +219,32 @@ export default {
       this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
       this.searchQuery='';
     },
+
     logout() {
-      const authStore = useAuthStore();
-      authStore.clearUser();
-      this.$router.push({ name: 'Login' });
-    }
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/logout'))
+          .then(response => {
+
+            const authStore = useAuthStore();
+            authStore.clearUser();
+
+            const messageStore = useMessageStore();
+            messageStore.setMessage('Successfully logged out');
+            this.$router.push({ name: 'Login' });
+
+          })
+          .catch(error => {
+
+            const messageStore = useMessageStore();
+            console.log(error)
+            messageStore.setMessage('Failed to log out',error);
+
+          });
+    },
+
   },
 
 };
