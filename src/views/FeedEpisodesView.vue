@@ -219,7 +219,7 @@ export default {
             // Auto-hide the notification after 3 seconds
             setTimeout(() => {
               show.value = false;
-            }, 3000);
+            }, 5000);
           })
           .catch(error => {
             if (error.response && error.response.status === 401) {
@@ -291,11 +291,9 @@ export default {
           }))
           .then(() => {
             show.value = true;
-
-            // Auto-hide the notification after 3 seconds
             setTimeout(() => {
               show.value = false;
-            }, 3000);
+            }, 5000);
           })
           .catch(error => {
             if (error.response && error.response.status === 401) {

@@ -105,7 +105,7 @@ export default {
               messageStore.setMessage('Your session has expired due to lack of activity.');
               this.$router.push({ name: 'Login' });
             } else {
-              console.error('Error fetching favorites:', error);
+              console.error('Error fetching favorites');
             }
           });
     },

@@ -139,8 +139,11 @@ export default {
           })
           .catch(error => {
             this.errors = error.response ? error.response.data : 'An error occurred';
-            this.email = '';
-            this.password = '';
+            setTimeout(() => {
+              this.errors = null;
+              this.email = null;
+              this.password = null;
+            }, 5000);
           });
     },
 

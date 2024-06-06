@@ -114,12 +114,12 @@ const statuses = {
           <h3 class="text-2xl font-bold leading-7 text-white">Statistics per month</h3>
         </div>
         <div class="grid grid-cols-1 grid-rows-2 sm:grid-cols-2 sm:grid-rows-1">
-          <div class="relative flex justify-center py-10 px-8" v-if="downloadChartData">
-            <h2 class="text-sm font-semibold leading-6 text-white">Total download</h2>
-              <Pie :options="chartOptions" :data="downloadChartData" />
+          <div class="relative sm:flex sm:justify-center py-10 px-8" v-if="downloadChartData">
+            <h2 class="sm:pb-4 text-sm font-semibold leading-6 text-white">Downloaded</h2>
+            <Pie :options="chartOptions" :data="downloadChartData" />
           </div>
-          <div class="relative flex justify-center py-10 px-8" v-if="playChartData">
-            <h3 class="text-sm font-semibold leading-6 text-white">Total play</h3>
+          <div class="relative sm:flex sm:justify-center py-10 px-8" v-if="playChartData">
+            <h3 class="sm:pb-4 text-sm font-semibold leading-6 text-white">Played</h3>
             <Pie :options="chartOptions" :data="playChartData" />
           </div>
         </div>
@@ -166,7 +166,6 @@ export default {
       this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.get(base_Url + 'api/get_stats'))
           .then(response => {
-            console.log(response.data)
 
             const {  'Podcasts downloaded per month': clicksDownloadPerMonth, 'Podcasts listened per month': clicksPlayPerMonth, ...filteredData } = response.data;
             this.topStats = filteredData;
@@ -187,13 +186,10 @@ export default {
                 ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
             );
 
-            console.log(this.downloadChartData)
-
             this.playChartData = prepareChartData(
                 clicksPlayPerMonth.filter(item => item.year === currentYear),
                 ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
             );
-
 
           })
           .catch(error => {
@@ -221,7 +217,7 @@ export default {
             this.users = response.data;
           })
           .catch(error => {
-            console.log(error)
+            console.log('No data user')
           });
     },
     deleteAccount(id, index) {
@@ -238,10 +234,10 @@ export default {
             // Auto-hide the notification after 3 seconds
             setTimeout(() => {
               show.value = false;
-            }, 3000);
+            }, 5000);
           })
           .catch(error => {
-            console.error('Delete account error', error);
+            console.error('Delete account error');
           });
     },
   }

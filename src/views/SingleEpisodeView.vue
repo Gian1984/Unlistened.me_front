@@ -142,7 +142,6 @@ export default {
           })
           .catch(error => {
             this.error = 'Error fetching episodes';
-            console.error('Error fetching episodes:', error);
           });
     },
 
@@ -159,7 +158,7 @@ export default {
             console.log('Download data sent');
           })
           .catch(error => {
-            console.error('Error sending download data:', error);
+            console.error('Error sending download data');
           });
     },
 
@@ -200,11 +199,9 @@ export default {
           }))
           .then(() => {
             show.value = true;
-
-            // Auto-hide the notification after 3 seconds
             setTimeout(() => {
               show.value = false;
-            }, 3000);
+            }, 5000);
           })
           .catch(error => {
             if (error.response && error.response.status === 401) {

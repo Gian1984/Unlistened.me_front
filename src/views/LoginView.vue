@@ -98,6 +98,11 @@ export default {
             const messageStore = useMessageStore();
             messageStore.clearMessage();
             this.errors = error.response.data;
+            setTimeout(() => {
+                  this.errors = null;
+                  this.email = null;
+                  this.password = null;
+            }, 5000);
           });
     },
 

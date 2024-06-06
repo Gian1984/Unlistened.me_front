@@ -278,13 +278,22 @@ export default {
             const authStore = useAuthStore();
             authStore.updateUser(payload);
             this.successUpdate = response.data.message;
+            setTimeout(() => {
+              this.successUpdate = null;
+            }, 10000);
             this.errorUpdate = '';
           })
           .catch(error => {
             if (error.response && error.response.data && error.response.data.errors) {
               this.errorUpdate = Object.values(error.response.data.errors).join(', ');
+              setTimeout(() => {
+                this.errorUpdate = null;
+              }, 5000);
             } else {
               this.errorUpdate = 'There was an error updating your information. Please try again.';
+              setTimeout(() => {
+                this.errorUpdate = null;
+              }, 5000);
             }
             this.successUpdate = '';
             console.error('Update error', error);
@@ -305,12 +314,18 @@ export default {
             this.errorFaq = ''; // Clear any previous error message
             this.object = '';
             this.description = '';
+            setTimeout(() => {
+              this.successFaq = null;
+            }, 5000);
           })
           .catch(error => {
             this.errorFaq = 'There was an error sending your message. Please try again.';
             this.successFaq = ''; // Clear any previous success message
             this.object = '';
             this.description = '';
+            setTimeout(() => {
+              this.errorFaq = null;
+            }, 5000);
             console.error('Send request error', error);
           });
     },
@@ -327,8 +342,11 @@ export default {
             this.$router.push({ name: 'SignIn' });
           })
           .catch(error => {
-            console.error('Delete account error', error);
+            console.error('Delete account error');
             this.errorDelete = 'User not found, please try again later.';
+            setTimeout(() => {
+              this.errorDelete = null;
+            }, 5000);
           });
     },
 

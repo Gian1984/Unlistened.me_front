@@ -93,6 +93,9 @@ export default {
           this.validation = response.data.message
         }).catch((error)=>{
           this.errors = error
+          setTimeout(() => {
+            this.errors = null;
+          }, 5000);
         });
       }
     },
@@ -112,6 +115,9 @@ export default {
           .catch(error => {
             this.email = '';
             this.errors = error.response.data.message;
+            setTimeout(() => {
+              this.errors = null;
+            }, 5000);
           });
     },
 

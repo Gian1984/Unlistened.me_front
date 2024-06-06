@@ -124,17 +124,22 @@ export default {
             }))
             .then(response => {
               this.$router.push('/login');
-              console.log('Sign up successful');
             })
             .catch(error => {
               this.errorsRegister = error.response.data;
-              this.password = '';
-              this.checked = false;
-              console.error('Sign up error', error);
+              setTimeout(() => {
+                this.errorsRegister = null;
+                this.email = null;
+                this.password = null;
+                this.checked = false;
+              }, 5000);
             });
       } else {
         this.password = '';
         this.empty = 'Please accept Terms & conditions';
+        setTimeout(() => {
+          this.empty = null;
+        }, 5000);
       }
     },
 
