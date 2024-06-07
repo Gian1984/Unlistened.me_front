@@ -79,7 +79,7 @@ messageStore.initializeMessage();
             Happy listening!
           </p>
           <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            <article v-for="(feed, index) in visiblePodcasts" :key="feed.id"  class="relative isolate flex flex-col gap-8 lg:flex-row">
+            <article v-for="(feed, index) in visiblePodcasts" :key="index"  class="relative isolate flex flex-col gap-8 lg:flex-row">
               <div class="relative aspect-square lg:w-64 lg:shrink-0">
                 <img :src="feed.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 aspect-square w-full rounded-2xl bg-gray-50 object-cover" />
                 <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
