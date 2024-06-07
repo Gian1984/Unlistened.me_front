@@ -45,7 +45,7 @@ messageStore.initializeMessage();
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article class="relative isolate flex flex-col gap-8 lg:flex-row">
             <div class="relative aspect-square lg:w-64 lg:shrink-0">
-              <img :src="feedInfo.image" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
+              <img :src="feedInfo.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
               <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
             </div>
             <div>
@@ -60,7 +60,7 @@ messageStore.initializeMessage();
               </div>
               <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                 <div class="relative flex items-center gap-x-4">
-                  <img :src="feedInfo.image" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
+                  <img :src="feedInfo.image || '/images/image_not_available_170.webp'" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                   <div class="text-sm leading-6 flex">
                     <button @click="addFavourite( feedInfo.id, feedInfo.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
                       <StarIcon class="h-5 w-5" />
