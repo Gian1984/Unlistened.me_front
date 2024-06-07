@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
 import { useMessageStore } from '@/stores/messageStore'
-import {XMarkIcon} from "@heroicons/vue/20/solid/index.js";
+import {XMarkIcon, XCircleIcon} from "@heroicons/vue/20/solid/index.js";
 import {CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
 
 const statuses = {
@@ -24,10 +24,10 @@ const statuses = {
           <div class="p-4">
             <div class="flex items-start">
               <div class="flex-shrink-0">
-                <CheckCircleIcon class="h-6 w-6 text-green-400" aria-hidden="true" />
+                <component :is="notificationType === 'success' ? CheckCircleIcon : XCircleIcon" :class="notificationType === 'success' ? 'h-6 w-6 text-green-400' : 'h-6 w-6 text-red-500'" aria-hidden="true" />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
-                <p class="text-sm font-medium text-gray-900">Successfully removed!</p>
+                <p class="text-sm font-medium text-gray-900">”{{message}}</p>
               </div>
               <div class="ml-4 flex flex-shrink-0">
                 <button type="button" @click="show = false" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -98,8 +98,7 @@ const statuses = {
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                   <MenuItems class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                     <MenuItem v-slot="{ active }">
-                      <button :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']">Make Admin<span class="sr-only">, {{ user.name }}</span>
-                      </button>
+                      <button @click="toggleAdminStatus(user)" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']"> {{ user.is_admin ? 'Revoke Admin' : 'Make Admin' }}<span class="sr-only">, {{ user.name }}</span></button>
                     </MenuItem>
                   </MenuItems>
                 </transition>
@@ -136,6 +135,8 @@ import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { ref } from 'vue'
 const show = ref(false)
+const message = ref('');
+const notificationType = ref('success');
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -217,8 +218,48 @@ export default {
             this.users = response.data;
           })
           .catch(error => {
-            console.log('No data user')
+            message.value = 'Error getting users list. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
           });
+    },
+    toggleAdminStatus(user) {
+
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/update-status', {
+            user_id: user.id,
+            is_admin: user.is_admin ? 0 : 1
+          }))
+          .then(response => {
+            user.is_admin = response.data.is_admin;
+            show.value = true;
+            message.value = response.data.message;
+            notificationType.value = 'success';
+
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          })
+          .catch(error => {
+            message.value = 'Error updating status. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          });
+
+
+
     },
     deleteAccount(id, index) {
       this.axios.defaults.withCredentials = true;
@@ -228,16 +269,23 @@ export default {
           .then(() => this.axios.delete(base_Url + `api/delete_users/${id}`))
           .then(response => {
             this.users.splice(index, 1);
-          })
-          .then(response => {
+            notificationType.value = 'success';
+            message.value = 'User deleted successfully!'
             show.value = true;
-            // Auto-hide the notification after 3 seconds
             setTimeout(() => {
               show.value = false;
+              message.value = null;
             }, 5000);
           })
+
           .catch(error => {
-            console.error('Delete account error');
+            message.value = 'Error while deleting user. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
           });
     },
   }
