@@ -1,11 +1,42 @@
 <script setup>
-import {TrashIcon, PaperAirplaneIcon} from "@heroicons/vue/24/outline/index.js";
+import {TrashIcon, PaperAirplaneIcon, CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
 import {ArrowPathIcon} from "@heroicons/vue/24/solid/index.js";
 import {useAuthStore} from "@/stores/authStore.js";
-import {XCircleIcon} from "@heroicons/vue/20/solid/index.js";
+import { XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
 let authStore = useAuthStore();
 </script>
 <template>
+
+
+  <!--  Notification  -->
+  <div aria-live="assertive" class="pointer-events-none fixed z-10 inset-0 flex items-end px-4 py-6">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+      <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="show" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+          <div class="p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <component :is="notificationType === 'success' ? CheckCircleIcon : XCircleIcon" :class="notificationType === 'success' ? 'h-6 w-6 text-green-400' : 'h-6 w-6 text-red-500'" aria-hidden="true" />
+              </div>
+              <div class="ml-3 w-0 flex-1 pt-0.5">
+                <p class="text-sm font-medium text-gray-900">{{message}}</p>
+              </div>
+              <div class="ml-4 flex flex-shrink-0">
+                <button type="button" @click="show = false" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span class="sr-only">Close</span>
+                  <XMarkIcon class="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </div>
+  </div>
+  <!--  Notification  -->
+
+
   <div class=" px-6 py-24 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
       <img class="mx-auto h-64 w-auto" src="/images/unlistened_transparen_logo_300.png" alt="Unlistened.me logo" />
@@ -41,54 +72,7 @@ let authStore = useAuthStore();
             </div>
           </dd>
         </div>
-        <div v-if="successUpdate" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm font-medium leading-6 text-gray-900">Success</dt>
-          <dd class="mt-1 sm:col-span-2 sm:mt-0">
-            <div class="max-w-xl">
-              <div class="rounded-md bg-green-50 p-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <button v-on:click="closeAlert()" type="button">
-                      <XCircleIcon class="h-5 w-5 text-green-800" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
-                    <div class="mt-2 text-sm text-green-700">
-                      <ul role="list" class="list-disc space-y-1 pl-5">
-                        <li>{{successUpdate}}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </dd>
-        </div>
-        <div v-if="errorUpdate" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm font-medium leading-6 text-gray-900">Error</dt>
-          <dd class="mt-1 sm:col-span-2 sm:mt-0">
-            <div class="max-w-xl">
-              <div class="rounded-md bg-red-50 p-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <button v-on:click="closeAlert()" type="button">
-                      <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Error</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                      <ul role="list" class="list-disc space-y-1 pl-5">
-                        <li>{{errorUpdate}}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </dd>
-        </div>
+
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
           <dt class="text-sm font-medium leading-6 text-gray-900">Update</dt>
           <dd class="mt-1 sm:col-span-2 sm:mt-0">
@@ -130,54 +114,7 @@ let authStore = useAuthStore();
             </div>
           </dd>
         </div>
-        <div v-if="successFaq" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm font-medium leading-6 text-gray-900">Success</dt>
-          <dd class="mt-1 sm:col-span-2 sm:mt-0">
-            <div class="max-w-xl">
-              <div class="rounded-md bg-green-50 p-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <button v-on:click="closeAlert()" type="button">
-                      <XCircleIcon class="h-5 w-5 text-green-800" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
-                    <div class="mt-2 text-sm text-green-700">
-                      <ul role="list" class="list-disc space-y-1 pl-5">
-                        <li>{{successFaq}}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </dd>
-        </div>
-        <div v-if="errorFaq" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-          <dt class="text-sm font-medium leading-6 text-gray-900">Error</dt>
-          <dd class="mt-1 sm:col-span-2 sm:mt-0">
-            <div class="max-w-xl">
-              <div class="rounded-md bg-red-50 p-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <button v-on:click="closeAlert()" type="button">
-                      <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Error</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                      <ul role="list" class="list-disc space-y-1 pl-5">
-                        <li>{{errorFaq}}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </dd>
-        </div>
+
         <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
           <dt class="text-sm font-medium leading-6 text-gray-900">Send</dt>
           <dd class="mt-1 sm:col-span-2 sm:mt-0">
@@ -196,26 +133,6 @@ let authStore = useAuthStore();
         If you are certain you want to proceed, please confirm your decision below. Should you have any questions or need assistance, feel free to reach out to our support team before finalizing this action.<br><br>
         Thank you for being a part of Unlistened.me. We hope to see you again in the future.
       </p>
-
-      <div v-if="errorDelete" class="max-w-xl mt-3">
-        <div class="rounded-md bg-red-50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <button v-on:click="closeAlert()" type="button">
-                <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
-              </button>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">Error</h3>
-              <div class="mt-2 text-sm text-red-700">
-                <ul role="list" class="list-disc space-y-1 pl-5">
-                  <li>{{errorDelete}}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
     <div class="mt-6 border-t border-gray-100">
       <dl class="divide-y divide-gray-100">
@@ -237,18 +154,19 @@ let authStore = useAuthStore();
 import {useAuthStore} from "@/stores/authStore.js";
 
 const base_Url = import.meta.env.VITE_BASE_URL
+import { ref } from 'vue'
+const show = ref(false)
+const message = ref('');
+const notificationType = ref('success');
+
+
 export default {
   data() {
     return {
       username: '',
       email: '',
-      successUpdate:'',
-      errorUpdate:'',
       object: '',
       description: '',
-      successFaq:'',
-      errorFaq:'',
-      errorDelete:'',
     };
   },
   methods: {
@@ -277,26 +195,48 @@ export default {
             }
             const authStore = useAuthStore();
             authStore.updateUser(payload);
-            this.successUpdate = response.data.message;
+
+            show.value = true;
+            message.value = response.data.message;
+            notificationType.value = 'success';
+
             setTimeout(() => {
-              this.successUpdate = null;
-            }, 10000);
-            this.errorUpdate = '';
+              show.value = false;
+              message.value = null;
+            }, 5000);
+
           })
           .catch(error => {
             if (error.response && error.response.data && error.response.data.errors) {
-              this.errorUpdate = Object.values(error.response.data.errors).join(', ');
+
+
+              message.value = Object.values(error.response.data.errors).join(', ');
+              notificationType.value = 'error';
+              show.value = true;
               setTimeout(() => {
-                this.errorUpdate = null;
+                show.value = false;
+                message.value = null;
               }, 5000);
+
             } else {
-              this.errorUpdate = 'There was an error updating your information. Please try again.';
+
+              message.value = 'There was an error updating your information. Please try later.';
+              notificationType.value = 'error';
+              show.value = true;
               setTimeout(() => {
-                this.errorUpdate = null;
+                show.value = false;
+                message.value = null;
               }, 5000);
+
             }
-            this.successUpdate = '';
-            console.error('Update error', error);
+
+            message.value = 'There was an error updating your information. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
           });
     },
 
@@ -310,23 +250,27 @@ export default {
             message_desc: this.description,
           }))
           .then(response => {
-            this.successFaq = 'Your message has been sent successfully.';
-            this.errorFaq = ''; // Clear any previous error message
-            this.object = '';
-            this.description = '';
+            show.value = true;
+            message.value = response.data.message;
+            notificationType.value = 'success';
+            this.object = null;
+            this.description = null;
+
             setTimeout(() => {
-              this.successFaq = null;
+              show.value = false;
+              message.value = null;
             }, 5000);
           })
           .catch(error => {
-            this.errorFaq = 'There was an error sending your message. Please try again.';
-            this.successFaq = ''; // Clear any previous success message
-            this.object = '';
-            this.description = '';
+            this.object = null;
+            this.description = null;
+            message.value = 'Error while sending. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
             setTimeout(() => {
-              this.errorFaq = null;
+              show.value = false;
+              message.value = null;
             }, 5000);
-            console.error('Send request error', error);
           });
     },
 
@@ -342,21 +286,17 @@ export default {
             this.$router.push({ name: 'SignIn' });
           })
           .catch(error => {
-            console.error('Delete account error');
-            this.errorDelete = 'User not found, please try again later.';
+            message.value = 'There was an error while deleting your account, please try later.';
+            notificationType.value = 'error';
+            show.value = true;
             setTimeout(() => {
-              this.errorDelete = null;
+              show.value = false;
+              message.value = null;
             }, 5000);
+
           });
     },
 
-    closeAlert: function () {
-      this.errorFaq = '';
-      this.successFaq = '';
-      this.successUpdate = '';
-      this.errorUpdate = '';
-      this.errorDelete = '';
-    },
   }
 };
 </script>

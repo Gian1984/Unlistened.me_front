@@ -6,12 +6,6 @@ import { useMessageStore } from '@/stores/messageStore'
 import {XMarkIcon, XCircleIcon} from "@heroicons/vue/20/solid/index.js";
 import {CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
 
-const statuses = {
-  Complete: 'text-green-700 bg-green-50 ring-green-600/20',
-  'In progress': 'text-gray-600 bg-gray-50 ring-gray-500/10',
-  Archived: 'text-yellow-800 bg-yellow-50 ring-yellow-600/20',
-}
-
 </script>
 <template>
 
@@ -27,7 +21,7 @@ const statuses = {
                 <component :is="notificationType === 'success' ? CheckCircleIcon : XCircleIcon" :class="notificationType === 'success' ? 'h-6 w-6 text-green-400' : 'h-6 w-6 text-red-500'" aria-hidden="true" />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
-                <p class="text-sm font-medium text-gray-900">”{{message}}</p>
+                <p class="text-sm font-medium text-gray-900">{{message}}</p>
               </div>
               <div class="ml-4 flex flex-shrink-0">
                 <button type="button" @click="show = false" class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
