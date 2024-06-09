@@ -139,7 +139,7 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
       <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold leading-7 text-white">Users list</h2>
         <ul role="list" class="divide-y divide-gray-100">
-          <li v-for="(user, index) in users" :key="index" class="flex items-center justify-between gap-x-6 py-5">
+          <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-6 py-5">
             <div class="min-w-0">
               <div class="flex items-start gap-x-3">
                 <p class="text-sm font-semibold leading-6 text-white">{{ user.name }}</p>
@@ -177,6 +177,10 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
             </div>
           </li>
         </ul>
+        <div class="flex justify-between mt-4">
+          <button @click="prevPage" :disabled="currentPage === 1" class="bg-gray-500 text-white px-4 py-2 rounded">Previous</button>
+          <button @click="nextPage" :disabled="currentPage * usersPerPage >= users.length" class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
+        </div>
       </div>
 
       <!-- Users list -->
@@ -204,7 +208,7 @@ export default {
   components: { Pie },
   data() {
     return {
-      users:null,
+      users:[],
       faqs:null,
       downloadChartData: null,
       playChartData: null,
@@ -212,13 +216,26 @@ export default {
         responsive: true,
       },
       topStats:null,
+      currentPage: 1,
+      usersPerPage: 2,
     }
   },
+
+  computed: {
+    paginatedUsers() {
+      const start = (this.currentPage - 1) * this.usersPerPage;
+      const end = start + this.usersPerPage;
+      return this.users.slice(start, end);
+    },
+  },
+
+
   created() {
     this.fetchStats();
     this.getAllUsers();
     this.getAllFaqs();
   },
+
   methods: {
     fetchStats() {
       this.axios.defaults.withCredentials = true;
@@ -286,6 +303,18 @@ export default {
             }, 5000);
           });
     },
+
+    nextPage() {
+      if (this.currentPage * this.usersPerPage < this.users.length) {
+        this.currentPage += 1;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage -= 1;
+      }
+    },
+
     getAllFaqs() {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
@@ -420,6 +449,7 @@ export default {
             }, 5000);
           });
     },
-  }
+  },
+
 }
 </script>

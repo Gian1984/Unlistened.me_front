@@ -167,6 +167,7 @@ export default {
           .then(response => {
             this.feeds= response.data.feeds
             this.loading = false;
+            console.log(response.data)
           })
           .catch(error => {
             console.error(error, 'nothing to display');
