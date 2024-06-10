@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
 import { useMessageStore } from '@/stores/messageStore'
-import {XMarkIcon, XCircleIcon} from "@heroicons/vue/20/solid/index.js";
+import {XMarkIcon, XCircleIcon, ArrowLongLeftIcon, ArrowLongRightIcon} from "@heroicons/vue/20/solid/index.js";
 import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/24/outline/index.js";
 
 </script>
@@ -89,7 +89,7 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
       <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold leading-7 text-white">Questions received</h2>
         <ul role="list" class="divide-y divide-gray-100">
-          <li v-for="(faq, index) in faqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
+          <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
             <div class="min-w-0">
               <div class="flex items-start gap-x-3">
                 <p class="text-sm font-semibold leading-6 text-white">{{ faq.username }}</p>
@@ -130,6 +130,26 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
             </div>
           </li>
         </ul>
+
+        <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+          <div class="-mt-px flex w-0 flex-1">
+            <button @click="prevPage('faqs')" :disabled="currentPageFaqs === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs === 1}">
+              <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
+              Previous
+            </button>
+          </div>
+          <div class="hidden md:-mt-px md:flex">
+            <button v-for="page in visiblePagesFaqs" :key="page" @click="goToPage('faqs', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentPageFaqs === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentPageFaqs !== page}" aria-current="page">{{ page }}</button>
+            <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
+          </div>
+          <div class="-mt-px flex w-0 flex-1 justify-end">
+            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= faqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs * faqsPerPage < faqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= faqs.length}">
+              Next
+              <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Questions list -->
@@ -177,10 +197,26 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
             </div>
           </li>
         </ul>
-        <div class="flex justify-between mt-4">
-          <button @click="prevPage" :disabled="currentPage === 1" class="bg-gray-500 text-white px-4 py-2 rounded">Previous</button>
-          <button @click="nextPage" :disabled="currentPage * usersPerPage >= users.length" class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
+
+        <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+          <div class="-mt-px flex w-0 flex-1">
+            <button @click="prevPage('users')" :disabled="currentPageUsers === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers === 1}">
+              <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
+              Previous
+            </button>
+          </div>
+          <div class="hidden md:-mt-px md:flex">
+            <button v-for="page in visiblePagesUsers" :key="page" @click="goToPage('users', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentPageUsers === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentPageUsers !== page}" aria-current="page">{{ page }}</button>
+            <button v-if="showNextButtonUsers" @click="nextPageSet('users')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
+          </div>
+          <div class="-mt-px flex w-0 flex-1 justify-end">
+            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= users.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers * usersPerPage < users.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= users.length}">
+              Next
+              <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
+
       </div>
 
       <!-- Users list -->
@@ -209,23 +245,68 @@ export default {
   data() {
     return {
       users:[],
-      faqs:null,
+      faqs:[],
       downloadChartData: null,
       playChartData: null,
       chartOptions: {
         responsive: true,
       },
       topStats:null,
-      currentPage: 1,
-      usersPerPage: 2,
+
+
+      currentPageUsers: 1,
+      usersPerPage: 10,
+      maxVisiblePagesUsers: 3,
+
+      currentPageFaqs: 1,
+      faqsPerPage: 10,
+      maxVisiblePagesFaqs: 3,
+
     }
   },
 
   computed: {
+    paginatedFaqs() {
+      const start = (this.currentPageFaqs - 1) * this.faqsPerPage;
+      const end = start + this.faqsPerPage;
+      return this.faqs.slice(start, end);
+    },
+    totalPagesFaqs() {
+      return Math.ceil(this.faqs.length / this.faqsPerPage);
+    },
+    visiblePagesFaqs() {
+      const pages = [];
+      const startPage = Math.max(1, this.currentPageFaqs - Math.floor(this.maxVisiblePagesFaqs / 2));
+      const endPage = Math.min(this.totalPagesFaqs, startPage + this.maxVisiblePagesFaqs - 1);
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      return pages;
+    },
+    showNextButtonFaqs() {
+      return this.currentPageFaqs + Math.floor(this.maxVisiblePagesFaqs / 2) < this.totalPagesFaqs;
+    },
+
+
     paginatedUsers() {
-      const start = (this.currentPage - 1) * this.usersPerPage;
+      const start = (this.currentPageUsers - 1) * this.usersPerPage;
       const end = start + this.usersPerPage;
       return this.users.slice(start, end);
+    },
+    totalPagesUsers() {
+      return Math.ceil(this.users.length / this.usersPerPage);
+    },
+    visiblePagesUsers() {
+      const pages = [];
+      const startPage = Math.max(1, this.currentPageUsers - Math.floor(this.maxVisiblePagesUsers / 2));
+      const endPage = Math.min(this.totalPagesUsers, startPage + this.maxVisiblePagesUsers - 1);
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      return pages;
+    },
+    showNextButtonUsers() {
+      return this.currentPageUsers + Math.floor(this.maxVisiblePagesUsers / 2) < this.totalPagesUsers;
     },
   },
 
@@ -304,14 +385,32 @@ export default {
           });
     },
 
-    nextPage() {
-      if (this.currentPage * this.usersPerPage < this.users.length) {
-        this.currentPage += 1;
+    nextPage(type) {
+      if (type === 'users' && this.currentPageUsers * this.usersPerPage < this.users.length) {
+        this.currentPageUsers += 1;
+      } else if (type === 'faqs' && this.currentPageFaqs * this.faqsPerPage < this.faqs.length) {
+        this.currentPageFaqs += 1;
       }
     },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage -= 1;
+    prevPage(type) {
+      if (type === 'users' && this.currentPageUsers > 1) {
+        this.currentPageUsers -= 1;
+      } else if (type === 'faqs' && this.currentPageFaqs > 1) {
+        this.currentPageFaqs -= 1;
+      }
+    },
+    goToPage(type, page) {
+      if (type === 'users') {
+        this.currentPageUsers = page;
+      } else if (type === 'faqs') {
+        this.currentPageFaqs = page;
+      }
+    },
+    nextPageSet(type) {
+      if (type === 'users') {
+        this.currentPageUsers = Math.min(this.totalPagesUsers, this.currentPageUsers + this.maxVisiblePagesUsers);
+      } else if (type === 'faqs') {
+        this.currentPageFaqs = Math.min(this.totalPagesFaqs, this.currentPageFaqs + this.maxVisiblePagesFaqs);
       }
     },
 
