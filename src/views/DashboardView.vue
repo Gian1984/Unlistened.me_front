@@ -88,6 +88,12 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
 
       <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold leading-7 text-white">Questions received</h2>
+        <div class="pb-2 pt-6">
+          <label for="search" class="block text-sm font-medium leading-6 text-white">Quick search</label>
+          <div class="relative mt-2 flex items-center">
+            <input v-model="faqFilter" type="text" name="search" id="search" placeholder="Filter by email" class="block w-full rounded-md border-0 py-1.5 pr-14 text-white bg-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+          </div>
+        </div>
         <ul role="list" class="divide-y divide-gray-100">
           <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
             <div class="min-w-0">
@@ -143,7 +149,7 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
             <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
           </div>
           <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= faqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs * faqsPerPage < faqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= faqs.length}">
+            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= filteredFaqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs * faqsPerPage < filteredFaqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= filteredFaqs.length}">
               Next
               <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
             </button>
@@ -158,6 +164,12 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
 
       <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold leading-7 text-white">Users list</h2>
+        <div class="pb-2 pt-6">
+          <label for="search" class="block text-sm font-medium leading-6 text-white">Quick search</label>
+          <div class="relative mt-2 flex items-center">
+            <input v-model="userFilter" type="text" name="search" id="search" placeholder="Filter by email" class="block w-full rounded-md border-0 py-1.5 pr-14 text-white bg-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+          </div>
+        </div>
         <ul role="list" class="divide-y divide-gray-100">
           <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-6 py-5">
             <div class="min-w-0">
@@ -210,7 +222,7 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
             <button v-if="showNextButtonUsers" @click="nextPageSet('users')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
           </div>
           <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= users.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers * usersPerPage < users.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= users.length}">
+            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= filteredUsers.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers * usersPerPage < filteredUsers.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= filteredUsers.length}">
               Next
               <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
             </button>
@@ -244,8 +256,6 @@ export default {
   components: { Pie },
   data() {
     return {
-      users:[],
-      faqs:[],
       downloadChartData: null,
       playChartData: null,
       chartOptions: {
@@ -253,15 +263,17 @@ export default {
       },
       topStats:null,
 
-
-      currentPageUsers: 1,
-      usersPerPage: 10,
-      maxVisiblePagesUsers: 3,
-
+      faqs:[],
       currentPageFaqs: 1,
-      faqsPerPage: 10,
+      faqsPerPage: 5,
       maxVisiblePagesFaqs: 3,
+      faqFilter: '',
 
+      users:[],
+      currentPageUsers: 1,
+      usersPerPage: 5,
+      maxVisiblePagesUsers: 3,
+      userFilter: '',
     }
   },
 
@@ -269,10 +281,10 @@ export default {
     paginatedFaqs() {
       const start = (this.currentPageFaqs - 1) * this.faqsPerPage;
       const end = start + this.faqsPerPage;
-      return this.faqs.slice(start, end);
+      return this.filteredFaqs.slice(start, end);
     },
     totalPagesFaqs() {
-      return Math.ceil(this.faqs.length / this.faqsPerPage);
+      return Math.ceil(this.filteredFaqs.length / this.faqsPerPage);
     },
     visiblePagesFaqs() {
       const pages = [];
@@ -286,15 +298,18 @@ export default {
     showNextButtonFaqs() {
       return this.currentPageFaqs + Math.floor(this.maxVisiblePagesFaqs / 2) < this.totalPagesFaqs;
     },
+    filteredFaqs() {
+      return this.faqs.filter(faq => faq.email.toLowerCase().includes(this.faqFilter.toLowerCase()));
+    },
 
 
     paginatedUsers() {
       const start = (this.currentPageUsers - 1) * this.usersPerPage;
       const end = start + this.usersPerPage;
-      return this.users.slice(start, end);
+      return this.filteredUsers.slice(start, end);
     },
     totalPagesUsers() {
-      return Math.ceil(this.users.length / this.usersPerPage);
+      return Math.ceil(this.filteredUsers.length / this.usersPerPage);
     },
     visiblePagesUsers() {
       const pages = [];
@@ -308,6 +323,18 @@ export default {
     showNextButtonUsers() {
       return this.currentPageUsers + Math.floor(this.maxVisiblePagesUsers / 2) < this.totalPagesUsers;
     },
+    filteredUsers() {
+      return this.users.filter(user => user.email.toLowerCase().includes(this.userFilter.toLowerCase()));
+    },
+  },
+
+  watch: {
+    userFilter() {
+      this.currentPageUsers = 1;
+    },
+    faqFilter() {
+      this.currentPageFaqs = 1;
+    }
   },
 
 
@@ -318,6 +345,9 @@ export default {
   },
 
   methods: {
+
+    // Stats methods start
+
     fetchStats() {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
@@ -365,54 +395,10 @@ export default {
             }
           });
     },
-    getAllUsers() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
 
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/users'))
-          .then(response => {
-            this.users = response.data;
-          })
-          .catch(error => {
-            message.value = 'Error getting users list. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
+    // Stats methods end
 
-    nextPage(type) {
-      if (type === 'users' && this.currentPageUsers * this.usersPerPage < this.users.length) {
-        this.currentPageUsers += 1;
-      } else if (type === 'faqs' && this.currentPageFaqs * this.faqsPerPage < this.faqs.length) {
-        this.currentPageFaqs += 1;
-      }
-    },
-    prevPage(type) {
-      if (type === 'users' && this.currentPageUsers > 1) {
-        this.currentPageUsers -= 1;
-      } else if (type === 'faqs' && this.currentPageFaqs > 1) {
-        this.currentPageFaqs -= 1;
-      }
-    },
-    goToPage(type, page) {
-      if (type === 'users') {
-        this.currentPageUsers = page;
-      } else if (type === 'faqs') {
-        this.currentPageFaqs = page;
-      }
-    },
-    nextPageSet(type) {
-      if (type === 'users') {
-        this.currentPageUsers = Math.min(this.totalPagesUsers, this.currentPageUsers + this.maxVisiblePagesUsers);
-      } else if (type === 'faqs') {
-        this.currentPageFaqs = Math.min(this.totalPagesFaqs, this.currentPageFaqs + this.maxVisiblePagesFaqs);
-      }
-    },
+    // Faqs methods start
 
     getAllFaqs() {
       this.axios.defaults.withCredentials = true;
@@ -426,36 +412,6 @@ export default {
           })
           .catch(error => {
             message.value = 'Error getting faqs list. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-    toggleAdminStatus(user) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/update-status', {
-            user_id: user.id,
-            is_admin: user.is_admin ? 0 : 1
-          }))
-          .then(response => {
-            user.is_admin = response.data.is_admin;
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            message.value = 'Error updating status. Please try later.';
             notificationType.value = 'error';
             show.value = true;
             setTimeout(() => {
@@ -494,33 +450,7 @@ export default {
             }, 5000);
           });
     },
-    deleteAccount(id, index) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
 
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.delete(base_Url + `api/delete_users/${id}`))
-          .then(response => {
-            this.users.splice(index, 1);
-            notificationType.value = 'success';
-            message.value = 'User deleted successfully!'
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-
-          .catch(error => {
-            message.value = 'Error while deleting user. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
     deleteFaq(id, index) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
@@ -548,6 +478,128 @@ export default {
             }, 5000);
           });
     },
+
+    // Faqs methods end
+
+    // Users methods start
+
+    getAllUsers() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.get(base_Url + 'api/users'))
+          .then(response => {
+            this.users = response.data;
+          })
+          .catch(error => {
+            message.value = 'Error getting users list. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          });
+    },
+
+    toggleAdminStatus(user) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/update-status', {
+            user_id: user.id,
+            is_admin: user.is_admin ? 0 : 1
+          }))
+          .then(response => {
+            user.is_admin = response.data.is_admin;
+            show.value = true;
+            message.value = response.data.message;
+            notificationType.value = 'success';
+
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          })
+          .catch(error => {
+            message.value = 'Error updating status. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          });
+    },
+
+    deleteAccount(id, index) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.delete(base_Url + `api/delete_users/${id}`))
+          .then(response => {
+            this.users.splice(index, 1);
+            notificationType.value = 'success';
+            message.value = 'User deleted successfully!'
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          })
+
+          .catch(error => {
+            message.value = 'Error while deleting user. Please try later.';
+            notificationType.value = 'error';
+            show.value = true;
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          });
+    },
+
+    // Users methods ends
+
+    // Methods pagination start
+
+    nextPage(type) {
+      if (type === 'users' && this.currentPageUsers * this.usersPerPage < this.filteredUsers.length) {
+        this.currentPageUsers += 1;
+      } else if (type === 'faqs' && this.currentPageFaqs * this.faqsPerPage < this.filteredFaqs.length) {
+        this.currentPageFaqs += 1;
+      }
+    },
+
+    prevPage(type) {
+      if (type === 'users' && this.currentPageUsers > 1) {
+        this.currentPageUsers -= 1;
+      } else if (type === 'faqs' && this.currentPageFaqs > 1) {
+        this.currentPageFaqs -= 1;
+      }
+    },
+
+    goToPage(type, page) {
+      if (type === 'users') {
+        this.currentPageUsers = page;
+      } else if (type === 'faqs') {
+        this.currentPageFaqs = page;
+      }
+    },
+
+    nextPageSet(type) {
+      if (type === 'users') {
+        this.currentPageUsers = Math.min(this.totalPagesUsers, this.currentPageUsers + this.maxVisiblePagesUsers);
+      } else if (type === 'faqs') {
+        this.currentPageFaqs = Math.min(this.totalPagesFaqs, this.currentPageFaqs + this.maxVisiblePagesFaqs);
+      }
+    },
+
+    // Methods pagination end
+
   },
 
 }
