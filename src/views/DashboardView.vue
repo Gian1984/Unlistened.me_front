@@ -139,17 +139,17 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
 
         <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
           <div class="-mt-px flex w-0 flex-1">
-            <button @click="prevPage('faqs')" :disabled="currentPageFaqs === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs === 1}">
+            <button @click="prevPage('faqs')" :disabled="currentPageFaqs === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageFaqs !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs === 1}">
               <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
               Previous
             </button>
           </div>
           <div class="hidden md:-mt-px md:flex">
-            <button v-for="page in visiblePagesFaqs" :key="page" @click="goToPage('faqs', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentPageFaqs === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentPageFaqs !== page}" aria-current="page">{{ page }}</button>
-            <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
+            <button v-for="page in visiblePagesFaqs" :key="page" @click="goToPage('faqs', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentPageFaqs === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentPageFaqs !== page}" aria-current="page">{{ page }}</button>
+            <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-pink-500">...</button>
           </div>
           <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= filteredFaqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageFaqs * faqsPerPage < filteredFaqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= filteredFaqs.length}">
+            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= filteredFaqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageFaqs * faqsPerPage < filteredFaqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= filteredFaqs.length}">
               Next
               <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
             </button>
@@ -212,17 +212,17 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
 
         <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
           <div class="-mt-px flex w-0 flex-1">
-            <button @click="prevPage('users')" :disabled="currentPageUsers === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers === 1}">
+            <button @click="prevPage('users')" :disabled="currentPageUsers === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageUsers !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers === 1}">
               <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
               Previous
             </button>
           </div>
           <div class="hidden md:-mt-px md:flex">
-            <button v-for="page in visiblePagesUsers" :key="page" @click="goToPage('users', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentPageUsers === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentPageUsers !== page}" aria-current="page">{{ page }}</button>
+            <button v-for="page in visiblePagesUsers" :key="page" @click="goToPage('users', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentPageUsers === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentPageUsers !== page}" aria-current="page">{{ page }}</button>
             <button v-if="showNextButtonUsers" @click="nextPageSet('users')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
           </div>
           <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= filteredUsers.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentPageUsers * usersPerPage < filteredUsers.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= filteredUsers.length}">
+            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= filteredUsers.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageUsers * usersPerPage < filteredUsers.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= filteredUsers.length}">
               Next
               <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
             </button>

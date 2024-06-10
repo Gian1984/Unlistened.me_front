@@ -83,7 +83,7 @@ const FooterNavigation = {
 <template>
   <div class="bg-white border-t-gray-100 border-2">
     <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
-      <nav class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12" aria-label="Footer">
+      <nav class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12 text-center" aria-label="Footer">
         <div v-for="item in FooterNavigation.main" :key="item.name" class="pb-6">
           <router-link :to="item.href" :class="[$route.path === item.href ? 'text-indigo-600 font-bold' : 'text-gray-600 hover:text-pink-500']">
             {{ item.name }}

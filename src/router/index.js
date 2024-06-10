@@ -19,6 +19,7 @@ import DashboardView from "@/views/DashboardView.vue";
 import ForbiddenView from "@/views/ForbiddenView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import DocumentationView from "@/views/DocumentationView.vue";
+import CategoriesView from "@/views/CategoriesView.vue";
 
 
 const router = createRouter({
@@ -480,6 +481,37 @@ const router = createRouter({
         ]
       }
     },
+    {
+      path: '/categories',
+      name: 'Categories',
+      component: CategoriesView,
+      meta: {
+        title: "Unlistened - Categories",
+        metaTags: [
+          {
+            name: 'description',
+            content: "Explore a wide range of podcast categories available on Unlistened."
+          },
+          {
+            name: 'og:title',
+            content: "Unlistened - Categories"
+          },
+          {
+            name: 'og:url',
+            content: "https://www.unlistened.me/categories"
+          },
+          {
+            name: 'og:type',
+            content: "website"
+          },
+          {
+            property: 'og:description',
+            content: "Explore a wide range of podcast categories available on Unlistened."
+          }
+        ]
+      }
+    },
+
     {
       path: '/documentation',
       name: 'Documentation',

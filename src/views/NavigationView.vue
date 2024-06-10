@@ -22,6 +22,7 @@ import {
   BookmarkIcon,
   PaperClipIcon,
   AdjustmentsHorizontalIcon,
+  TagIcon
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
@@ -38,14 +39,15 @@ const isAdmin = computed(() => authStore.isAdmin);
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
   { name: 'Podcasts', href: '/feed_listing', icon: FolderIcon, current: false },
+  { name: 'Categories', href: '/categories', icon: TagIcon, current: false },
   { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
   { name: 'About', href: '/about', icon: UsersIcon, current: false },
   { name: 'Documentation', href: '/documentation', icon: PaperClipIcon, current: false },
 ]
 
-
 const sidebarOpen = ref(false)
+
 </script>
 <template>
   <div>
@@ -153,14 +155,14 @@ const sidebarOpen = ref(false)
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <div class="relative flex flex-1">
 
-            <Popover class="flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+            <Popover class="hidden md:flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
 
               <PopoverButton class="ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
                 <AdjustmentsHorizontalIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" aria-hidden="true" />
               </PopoverButton>
 
               <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
-                <PopoverPanel class="absolute inset-x-0 top-0 -z-10 bg-white pt-16 shadow-lg ring-1 ring-gray-900/5">
+                <PopoverPanel v-slot="{ close }" class="absolute inset-x-0 top-0 -z-10 bg-white pt-16 shadow-lg ring-1 ring-gray-900/5">
                   <div class="pt-6">
                     <div class="mx-auto max-w-7xl px-3 lg:px-8">
                       <h3 class="text-lg leading-6 text-gray-900">Search by Categories</h3>
@@ -168,9 +170,9 @@ const sidebarOpen = ref(false)
                   </div>
                   <div class="mx-auto grid max-w-7xl grid-cols-1 gap-2 px-1 sm:grid-cols-2 sm:gap-x-1 sm:gap-y-0 sm:py-6 lg:grid-cols-4 lg:gap-1 lg:px-3 xl:gap-1 py-6">
                     <div v-for="item in paginatedCategories" :key="item.name" class="group relative -mx-1 flex gap-1 rounded-lg p-1 text-sm sm:flex-col sm:p-1">
-                      <div class="flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-white px-1">
+                      <div class="flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-pink-500 px-1">
                         <MagnifyingGlassIcon class="h-3 w-3 text-gray-900 mr-2"/>
-                        <button @click="onFilterClick(item.id)" class="font-semibold text-gray-900 py-1">
+                        <button @click="() => { close(); onFilterClick(item.id); }" class="font-semibold text-gray-900 py-1">
                           {{ item.name }}
                           <span class="absolute inset-0" />
                         </button>
@@ -181,17 +183,17 @@ const sidebarOpen = ref(false)
                     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 pb-4">
                       <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
                         <div class="-mt-px flex w-0 flex-1">
-                          <button @click="prevPage('categories')" :disabled="currentCategories === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentCategories !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories === 1}">
+                          <button @click="prevPage('categories')" :disabled="currentCategories === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentCategories !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories === 1}">
                             <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
                             Previous
                           </button>
                         </div>
                         <div class="hidden md:-mt-px md:flex">
-                          <button v-for="page in visiblePagesCategories" :key="page" @click="goToPage('categories', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentCategories === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentCategories !== page}" aria-current="page">{{ page }}</button>
-                          <button v-if="showNextButtonCategories" @click="nextPageSet('categories')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
+                          <button v-for="page in visiblePagesCategories" :key="page" @click="goToPage('categories', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentCategories === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentCategories !== page}" aria-current="page">{{ page }}</button>
+                          <button v-if="showNextButtonCategories" @click="nextPageSet('categories')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-pink-500">...</button>
                         </div>
                         <div class="-mt-px flex w-0 flex-1 justify-end">
-                          <button @click="nextPage('categories')" :disabled="currentCategories * categoriesPerPage >= categories.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentCategories * categoriesPerPage < categories.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories * categoriesPerPage >= categories.length}">
+                          <button @click="nextPage('categories')" :disabled="currentCategories * categoriesPerPage >= categories.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentCategories * categoriesPerPage < categories.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories * categoriesPerPage >= categories.length}">
                             Next
                             <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
                           </button>
@@ -260,11 +262,15 @@ const sidebarOpen = ref(false)
   </div>
 </template>
 <script>
+import {ref} from "vue";
+
 const base_Url = import.meta.env.VITE_BASE_URL
 import {useAuthStore} from "@/stores/authStore.js";
 import {useMessageStore} from "@/stores/messageStore.js";
 
 export default {
+
+
   data() {
     return {
       searchQuery: '',
@@ -303,7 +309,9 @@ export default {
   },
 
   methods: {
+
     onSearchClick() {
+      this.closePopover();
       this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
       this.searchQuery='';
     },
@@ -329,10 +337,8 @@ export default {
 
           })
           .catch(error => {
-
             const messageStore = useMessageStore();
-            console.log(error)
-            messageStore.setMessage('Failed to log out',error);
+            messageStore.setMessage('Failed to log out');
 
           });
     },
@@ -340,7 +346,6 @@ export default {
     fetchSearchCat() {
       this.axios.get(base_Url + `api/feed-cat`)
           .then(response => {
-            console.log(response)
             this.categories = response.data.feeds
           })
           .catch(error => {
