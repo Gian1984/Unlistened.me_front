@@ -122,31 +122,43 @@ export default {
     };
   },
   watch: {
-    '$route.query.q': function(newQuery) {
-      this.fetchSearchResults(newQuery);
-      this.noResult = false;
-      this.error = false;
-    }
+    '$route.query': {
+      immediate: true,
+      handler(newQuery) {
+        const queryParam = Object.keys(newQuery)[0];
+        this.fetchSearchResults(queryParam, newQuery[queryParam]);
+        this.noResult = false;
+        this.error = false;
+      },
+    },
   },
   created() {
-    const podcastTitle = this.$route.query.q;
-    this.fetchSearchResults(podcastTitle);
+    this.fetchSearchResults();
   },
   methods: {
-    fetchSearchResults(feedTitle) {
-      this.axios.get(base_Url + `api/search-podcast/${feedTitle}`)
-          .then(response => {
-            this.feeds = ''
-            this.feeds = response.data.feeds
-            if (this.feeds == ''){
+
+    fetchSearchResults(param, value) {
+      let url;
+      if (param === 'q') {
+        url = `${base_Url}api/search-feed-by-title/${value}`;
+      } else if (param === 's') {
+        url = `${base_Url}api/search-feeds-by-cat/${value}`;
+      }
+
+      if (url) {
+        this.axios.get(url)
+            .then(response => {
+              console.log(response)
+              this.feeds = response.data.feeds;
+
+            })
+            .catch(error => {
+              console.error('Error fetching search results:', error);
               this.noResult = true;
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching search results:', error);
-            this.noResult = true;
-          });
+            });
+      }
     },
+
     getReadableDate(unixTimestamp) {
       const date = new Date(unixTimestamp * 1000);
       // Format the date as needed

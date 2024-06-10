@@ -21,9 +21,13 @@ import {
   XMarkIcon,
   BookmarkIcon,
   PaperClipIcon,
+  AdjustmentsHorizontalIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import {useAuthStore} from "@/stores/authStore.js";
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import {ArrowLongLeftIcon, ArrowLongRightIcon} from "@heroicons/vue/20/solid/index.js";
+
 let authStore = useAuthStore();
 authStore.initializeAuth(); // Ensure the store is initialized
 
@@ -39,6 +43,7 @@ const navigation = [
   { name: 'About', href: '/about', icon: UsersIcon, current: false },
   { name: 'Documentation', href: '/documentation', icon: PaperClipIcon, current: false },
 ]
+
 
 const sidebarOpen = ref(false)
 </script>
@@ -147,10 +152,62 @@ const sidebarOpen = ref(false)
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <div class="relative flex flex-1">
+
+            <Popover class="flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+
+              <PopoverButton class="ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+                <AdjustmentsHorizontalIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" aria-hidden="true" />
+              </PopoverButton>
+
+              <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
+                <PopoverPanel class="absolute inset-x-0 top-0 -z-10 bg-white pt-16 shadow-lg ring-1 ring-gray-900/5">
+                  <div class="pt-6">
+                    <div class="mx-auto max-w-7xl px-3 lg:px-8">
+                      <h3 class="text-lg leading-6 text-gray-900">Search by Categories</h3>
+                    </div>
+                  </div>
+                  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-2 px-1 sm:grid-cols-2 sm:gap-x-1 sm:gap-y-0 sm:py-6 lg:grid-cols-4 lg:gap-1 lg:px-3 xl:gap-1 py-6">
+                    <div v-for="item in paginatedCategories" :key="item.name" class="group relative -mx-1 flex gap-1 rounded-lg p-1 text-sm sm:flex-col sm:p-1">
+                      <div class="flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-white px-1">
+                        <MagnifyingGlassIcon class="h-3 w-3 text-gray-900 mr-2"/>
+                        <button @click="onFilterClick(item.id)" class="font-semibold text-gray-900 py-1">
+                          {{ item.name }}
+                          <span class="absolute inset-0" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-gray-900">
+                    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 pb-4">
+                      <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+                        <div class="-mt-px flex w-0 flex-1">
+                          <button @click="prevPage('categories')" :disabled="currentCategories === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentCategories !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories === 1}">
+                            <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
+                            Previous
+                          </button>
+                        </div>
+                        <div class="hidden md:-mt-px md:flex">
+                          <button v-for="page in visiblePagesCategories" :key="page" @click="goToPage('categories', page)" :class="{'inline-flex items-center border-t-2 border-pink-500 text-pink-600 px-4 pt-4 text-sm font-medium': currentCategories === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-indigo-500 hover:border-indigo-500 px-4 pt-4 text-sm font-medium': currentCategories !== page}" aria-current="page">{{ page }}</button>
+                          <button v-if="showNextButtonCategories" @click="nextPageSet('categories')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
+                        </div>
+                        <div class="-mt-px flex w-0 flex-1 justify-end">
+                          <button @click="nextPage('categories')" :disabled="currentCategories * categoriesPerPage >= categories.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-indigo-500 hover:text-indigo-500': currentCategories * categoriesPerPage < categories.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories * categoriesPerPage >= categories.length}">
+                            Next
+                            <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverPanel>
+              </transition>
+            </Popover>
+
             <label for="search-field" class="sr-only">Search</label>
             <button @click="onSearchClick">
               <MagnifyingGlassIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" />
             </button>
+
             <input id="search-field" v-model="searchQuery" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
@@ -211,13 +268,48 @@ export default {
   data() {
     return {
       searchQuery: '',
+      categories:[],
+      currentCategories: 1,
+      categoriesPerPage: 8,
+      maxVisiblePagesCategories: 3,
     };
+  },
+
+  computed: {
+    paginatedCategories() {
+      const start = (this.currentCategories - 1) * this.categoriesPerPage;
+      const end = start + this.categoriesPerPage;
+      return this.categories.slice(start, end);
+    },
+    totalPagesCategories() {
+      return Math.ceil(this.categories.length / this.categoriesPerPage);
+    },
+    visiblePagesCategories() {
+      const pages = [];
+      const startPage = Math.max(1, this.currentCategories - Math.floor(this.maxVisiblePagesCategories / 2));
+      const endPage = Math.min(this.totalPagesCategories, startPage + this.maxVisiblePagesCategories - 1);
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      return pages;
+    },
+    showNextButtonCategories() {
+      return this.currentCategories + Math.floor(this.maxVisiblePagesCategories / 2) < this.totalPagesCategories;
+    },
+  },
+
+  created() {
+    this.fetchSearchCat()
   },
 
   methods: {
     onSearchClick() {
       this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
       this.searchQuery='';
+    },
+
+    onFilterClick(id) {
+      this.$router.push({ name: 'SearchResults', query: { s: id } });
     },
 
     logout() {
@@ -243,6 +335,38 @@ export default {
             messageStore.setMessage('Failed to log out',error);
 
           });
+    },
+
+    fetchSearchCat() {
+      this.axios.get(base_Url + `api/feed-cat`)
+          .then(response => {
+            console.log(response)
+            this.categories = response.data.feeds
+          })
+          .catch(error => {
+            console.error('Error fetching search results:', error);
+          });
+    },
+
+    nextPage(type) {
+      if (type === 'categories' && this.currentCategories * this.categoriesPerPage < this.categories.length) {
+        this.currentCategories += 1;
+      }
+    },
+    prevPage(type) {
+      if (type === 'categories' && this.currentCategories > 1) {
+        this.currentCategories -= 1;
+      }
+    },
+    goToPage(type, page) {
+      if (type === 'categories') {
+        this.currentCategories = page;
+      }
+    },
+    nextPageSet(type) {
+      if (type === 'categories') {
+        this.currentCategories = Math.min(this.totalPagesCategories, this.currentCategories + this.maxVisiblePagesCategories);
+      }
     },
 
   },
