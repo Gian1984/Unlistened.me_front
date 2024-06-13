@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+import draggable from 'vuedraggable';
+
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
@@ -12,6 +14,7 @@ const pinia = createPinia();
 
 
 const app = createApp(App)
+app.component('draggable', draggable);
 app.use(router);
 app.use(VueAxios, axios);
 app.use(pinia);

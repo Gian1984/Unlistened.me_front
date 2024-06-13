@@ -54,7 +54,7 @@ messageStore.initializeMessage();
               </div>
               <div class="group relative max-w-xl">
                 <h1 class="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    Ciao {{ feedInfo.title }}
+                    {{ feedInfo.title }}
                 </h1>
                 <p class="mt-5 text-sm leading-6 text-gray-600">{{ stripHtmlTags( feedInfo.description ) }}</p>
               </div>

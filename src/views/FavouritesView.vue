@@ -60,32 +60,8 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
     </div>
   </div>
 
-  <div v-if="favorites" class="bg-white px-6 pb-24 sm:pb-32 lg:px-8">
-    <div v-for="(favorite, index) in favorites" :key="favorite.id" class="bg-indigo-600 border-solid border-4 border-white rounded-2xl">
-      <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap items-center justify-between">
-          <div class="flex w-0 flex-1 items-center">
-            <span class="flex rounded-lg bg-indigo-800 p-2">
-              <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
-            </span>
-            <p class="ml-3 truncate font-medium text-white">
-              <span>{{favorite.title}}</span>
-            </p>
-          </div>
-          <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-            <router-link :to="'/feed/' + favorite.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
-              <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
-            </router-link>
-          </div>
-          <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-            <button @click="deleteFavourite(favorite.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
-              <span class="sr-only">Dismiss</span>
-              <TrashIcon class="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+
+  <div v-if="!favorites[0]" class="bg-white px-6 py-24 sm:py-32 lg:px-8">
     <div v-if="!favorites[0]" class="text-center grid min-h-full place-items-center bg-white pb-24 sm:pb-32">
       <p class="text-base font-semibold text-indigo-600">No Favorites Yet?</p>
       <h1 class="my-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">Let's Discover Some!</h1>
@@ -102,20 +78,143 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
     </div>
   </div>
 
+  <div v-if="favorites" class="pb-24 bg-white">
+      <div class="bg-white pb-12 sm:pb-12">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+          <div class="mx-auto max-w-2xl lg:mx-0">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Main Area</h2>
+            <p class="mt-2 text-lg leading-8 text-gray-600">Add section to organize your favfourite</p>
+            <div class="mx-auto">
+              <label for="location" class="sr-only">Add section</label>
+              <select v-model="newSection" id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                <option v-for="section in availableSections" :key="section" :value="section">{{ section }}</option>
+              </select>
+              <button class="mt-3 bg-indigo-700 hover:bg-pink-500 text-white font-bold py-2 px-4 mx-1 rounded-full flex" @click="addSection">Add Section</button>
+            </div>
+          </div>
+          <div class="mx-auto mt-10 max-w-2xl  gap-x-8 gap-y-16 border border-gray-200 pt-1 pb-10 sm:mt-16 sm:pb-16 lg:mx-0 lg:max-w-none">
+
+            <draggable
+                class="list-group"
+                v-model="mainAreaItems"
+                group="favorites"
+                @change="onDragEnd"
+                itemKey="id"
+            >
+              <template #item="{ element, index }">
+
+                <div  class="bg-indigo-600 border-solid border-4 border-white rounded-2xl">
+                  <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
+                    <div class="flex flex-wrap items-center justify-between">
+                      <div class="flex w-0 flex-1 items-center">
+                        <span class="flex rounded-lg bg-indigo-800 p-2">
+                          <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
+                        </span>
+                        <p class="ml-3 truncate font-medium text-white">
+                          <span> {{ element.title }}</span>
+                        </p>
+                      </div>
+                      <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
+                        <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                          <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
+                        </router-link>
+                      </div>
+                      <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
+                        <button @click="deleteFavourite(element.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+                          <span class="sr-only">Dismiss</span>
+                          <TrashIcon class="h-5 w-5" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </template>
+            </draggable>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div v-for="section in sections" :key="section.name"  class="bg-white py-12 sm:py-12">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+          <div class="mx-auto max-w-2xl lg:mx-0">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ section.name }}</h2>
+          </div>
+          <div class="mx-auto mt-10 max-w-2xl gap-x-8 gap-y-16 border border-gray-200 pt-1 pb-10 sm:mt-16 sm:pb-16 lg:mx-0 lg:max-w-none">
+
+            <draggable
+                class="list-group"
+                v-model="section.items"
+                group="favorites"
+                @change="onDragEnd"
+                itemKey="id"
+            >
+              <template #item="{ element, index }">
+
+                <div  class="bg-indigo-600 border-solid border-4 border-white rounded-2xl">
+                  <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
+                    <div class="flex flex-wrap items-center justify-between">
+                      <div class="flex w-0 flex-1 items-center">
+                        <span class="flex rounded-lg bg-indigo-800 p-2">
+                          <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
+                        </span>
+                        <p class="ml-3 truncate font-medium text-white">
+                          <span> {{ element.title }}</span>
+                        </p>
+                      </div>
+                      <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
+                        <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                          <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
+                        </router-link>
+                      </div>
+                      <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
+                        <button @click="deleteFavourite(element.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+                          <span class="sr-only">Dismiss</span>
+                          <TrashIcon class="h-5 w-5" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </template>
+            </draggable>
+
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+
+
+
   <Footer />
 </template>
 
 <script>
 const base_Url = import.meta.env.VITE_BASE_URL
+import draggable from 'vuedraggable';
 import { ref } from 'vue'
 const show = ref(false)
 const message = ref('');
 const notificationType = ref('success');
 export default {
 
+  components: {
+    draggable
+  },
+
   data() {
     return {
+      drag: false,
       favorites: [],
+      newSection: '',
+      availableSections: ['Current Favorites', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'],
+      sections: [],
+      mainAreaItems: [],
     };
   },
 
@@ -131,6 +230,15 @@ export default {
           .then(() => this.axios.get(base_Url + 'api/user-favorites'))
           .then(response => {
             this.favorites = response.data;
+
+            this.mainAreaItems = response.data.filter(item => !item.section);
+            this.availableSections.forEach(sectionName => {
+              const items = response.data.filter(item => item.section === sectionName);
+              if (items.length > 0) {
+                this.sections.push({ name: sectionName, items });
+              }
+            });
+
           })
           .catch(error => {
             if (error.response && error.response.status === 401) {
@@ -144,6 +252,50 @@ export default {
             }
           });
     },
+
+    addSection() {
+      if (this.newSection && !this.sections.find(section => section.name === this.newSection)) {
+        this.sections.push({ name: this.newSection, items: [] });
+      }
+    },
+    onDragEnd(evt) {
+      if (evt.added || evt.moved) {
+        const element = evt.added ? evt.added.element : evt.moved.element;
+        const newSection = this.getSectionFromElement(element);
+        this.updateFavoriteSection(element.id, newSection);
+      }
+    },
+    getSectionFromElement(element) {
+      for (const section of this.sections) {
+        if (section.items.includes(element)) {
+          return section.name;
+        }
+      }
+      return null; // main area
+    },
+    updateFavoriteSection(favoriteId, section) {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+
+          .then(() => this.axios.post(base_Url + `api/favorites/${favoriteId}/update-section`, { section }))
+          .then(response => {
+            show.value = true;
+            message.value = response.data.message;
+            notificationType.value = 'success';
+
+            setTimeout(() => {
+              show.value = false;
+              message.value = null;
+            }, 5000);
+          })
+          .catch(error => {
+            console.error('There was an error updating the section:', error);
+          });
+    },
+
+
     deleteFavourite(feedId, index) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
