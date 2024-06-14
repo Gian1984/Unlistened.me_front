@@ -47,7 +47,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
   <div class="bg-white px-6 py-24 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-7xl">
       <p class="text-base font-semibold leading-7 text-indigo-600">Your Favorite</p>
-      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Podcasts</h1>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Feeds</h1>
       <p class="mt-6 text-lg leading-8 text-gray-900">
         Welcome to your personal hub for all things podcast! This special section is designed just for you,
         here you can easily access and manage your favorite feeds. Whether you're revisiting an old favorite or keeping tabs
@@ -75,19 +75,19 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
     </div>
   </div>
 
-  <div v-if="favorites" class="pb-24 bg-white">
+  <div v-else class="pb-24 bg-white">
       <div class="bg-white pb-12 sm:pb-12">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div class="mx-auto">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Organize Your Podcasts</h2>
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Organize your feeds</h2>
             <p class="leading-6 text-base text-gray-900 py-6">
-              Welcome to your personalized podcast hub! Here, you can easily manage your favorite podcasts by creating and organizing them into custom categories. Whether you want to keep track of episodes to listen to next, highlight your all-time favorites, or archive past episodes, our flexible system allows you to create up to five unique sections. Simply select a category from the dropdown menu and drag your favorite podcasts into the desired section for a streamlined and organized listening experience. Enjoy hassle-free podcast management and keep your audio content just the way you like it!
+              Welcome to your personalized feeds hub! Here, you can easily manage your favorite feeds by creating and organizing them into custom categories. Whether you want to keep track of feeds to listen to next, highlight your all-time favorites, or archive past feeds, our flexible system allows you to create up to five unique sections. Simply select a category from the dropdown menu and drag your favorite feeds into the desired section for a streamlined and organized listening experience. Enjoy hassle-free podcast management and keep your audio content just the way you like it!
             </p>
             <p for="location" class="text-gray-900 font-bold">Custom categories :</p>
             <div class="mx-auto lg:flex block justify-between align-middle">
               <div class="lg:w-10/12 w-full">
                 <label for="location" class="sr-only">Custom categories</label>
-                <select v-model="newSection" id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                <select v-model="newSection" id="location" name="location" class="mt-2 block w-full border-0 rounded-2xl py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
                   <option v-for="section in availableSections" :key="section" :value="section">{{ section }}</option>
                 </select>
               </div>
@@ -97,7 +97,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
           <div class="mx-auto max-w-2xl lg:mx-0 mt-10">
             <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">Main area</h2>
           </div>
-          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-200 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
+          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-pink-400 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
 
             <draggable
                 class="list-group"
@@ -147,7 +147,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
           <div class="mx-auto max-w-2xl lg:mx-0">
             <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ section.name }}</h2>
           </div>
-          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-200 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
+          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-pink-400 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
 
             <draggable
                 class="list-group"
