@@ -38,9 +38,6 @@ let authStore = useAuthStore();
 
 
   <div class=" px-6 py-24 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
-      <img class="mx-auto h-64 w-auto" src="/images/unlistened_transparen_logo_300.png" alt="Unlistened.me logo" />
-    </div>
     <div class="px-4 sm:px-0">
       <h1 class="mt-2 text-4xl font-bold tracking-tight text-white sm:text-6xl">Personal information</h1>
       <p class="mt-8 max-w-2xl text-base leading-6 text-white">
