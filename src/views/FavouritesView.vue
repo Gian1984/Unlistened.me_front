@@ -46,9 +46,6 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
 
   <div class="bg-white px-6 py-24 sm:py-32 lg:px-8">
     <div class="mx-auto max-w-7xl">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
-        <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
-      </div>
       <p class="text-base font-semibold leading-7 text-indigo-600">Your Favorite</p>
       <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Podcasts</h1>
       <p class="mt-6 text-lg leading-8 text-gray-900">
@@ -81,18 +78,26 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
   <div v-if="favorites" class="pb-24 bg-white">
       <div class="bg-white pb-12 sm:pb-12">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="mx-auto max-w-2xl lg:mx-0">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Main Area</h2>
-            <p class="mt-2 text-lg leading-8 text-gray-600">Add section to organize your favfourite</p>
-            <div class="mx-auto">
-              <label for="location" class="sr-only">Add section</label>
-              <select v-model="newSection" id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                <option v-for="section in availableSections" :key="section" :value="section">{{ section }}</option>
-              </select>
-              <button class="mt-3 bg-indigo-700 hover:bg-pink-500 text-white font-bold py-2 px-4 mx-1 rounded-full flex" @click="addSection">Add Section</button>
+          <div class="mx-auto">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Organize Your Podcasts</h2>
+            <p class="leading-6 text-base text-gray-900 py-6">
+              Welcome to your personalized podcast hub! Here, you can easily manage your favorite podcasts by creating and organizing them into custom categories. Whether you want to keep track of episodes to listen to next, highlight your all-time favorites, or archive past episodes, our flexible system allows you to create up to five unique sections. Simply select a category from the dropdown menu and drag your favorite podcasts into the desired section for a streamlined and organized listening experience. Enjoy hassle-free podcast management and keep your audio content just the way you like it!
+            </p>
+            <p for="location" class="text-gray-900 font-bold">Custom categories :</p>
+            <div class="mx-auto lg:flex block justify-between align-middle">
+              <div class="lg:w-10/12 w-full">
+                <label for="location" class="sr-only">Custom categories</label>
+                <select v-model="newSection" id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                  <option v-for="section in availableSections" :key="section" :value="section">{{ section }}</option>
+                </select>
+              </div>
+              <button class="lg:mt-1.5 mt-3 bg-indigo-700 hover:bg-pink-500 text-white text-sm font-bold py-2 px-4 mx-1 rounded-full flex align-middle" @click="addSection">Add Section</button>
             </div>
           </div>
-          <div class="mx-auto mt-10 max-w-2xl  gap-x-8 gap-y-16 border border-gray-200 pt-1 pb-10 sm:mt-16 sm:pb-16 lg:mx-0 lg:max-w-none">
+          <div class="mx-auto max-w-2xl lg:mx-0 mt-10">
+            <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">Main area</h2>
+          </div>
+          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-200 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
 
             <draggable
                 class="list-group"
@@ -108,7 +113,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                     <div class="flex flex-wrap items-center justify-between">
                       <div class="flex w-0 flex-1 items-center">
                         <span class="flex rounded-lg bg-indigo-800 p-2">
-                          <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
+                          <StarIcon class="h-5 w-5 text-white" aria-hidden="true" />
                         </span>
                         <p class="ml-3 truncate font-medium text-white">
                           <span> {{ element.title }}</span>
@@ -120,7 +125,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                         </router-link>
                       </div>
                       <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                        <button @click="deleteFavourite(element.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+                        <button @click="deleteFavourite(element.feed_id, 'main')" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
                           <span class="sr-only">Dismiss</span>
                           <TrashIcon class="h-5 w-5" aria-hidden="true" />
                         </button>
@@ -137,12 +142,12 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
       </div>
 
 
-      <div v-for="section in sections" :key="section.name"  class="bg-white py-12 sm:py-12">
+      <div v-for="(section, index) in sections" :key="section.name"  :class="['py-6', index % 2 === 0 ? 'bg-gray-200' : 'bg-white']">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div class="mx-auto max-w-2xl lg:mx-0">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ section.name }}</h2>
+            <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ section.name }}</h2>
           </div>
-          <div class="mx-auto mt-10 max-w-2xl gap-x-8 gap-y-16 border border-gray-200 pt-1 pb-10 sm:mt-16 sm:pb-16 lg:mx-0 lg:max-w-none">
+          <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-200 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
 
             <draggable
                 class="list-group"
@@ -158,7 +163,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                     <div class="flex flex-wrap items-center justify-between">
                       <div class="flex w-0 flex-1 items-center">
                         <span class="flex rounded-lg bg-indigo-800 p-2">
-                          <StarIcon class="h-5 w-5 text-yellow-300" aria-hidden="true" />
+                          <StarIcon class="h-5 w-5 text-white" aria-hidden="true" />
                         </span>
                         <p class="ml-3 truncate font-medium text-white">
                           <span> {{ element.title }}</span>
@@ -170,7 +175,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                         </router-link>
                       </div>
                       <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                        <button @click="deleteFavourite(element.feed_id, index)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
+                        <button @click="deleteFavourite(element.feed_id, section.name)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600">
                           <span class="sr-only">Dismiss</span>
                           <TrashIcon class="h-5 w-5" aria-hidden="true" />
                         </button>
@@ -296,7 +301,7 @@ export default {
     },
 
 
-    deleteFavourite(feedId, index) {
+    deleteFavourite(feedId, sectionName) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
@@ -305,7 +310,16 @@ export default {
             feed_id: feedId,
           }))
           .then(response => {
-            this.favorites.splice(index, 1);
+
+            if (sectionName === 'main') {
+              this.mainAreaItems = this.mainAreaItems.filter(item => item.feed_id !== feedId);
+            } else {
+              const section = this.sections.find(sec => sec.name === sectionName);
+              if (section) {
+                section.items = section.items.filter(item => item.feed_id !== feedId);
+              }
+            }
+
             show.value = true;
             message.value = response.data.message;
             notificationType.value = 'success';
