@@ -23,7 +23,7 @@ const jobOpenings = [
 </script>
 <template>
   <div class="bg-white py-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl lg:max-w-4xl px-6 lg:px-8">
       <div class="mx-auto flex max-w-2xl flex-col items-end justify-between gap-16 lg:mx-0 lg:max-w-none lg:flex-row">
         <div class="w-full lg:max-w-lg lg:flex-auto">
           <p class="text-base font-semibold leading-7 text-indigo-600">About</p>
@@ -44,7 +44,7 @@ const jobOpenings = [
                     <span class="absolute inset-0" aria-hidden="true" />
                 </dd>
                 <dt class="sr-only">Description</dt>
-                <dd class="mt-2 w-full flex-none text-base leading-7 text-gray-600">{{ opening.description }}</dd>
+                <dd class="mt-2 w-full flex-none text-base leading-7 text-gray-900">{{ opening.description }}</dd>
               </dl>
             </li>
           </ul>
@@ -57,7 +57,7 @@ const jobOpenings = [
   </div>
 
   <div class="bg-white pb-24 sm:pb-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl lg:max-w-4xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
         <p class="text-base font-semibold leading-7 text-indigo-600">About</p>
         <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Me</h2>

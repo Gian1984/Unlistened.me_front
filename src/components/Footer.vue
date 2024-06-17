@@ -82,7 +82,7 @@ const FooterNavigation = {
           <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
         </a>
       </div>
-      <p class="mt-10 text-center text-xs font-bold leading-5 text-gray-900">&copy; {{ currentYear }} Unlistened.me  all rights reserved. Powered by <a href="https://gianlucatiengo.com/" target="_blank" class="text-indigo-700 hover:text-pink-500">Gianluca Tiengo</a></p>
+      <p class="mt-10 text-center text-xs font-bold leading-5 text-gray-900">&copy; {{ currentYear }} Unlistened.me  all rights reserved. Powered by <a href="https://gianlucatiengo.com/" target="_blank" class="text-indigo-700 hover:text-pink-500 font-bold">Gianluca Tiengo</a></p>
     </div>
   </div>
 </template>

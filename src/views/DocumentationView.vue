@@ -4,13 +4,13 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 </script>
 <template>
   <div class="bg-white px-6 py-32 lg:px-8">
-    <div class="mx-auto max-w-7xl text-base leading-7 text-gray-700">
+    <div class="mx-auto max-w-2xl lg:max-w-4xl text-base leading-7 text-gray-700">
       <p class="text-base font-semibold leading-7 text-indigo-600">Documentation</p>
       <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-6xl">Unlistened.me</h1>
       <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">Overview</h2>
       <div class="mt-10 max-w-7xl">
 
-        <p>Unlistened.me is a modern podcast player application designed to provide a seamless and enjoyable listening experience. The app is built using the latest web technologies to ensure high performance, security, and a user-friendly interface.</p>
+        <p class="mt-2 text-lg leading-6 text-gray-900">Unlistened.me is a modern podcast player application designed to provide a seamless and enjoyable listening experience. The app is built using the latest web technologies to ensure high performance, security, and a user-friendly interface.</p>
 
         <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900 md:text-center">Technologies Used</h2>
 
@@ -80,12 +80,12 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
         </ul>
 
         <h2 class="mt-16 text-2xl font-bold tracking-tight text-gray-900">Contribution</h2>
-        <p class="mt-6">We welcome contributions from the community! If you'd like to contribute, please fork the repository and create a pull request with your changes. Be sure to follow our coding standards and include detailed commit messages.</p>
+        <p class="mt-6 text-lg leading-6 text-gray-900">We welcome contributions from the community! If you'd like to contribute, please fork the repository and create a pull request with your changes. Be sure to follow our coding standards and include detailed commit messages.</p>
       </div>
 
       <div class="mt-16 max-w-2xl">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">License</h2>
-        <p class="mt-6">Unlistened.me is open-source software licensed under the MIT license. The software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.</p>
+        <p class="mt-6 text-lg leading-6 text-gray-900">Unlistened.me is open-source software licensed under the MIT license. The software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.</p>
       </div>
     </div>
   </div>

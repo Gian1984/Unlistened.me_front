@@ -158,7 +158,7 @@ const sidebarOpen = ref(false)
             <Popover class="hidden md:flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
 
               <PopoverButton class="ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
-                <AdjustmentsHorizontalIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" aria-hidden="true" />
+                <AdjustmentsHorizontalIcon class=" h-8 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" aria-hidden="true" />
               </PopoverButton>
 
               <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
@@ -205,12 +205,12 @@ const sidebarOpen = ref(false)
               </transition>
             </Popover>
 
-            <label for="search-field" class="sr-only">Search</label>
+
             <button @click="onSearchClick">
               <span class="sr-only">Search</span>
-              <MagnifyingGlassIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" />
+              <MagnifyingGlassIcon class=" h-8 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" />
             </button>
-
+            <label for="search-field" class="sr-only">Search</label>
             <input id="search-field" v-model="searchQuery" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">

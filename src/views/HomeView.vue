@@ -14,7 +14,7 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
         Welcome to Unlistened.me, the simplest way to enjoy your favorite podcasts for free! I am committed to providing a user-friendly experience without tracking cookies or profiling our users. Enjoy unrestricted access to a world of stories, insights, and entertainment with complete privacy and zero cost.
       </p>
       <div class="mt-10 max-w-2xl">
-        <p>
+        <p class="text-lg leading-6 text-gray-900">
           Podcasts offer a unique avenue to culture, education, and enlightenment—accessible anywhere, anytime. Motivated by the power of podcasts to educate and inspire, I created this app to make these incredible resources freely available to everyone, with a strong commitment to privacy and simplicity.
         </p>
         <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-600">
@@ -39,7 +39,7 @@ import { CheckCircleIcon } from '@heroicons/vue/20/solid'
             <span><strong class="font-semibold text-gray-900">Sign Up / Log In.</strong> Required only to enable you to save your favorite episodes and manage your bookmarks seamlessly across devices.</span>
           </li>
         </ul>
-        <p class="mt-8">Join me at Unlistened.me to explore, learn, and grow through the vast world of podcasts, completely free and with total privacy.</p>
+        <p class="mt-8 text-lg leading-6 text-gray-900">Join me at Unlistened.me to explore, learn, and grow through the vast world of podcasts, completely free and with total privacy.</p>
       </div>
     </div>
   </div>
