@@ -31,7 +31,7 @@ const router = createRouter({
       component: HomeView,
       meta: {
         requiresAuth: false,
-        title: "Unlistened - Home",
+        title: "Home - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -61,7 +61,7 @@ const router = createRouter({
       name: 'Feeds',
       component: FeedsView,
       meta: {
-        title: "Unlistened - Feeds",
+        title: "Feeds - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -91,7 +91,7 @@ const router = createRouter({
       name: 'episodes',
       component: FeedEpisodesView,
       meta: {
-        title: "Unlistened - Podcast Episodes",
+        title: "Podcast Episodes - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -121,7 +121,7 @@ const router = createRouter({
       name: 'episode',
       component: SingleEpisodeView,
       meta: {
-        title: "Unlistened - Podcast",
+        title: "Podcast - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -151,7 +151,7 @@ const router = createRouter({
       name: 'SearchResults',
       component: SearchResultView,
       meta: {
-        title: "Unlistened - Search Results",
+        title: "Search Results - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -181,7 +181,7 @@ const router = createRouter({
       name: 'Login',
       component: LoginView,
       meta: {
-        title: "Unlistened - Login",
+        title: "Login - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -211,7 +211,7 @@ const router = createRouter({
       name: 'Signup',
       component: SignUpView,
       meta: {
-        title: "Unlistened - Sign up",
+        title: "Sign up - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -242,7 +242,7 @@ const router = createRouter({
       component: FavouritesView,
       meta: {
         requiresAuth: true,
-        title: "Unlistened - Favourites",
+        title: "Favourites - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -273,7 +273,7 @@ const router = createRouter({
       component: BookmarksView,
       meta: {
         requiresAuth: true,
-        title: "Unlistened - Bookmarks",
+        title: "Bookmarks - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -303,7 +303,7 @@ const router = createRouter({
       name: 'About',
       component: AboutView,
       meta: {
-        title: "About Unlistened",
+        title: "About - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -333,7 +333,7 @@ const router = createRouter({
       name: 'Forgot',
       component: ForgotPasswordView,
       meta: {
-        title: "Unlistened - Forgot Password",
+        title: "Forgot Password - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -363,7 +363,7 @@ const router = createRouter({
       name: 'Reset',
       component: ResetPasswordView,
       meta: {
-        title: "Unlistened - Reset Password",
+        title: "Reset Password - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -371,7 +371,7 @@ const router = createRouter({
           },
           {
             name: 'og:title',
-            content: "Unlistened - Reset Password"
+            content: "Reset Password - Unlistened"
           },
           {
             name: 'og:url',
@@ -394,7 +394,7 @@ const router = createRouter({
       component: SettingsView,
       meta: {
         requiresAuth: true,
-        title: "Unlistened - Settings",
+        title: "Settings - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -424,7 +424,7 @@ const router = createRouter({
       name: 'TermsAndConditions',
       component: TermsView,
       meta: {
-        title: "Unlistened - Terms and Conditions",
+        title: "Terms and Conditions - Unlistened ",
         metaTags: [
           {
             name: 'description',
@@ -456,7 +456,7 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: true,
-        title: "Unlistened - Settings",
+        title: "Settings - Unlistened ",
         metaTags: [
           {
             name: 'description',
@@ -486,7 +486,7 @@ const router = createRouter({
       name: 'Categories',
       component: CategoriesView,
       meta: {
-        title: "Unlistened - Categories",
+        title: "Categories - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -517,7 +517,7 @@ const router = createRouter({
       name: 'Documentation',
       component: DocumentationView,
       meta: {
-        title: "Unlistened - Documentation",
+        title: "Documentation - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -547,7 +547,7 @@ const router = createRouter({
       name: 'Forbidden',
       component: ForbiddenView,
       meta: {
-        title: "Unlistened - Forbidden",
+        title: "Forbidden - Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -577,7 +577,7 @@ const router = createRouter({
       name: 'NotFound',
       component: NotFoundView,
       meta: {
-        title: "Unlistened - 404 Not Found",
+        title: "404 Not Found - Unlistened",
         metaTags: [
           {
             name: 'description',

@@ -174,7 +174,7 @@ const sidebarOpen = ref(false)
                         <MagnifyingGlassIcon class="h-3 w-3 text-gray-900 mr-2"/>
                         <button @click="() => { close(); onFilterClick(item.id); }" class="font-semibold text-gray-900 py-1">
                           {{ item.name }}
-                          <span class="absolute inset-0" />
+                          <span class="absolute inset-0 sr-only">Search</span>
                         </button>
                       </div>
                     </div>
@@ -207,6 +207,7 @@ const sidebarOpen = ref(false)
 
             <label for="search-field" class="sr-only">Search</label>
             <button @click="onSearchClick">
+              <span class="sr-only">Search</span>
               <MagnifyingGlassIcon class=" h-12 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full" />
             </button>
 
@@ -311,7 +312,6 @@ export default {
   methods: {
 
     onSearchClick() {
-      this.closePopover();
       this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
       this.searchQuery='';
     },

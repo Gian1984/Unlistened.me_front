@@ -37,7 +37,7 @@ let authStore = useAuthStore();
   <!--  Notification  -->
 
 
-  <div class=" px-6 py-24 lg:px-8">
+  <div class=" px-6 py-24 lg:px-8 bg-black">
     <div class="px-4 sm:px-0">
       <h1 class="mt-2 text-4xl font-bold tracking-tight text-white sm:text-6xl">Personal information</h1>
       <p class="mt-8 max-w-2xl text-base leading-6 text-white">
