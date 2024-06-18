@@ -158,6 +158,7 @@ const sidebarOpen = ref(false)
             <Popover class="hidden md:flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
 
               <PopoverButton class="ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+                <span class="sr-only">filters</span>
                 <AdjustmentsHorizontalIcon class=" h-8 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" aria-hidden="true" />
               </PopoverButton>
 

@@ -52,7 +52,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Discover new podcasts on Unlistened, a free podcast app without cookies or profiling."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -82,7 +86,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Browse and listen to a variety of podcasts on Unlistened. Enjoy your favorite shows without tracking."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -112,7 +120,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -142,7 +154,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Listen to episode from your favorite podcasts on Unlistened. No cookies, no profiling."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -172,7 +188,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Find your favorite podcasts with Unlistened's powerful search feature."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -202,7 +222,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Log in to Unlistened to access your favorite podcasts and bookmarks."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -232,7 +256,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Sign up to Unlistened to save your favorite podcasts and access them anytime."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -263,7 +291,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Access your favorite podcasts on Unlistened. Log in to save and retrieve your favorites."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -294,7 +326,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Bookmark your favorite podcast episodes on Unlistened for easy access later."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -324,7 +360,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Learn more about Unlistened, the free podcast app that respects your privacy."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -354,7 +394,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Reset your password on Unlistened to regain access to your account."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -384,7 +428,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Reset your password on Unlistened using the link sent to your email."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -415,7 +463,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Manage your account settings on Unlistened. Customize your experience and preferences."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -445,7 +497,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Read the terms and conditions of Unlistened, including content responsibility, trademarks, user information, and our non-profit service policy."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -477,7 +533,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Unlistened - Dashboard"
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -507,7 +567,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Explore a wide range of podcast categories available on Unlistened."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -538,7 +602,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "Find out more about Unlistened, including used technologies, key features, and installation instructions."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -568,7 +636,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "You do not have permission to access this page."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     },
@@ -598,7 +670,11 @@ const router = createRouter({
           {
             property: 'og:description',
             content: "The page you are looking for does not exist."
-          }
+          },
+          {
+            property: 'og:image',
+            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+          },
         ]
       }
     }
