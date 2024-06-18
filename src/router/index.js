@@ -55,7 +55,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -89,7 +89,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -123,7 +123,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -157,7 +157,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -191,7 +191,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -225,7 +225,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -259,7 +259,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -294,7 +294,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -329,7 +329,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -363,7 +363,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -397,7 +397,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -431,7 +431,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -466,7 +466,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -500,7 +500,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -536,7 +536,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -570,7 +570,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -605,7 +605,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -639,7 +639,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
@@ -673,7 +673,7 @@ const router = createRouter({
           },
           {
             property: 'og:image',
-            content: "https://www.unlistened.me/images/unlistened.me_white_300.png"
+            content: "https://www.unlistened.me/images/ogimage-min.png"
           },
         ]
       }
