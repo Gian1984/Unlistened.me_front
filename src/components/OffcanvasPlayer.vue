@@ -4,32 +4,48 @@ import {PlayIcon, PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
 
 
 <template>
-  <div v-if="isVisible" class="fixed mx-auto max-w-xs md:max-w-md lg:max-w-xl bottom-1 p-4 border-2 bg-gray-400 border-gray-400 overflow-hidden object-contain right-1 rounded-2xl">
-    <div class="flex justify-end mb-5">
-      <button class="bg-pink-500 hover:bg-indigo-500 text-white font-bold py-2 px-2 rounded-full block ml-0" @click="closePlayer">
-        <XMarkIcon class="h-4 w-4 text-white" aria-hidden="true" />
-      </button>
-    </div>
-    <p class="text-teal-950 mb-5 truncate">
-      <span class="text-gray-900 font-semibold">Now playing:</span> {{ currentEpisode.title }}
-    </p>
-    <audio ref="audioPlayer" :src="currentEpisode.enclosureUrl" @loadedmetadata="initializePlayer" @timeupdate="updateProgress">
-      Your browser does not support the audio element.
-    </audio>
-    <div class="flex items-center">
-      <div class="audio-player flex items-center justify-center mb-4">
-        <button @click="togglePlayPause" class="bg-indigo-500 hover:bg-pink-500 text-white font-bold py-4 px-4 rounded-full mr-5">
-          <component :is="isPlaying ? PauseIcon : PlayIcon" class="h-6 w-6 text-white"/>
-        </button>
-      </div>
-      <div class="relative w-full bg-gray-200 rounded-full h-2 cursor-pointer mb-4 overflow-hidden max-" @click="seek">
-        <div class="bg-pink-500 h-2 rounded-full absolute top-0 left-0" :style="{ width: progressBarWidth }"></div>
-      </div>
-    </div>
-    <div class="time-display text-gray-600 text-sm mb-4">
-      <span>{{ currentTime }} / {{ duration }}</span>
+
+
+  <!-- Global notification live region, render this permanently at the end of the document -->
+  <div v-if="isVisible" aria-live="assertive" class="pointer-events-none fixed bottom-0 inset-0 flex items-end px-4 py-6 sm:p-6">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+      <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+          <div class="p-4">
+            <div class="mr-1 flex justify-end">
+              <button class="bg-white font-bold text-gray-900 hover:bg-pink-500 hover:text-white py-1.5 px-1.5 rounded-full block ml-0" @click="closePlayer">
+                <XMarkIcon class="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <button @click="togglePlayPause" class="bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full mr-2">
+                  <component :is="isPlaying ? PauseIcon : PlayIcon" class="h-5 w-5 text-white"/>
+                </button>
+              </div>
+              <div class="ml-3 w-0 flex-1 pt-0.5">
+                <p class="mb-1 truncate">
+                  <span class="text-gray-900 font-semibold">Now playing:</span>
+                </p>
+                <p class="mb-2 truncate text-gray-600">
+                  {{ currentEpisode.title }}
+                </p>
+                <audio ref="audioPlayer" :src="currentEpisode.enclosureUrl" @loadedmetadata="initializePlayer" @timeupdate="updateProgress">
+                  Your browser does not support the audio element.
+                </audio>
+                <div class="relative w-full bg-gray-200 rounded-full h-2 cursor-pointer mb-2 overflow-hidden max-" @click="seek">
+                  <div class="bg-pink-500 h-2 rounded-full absolute top-0 left-0" :style="{ width: progressBarWidth }"></div>
+                </div>
+                <p class="text-sm font-medium text-gray-900">{{ currentTime }} / {{ duration }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -77,11 +93,8 @@ export default {
             episode_id: epID,
             episode_title: epTI,
           }))
-          .then(response => {
-            console.log('Play data sent', response);
-          })
           .catch(error => {
-            console.error('Play data fail', error);
+            console.error('Play data fail');
           });
     },
 

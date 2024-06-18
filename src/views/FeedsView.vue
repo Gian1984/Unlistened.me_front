@@ -40,13 +40,13 @@ messageStore.initializeMessage();
   <!--  Notification  -->
 
   <div v-if="loading">
-    <div class="grid h-screem place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div class="grid h-screen place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
         <img class="mx-auto sm:h-64 h-32 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
       <div class="text-center">
         <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Hang tight!</h1>
-        <p class="mt-6 text-base leading-7 text-gray-900">We're scouring the high seas for the latest updates to bring you the freshest podcast treasures.</p>
+        <p class="mt-6 text-base leading-7 text-gray-900">We're getting the latest updates to bring you the freshest podcast</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <button type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-indigo-700 bg-white hover:bg-white transition ease-in-out duration-150 cursor-not-allowed" disabled="">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
