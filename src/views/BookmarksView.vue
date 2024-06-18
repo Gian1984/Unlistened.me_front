@@ -145,7 +145,7 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
 
 
     <div v-for="(section, index) in sections" :key="section.name"  :class="['py-6', index % 2 === 0 ? 'bg-gray-200' : 'bg-white']">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl lg:max-w-4xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:mx-0">
           <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ section.name }}</h2>
         </div>

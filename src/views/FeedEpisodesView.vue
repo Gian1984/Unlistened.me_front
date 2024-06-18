@@ -45,7 +45,7 @@ messageStore.initializeMessage();
         <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
           <article class="relative isolate flex flex-col gap-8 lg:flex-row">
             <div class="relative aspect-square lg:w-64 lg:shrink-0">
-              <img :src="feedInfo.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover" />
+              <img :src="feedInfo.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 w-full aspect-square rounded-2xl bg-gray-50 object-cover" />
               <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
             </div>
             <div>
@@ -165,7 +165,10 @@ export default {
       this.visibleCount = Math.min(this.visibleCount + increment, this.episodes.length);
     },
     playEpisode(episode) {
-      this.selectedEpisode = episode;
+      this.selectedEpisode = null;
+      this.$nextTick(() => {
+        this.selectedEpisode = episode;
+      });
     },
     stripHtmlTags(str) {
       if (!str) return '';

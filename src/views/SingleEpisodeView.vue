@@ -1,6 +1,5 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import OffcanvasPlayer from '../components/OffcanvasPlayer.vue';
 import {ArrowDownTrayIcon, CheckCircleIcon, PlayIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import {XMarkIcon} from "@heroicons/vue/20/solid/index.js";
 import {useAuthStore} from "@/stores/authStore.js";
@@ -102,11 +101,17 @@ messageStore.initializeMessage();
   <Footer />
 </template>
 <script>
+import OffcanvasPlayer from '../components/OffcanvasPlayer.vue';
+
 const base_Url = import.meta.env.VITE_BASE_URL
 import { ref } from 'vue'
 const show = ref(false)
 
 export default {
+  components: {
+    OffcanvasPlayer
+  },
+
   data() {
     return {
       episode: [],
@@ -114,21 +119,25 @@ export default {
       error:null,
     };
   },
-  async created() {
+
+  created() {
     const podcastId = this.$route.params.id;
-    await this.fetchEpisode(podcastId);
+    this.fetchEpisode(podcastId);
   },
 
   methods: {
     playEpisode(episode) {
-      this.selectedEpisode = episode;
+      this.selectedEpisode = null;
+      this.$nextTick(() => {
+        this.selectedEpisode = episode;
+      });
     },
     stripHtmlTags(str) {
       if (!str) return '';
       return str.replace(/<[^>]*>/g, ''); // Regular expression to remove HTML tags
     },
 
-    async fetchEpisode(podcastId) {
+    fetchEpisode(podcastId) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
@@ -145,11 +154,11 @@ export default {
           });
     },
 
-    async sendDownloadData(id, title) {
+    sendDownloadData(id, title) {
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
-      await this.axios.get(base_Url + 'sanctum/csrf-cookie')
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
           .then(() => this.axios.post(base_Url + 'api/add_download_click', {
             episode_id: id,
             episode_title: title,

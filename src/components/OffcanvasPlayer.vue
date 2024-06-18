@@ -64,26 +64,27 @@ export default {
     },
   },
   methods: {
-    async sendPlayData() {
-      try {
-        this.axios.defaults.withCredentials = true;
-        this.axios.defaults.withXSRFToken = true;
-        await this.axios.get(base_Url + 'sanctum/csrf-cookie');
 
-        let epID = this.currentEpisode.id
-        let epTI = this.currentEpisode.title
+    sendPlayData() {
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
 
-        const response = await this.axios.post(base_Url + 'api/add_play_click', {
-          episode_id: epID,
-          episode_title: epTI,
-        });
+      let epID = this.currentEpisode.id
+      let epTI = this.currentEpisode.title
 
-        console.log('Play data sent');
-
-      } catch (error) {
-        console.error('Error sending play data:', error);
-      }
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => this.axios.post(base_Url + 'api/add_play_click', {
+            episode_id: epID,
+            episode_title: epTI,
+          }))
+          .then(response => {
+            console.log('Play data sent', response);
+          })
+          .catch(error => {
+            console.error('Play data fail', error);
+          });
     },
+
 
     initializePlayer() {
       const audioPlayer = this.$refs.audioPlayer;

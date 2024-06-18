@@ -62,7 +62,7 @@ const sidebarOpen = ref(false)
             <DialogPanel class="relative mr-16 flex w-full max-w-xs flex-1">
               <TransitionChild as="template" enter="ease-in-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-300" leave-from="opacity-100" leave-to="opacity-0">
                 <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
-                  <button type="button" class="-m-2.5 p-2.5" @click="sidebarOpen = false">
+                  <button type="button" class="-m-2.5 p-2.5 focus:outline-none focus:ring-0 focus:border-none active:border-none" @click="sidebarOpen = false">
                     <span class="sr-only">Close sidebar</span>
                     <XMarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
                   </button>
@@ -211,7 +211,7 @@ const sidebarOpen = ref(false)
               <MagnifyingGlassIcon class=" h-8 bg-indigo-500 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" />
             </button>
             <label for="search-field" class="sr-only">Search</label>
-            <input id="search-field" v-model="searchQuery" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
+            <input id="search-field" v-model="searchQuery"  @keyup.enter="onSearchClick" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
 
@@ -312,8 +312,10 @@ export default {
   methods: {
 
     onSearchClick() {
-      this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
-      this.searchQuery='';
+      if (this.searchQuery.trim() !== '') {
+        this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
+        this.searchQuery = '';
+      }
     },
 
     onFilterClick(id) {
