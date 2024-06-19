@@ -74,10 +74,19 @@ let authStore = useAuthStore();
           <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6 text-gray-900"></dt>
             <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <button @click="updateAccount()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
-                <ArrowPathIcon class="h-5 w-5 mr-1" />
-                Update
-              </button>
+              <div class="flex">
+                <button @click="updateAccount()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
+                  <ArrowPathIcon class="h-5 w-5 mr-1" />
+                  Update
+                </button>
+                <button v-if="updating" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-black transition ease-in-out duration-150 cursor-not-allowed" disabled="">
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Upadating...
+                </button>
+              </div>
             </dd>
           </div>
         </dl>
@@ -116,10 +125,19 @@ let authStore = useAuthStore();
           <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6 text-gray-900"></dt>
             <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <button @click="sendReq()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
-                <PaperAirplaneIcon class="h-5 w-5 mr-1" />
-                Send
-              </button>
+              <div class="flex">
+                <button @click="sendReq()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
+                  <PaperAirplaneIcon class="h-5 w-5 mr-1" />
+                  Send
+                </button>
+                <button v-if="sending" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-black transition ease-in-out duration-150 cursor-not-allowed" disabled="">
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending...
+                </button>
+              </div>
             </dd>
           </div>
         </dl>
@@ -166,10 +184,14 @@ export default {
       email: '',
       object: '',
       description: '',
+      sending: false,
+      updating: false,
     };
   },
   methods: {
     updateAccount() {
+
+      this.updating = true
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
@@ -195,6 +217,7 @@ export default {
             const authStore = useAuthStore();
             authStore.updateUser(payload);
 
+            this.updating = false
             show.value = true;
             message.value = response.data.message;
             notificationType.value = 'success';
@@ -208,9 +231,10 @@ export default {
           .catch(error => {
             if (error.response && error.response.data && error.response.data.errors) {
 
-
               message.value = Object.values(error.response.data.errors).join(', ');
               notificationType.value = 'error';
+
+              this.updating = false
               show.value = true;
               setTimeout(() => {
                 show.value = false;
@@ -221,6 +245,8 @@ export default {
 
               message.value = 'There was an error updating your information. Please try later.';
               notificationType.value = 'error';
+
+              this.updating = false
               show.value = true;
               setTimeout(() => {
                 show.value = false;
@@ -231,6 +257,8 @@ export default {
 
             message.value = 'There was an error updating your information. Please try later.';
             notificationType.value = 'error';
+
+            this.updating = false
             show.value = true;
             setTimeout(() => {
               show.value = false;
@@ -240,6 +268,8 @@ export default {
     },
 
     sendReq() {
+      this.sending = true
+
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
@@ -249,6 +279,8 @@ export default {
             message_desc: this.description,
           }))
           .then(response => {
+
+            this.sending = false
             show.value = true;
             message.value = response.data.message;
             notificationType.value = 'success';
@@ -259,12 +291,14 @@ export default {
               show.value = false;
               message.value = null;
             }, 5000);
+
           })
           .catch(error => {
             this.object = null;
             this.description = null;
             message.value = 'Error while sending. Please try later.';
             notificationType.value = 'error';
+            this.sending = false
             show.value = true;
             setTimeout(() => {
               show.value = false;

@@ -1,40 +1,41 @@
 <script setup>
-import {PlayIcon, PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
+import { PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
+import {PlayIcon} from "@heroicons/vue/24/outline/index.js";
 </script>
 
 
 <template>
 
 
-  <!-- Global notification live region, render this permanently at the end of the document -->
+  <!-- Global player live region, render this permanently at the end of the document -->
   <div v-if="isVisible" aria-live="assertive" class="pointer-events-none fixed bottom-0 inset-0 flex items-end px-4 py-6 sm:p-6">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
-      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+      <!-- Player panel, dynamically insert this into the live region when it needs to be displayed -->
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-indigo-100 shadow-lg ring-1 ring-black ring-opacity-5 border-2 border-indigo-500">
           <div class="p-4">
-            <div class="mr-1 flex justify-end">
-              <button class="bg-white font-bold text-gray-900 hover:bg-pink-500 hover:text-white py-1.5 px-1.5 rounded-full block ml-0" @click="closePlayer">
-                <XMarkIcon class="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <button @click="togglePlayPause" class="bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full mr-2">
+                <button @click="togglePlayPause" class="bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full">
                   <component :is="isPlaying ? PauseIcon : PlayIcon" class="h-5 w-5 text-white"/>
                 </button>
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
-                <p class="mb-1 truncate">
-                  <span class="text-gray-900 font-semibold">Now playing:</span>
-                </p>
+                <div class="flex justify-between align-middle">
+                  <p class="truncate">
+                    <span class="text-gray-900 font-semibold">Now playing:</span>
+                  </p>
+                  <button class="bg-indigo-100 font-bold text-gray-900 hover:bg-pink-500 hover:text-white py-1.5 px-1.5 rounded-full block ml-0" @click="closePlayer">
+                    <XMarkIcon class="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
                 <p class="mb-2 truncate text-gray-600">
                   {{ currentEpisode.title }}
                 </p>
                 <audio ref="audioPlayer" :src="currentEpisode.enclosureUrl" @loadedmetadata="initializePlayer" @timeupdate="updateProgress">
                   Your browser does not support the audio element.
                 </audio>
-                <div class="relative w-full bg-gray-200 rounded-full h-2 cursor-pointer mb-2 overflow-hidden max-" @click="seek">
+                <div class="relative w-full bg-white rounded-full h-2 cursor-pointer mb-2 overflow-hidden max-" @click="seek">
                   <div class="bg-pink-500 h-2 rounded-full absolute top-0 left-0" :style="{ width: progressBarWidth }"></div>
                 </div>
                 <p class="text-sm font-medium text-gray-900">{{ currentTime }} / {{ duration }}</p>
