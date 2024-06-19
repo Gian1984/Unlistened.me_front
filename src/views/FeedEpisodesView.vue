@@ -101,23 +101,26 @@ messageStore.initializeMessage();
                   <time :datetime="episode.datePublishedPretty" class="text-gray-500">{{ episode.datePublishedPretty }}</time>
                 </div>
                 <div class="group relative max-w-xl">
-                  <h3 class="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
+                  <h2 class="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
                     <span class="text-gray-900 font-bold">
                       {{ episode.title }}
                       </span>
-                  </h3>
+                  </h2>
                   <p class="mt-5 text-sm leading-6 text-gray-600">{{ stripHtmlTags(episode.description ) }}</p>
                 </div>
                 <div class="mt-6 flex border-b border-gray-900/5 pt-3 pb-6">
                   <div class="relative flex items-center gap-x-4">
                     <div class="text-sm leading-6 flex">
                       <button @click="playEpisode(episode)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                        <span class="sr-only">Play</span>
                         <play-icon class="h-5 w-5" />
                       </button>
                       <button @click="addBookmarks(episode.id, episode.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                        <span class="sr-only">Add bookmark</span>
                         <BookmarkIcon class="h-5 w-5"/>
                       </button>
                       <button @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                        <span class="sr-only">Download</span>
                         <ArrowDownTrayIcon class="h-5 w-5"/>
                       </button>
                     </div>

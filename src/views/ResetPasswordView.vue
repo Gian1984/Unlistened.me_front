@@ -77,7 +77,14 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
             </div>
           </div>
 
-          <div>
+          <div class="mx-auto text-center">
+            <button v-if="sending" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-black transition ease-in-out duration-150 cursor-not-allowed" disabled="">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Working...
+            </button>
             <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Reset password</button>
           </div>
         </div>
@@ -104,6 +111,7 @@ export default {
       errors:'',
       match:'',
       empty:'',
+      sending:false,
     }
   },
 
@@ -111,14 +119,13 @@ export default {
 
     resetPassword(e) {
       e.preventDefault();
-
       if (this.password !== this.password_confirmation || this.password.length <= 0) {
         this.password = "";
         this.password_confirmation = "";
         this.match = 'Passwords do not match';
         return; // Stop execution if passwords do not match
       }
-
+      this.sending = true
       this.axios.defaults.withCredentials = true;
       this.axios.defaults.withXSRFToken = true;
 
@@ -137,9 +144,11 @@ export default {
             });
           })
           .then(response => {
+            this.sending = false
             this.$router.push({ name: 'Login' });
           })
           .catch(error => {
+            this.sending = false
             this.errors = error.response ? error.response.data : 'An error occurred';
             setTimeout(() => {
               this.errors = null;

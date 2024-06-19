@@ -123,6 +123,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                       </div>
                       <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
                         <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                          <span class="sr-only">Visit feed</span>
                           <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
                         </router-link>
                       </div>
@@ -173,6 +174,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
                       </div>
                       <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
                         <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                          <span class="sr-only">Visit feed</span>
                           <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
                         </router-link>
                       </div>

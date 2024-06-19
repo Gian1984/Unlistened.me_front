@@ -86,13 +86,13 @@ messageStore.initializeMessage();
                   <time :datetime="feed.newestItemPubdate" class="text-gray-500">{{ getReadableDate( feed.newestItemPublishTime) }}</time>
                 </div>
                 <div class="group relative max-w-xl">
-                  <h3 class="mt-3 text-lg font-bold leading-6 text-gray-900 group-hover:text-indigo-600">
+                  <h2 class="mt-3 text-lg font-bold leading-6 text-gray-900 group-hover:text-indigo-600">
                     <router-link :to="'/feed/' + feed.id">
                         <span class="text-gray-900 font-bold hover:text-indigo-600">
                         {{ feed.title }}
                         </span>
                     </router-link>
-                  </h3>
+                  </h2>
                   <p class="mt-5 text-sm leading-6 text-gray-600 text-ellipsis overflow-hidden">{{ stripHtmlTags(feed.description ) }}</p>
                   <div class="mt-5">
                     <span class="font-semibold text-gray-900">Categories:</span>
@@ -114,9 +114,11 @@ messageStore.initializeMessage();
                     </div>
                     <div class="text-sm leading-6 flex">
                       <button @click="addFavourite(feed.id, feed.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                        <span class="sr-only">Add favourite</span>
                         <StarIcon class="h-5 w-5" />
                       </button>
                       <router-link :to="'/feed/' + feed.id" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                        <span class="sr-only">Visit feed</span>
                         <ArrowRightIcon class="h-5 w-5" />
                       </router-link>
                     </div>

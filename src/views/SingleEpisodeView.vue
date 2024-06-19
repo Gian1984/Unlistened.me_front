@@ -86,12 +86,15 @@ messageStore.initializeMessage();
                     <div class="text-sm leading-6 flex">
                       <div class="text-sm leading-6 flex">
                         <button @click="playEpisode(episode)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full flex">
+                          <span class="sr-only">Play</span>
                           <play-icon class="h-5 w-5" />
                         </button>
                         <button @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                          <span class="sr-only">Download</span>
                           <ArrowDownTrayIcon class="h-5 w-5"/>
                         </button>
                         <button @click="deleteBookmark(episode.id)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
+                          <span class="sr-only">Dismiss</span>
                           <TrashIcon class="h-5 w-5"/>
                         </button>
                       </div>

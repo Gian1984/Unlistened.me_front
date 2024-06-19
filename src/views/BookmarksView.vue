@@ -85,7 +85,7 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
           <p class="leading-6 text-base text-gray-900 py-6">
             Welcome to your personalized feeds hub! Here, you can easily manage your favorite podcasts by creating and organizing them into custom categories. Whether you want to keep track of feeds to listen to next, highlight your all-time favorites, or archive past podcasr, our flexible system allows you to create unique sections. Simply select a category from the dropdown menu and drag your favorite podcast into the desired section for a streamlined and organized listening experience. Enjoy hassle-free podcast management and keep your audio content just the way you like it!
           </p>
-          <p for="location" class="text-gray-900 font-bold">Custom categories :</p>
+          <p class="text-gray-900 font-bold">Custom categories :</p>
           <div class="mx-auto lg:flex block justify-between align-middle">
             <div class="lg:w-10/12 w-full">
               <label for="location" class="sr-only">Custom categories</label>
@@ -123,6 +123,7 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
                     </div>
                     <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
                       <router-link :to="'/episode/' + element.episode_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                        <span class="sr-only">Dismiss</span>
                         <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
                       </router-link>
                     </div>
@@ -173,6 +174,7 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
                     </div>
                     <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
                       <router-link :to="'/episode/' + element.episode_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white">
+                        <span class="sr-only">Go to episode</span>
                         <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
                       </router-link>
                     </div>
