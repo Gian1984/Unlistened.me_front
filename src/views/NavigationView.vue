@@ -48,6 +48,7 @@ const navigation = [
 
 const sidebarOpen = ref(false)
 
+
 </script>
 <template>
   <div>
@@ -237,15 +238,29 @@ const sidebarOpen = ref(false)
               </MenuButton>
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <MenuItem v-if="!authStore.user">
-                    <router-link  to="/signup" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Create Account</router-link>
-                  </MenuItem>
-                  <MenuItem v-if="authStore.user">
-                    <router-link  to="/settings" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Welcome {{ authStore.user.name }} !</router-link>
-                  </MenuItem>
-                  <MenuItem v-if="!authStore.user">
-                    <router-link  to="/login" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Login</router-link>
-                  </MenuItem>
+
+                  <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Signup' }" custom>
+                    <MenuItem v-slot="{ close }">
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+                        Create Account
+                      </a>
+                    </MenuItem>
+                  </RouterLink>
+
+                  <RouterLink v-if="authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Settings' }" custom>
+                    <MenuItem v-slot="{ close }">
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+                        Welcome {{ authStore.user.name }} !
+                      </a>
+                    </MenuItem>
+                  </RouterLink>
+
+                  <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Login' }" custom>
+                    <MenuItem v-slot="{ close }">
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Login</a>
+                    </MenuItem>
+                  </RouterLink>
+
                   <MenuItem v-if="authStore.user">
                     <button  class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600" @click="logout">Sign out</button>
                   </MenuItem>
@@ -284,6 +299,7 @@ export default {
   },
 
   computed: {
+
     paginatedCategories() {
       const start = (this.currentCategories - 1) * this.categoriesPerPage;
       const end = start + this.categoriesPerPage;
