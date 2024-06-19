@@ -83,7 +83,7 @@ const FooterNavigation = {
         </a>
       </div>
     </div>
-    <p class="py-3 text-center text-xs font-bold leading-5 text-gray-900">&copy; {{ currentYear }} Unlistened.me  all rights reserved. Powered by <a href="https://gianlucatiengo.com/" target="_blank" class="text-indigo-700 hover:text-pink-500 font-bold">Gianluca Tiengo</a></p>
+    <p class="py-3 text-center text-xs font-bold leading-5 text-gray-900">&copy; {{ currentYear }} Unlistened.me  all rights reserved. <a href="https://gianlucatiengo.com/" target="_blank" class="text-pink-600 hover:text-indigo-600 font-bold block">Powered by Gianluca Tiengo</a></p>
   </div>
 </template>
 <script>
