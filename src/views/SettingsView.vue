@@ -48,24 +48,44 @@ let authStore = useAuthStore();
       </div>
       <div class="mt-6 border-t border-gray-100">
         <dl class="divide-y divide-gray-100">
+
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6 text-white">Username</dt>
             <dd class="mt-1 sm:col-span-2 sm:mt-0">
               <div class="max-w-xl">
                 <label for="email" class="sr-only">Username</label>
-                <div class="mt-2">
+                <div>
                   <input v-model="username" type="text" name="username" id="username" :placeholder="authStore.user.name" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
                 </div>
               </div>
             </dd>
           </div>
+
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6 text-white">Email address</dt>
             <dd class="mt-1 sm:col-span-2 sm:mt-0">
               <div class="max-w-xl">
                 <label for="email" class="sr-only">Email address</label>
-                <div class="mt-2">
+                <div>
                   <input v-model="email" id="email" name="email" type="email" :placeholder="authStore.user.email" autocomplete="email" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
+                </div>
+              </div>
+            </dd>
+          </div>
+
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-white">Language</dt>
+            <dd class="mt-1 sm:col-span-2 sm:mt-0">
+              <div class="max-w-xl">
+                <label for="location" class="sr-only">Languages</label>
+                <div>
+                  <select id="location" v-model="preferred_language" name="location" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-gray-500 shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                    <option v-if="authStore.user.preferred_language" selected class="text-gray-500" value="">{{ languages[authStore.user.preferred_language] || authStore.user.preferred_language }}</option>
+                    <option v-else selected class="text-gray-500" value="">Your language</option>
+                    <option v-for="(lang, code) in languages" :key="code" :value="code">
+                      {{ lang }}
+                    </option>
+                  </select>
                 </div>
               </div>
             </dd>
@@ -186,6 +206,105 @@ export default {
       description: '',
       sending: false,
       updating: false,
+      preferred_language: '',
+      languages: {
+        'af': 'Afrikaans',
+        'sq': 'Albanian',
+        'eu': 'Basque',
+        'be': 'Belarusian',
+        'bg': 'Bulgarian',
+        'ca': 'Catalan',
+        'zh-cn': 'Chinese (Simplified)',
+        'zh-tw': 'Chinese (Traditional)',
+        'hr': 'Croatian',
+        'cs': 'Czech',
+        'da': 'Danish',
+        'nl': 'Dutch',
+        'nl-be': 'Dutch (Belgium)',
+        'nl-nl': 'Dutch (Netherlands)',
+        'en': 'English',
+        'en-au': 'English (Australia)',
+        'en-bz': 'English (Belize)',
+        'en-ca': 'English (Canada)',
+        'en-ie': 'English (Ireland)',
+        'en-jm': 'English (Jamaica)',
+        'en-nz': 'English (New Zealand)',
+        'en-ph': 'English (Philippines)',
+        'en-za': 'English (South Africa)',
+        'en-tt': 'English (Trinidad)',
+        'en-gb': 'English (United Kingdom)',
+        'en-us': 'English (United States)',
+        'en-zw': 'English (Zimbabwe)',
+        'et': 'Estonian',
+        'fo': 'Faeroese',
+        'fi': 'Finnish',
+        'fr': 'French',
+        'fr-be': 'French (Belgium)',
+        'fr-ca': 'French (Canada)',
+        'fr-fr': 'French (France)',
+        'fr-lu': 'French (Luxembourg)',
+        'fr-mc': 'French (Monaco)',
+        'fr-ch': 'French (Switzerland)',
+        'gl': 'Galician',
+        'gd': 'Gaelic',
+        'de': 'German',
+        'de-at': 'German (Austria)',
+        'de-de': 'German (Germany)',
+        'de-li': 'German (Liechtenstein)',
+        'de-lu': 'German (Luxembourg)',
+        'de-ch': 'German (Switzerland)',
+        'el': 'Greek',
+        'haw': 'Hawaiian',
+        'hu': 'Hungarian',
+        'is': 'Icelandic',
+        'in': 'Indonesian',
+        'ga': 'Irish',
+        'it': 'Italian',
+        'it-it': 'Italian (Italy)',
+        'it-ch': 'Italian (Switzerland)',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'mk': 'Macedonian',
+        'no': 'Norwegian',
+        'pl': 'Polish',
+        'pt': 'Portuguese',
+        'pt-br': 'Portuguese (Brazil)',
+        'pt-pt': 'Portuguese (Portugal)',
+        'ro': 'Romanian',
+        'ro-mo': 'Romanian (Moldova)',
+        'ro-ro': 'Romanian (Romania)',
+        'ru': 'Russian',
+        'ru-mo': 'Russian (Moldova)',
+        'ru-ru': 'Russian (Russia)',
+        'sr': 'Serbian',
+        'sk': 'Slovak',
+        'sl': 'Slovenian',
+        'es': 'Spanish',
+        'es-ar': 'Spanish (Argentina)',
+        'es-bo': 'Spanish (Bolivia)',
+        'es-cl': 'Spanish (Chile)',
+        'es-co': 'Spanish (Colombia)',
+        'es-cr': 'Spanish (Costa Rica)',
+        'es-do': 'Spanish (Dominican Republic)',
+        'es-ec': 'Spanish (Ecuador)',
+        'es-sv': 'Spanish (El Salvador)',
+        'es-gt': 'Spanish (Guatemala)',
+        'es-hn': 'Spanish (Honduras)',
+        'es-mx': 'Spanish (Mexico)',
+        'es-ni': 'Spanish (Nicaragua)',
+        'es-pa': 'Spanish (Panama)',
+        'es-py': 'Spanish (Paraguay)',
+        'es-pe': 'Spanish (Peru)',
+        'es-pr': 'Spanish (Puerto Rico)',
+        'es-es': 'Spanish (Spain)',
+        'es-uy': 'Spanish (Uruguay)',
+        'es-ve': 'Spanish (Venezuela)',
+        'sv': 'Swedish',
+        'sv-fi': 'Swedish (Finland)',
+        'sv-se': 'Swedish (Sweden)',
+        'tr': 'Turkish',
+        'uk': 'Ukrainian',
+      },
     };
   },
   methods: {
@@ -204,6 +323,9 @@ export default {
             if (this.email) {
               payload.email = this.email;
             }
+            if (this.preferred_language){
+              payload.preferred_language = this.preferred_language;
+            }
             return this.axios.post(base_Url + 'api/update_user', payload);
           })
           .then(response => {
@@ -214,6 +336,10 @@ export default {
             if (this.email) {
               payload.email = this.email;
             }
+            if (this.preferred_language){
+              payload.preferred_language = this.preferred_language;
+            }
+
             const authStore = useAuthStore();
             authStore.updateUser(payload);
 

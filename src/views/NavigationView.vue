@@ -297,6 +297,7 @@ export default {
       currentCategories: 1,
       categoriesPerPage: 8,
       maxVisiblePagesCategories: 3,
+      preferredLanguage: '',
     };
   },
 
@@ -328,7 +329,35 @@ export default {
     this.fetchSearchCat()
   },
 
+  mounted() {
+    this.detectBrowserLanguage();
+  },
+
   methods: {
+
+    detectBrowserLanguage() {
+      // Get the browser language
+      this.preferredLanguage = navigator.language || navigator.userLanguage;
+
+      this.axios.defaults.withCredentials = true;
+      this.axios.defaults.withXSRFToken = true;
+
+      this.axios.get(base_Url + 'sanctum/csrf-cookie')
+          .then(() => {
+            let preferredLanguage = this.preferredLanguage;
+
+            return this.axios.post(base_Url + 'api/detect-language', {
+              language: preferredLanguage,
+            });
+          })
+          .then(response => {
+            console.log('Browser lang update')
+          })
+          .catch(error => {
+            console.log('Error while lang update')
+          });
+
+    },
 
     onSearchClick() {
       if (this.searchQuery.trim() !== '') {
