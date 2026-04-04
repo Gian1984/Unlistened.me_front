@@ -1,7 +1,4 @@
 import axios from 'axios'
-import { useAuthStore } from '@/stores/authStore'
-import { useMessageStore } from '@/stores/messageStore'
-import router from '@/router'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -11,12 +8,15 @@ const api = axios.create({
 
 api.interceptors.response.use(
   response => response,
-  error => {
+  async error => {
     if (error.response?.status === 401) {
+      const { useAuthStore } = await import('@/stores/authStore')
+      const { useMessageStore } = await import('@/stores/messageStore')
       const authStore = useAuthStore()
       authStore.clearUser()
       const messageStore = useMessageStore()
-      messageStore.updateMessage('Session expired. Please login again.')
+      messageStore.setMessage('Session expired. Please login again.')
+      const { default: router } = await import('@/router')
       router.push('/login')
     }
     return Promise.reject(error)
