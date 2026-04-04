@@ -1,5 +1,34 @@
 <script setup>
+import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
+import { authService } from '@/services/authService.js'
+
+const email = ref('')
+const validation = ref('')
+const errors = ref('')
+const resetting = ref(false)
+
+async function reset() {
+  resetting.value = true
+  try {
+    const response = await authService.forgotPassword(email.value)
+    email.value = ''
+    resetting.value = false
+    validation.value = response.data.message
+  } catch (error) {
+    email.value = ''
+    resetting.value = false
+    errors.value = error.response.data.message
+    setTimeout(() => {
+      errors.value = null
+    }, 5000)
+  }
+}
+
+function closeAlert() {
+  errors.value = ''
+  validation.value = ''
+}
 </script>
 
 <template>
@@ -76,67 +105,3 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
     </div>
   </div>
 </template>
-<script>
-
-const base_Url = import.meta.env.VITE_BASE_URL
-export default {
-  data() {
-    return {
-      email: '',
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-      ],
-      validation:"",
-      errors:"",
-      resetting:false,
-    };
-  },
-  methods: {
-    login(){
-      if (this.email.length > 0) {
-        let email = this.email
-
-        this.axios.post(base_Url+'api/forgot-password',{email}).then(response=>{
-          this.validation = response.data.message
-        }).catch((error)=>{
-          this.errors = error
-          setTimeout(() => {
-            this.errors = null;
-          }, 5000);
-        });
-      }
-    },
-
-    reset() {
-      this.resetting = true
-
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/forgot-password', {
-            email: this.email,
-          }))
-          .then(response => {
-            this.email = '';
-            this.resetting = false
-            this.validation = response.data.message;
-          })
-          .catch(error => {
-            this.email = '';
-            this.resetting = false
-            this.errors = error.response.data.message;
-            setTimeout(() => {
-              this.errors = null;
-            }, 5000);
-          });
-    },
-
-    closeAlert: function () {
-      this.errors = '';
-      this.validation = '';
-    },
-  }
-};
-</script>

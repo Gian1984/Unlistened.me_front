@@ -1,4 +1,6 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   ArrowRightIcon,
   TrashIcon,
@@ -7,11 +9,129 @@ import {
   StarIcon
 } from '@heroicons/vue/24/solid'
 import Footer from '../components/Footer.vue'
-import {useAuthStore} from "@/stores/authStore.js";
+import { useAuthStore } from "@/stores/authStore.js"
 import { useMessageStore } from '@/stores/messageStore'
-import {CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
-import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
+import { CheckCircleIcon } from "@heroicons/vue/24/outline/index.js"
+import { XCircleIcon, XMarkIcon } from "@heroicons/vue/20/solid/index.js"
+import draggable from 'vuedraggable'
+import { podcastService } from '@/services/podcastService.js'
 
+const router = useRouter()
+const authStore = useAuthStore()
+const messageStore = useMessageStore()
+
+const favorites = ref([])
+const newSection = ref('')
+const availableSections = ref(['Current Favorites', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'])
+const sections = ref([])
+const mainAreaItems = ref([])
+const show = ref(false)
+const message = ref('')
+const notificationType = ref('success')
+
+async function fetchFavorites() {
+  try {
+    const response = await podcastService.getFavorites()
+    favorites.value = response.data
+
+    mainAreaItems.value = response.data.filter(item => !item.section)
+    availableSections.value.forEach(sectionName => {
+      const items = response.data.filter(item => item.section === sectionName)
+      if (items.length > 0) {
+        sections.value.push({ name: sectionName, items })
+      }
+    })
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      authStore.clearUser()
+      messageStore.setMessage('Your session has expired due to lack of activity.')
+      router.push({ name: 'Login' })
+    } else {
+      console.error('Error fetching favorites')
+    }
+  }
+}
+
+function addSection() {
+  if (newSection.value && !sections.value.find(section => section.name === newSection.value)) {
+    sections.value.push({ name: newSection.value, items: [] })
+  }
+}
+
+function onDragEnd(evt) {
+  if (evt.added || evt.moved) {
+    const element = evt.added ? evt.added.element : evt.moved.element
+    const sectionName = getSectionFromElement(element)
+    updateFavoriteSection(element.id, sectionName)
+  }
+}
+
+function getSectionFromElement(element) {
+  for (const section of sections.value) {
+    if (section.items.includes(element)) {
+      return section.name
+    }
+  }
+  return null // main area
+}
+
+async function updateFavoriteSection(favoriteId, section) {
+  try {
+    const response = await podcastService.updateFavoriteSection(favoriteId, section)
+    show.value = true
+    message.value = response.data.message
+    notificationType.value = 'success'
+
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 5000)
+  } catch (error) {
+    console.error('There was an error updating the section:', error)
+  }
+}
+
+async function deleteFavourite(feedId, sectionName) {
+  try {
+    const response = await podcastService.deleteFavorite(feedId)
+
+    if (sectionName === 'main') {
+      mainAreaItems.value = mainAreaItems.value.filter(item => item.feed_id !== feedId)
+    } else {
+      const section = sections.value.find(sec => sec.name === sectionName)
+      if (section) {
+        section.items = section.items.filter(item => item.feed_id !== feedId)
+      }
+    }
+
+    show.value = true
+    message.value = response.data.message
+    notificationType.value = 'success'
+
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 5000)
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      authStore.clearUser()
+      messageStore.setMessage('Your session has expired due to lack of activity.')
+      router.push({ name: 'Login' })
+    } else {
+      message.value = 'There was an while deleting. Please try later.'
+      notificationType.value = 'error'
+      show.value = true
+      setTimeout(() => {
+        show.value = false
+        message.value = null
+      }, 5000)
+    }
+  }
+}
+
+onMounted(() => {
+  fetchFavorites()
+})
 </script>
 
 <template>
@@ -67,7 +187,7 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
         <p class="mt-6 text-base leading-7 text-gray-600">
           It looks like you haven't added any favorites yet.
           Dive into our diverse library of podcasts and find those standout episodes that speak to you.
-          There’s a whole world of stories, insights, and entertainment waiting to be discovered.
+          There's a whole world of stories, insights, and entertainment waiting to be discovered.
           Start exploring now and build your collection of favorites!
         </p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
@@ -202,156 +322,3 @@ import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
 
   <Footer />
 </template>
-
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-import draggable from 'vuedraggable';
-import { ref } from 'vue'
-const show = ref(false)
-const message = ref('');
-const notificationType = ref('success');
-export default {
-
-  components: {
-    draggable
-  },
-
-  data() {
-    return {
-      drag: false,
-      favorites: [],
-      newSection: '',
-      availableSections: ['Current Favorites', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'],
-      sections: [],
-      mainAreaItems: [],
-    };
-  },
-
-  created() {
-    this.fetchFavorites();
-  },
-  methods: {
-    fetchFavorites() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/user-favorites'))
-          .then(response => {
-            this.favorites = response.data;
-
-            this.mainAreaItems = response.data.filter(item => !item.section);
-            this.availableSections.forEach(sectionName => {
-              const items = response.data.filter(item => item.section === sectionName);
-              if (items.length > 0) {
-                this.sections.push({ name: sectionName, items });
-              }
-            });
-
-          })
-          .catch(error => {
-            if (error.response && error.response.status === 401) {
-              const authStore = useAuthStore();
-              const messageStore = useMessageStore();
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              console.error('Error fetching favorites');
-            }
-          });
-    },
-
-    addSection() {
-      if (this.newSection && !this.sections.find(section => section.name === this.newSection)) {
-        this.sections.push({ name: this.newSection, items: [] });
-      }
-    },
-    onDragEnd(evt) {
-      if (evt.added || evt.moved) {
-        const element = evt.added ? evt.added.element : evt.moved.element;
-        const newSection = this.getSectionFromElement(element);
-        this.updateFavoriteSection(element.id, newSection);
-      }
-    },
-    getSectionFromElement(element) {
-      for (const section of this.sections) {
-        if (section.items.includes(element)) {
-          return section.name;
-        }
-      }
-      return null; // main area
-    },
-    updateFavoriteSection(favoriteId, section) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-
-          .then(() => this.axios.post(base_Url + `api/favorites/${favoriteId}/update-section`, { section }))
-          .then(response => {
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            console.error('There was an error updating the section:', error);
-          });
-    },
-
-
-    deleteFavourite(feedId, sectionName) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/delete-favorite', {
-            feed_id: feedId,
-          }))
-          .then(response => {
-
-            if (sectionName === 'main') {
-              this.mainAreaItems = this.mainAreaItems.filter(item => item.feed_id !== feedId);
-            } else {
-              const section = this.sections.find(sec => sec.name === sectionName);
-              if (section) {
-                section.items = section.items.filter(item => item.feed_id !== feedId);
-              }
-            }
-
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            const authStore = useAuthStore();
-            const messageStore = useMessageStore();
-
-            if (error.response && error.response.status === 401) {
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              message.value = 'There was an while deleting. Please try later.';
-              notificationType.value = 'error';
-              show.value = true;
-              setTimeout(() => {
-                show.value = false;
-                message.value = null;
-              }, 5000);
-            }
-          });
-    },
-  }
-};
-</script>

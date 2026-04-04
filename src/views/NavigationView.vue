@@ -1,6 +1,6 @@
 <script setup>
-import {ref} from 'vue'
-import { computed } from 'vue';
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Dialog,
   DialogPanel,
@@ -25,17 +25,22 @@ import {
   TagIcon
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
-import {useAuthStore} from "@/stores/authStore.js";
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import {ArrowLongLeftIcon, ArrowLongRightIcon} from "@heroicons/vue/20/solid/index.js";
+import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/vue/20/solid/index.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useMessageStore } from '@/stores/messageStore.js'
+import { podcastService } from '@/services/podcastService.js'
+import { authService } from '@/services/authService.js'
 
-let authStore = useAuthStore();
-authStore.initializeAuth(); // Ensure the store is initialized
+const router = useRouter()
+const authStore = useAuthStore()
+authStore.initializeAuth()
 
-// Create computed properties to check authentication and admin status
-const isAuthenticated = computed(() => authStore.isAuthenticated);
-const isAdmin = computed(() => authStore.isAdmin);
+// Auth computed properties
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const isAdmin = computed(() => authStore.isAdmin)
 
+// Navigation items
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
   { name: 'Podcasts', href: '/feed_listing', icon: FolderIcon, current: false },
@@ -48,7 +53,114 @@ const navigation = [
 
 const sidebarOpen = ref(false)
 
+// Reactive data (previously in data())
+const searchQuery = ref('')
+const categories = ref([])
+const currentCategories = ref(1)
+const categoriesPerPage = ref(8)
+const maxVisiblePagesCategories = ref(3)
+const preferredLanguage = ref('')
 
+// Computed properties
+const paginatedCategories = computed(() => {
+  const start = (currentCategories.value - 1) * categoriesPerPage.value
+  const end = start + categoriesPerPage.value
+  return categories.value.slice(start, end)
+})
+
+const totalPagesCategories = computed(() => {
+  return Math.ceil(categories.value.length / categoriesPerPage.value)
+})
+
+const visiblePagesCategories = computed(() => {
+  const pages = []
+  const startPage = Math.max(1, currentCategories.value - Math.floor(maxVisiblePagesCategories.value / 2))
+  const endPage = Math.min(totalPagesCategories.value, startPage + maxVisiblePagesCategories.value - 1)
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const showNextButtonCategories = computed(() => {
+  return currentCategories.value + Math.floor(maxVisiblePagesCategories.value / 2) < totalPagesCategories.value
+})
+
+// Methods
+function onSearchClick() {
+  if (searchQuery.value.trim() !== '') {
+    router.push({ name: 'SearchResults', query: { q: searchQuery.value } })
+    searchQuery.value = ''
+  }
+}
+
+function onFilterClick(id) {
+  router.push({ name: 'SearchResults', query: { s: id } })
+}
+
+async function logout() {
+  try {
+    await authService.logout()
+    authStore.clearUser()
+    const messageStore = useMessageStore()
+    messageStore.setMessage('Successfully logged out')
+    router.push({ name: 'Login' })
+  } catch (error) {
+    const messageStore = useMessageStore()
+    messageStore.setMessage('Failed to log out')
+  }
+}
+
+async function fetchSearchCat() {
+  try {
+    const response = await podcastService.getCategories()
+    categories.value = response.data.feeds
+  } catch (error) {
+    console.error('Error fetching search results:', error)
+  }
+}
+
+async function detectBrowserLanguage() {
+  preferredLanguage.value = navigator.language || navigator.userLanguage
+  try {
+    await authService.detectLanguage(preferredLanguage.value)
+    console.log('Browser lang update')
+  } catch (error) {
+    console.log('Error while lang update')
+  }
+}
+
+function nextPage(type) {
+  if (type === 'categories' && currentCategories.value * categoriesPerPage.value < categories.value.length) {
+    currentCategories.value += 1
+  }
+}
+
+function prevPage(type) {
+  if (type === 'categories' && currentCategories.value > 1) {
+    currentCategories.value -= 1
+  }
+}
+
+function goToPage(type, page) {
+  if (type === 'categories') {
+    currentCategories.value = page
+  }
+}
+
+function nextPageSet(type) {
+  if (type === 'categories') {
+    currentCategories.value = Math.min(totalPagesCategories.value, currentCategories.value + maxVisiblePagesCategories.value)
+  }
+}
+
+// Lifecycle: created() equivalent - runs immediately
+fetchSearchCat()
+
+// Lifecycle: mounted()
+onMounted(() => {
+  detectBrowserLanguage()
+})
 </script>
 <template>
   <div>
@@ -280,154 +392,6 @@ const sidebarOpen = ref(false)
     </div>
   </div>
 </template>
-<script>
-import {ref} from "vue";
-
-const base_Url = import.meta.env.VITE_BASE_URL
-import {useAuthStore} from "@/stores/authStore.js";
-import {useMessageStore} from "@/stores/messageStore.js";
-
-export default {
-
-
-  data() {
-    return {
-      searchQuery: '',
-      categories:[],
-      currentCategories: 1,
-      categoriesPerPage: 8,
-      maxVisiblePagesCategories: 3,
-      preferredLanguage: '',
-    };
-  },
-
-  computed: {
-
-    paginatedCategories() {
-      const start = (this.currentCategories - 1) * this.categoriesPerPage;
-      const end = start + this.categoriesPerPage;
-      return this.categories.slice(start, end);
-    },
-    totalPagesCategories() {
-      return Math.ceil(this.categories.length / this.categoriesPerPage);
-    },
-    visiblePagesCategories() {
-      const pages = [];
-      const startPage = Math.max(1, this.currentCategories - Math.floor(this.maxVisiblePagesCategories / 2));
-      const endPage = Math.min(this.totalPagesCategories, startPage + this.maxVisiblePagesCategories - 1);
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-      return pages;
-    },
-    showNextButtonCategories() {
-      return this.currentCategories + Math.floor(this.maxVisiblePagesCategories / 2) < this.totalPagesCategories;
-    },
-  },
-
-  created() {
-    this.fetchSearchCat()
-  },
-
-  mounted() {
-    this.detectBrowserLanguage();
-  },
-
-  methods: {
-
-    detectBrowserLanguage() {
-      // Get the browser language
-      this.preferredLanguage = navigator.language || navigator.userLanguage;
-
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => {
-            let preferredLanguage = this.preferredLanguage;
-
-            return this.axios.post(base_Url + 'api/detect-language', {
-              language: preferredLanguage,
-            });
-          })
-          .then(response => {
-            console.log('Browser lang update')
-          })
-          .catch(error => {
-            console.log('Error while lang update')
-          });
-
-    },
-
-    onSearchClick() {
-      if (this.searchQuery.trim() !== '') {
-        this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
-        this.searchQuery = '';
-      }
-    },
-
-    onFilterClick(id) {
-      this.$router.push({ name: 'SearchResults', query: { s: id } });
-    },
-
-    logout() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/logout'))
-          .then(response => {
-
-            const authStore = useAuthStore();
-            authStore.clearUser();
-
-            const messageStore = useMessageStore();
-            messageStore.setMessage('Successfully logged out');
-            this.$router.push({ name: 'Login' });
-
-          })
-          .catch(error => {
-            const messageStore = useMessageStore();
-            messageStore.setMessage('Failed to log out');
-
-          });
-    },
-
-    fetchSearchCat() {
-      this.axios.get(base_Url + `api/feed-cat`)
-          .then(response => {
-            this.categories = response.data.feeds
-          })
-          .catch(error => {
-            console.error('Error fetching search results:', error);
-          });
-    },
-
-    nextPage(type) {
-      if (type === 'categories' && this.currentCategories * this.categoriesPerPage < this.categories.length) {
-        this.currentCategories += 1;
-      }
-    },
-    prevPage(type) {
-      if (type === 'categories' && this.currentCategories > 1) {
-        this.currentCategories -= 1;
-      }
-    },
-    goToPage(type, page) {
-      if (type === 'categories') {
-        this.currentCategories = page;
-      }
-    },
-    nextPageSet(type) {
-      if (type === 'categories') {
-        this.currentCategories = Math.min(this.totalPagesCategories, this.currentCategories + this.maxVisiblePagesCategories);
-      }
-    },
-
-  },
-
-};
-</script>
 
 <style scoped>
 input:-webkit-autofill,

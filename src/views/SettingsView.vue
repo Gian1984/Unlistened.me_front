@@ -1,9 +1,182 @@
 <script setup>
-import {TrashIcon, PaperAirplaneIcon, CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
-import {ArrowPathIcon} from "@heroicons/vue/24/solid/index.js";
-import {useAuthStore} from "@/stores/authStore.js";
-import { XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
-let authStore = useAuthStore();
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { TrashIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/vue/24/outline/index.js'
+import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
+import { XCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid/index.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { userService } from '@/services/userService.js'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const username = ref('')
+const email = ref('')
+const object = ref('')
+const description = ref('')
+const sending = ref(false)
+const updating = ref(false)
+const preferred_language = ref('')
+const show = ref(false)
+const message = ref('')
+const notificationType = ref('success')
+
+const languages = {
+  'af': 'Afrikaans',
+  'sq': 'Albanian',
+  'eu': 'Basque',
+  'be': 'Belarusian',
+  'bg': 'Bulgarian',
+  'ca': 'Catalan',
+  'zh-cn': 'Chinese (Simplified)',
+  'zh-tw': 'Chinese (Traditional)',
+  'hr': 'Croatian',
+  'cs': 'Czech',
+  'da': 'Danish',
+  'nl': 'Dutch',
+  'nl-be': 'Dutch (Belgium)',
+  'nl-nl': 'Dutch (Netherlands)',
+  'en': 'English',
+  'en-au': 'English (Australia)',
+  'en-bz': 'English (Belize)',
+  'en-ca': 'English (Canada)',
+  'en-ie': 'English (Ireland)',
+  'en-jm': 'English (Jamaica)',
+  'en-nz': 'English (New Zealand)',
+  'en-ph': 'English (Philippines)',
+  'en-za': 'English (South Africa)',
+  'en-tt': 'English (Trinidad)',
+  'en-gb': 'English (United Kingdom)',
+  'en-us': 'English (United States)',
+  'en-zw': 'English (Zimbabwe)',
+  'et': 'Estonian',
+  'fo': 'Faeroese',
+  'fi': 'Finnish',
+  'fr': 'French',
+  'fr-be': 'French (Belgium)',
+  'fr-ca': 'French (Canada)',
+  'fr-fr': 'French (France)',
+  'fr-lu': 'French (Luxembourg)',
+  'fr-mc': 'French (Monaco)',
+  'fr-ch': 'French (Switzerland)',
+  'gl': 'Galician',
+  'gd': 'Gaelic',
+  'de': 'German',
+  'de-at': 'German (Austria)',
+  'de-de': 'German (Germany)',
+  'de-li': 'German (Liechtenstein)',
+  'de-lu': 'German (Luxembourg)',
+  'de-ch': 'German (Switzerland)',
+  'el': 'Greek',
+  'haw': 'Hawaiian',
+  'hu': 'Hungarian',
+  'is': 'Icelandic',
+  'in': 'Indonesian',
+  'ga': 'Irish',
+  'it': 'Italian',
+  'it-it': 'Italian (Italy)',
+  'it-ch': 'Italian (Switzerland)',
+  'ja': 'Japanese',
+  'ko': 'Korean',
+  'mk': 'Macedonian',
+  'no': 'Norwegian',
+  'pl': 'Polish',
+  'pt': 'Portuguese',
+  'pt-br': 'Portuguese (Brazil)',
+  'pt-pt': 'Portuguese (Portugal)',
+  'ro': 'Romanian',
+  'ro-mo': 'Romanian (Moldova)',
+  'ro-ro': 'Romanian (Romania)',
+  'ru': 'Russian',
+  'ru-mo': 'Russian (Moldova)',
+  'ru-ru': 'Russian (Russia)',
+  'sr': 'Serbian',
+  'sk': 'Slovak',
+  'sl': 'Slovenian',
+  'es': 'Spanish',
+  'es-ar': 'Spanish (Argentina)',
+  'es-bo': 'Spanish (Bolivia)',
+  'es-cl': 'Spanish (Chile)',
+  'es-co': 'Spanish (Colombia)',
+  'es-cr': 'Spanish (Costa Rica)',
+  'es-do': 'Spanish (Dominican Republic)',
+  'es-ec': 'Spanish (Ecuador)',
+  'es-sv': 'Spanish (El Salvador)',
+  'es-gt': 'Spanish (Guatemala)',
+  'es-hn': 'Spanish (Honduras)',
+  'es-mx': 'Spanish (Mexico)',
+  'es-ni': 'Spanish (Nicaragua)',
+  'es-pa': 'Spanish (Panama)',
+  'es-py': 'Spanish (Paraguay)',
+  'es-pe': 'Spanish (Peru)',
+  'es-pr': 'Spanish (Puerto Rico)',
+  'es-es': 'Spanish (Spain)',
+  'es-uy': 'Spanish (Uruguay)',
+  'es-ve': 'Spanish (Venezuela)',
+  'sv': 'Swedish',
+  'sv-fi': 'Swedish (Finland)',
+  'sv-se': 'Swedish (Sweden)',
+  'tr': 'Turkish',
+  'uk': 'Ukrainian',
+}
+
+function showNotification(msg, type = 'success') {
+  message.value = msg
+  notificationType.value = type
+  show.value = true
+  setTimeout(() => {
+    show.value = false
+    message.value = null
+  }, 5000)
+}
+
+async function updateAccount() {
+  updating.value = true
+  try {
+    const payload = {}
+    if (username.value) payload.name = username.value
+    if (email.value) payload.email = email.value
+    if (preferred_language.value) payload.preferred_language = preferred_language.value
+
+    const response = await userService.updateAccount(payload)
+    authStore.updateUser(payload)
+    updating.value = false
+    showNotification(response.data.message, 'success')
+  } catch (error) {
+    updating.value = false
+    if (error.response && error.response.data && error.response.data.errors) {
+      showNotification(Object.values(error.response.data.errors).join(', '), 'error')
+    } else {
+      showNotification('There was an error updating your information. Please try later.', 'error')
+    }
+  }
+}
+
+async function sendReq() {
+  sending.value = true
+  try {
+    const response = await userService.sendFaq(object.value, description.value)
+    sending.value = false
+    showNotification(response.data.message, 'success')
+    object.value = null
+    description.value = null
+  } catch (error) {
+    object.value = null
+    description.value = null
+    sending.value = false
+    showNotification('Error while sending. Please try later.', 'error')
+  }
+}
+
+async function deleteAccount(user) {
+  try {
+    await userService.deleteAccount(user.id)
+    authStore.clearUser()
+    router.push({ name: 'Login' })
+  } catch (error) {
+    showNotification('There was an error while deleting your account, please try later.', 'error')
+  }
+}
 </script>
 <template>
 
@@ -186,276 +359,3 @@ let authStore = useAuthStore();
     </div>
   </div>
 </template>
-
-<script>
-import {useAuthStore} from "@/stores/authStore.js";
-
-const base_Url = import.meta.env.VITE_BASE_URL
-import { ref } from 'vue'
-const show = ref(false)
-const message = ref('');
-const notificationType = ref('success');
-
-
-export default {
-  data() {
-    return {
-      username: '',
-      email: '',
-      object: '',
-      description: '',
-      sending: false,
-      updating: false,
-      preferred_language: '',
-      languages: {
-        'af': 'Afrikaans',
-        'sq': 'Albanian',
-        'eu': 'Basque',
-        'be': 'Belarusian',
-        'bg': 'Bulgarian',
-        'ca': 'Catalan',
-        'zh-cn': 'Chinese (Simplified)',
-        'zh-tw': 'Chinese (Traditional)',
-        'hr': 'Croatian',
-        'cs': 'Czech',
-        'da': 'Danish',
-        'nl': 'Dutch',
-        'nl-be': 'Dutch (Belgium)',
-        'nl-nl': 'Dutch (Netherlands)',
-        'en': 'English',
-        'en-au': 'English (Australia)',
-        'en-bz': 'English (Belize)',
-        'en-ca': 'English (Canada)',
-        'en-ie': 'English (Ireland)',
-        'en-jm': 'English (Jamaica)',
-        'en-nz': 'English (New Zealand)',
-        'en-ph': 'English (Philippines)',
-        'en-za': 'English (South Africa)',
-        'en-tt': 'English (Trinidad)',
-        'en-gb': 'English (United Kingdom)',
-        'en-us': 'English (United States)',
-        'en-zw': 'English (Zimbabwe)',
-        'et': 'Estonian',
-        'fo': 'Faeroese',
-        'fi': 'Finnish',
-        'fr': 'French',
-        'fr-be': 'French (Belgium)',
-        'fr-ca': 'French (Canada)',
-        'fr-fr': 'French (France)',
-        'fr-lu': 'French (Luxembourg)',
-        'fr-mc': 'French (Monaco)',
-        'fr-ch': 'French (Switzerland)',
-        'gl': 'Galician',
-        'gd': 'Gaelic',
-        'de': 'German',
-        'de-at': 'German (Austria)',
-        'de-de': 'German (Germany)',
-        'de-li': 'German (Liechtenstein)',
-        'de-lu': 'German (Luxembourg)',
-        'de-ch': 'German (Switzerland)',
-        'el': 'Greek',
-        'haw': 'Hawaiian',
-        'hu': 'Hungarian',
-        'is': 'Icelandic',
-        'in': 'Indonesian',
-        'ga': 'Irish',
-        'it': 'Italian',
-        'it-it': 'Italian (Italy)',
-        'it-ch': 'Italian (Switzerland)',
-        'ja': 'Japanese',
-        'ko': 'Korean',
-        'mk': 'Macedonian',
-        'no': 'Norwegian',
-        'pl': 'Polish',
-        'pt': 'Portuguese',
-        'pt-br': 'Portuguese (Brazil)',
-        'pt-pt': 'Portuguese (Portugal)',
-        'ro': 'Romanian',
-        'ro-mo': 'Romanian (Moldova)',
-        'ro-ro': 'Romanian (Romania)',
-        'ru': 'Russian',
-        'ru-mo': 'Russian (Moldova)',
-        'ru-ru': 'Russian (Russia)',
-        'sr': 'Serbian',
-        'sk': 'Slovak',
-        'sl': 'Slovenian',
-        'es': 'Spanish',
-        'es-ar': 'Spanish (Argentina)',
-        'es-bo': 'Spanish (Bolivia)',
-        'es-cl': 'Spanish (Chile)',
-        'es-co': 'Spanish (Colombia)',
-        'es-cr': 'Spanish (Costa Rica)',
-        'es-do': 'Spanish (Dominican Republic)',
-        'es-ec': 'Spanish (Ecuador)',
-        'es-sv': 'Spanish (El Salvador)',
-        'es-gt': 'Spanish (Guatemala)',
-        'es-hn': 'Spanish (Honduras)',
-        'es-mx': 'Spanish (Mexico)',
-        'es-ni': 'Spanish (Nicaragua)',
-        'es-pa': 'Spanish (Panama)',
-        'es-py': 'Spanish (Paraguay)',
-        'es-pe': 'Spanish (Peru)',
-        'es-pr': 'Spanish (Puerto Rico)',
-        'es-es': 'Spanish (Spain)',
-        'es-uy': 'Spanish (Uruguay)',
-        'es-ve': 'Spanish (Venezuela)',
-        'sv': 'Swedish',
-        'sv-fi': 'Swedish (Finland)',
-        'sv-se': 'Swedish (Sweden)',
-        'tr': 'Turkish',
-        'uk': 'Ukrainian',
-      },
-    };
-  },
-  methods: {
-    updateAccount() {
-
-      this.updating = true
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => {
-            const payload = {};
-            if (this.username) {
-              payload.name = this.username;
-            }
-            if (this.email) {
-              payload.email = this.email;
-            }
-            if (this.preferred_language){
-              payload.preferred_language = this.preferred_language;
-            }
-            return this.axios.post(base_Url + 'api/update_user', payload);
-          })
-          .then(response => {
-            const payload = {};
-            if (this.username) {
-              payload.name = this.username;
-            }
-            if (this.email) {
-              payload.email = this.email;
-            }
-            if (this.preferred_language){
-              payload.preferred_language = this.preferred_language;
-            }
-
-            const authStore = useAuthStore();
-            authStore.updateUser(payload);
-
-            this.updating = false
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-
-          })
-          .catch(error => {
-            if (error.response && error.response.data && error.response.data.errors) {
-
-              message.value = Object.values(error.response.data.errors).join(', ');
-              notificationType.value = 'error';
-
-              this.updating = false
-              show.value = true;
-              setTimeout(() => {
-                show.value = false;
-                message.value = null;
-              }, 5000);
-
-            } else {
-
-              message.value = 'There was an error updating your information. Please try later.';
-              notificationType.value = 'error';
-
-              this.updating = false
-              show.value = true;
-              setTimeout(() => {
-                show.value = false;
-                message.value = null;
-              }, 5000);
-
-            }
-
-            message.value = 'There was an error updating your information. Please try later.';
-            notificationType.value = 'error';
-
-            this.updating = false
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    sendReq() {
-      this.sending = true
-
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/new-faq', {
-            message_obj: this.object,
-            message_desc: this.description,
-          }))
-          .then(response => {
-
-            this.sending = false
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-            this.object = null;
-            this.description = null;
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-
-          })
-          .catch(error => {
-            this.object = null;
-            this.description = null;
-            message.value = 'Error while sending. Please try later.';
-            notificationType.value = 'error';
-            this.sending = false
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    deleteAccount(user) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.delete(base_Url + `api/delete_users/${user.id}`))
-          .then(response => {
-            const authStore = useAuthStore();
-            authStore.clearUser();
-            this.$router.push({ name: 'SignIn' });
-          })
-          .catch(error => {
-            message.value = 'There was an error while deleting your account, please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-
-          });
-    },
-
-  }
-};
-</script>

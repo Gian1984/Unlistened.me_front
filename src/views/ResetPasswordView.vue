@@ -1,5 +1,51 @@
 <script setup>
+import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
+import { authService } from '@/services/authService.js'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+const email = ref('')
+const password = ref('')
+const password_confirmation = ref('')
+const errors = ref('')
+const match = ref('')
+const empty = ref('')
+const sending = ref(false)
+
+async function resetPassword() {
+  if (password.value !== password_confirmation.value || password.value.length <= 0) {
+    password.value = ''
+    password_confirmation.value = ''
+    match.value = 'Passwords do not match'
+    return
+  }
+  sending.value = true
+  try {
+    await authService.resetPassword(email.value, password.value, password_confirmation.value, route.params.token)
+    sending.value = false
+    router.push({ name: 'Login' })
+  } catch (error) {
+    sending.value = false
+    errors.value = error.response ? error.response.data : 'An error occurred'
+    setTimeout(() => {
+      errors.value = null
+      email.value = ''
+      password.value = ''
+    }, 5000)
+  }
+}
+
+function closeAlert() {
+  errors.value = ''
+  match.value = ''
+}
+
+function closeAlertEmpty() {
+  empty.value = ''
+}
 </script>
 
 <template>
@@ -9,7 +55,7 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Select new password</h2>
     </div>
 
-    <form  @submit.prevent="resetPassword">
+    <form @submit.prevent="resetPassword">
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <div class="space-y-6">
           <div>
@@ -28,7 +74,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
             </div>
           </div>
 
-
           <div>
             <div class="flex items-center justify-between">
               <label for="password_confirmation" class="block text-sm font-medium leading-6 text-white">Confirm password</label>
@@ -37,7 +82,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
               <input v-model="password_confirmation" id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
             </div>
           </div>
-
 
           <div v-if="errors || match" class="rounded-md bg-red-50 p-4">
             <div class="flex">
@@ -92,81 +136,4 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
       </div>
     </form>
   </div>
-
-
 </template>
-
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-
-export default {
-
-  data(){
-    return {
-      token: '',
-      username:'',
-      email : '',
-      password :'',
-      password_confirmation: '',
-      errors:'',
-      match:'',
-      empty:'',
-      sending:false,
-    }
-  },
-
-  methods : {
-
-    resetPassword(e) {
-      e.preventDefault();
-      if (this.password !== this.password_confirmation || this.password.length <= 0) {
-        this.password = "";
-        this.password_confirmation = "";
-        this.match = 'Passwords do not match';
-        return; // Stop execution if passwords do not match
-      }
-      this.sending = true
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => {
-            let email = this.email;
-            let password = this.password;
-            let password_confirmation = this.password_confirmation;
-            let token = this.$route.params.token;
-
-            return this.axios.post(base_Url + 'api/reset-password', {
-              email: email,
-              password: password,
-              password_confirmation: password_confirmation,
-              token: token
-            });
-          })
-          .then(response => {
-            this.sending = false
-            this.$router.push({ name: 'Login' });
-          })
-          .catch(error => {
-            this.sending = false
-            this.errors = error.response ? error.response.data : 'An error occurred';
-            setTimeout(() => {
-              this.errors = null;
-              this.email = null;
-              this.password = null;
-            }, 5000);
-          });
-    },
-
-    closeAlert: function () {
-      this.errors = '';
-      this.match = '';
-    },
-    closeAlertEmpty:function () {
-      this.empty = '';
-    },
-  },
-
-
-}
-</script>

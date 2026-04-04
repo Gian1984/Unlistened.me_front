@@ -1,7 +1,45 @@
 <script setup>
+import { ref, computed } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
-import { useAuthStore } from '@/stores/authStore';
-import { useMessageStore } from '@/stores/messageStore';
+import { useAuthStore } from '@/stores/authStore.js'
+import { useMessageStore } from '@/stores/messageStore.js'
+import { authService } from '@/services/authService.js'
+import { useRouter } from 'vue-router'
+
+const authStore = useAuthStore()
+const messageStore = useMessageStore()
+const router = useRouter()
+
+const email = ref('')
+const password = ref('')
+const errors = ref(false)
+const sending = ref(false)
+
+const message = computed(() => messageStore.message)
+
+async function login() {
+  sending.value = true
+  try {
+    const response = await authService.login(email.value, password.value)
+    authStore.setUser(response.data.user)
+    messageStore.clearMessage()
+    sending.value = false
+    router.push('/')
+  } catch (error) {
+    messageStore.clearMessage()
+    sending.value = false
+    errors.value = error.response.data
+    setTimeout(() => {
+      errors.value = null
+      email.value = ''
+      password.value = ''
+    }, 5000)
+  }
+}
+
+function closeAlert() {
+  errors.value = ''
+}
 </script>
 
 <template>
@@ -12,7 +50,7 @@ import { useMessageStore } from '@/stores/messageStore';
       <p v-if="message" class="mt-5 text-center text-white font-bold">{{ message }}</p>
     </div>
 
-    <form  @submit.prevent="login">
+    <form @submit.prevent="login">
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <div class="space-y-6">
           <div>
@@ -26,11 +64,11 @@ import { useMessageStore } from '@/stores/messageStore';
             <div class="flex items-center justify-between">
               <label for="password" class="block text-sm font-medium leading-6 text-white">Password</label>
               <div class="text-sm">
-                <router-link  to="/forgot_password" class="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</router-link>
+                <router-link to="/forgot_password" class="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</router-link>
               </div>
             </div>
             <div class="mt-2">
-              <input  v-model="password" id="password" name="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
+              <input v-model="password" id="password" name="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
             </div>
           </div>
 
@@ -68,62 +106,3 @@ import { useMessageStore } from '@/stores/messageStore';
     </form>
   </div>
 </template>
-<script>
-
-const base_Url = import.meta.env.VITE_BASE_URL
-
-export default {
-  data() {
-    return {
-      email: '',
-      password: '',
-      errors: false,
-      sending: false,
-    };
-  },
-  computed: {
-    message() {
-      const messageStore = useMessageStore()
-      return messageStore.message
-    },
-  },
-  methods: {
-    login(e) {
-      e.preventDefault()
-      this.sending = true
-
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/login', {
-            email: this.email,
-            password: this.password
-          }))
-          .then(response => {
-            const authStore = useAuthStore();
-            authStore.setUser(response.data.user);
-            const messageStore = useMessageStore();
-            messageStore.clearMessage();
-            this.sending = false
-            this.$router.push('/');
-          })
-          .catch(error => {
-            const messageStore = useMessageStore();
-            messageStore.clearMessage();
-            this.sending = false
-            this.errors = error.response.data;
-            setTimeout(() => {
-                  this.errors = null;
-                  this.email = null;
-                  this.password = null;
-            }, 5000);
-          });
-    },
-
-    closeAlert: function () {
-      this.errors = '';
-    },
-  }
-};
-</script>

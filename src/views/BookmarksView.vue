@@ -1,4 +1,6 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   ArrowRightIcon,
   TrashIcon,
@@ -6,12 +8,129 @@ import {
 import {
   BookmarkIcon,
 } from '@heroicons/vue/24/solid'
+import { CheckCircleIcon } from '@heroicons/vue/24/outline/index.js'
+import { XCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid/index.js'
+import { StarIcon } from '@heroicons/vue/24/solid/index.js'
+import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
-import {useAuthStore} from "@/stores/authStore.js";
+import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
-import {CheckCircleIcon} from "@heroicons/vue/24/outline/index.js";
-import {XCircleIcon, XMarkIcon} from "@heroicons/vue/20/solid/index.js";
-import {StarIcon} from "@heroicons/vue/24/solid/index.js";
+import { podcastService } from '@/services/podcastService.js'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const messageStore = useMessageStore()
+
+const bookmarks = ref([])
+const newSection = ref('')
+const availableSections = ref(['Current Bookmarks', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'])
+const sections = ref([])
+const mainAreaItems = ref([])
+const show = ref(false)
+const message = ref('')
+const notificationType = ref('success')
+
+async function fetchBookmarks() {
+  try {
+    const response = await podcastService.getBookmarks()
+    bookmarks.value = response.data
+
+    mainAreaItems.value = response.data.filter(item => !item.section)
+    availableSections.value.forEach(sectionName => {
+      const items = response.data.filter(item => item.section === sectionName)
+      if (items.length > 0) {
+        sections.value.push({ name: sectionName, items })
+      }
+    })
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      authStore.clearUser()
+      messageStore.setMessage('Your session has expired due to lack of activity.')
+      router.push({ name: 'Login' })
+    } else {
+      console.error('Error fetching bookmarks')
+    }
+  }
+}
+
+function addSection() {
+  if (newSection.value && !sections.value.find(section => section.name === newSection.value)) {
+    sections.value.push({ name: newSection.value, items: [] })
+  }
+}
+
+function onDragEnd(evt) {
+  if (evt.added || evt.moved) {
+    const element = evt.added ? evt.added.element : evt.moved.element
+    const sectionName = getSectionFromElement(element)
+    updateBookmarkSection(element.id, sectionName)
+  }
+}
+
+function getSectionFromElement(element) {
+  for (const section of sections.value) {
+    if (section.items.includes(element)) {
+      return section.name
+    }
+  }
+  return null // main area
+}
+
+async function updateBookmarkSection(favoriteId, section) {
+  try {
+    const response = await podcastService.updateBookmarkSection(favoriteId, section)
+    show.value = true
+    message.value = response.data.message
+    notificationType.value = 'success'
+
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 5000)
+  } catch (error) {
+    console.error('There was an error updating the section:', error)
+  }
+}
+
+async function deleteBookmark(episodeId, sectionName) {
+  try {
+    const response = await podcastService.deleteBookmark(episodeId)
+    if (sectionName === 'main') {
+      mainAreaItems.value = mainAreaItems.value.filter(item => item.episode_id !== episodeId)
+    } else {
+      const section = sections.value.find(sec => sec.name === sectionName)
+      if (section) {
+        section.items = section.items.filter(item => item.episode_id !== episodeId)
+      }
+    }
+    show.value = true
+    message.value = response.data.message
+    notificationType.value = 'success'
+
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 5000)
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      authStore.clearUser()
+      messageStore.setMessage('Your session has expired due to lack of activity.')
+      router.push({ name: 'Login' })
+    } else {
+      message.value = 'There was an while deleting. Please try later.'
+      notificationType.value = 'error'
+      show.value = true
+      setTimeout(() => {
+        show.value = false
+        message.value = null
+      }, 5000)
+    }
+  }
+}
+
+onMounted(() => {
+  fetchBookmarks()
+})
 </script>
 
 <template>
@@ -67,7 +186,7 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
         <p class="mt-6 text-base leading-7 text-gray-600">
           It looks like you haven't added any bookmarks yet.
           Dive into our diverse library of podcasts and find those standout episodes that speak to you.
-          There’s a whole world of stories, insights, and entertainment waiting to be discovered.
+          There's a whole world of stories, insights, and entertainment waiting to be discovered.
           Start exploring now and build your collection of favorites!
         </p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
@@ -199,154 +318,3 @@ import {StarIcon} from "@heroicons/vue/24/solid/index.js";
 
   <Footer />
 </template>
-
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-import draggable from 'vuedraggable';
-import { ref } from 'vue'
-const show = ref(false)
-const message = ref('');
-const notificationType = ref('success');
-export default {
-
-  components: {
-    draggable
-  },
-
-  data() {
-    return {
-      drag:false,
-      bookmarks: [],
-      newSection: '',
-      availableSections: ['Current Bookmarks', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'],
-      sections: [],
-      mainAreaItems: [],
-    };
-  },
-
-  created() {
-    this.fetchBookmarks();
-  },
-
-  methods: {
-    fetchBookmarks() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/user-bookmarks'))
-          .then(response => {
-            this.bookmarks = response.data;
-
-            this.mainAreaItems = response.data.filter(item => !item.section);
-            this.availableSections.forEach(sectionName => {
-              const items = response.data.filter(item => item.section === sectionName);
-              if (items.length > 0) {
-                this.sections.push({ name: sectionName, items });
-              }
-            });
-
-          })
-          .catch(error => {
-            if (error.response && error.response.status === 401) {
-              const authStore = useAuthStore();
-              const messageStore = useMessageStore();
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              console.error('Error fetching bookmarks');
-            }
-          });
-    },
-
-    addSection() {
-      if (this.newSection && !this.sections.find(section => section.name === this.newSection)) {
-        this.sections.push({ name: this.newSection, items: [] });
-      }
-    },
-    onDragEnd(evt) {
-      if (evt.added || evt.moved) {
-        const element = evt.added ? evt.added.element : evt.moved.element;
-        const newSection = this.getSectionFromElement(element);
-        this.updateBookmarkSection(element.id, newSection);
-      }
-    },
-    getSectionFromElement(element) {
-      for (const section of this.sections) {
-        if (section.items.includes(element)) {
-          return section.name;
-        }
-      }
-      return null; // main area
-    },
-    updateBookmarkSection(favoriteId, section) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-
-          .then(() => this.axios.post(base_Url + `api/bookmarks/${favoriteId}/update-section`, { section }))
-          .then(response => {
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            console.error('There was an error updating the section:', error);
-          });
-    },
-
-    deleteBookmark(episodeId, sectionName) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/delete-bookmark', {
-            episode_id: episodeId,
-          }))
-          .then(response => {
-            if (sectionName === 'main') {
-              this.mainAreaItems = this.mainAreaItems.filter(item => item.episode_id !== episodeId);
-            } else {
-              const section = this.sections.find(sec => sec.name === sectionName);
-              if (section) {
-                section.items = section.items.filter(item => item.episode_id !== episodeId);
-              }
-            }
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            const authStore = useAuthStore();
-            const messageStore = useMessageStore();
-
-            if (error.response && error.response.status === 401) {
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              message.value = 'There was an while deleting. Please try later.';
-              notificationType.value = 'error';
-              show.value = true;
-              setTimeout(() => {
-                show.value = false;
-                message.value = null;
-              }, 5000);
-            }
-          });
-    }
-  }
-};
-</script>

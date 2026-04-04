@@ -1,5 +1,54 @@
 <script setup>
+import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
+import { authService } from '@/services/authService.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const checked = ref(false)
+const errorsRegister = ref('')
+const empty = ref('')
+const sending = ref(false)
+
+async function signup() {
+  sending.value = true
+
+  if (checked.value) {
+    try {
+      await authService.register(username.value, email.value, password.value)
+      sending.value = false
+      router.push('/login')
+    } catch (error) {
+      sending.value = false
+      errorsRegister.value = error.response.data
+      setTimeout(() => {
+        errorsRegister.value = null
+        email.value = ''
+        password.value = ''
+        checked.value = false
+      }, 5000)
+    }
+  } else {
+    sending.value = false
+    password.value = ''
+    empty.value = 'Please accept Terms & conditions'
+    setTimeout(() => {
+      empty.value = null
+    }, 5000)
+  }
+}
+
+function closeAlert() {
+  errorsRegister.value = ''
+}
+
+function closeAlertEmpty() {
+  empty.value = ''
+}
 </script>
 
 <template>
@@ -9,11 +58,11 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Create your account</h2>
     </div>
 
-    <form  @submit.prevent="signup">
+    <form @submit.prevent="signup">
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <div class="space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-white">Username</label>
+            <label for="username" class="block text-sm font-medium leading-6 text-white">Username</label>
             <div class="mt-2">
               <input v-model="username" type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
             </div>
@@ -96,77 +145,4 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
       </div>
     </form>
   </div>
-
-
 </template>
-
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-
-export default {
-
-  data(){
-    return {
-      username:'',
-      email : '',
-      password :'',
-      submitted: false,
-      errorsRegister:'',
-      checked: false,
-      alertOpen: true,
-      empty:'',
-      sending:false,
-    }
-  },
-
-  methods : {
-
-    signup(e) {
-      e.preventDefault()
-      this.sending = true
-
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      if (this.checked) {
-        this.axios.get(base_Url + 'sanctum/csrf-cookie')
-            .then(() => this.axios.post(base_Url + 'api/register', {
-              name: this.username,
-              email: this.email,
-              password: this.password
-            }))
-            .then(response => {
-              this.sending = false
-              this.$router.push('/login');
-            })
-            .catch(error => {
-              this.sending = false
-              this.errorsRegister = error.response.data;
-              setTimeout(() => {
-                this.errorsRegister = null;
-                this.email = null;
-                this.password = null;
-                this.checked = false;
-              }, 5000);
-            });
-      } else {
-        this.sending = false
-        this.password = '';
-        this.empty = 'Please accept Terms & conditions';
-        setTimeout(() => {
-          this.empty = null;
-        }, 5000);
-      }
-    },
-
-    closeAlert: function () {
-      this.errorsRegister = '';
-    },
-    closeAlertEmpty:function () {
-      this.empty = '';
-    },
-  },
-
-
-}
-</script>

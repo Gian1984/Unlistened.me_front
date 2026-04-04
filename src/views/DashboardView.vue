@@ -1,12 +1,267 @@
 <script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
-import {useAuthStore} from "@/stores/authStore.js";
+import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
-import {XMarkIcon, XCircleIcon, ArrowLongLeftIcon, ArrowLongRightIcon} from "@heroicons/vue/20/solid/index.js";
-import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/24/outline/index.js";
+import { XMarkIcon, XCircleIcon, ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/vue/20/solid/index.js'
+import { UserIcon, CheckCircleIcon, WrenchScrewdriverIcon } from '@heroicons/vue/24/outline/index.js'
+import { adminService } from '@/services/adminService.js'
+import { Pie } from 'vue-chartjs'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 
+ChartJS.register(ArcElement, Tooltip, Legend)
+
+const router = useRouter()
+const authStore = useAuthStore()
+const messageStore = useMessageStore()
+
+// Notification
+const show = ref(false)
+const message = ref('')
+const notificationType = ref('success')
+
+// Charts
+const downloadChartData = ref(null)
+const playChartData = ref(null)
+const chartOptions = ref({ responsive: true })
+const topStats = ref(null)
+
+// FAQs
+const faqs = ref([])
+const currentPageFaqs = ref(1)
+const faqsPerPage = ref(5)
+const maxVisiblePagesFaqs = ref(3)
+const faqFilter = ref('')
+
+// Users
+const users = ref([])
+const currentPageUsers = ref(1)
+const usersPerPage = ref(5)
+const maxVisiblePagesUsers = ref(3)
+const userFilter = ref('')
+
+// Notification helper
+function showNotification(msg, type = 'success') {
+  message.value = msg
+  notificationType.value = type
+  show.value = true
+  setTimeout(() => {
+    show.value = false
+    message.value = null
+  }, 5000)
+}
+
+// Computed - FAQs
+const filteredFaqs = computed(() => {
+  return faqs.value.filter(faq => faq.email.toLowerCase().includes(faqFilter.value.toLowerCase()))
+})
+
+const paginatedFaqs = computed(() => {
+  const start = (currentPageFaqs.value - 1) * faqsPerPage.value
+  const end = start + faqsPerPage.value
+  return filteredFaqs.value.slice(start, end)
+})
+
+const totalPagesFaqs = computed(() => {
+  return Math.ceil(filteredFaqs.value.length / faqsPerPage.value)
+})
+
+const visiblePagesFaqs = computed(() => {
+  const pages = []
+  const startPage = Math.max(1, currentPageFaqs.value - Math.floor(maxVisiblePagesFaqs.value / 2))
+  const endPage = Math.min(totalPagesFaqs.value, startPage + maxVisiblePagesFaqs.value - 1)
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const showNextButtonFaqs = computed(() => {
+  return currentPageFaqs.value + Math.floor(maxVisiblePagesFaqs.value / 2) < totalPagesFaqs.value
+})
+
+// Computed - Users
+const filteredUsers = computed(() => {
+  return users.value.filter(user => user.email.toLowerCase().includes(userFilter.value.toLowerCase()))
+})
+
+const paginatedUsers = computed(() => {
+  const start = (currentPageUsers.value - 1) * usersPerPage.value
+  const end = start + usersPerPage.value
+  return filteredUsers.value.slice(start, end)
+})
+
+const totalPagesUsers = computed(() => {
+  return Math.ceil(filteredUsers.value.length / usersPerPage.value)
+})
+
+const visiblePagesUsers = computed(() => {
+  const pages = []
+  const startPage = Math.max(1, currentPageUsers.value - Math.floor(maxVisiblePagesUsers.value / 2))
+  const endPage = Math.min(totalPagesUsers.value, startPage + maxVisiblePagesUsers.value - 1)
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const showNextButtonUsers = computed(() => {
+  return currentPageUsers.value + Math.floor(maxVisiblePagesUsers.value / 2) < totalPagesUsers.value
+})
+
+// Watchers
+watch(userFilter, () => {
+  currentPageUsers.value = 1
+})
+
+watch(faqFilter, () => {
+  currentPageFaqs.value = 1
+})
+
+// Stats
+async function fetchStats() {
+  try {
+    const response = await adminService.getStats()
+
+    const { 'Podcasts downloaded per month': clicksDownloadPerMonth, 'Podcasts listened per month': clicksPlayPerMonth, ...filteredData } = response.data
+    topStats.value = filteredData
+
+    const currentYear = new Date().getFullYear()
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+    const prepareChartData = (data, backgroundColor) => ({
+      labels: data.map(item => monthNames[item.month - 1]),
+      datasets: [{
+        backgroundColor,
+        data: data.map(item => item.clicks),
+      }]
+    })
+
+    downloadChartData.value = prepareChartData(
+      clicksDownloadPerMonth.filter(item => item.year === currentYear),
+      ['#41B883', '#E46651', '#00D8FF', '#DD1B16', '#f94144', '#f3722c', '#f8961e', '#f9c74f', '#43aa8b', '#577590', '#6a4c93', '#ffa600']
+    )
+
+    playChartData.value = prepareChartData(
+      clicksPlayPerMonth.filter(item => item.year === currentYear),
+      ['#41B883', '#E46651', '#00D8FF', '#DD1B16', '#f94144', '#f3722c', '#f8961e', '#f9c74f', '#43aa8b', '#577590', '#6a4c93', '#ffa600']
+    )
+  } catch (error) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      authStore.clearUser()
+      messageStore.setMessage('Your session has expired due to lack of activity.')
+      router.push({ name: 'Login' })
+    } else {
+      authStore.clearUser()
+      messageStore.setMessage('Something went wrong, please try again.')
+      router.push({ name: 'Login' })
+    }
+  }
+}
+
+// FAQs
+async function getAllFaqs() {
+  try {
+    const response = await adminService.getFaqs()
+    faqs.value = response.data
+  } catch (error) {
+    showNotification('Error getting faqs list. Please try later.', 'error')
+  }
+}
+
+async function toggleFaqStatus(faq) {
+  try {
+    const response = await adminService.updateFaqStatus(faq.id, faq.was_answered ? 0 : 1)
+    faq.was_answered = response.data.was_answered
+    showNotification(response.data.message, 'success')
+  } catch (error) {
+    showNotification('Error updating status. Please try later.', 'error')
+  }
+}
+
+async function deleteFaq(id, index) {
+  try {
+    const response = await adminService.deleteFaq(id)
+    faqs.value.splice(index, 1)
+    showNotification(response.data.message, 'success')
+  } catch (error) {
+    showNotification('Error while deleting question. Please try later.', 'error')
+  }
+}
+
+// Users
+async function getAllUsers() {
+  try {
+    const response = await adminService.getUsers()
+    users.value = response.data
+  } catch (error) {
+    showNotification('Error getting users list. Please try later.', 'error')
+  }
+}
+
+async function toggleAdminStatus(user) {
+  try {
+    const response = await adminService.updateAdminStatus(user.id, user.is_admin ? 0 : 1)
+    user.is_admin = response.data.is_admin
+    showNotification(response.data.message, 'success')
+  } catch (error) {
+    showNotification('Error updating status. Please try later.', 'error')
+  }
+}
+
+async function deleteAccount(id, index) {
+  try {
+    const response = await adminService.deleteUser(id)
+    users.value.splice(index, 1)
+    showNotification('User deleted successfully!', 'success')
+  } catch (error) {
+    showNotification('Error while deleting user. Please try later.', 'error')
+  }
+}
+
+// Pagination
+function nextPage(type) {
+  if (type === 'users' && currentPageUsers.value * usersPerPage.value < filteredUsers.value.length) {
+    currentPageUsers.value += 1
+  } else if (type === 'faqs' && currentPageFaqs.value * faqsPerPage.value < filteredFaqs.value.length) {
+    currentPageFaqs.value += 1
+  }
+}
+
+function prevPage(type) {
+  if (type === 'users' && currentPageUsers.value > 1) {
+    currentPageUsers.value -= 1
+  } else if (type === 'faqs' && currentPageFaqs.value > 1) {
+    currentPageFaqs.value -= 1
+  }
+}
+
+function goToPage(type, page) {
+  if (type === 'users') {
+    currentPageUsers.value = page
+  } else if (type === 'faqs') {
+    currentPageFaqs.value = page
+  }
+}
+
+function nextPageSet(type) {
+  if (type === 'users') {
+    currentPageUsers.value = Math.min(totalPagesUsers.value, currentPageUsers.value + maxVisiblePagesUsers.value)
+  } else if (type === 'faqs') {
+    currentPageFaqs.value = Math.min(totalPagesFaqs.value, currentPageFaqs.value + maxVisiblePagesFaqs.value)
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  fetchStats()
+  getAllUsers()
+  getAllFaqs()
+})
 </script>
+
 <template>
 
   <!--  Notification  -->
@@ -237,370 +492,3 @@ import {UserIcon, CheckCircleIcon , WrenchScrewdriverIcon} from "@heroicons/vue/
     </div>
   </div>
 </template>
-
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-import {useAuthStore} from "@/stores/authStore.js";
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-ChartJS.register(ArcElement, Tooltip, Legend)
-import { ref } from 'vue'
-const show = ref(false)
-const message = ref('');
-const notificationType = ref('success');
-
-
-export default {
-
-  name: 'BarChart',
-  components: { Pie },
-  data() {
-    return {
-      downloadChartData: null,
-      playChartData: null,
-      chartOptions: {
-        responsive: true,
-      },
-      topStats:null,
-
-      faqs:[],
-      currentPageFaqs: 1,
-      faqsPerPage: 5,
-      maxVisiblePagesFaqs: 3,
-      faqFilter: '',
-
-      users:[],
-      currentPageUsers: 1,
-      usersPerPage: 5,
-      maxVisiblePagesUsers: 3,
-      userFilter: '',
-    }
-  },
-
-  computed: {
-    paginatedFaqs() {
-      const start = (this.currentPageFaqs - 1) * this.faqsPerPage;
-      const end = start + this.faqsPerPage;
-      return this.filteredFaqs.slice(start, end);
-    },
-    totalPagesFaqs() {
-      return Math.ceil(this.filteredFaqs.length / this.faqsPerPage);
-    },
-    visiblePagesFaqs() {
-      const pages = [];
-      const startPage = Math.max(1, this.currentPageFaqs - Math.floor(this.maxVisiblePagesFaqs / 2));
-      const endPage = Math.min(this.totalPagesFaqs, startPage + this.maxVisiblePagesFaqs - 1);
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-      return pages;
-    },
-    showNextButtonFaqs() {
-      return this.currentPageFaqs + Math.floor(this.maxVisiblePagesFaqs / 2) < this.totalPagesFaqs;
-    },
-    filteredFaqs() {
-      return this.faqs.filter(faq => faq.email.toLowerCase().includes(this.faqFilter.toLowerCase()));
-    },
-
-
-    paginatedUsers() {
-      const start = (this.currentPageUsers - 1) * this.usersPerPage;
-      const end = start + this.usersPerPage;
-      return this.filteredUsers.slice(start, end);
-    },
-    totalPagesUsers() {
-      return Math.ceil(this.filteredUsers.length / this.usersPerPage);
-    },
-    visiblePagesUsers() {
-      const pages = [];
-      const startPage = Math.max(1, this.currentPageUsers - Math.floor(this.maxVisiblePagesUsers / 2));
-      const endPage = Math.min(this.totalPagesUsers, startPage + this.maxVisiblePagesUsers - 1);
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-      return pages;
-    },
-    showNextButtonUsers() {
-      return this.currentPageUsers + Math.floor(this.maxVisiblePagesUsers / 2) < this.totalPagesUsers;
-    },
-    filteredUsers() {
-      return this.users.filter(user => user.email.toLowerCase().includes(this.userFilter.toLowerCase()));
-    },
-  },
-
-  watch: {
-    userFilter() {
-      this.currentPageUsers = 1;
-    },
-    faqFilter() {
-      this.currentPageFaqs = 1;
-    }
-  },
-
-
-  created() {
-    this.fetchStats();
-    this.getAllUsers();
-    this.getAllFaqs();
-  },
-
-  methods: {
-
-    // Stats methods start
-
-    fetchStats() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/get_stats'))
-          .then(response => {
-
-            const {  'Podcasts downloaded per month': clicksDownloadPerMonth, 'Podcasts listened per month': clicksPlayPerMonth, ...filteredData } = response.data;
-            this.topStats = filteredData;
-
-            const currentYear = new Date().getFullYear();
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-            const prepareChartData = (data, backgroundColor) => ({
-              labels: data.map(item => monthNames[item.month - 1]),
-              datasets: [{
-                backgroundColor,
-                data: data.map(item => item.clicks),
-              }]
-            });
-
-            this.downloadChartData = prepareChartData(
-                clicksDownloadPerMonth.filter(item => item.year === currentYear),
-                ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
-            );
-
-            this.playChartData = prepareChartData(
-                clicksPlayPerMonth.filter(item => item.year === currentYear),
-                ['#41B883', '#E46651', '#00D8FF', '#DD1B16','#f94144','#f3722c','#f8961e','#f9c74f','#43aa8b','#577590','#6a4c93','#ffa600']
-            );
-
-          })
-          .catch(error => {
-            const authStore = useAuthStore();
-            const messageStore = useMessageStore();
-            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              authStore.clearUser();
-              messageStore.setMessage('Something went wrong, please try again.');
-              this.$router.push({ name: 'Login' });
-            }
-          });
-    },
-
-    // Stats methods end
-
-    // Faqs methods start
-
-    getAllFaqs() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/faqs'))
-          .then(response => {
-            console.log(response.data)
-            this.faqs = response.data;
-          })
-          .catch(error => {
-            message.value = 'Error getting faqs list. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-    toggleFaqStatus(faq) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/update-faq-status', {
-            faq_id: faq.id,
-            was_answered: faq.was_answered ? 0 : 1
-          }))
-          .then(response => {
-            faq.was_answered = response.data.was_answered;
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            message.value = 'Error updating status. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    deleteFaq(id, index) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.delete(base_Url + `api/delete_faq/${id}`))
-          .then(response => {
-            this.faqs.splice(index, 1);
-            notificationType.value = 'success';
-            message.value = response.data.message;
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-
-          .catch(error => {
-            message.value = 'Error while deleting question. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    // Faqs methods end
-
-    // Users methods start
-
-    getAllUsers() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.get(base_Url + 'api/users'))
-          .then(response => {
-            this.users = response.data;
-          })
-          .catch(error => {
-            message.value = 'Error getting users list. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    toggleAdminStatus(user) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/update-status', {
-            user_id: user.id,
-            is_admin: user.is_admin ? 0 : 1
-          }))
-          .then(response => {
-            user.is_admin = response.data.is_admin;
-            show.value = true;
-            message.value = response.data.message;
-            notificationType.value = 'success';
-
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-          .catch(error => {
-            message.value = 'Error updating status. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    deleteAccount(id, index) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.delete(base_Url + `api/delete_users/${id}`))
-          .then(response => {
-            this.users.splice(index, 1);
-            notificationType.value = 'success';
-            message.value = 'User deleted successfully!'
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          })
-
-          .catch(error => {
-            message.value = 'Error while deleting user. Please try later.';
-            notificationType.value = 'error';
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-              message.value = null;
-            }, 5000);
-          });
-    },
-
-    // Users methods ends
-
-    // Methods pagination start
-
-    nextPage(type) {
-      if (type === 'users' && this.currentPageUsers * this.usersPerPage < this.filteredUsers.length) {
-        this.currentPageUsers += 1;
-      } else if (type === 'faqs' && this.currentPageFaqs * this.faqsPerPage < this.filteredFaqs.length) {
-        this.currentPageFaqs += 1;
-      }
-    },
-
-    prevPage(type) {
-      if (type === 'users' && this.currentPageUsers > 1) {
-        this.currentPageUsers -= 1;
-      } else if (type === 'faqs' && this.currentPageFaqs > 1) {
-        this.currentPageFaqs -= 1;
-      }
-    },
-
-    goToPage(type, page) {
-      if (type === 'users') {
-        this.currentPageUsers = page;
-      } else if (type === 'faqs') {
-        this.currentPageFaqs = page;
-      }
-    },
-
-    nextPageSet(type) {
-      if (type === 'users') {
-        this.currentPageUsers = Math.min(this.totalPagesUsers, this.currentPageUsers + this.maxVisiblePagesUsers);
-      } else if (type === 'faqs') {
-        this.currentPageFaqs = Math.min(this.totalPagesFaqs, this.currentPageFaqs + this.maxVisiblePagesFaqs);
-      }
-    },
-
-    // Methods pagination end
-
-  },
-
-}
-</script>

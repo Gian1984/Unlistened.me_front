@@ -1,20 +1,78 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue'
 import Footer from '../components/Footer.vue'
-import {StarIcon, ArrowRightIcon, CheckCircleIcon, ArrowPathIcon} from '@heroicons/vue/24/outline/index.js'
-import {useAuthStore} from "@/stores/authStore.js";
-let authStore = useAuthStore();
-authStore.initializeAuth();
-import {useMessageStore} from "@/stores/messageStore.js";
-import {XMarkIcon} from "@heroicons/vue/20/solid/index.js";
-let messageStore = useMessageStore();
-messageStore.initializeMessage();
-</script>
-<template>
+import { StarIcon, ArrowRightIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon } from '@heroicons/vue/20/solid'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useMessageStore } from '@/stores/messageStore.js'
+import { podcastService } from '@/services/podcastService.js'
+import { useRouter } from 'vue-router'
 
+const authStore = useAuthStore()
+authStore.initializeAuth()
+const messageStore = useMessageStore()
+messageStore.initializeMessage()
+const router = useRouter()
+
+const feeds = ref([])
+const visibleCount = ref(5)
+const loading = ref(true)
+const show = ref(false)
+
+const visiblePodcasts = computed(() => feeds.value.slice(0, visibleCount.value))
+
+function loadMore() {
+  visibleCount.value = Math.min(visibleCount.value + 5, feeds.value.length)
+}
+
+async function fetchPodcasts() {
+  try {
+    const response = await podcastService.getTrending()
+    feeds.value = response.data.feeds
+  } catch (err) {
+    console.error('Error fetching feeds:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function addFavourite(feedId, feedTitle) {
+  try {
+    await podcastService.addFavorite(feedId, feedTitle)
+    show.value = true
+    setTimeout(() => { show.value = false }, 5000)
+  } catch (error) {
+    authStore.clearUser()
+    messageStore.setMessage('To access this functionality you have to be logged in')
+    router.push({ name: 'Login' })
+  }
+}
+
+function stripHtmlTags(str) {
+  if (!str) return ''
+  return str.replace(/<[^>]*>/g, '')
+}
+
+function getReadableDate(unixTimestamp) {
+  const date = new Date(unixTimestamp * 1000)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+onMounted(() => {
+  fetchPodcasts()
+})
+</script>
+
+<template>
   <!--  Notification  -->
   <div aria-live="assertive" class="pointer-events-none fixed z-10 inset-0 flex items-end px-4 py-6">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
       <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div v-if="show" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 border-2 border-green-500">
           <div class="p-4">
@@ -37,7 +95,6 @@ messageStore.initializeMessage();
       </transition>
     </div>
   </div>
-  <!--  Notification  -->
 
   <div v-if="loading">
     <div class="grid h-screen place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
@@ -76,29 +133,27 @@ messageStore.initializeMessage();
             Happy listening!
           </p>
           <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            <article v-for="(feed, index) in visiblePodcasts" :key="index"  class="relative isolate flex flex-col gap-8 lg:flex-row">
+            <article v-for="(feed, index) in visiblePodcasts" :key="index" class="relative isolate flex flex-col gap-8 lg:flex-row">
               <div class="relative aspect-square lg:w-64 lg:shrink-0">
                 <img :src="feed.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 aspect-square w-full rounded-2xl bg-gray-50 object-cover" />
                 <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10 aspect-square w-full" />
               </div>
               <div>
                 <div class="flex items-center gap-x-4 text-xs">
-                  <time :datetime="feed.newestItemPubdate" class="text-gray-500">{{ getReadableDate( feed.newestItemPublishTime) }}</time>
+                  <time :datetime="feed.newestItemPubdate" class="text-gray-500">{{ getReadableDate(feed.newestItemPublishTime) }}</time>
                 </div>
                 <div class="group relative max-w-xl">
                   <h2 class="mt-3 text-lg font-bold leading-6 text-gray-900 group-hover:text-indigo-600">
                     <router-link :to="'/feed/' + feed.id">
-                        <span class="text-gray-900 font-bold hover:text-indigo-600">
-                        {{ feed.title }}
-                        </span>
+                      <span class="text-gray-900 font-bold hover:text-indigo-600">{{ feed.title }}</span>
                     </router-link>
                   </h2>
-                  <p class="mt-5 text-sm leading-6 text-gray-600 text-ellipsis overflow-hidden">{{ stripHtmlTags(feed.description ) }}</p>
+                  <p class="mt-5 text-sm leading-6 text-gray-600 text-ellipsis overflow-hidden">{{ stripHtmlTags(feed.description) }}</p>
                   <div class="mt-5">
                     <span class="font-semibold text-gray-900">Categories:</span>
                   </div>
                   <div class="flex items-center gap-x-1" v-for="category in feed.categories">
-                    <span  class="text-gray-600">{{ category }}</span>
+                    <span class="text-gray-600">{{ category }}</span>
                   </div>
                 </div>
                 <div class="mt-6 flex border-t border-gray-900/5 pt-6">
@@ -106,11 +161,9 @@ messageStore.initializeMessage();
                     <img :src="feed.artwork || '/images/image_not_available_170.webp'" alt="" class="h-10 w-10 rounded-full bg-gray-50" />
                     <div class="text-sm leading-6">
                       <div>
-                        <span  class="text-gray-600">Author:</span>
+                        <span class="text-gray-600">Author:</span>
                       </div>
-                      <p class="font-semibold text-gray-900">
-                          {{ feed.author }}
-                      </p>
+                      <p class="font-semibold text-gray-900">{{ feed.author }}</p>
                     </div>
                     <div class="text-sm leading-6 flex">
                       <button @click="addFavourite(feed.id, feed.title)" class="bg-pink-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 mx-1 rounded-full">
@@ -136,95 +189,3 @@ messageStore.initializeMessage();
   </div>
   <Footer />
 </template>
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-import { ref } from 'vue'
-const show = ref(false)
-
-export default {
-
-  data() {
-    return {
-      feeds: [], // Array to store podcasts
-      visibleCount: 5,
-      loading: true // Flag to indicate loading state
-    };
-  },
-  computed: {
-    visiblePodcasts() {
-      return this.feeds.slice(0, this.visibleCount);
-    }
-  },
-
-  created() {
-    this.fetchPodcasts();
-  },
-
-  methods: {
-     fetchPodcasts() {
-      this.axios.get(base_Url + 'api/index')
-          .then(response => {
-            this.feeds= response.data.feeds
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error(error, 'nothing to display');
-            this.loading = false;
-          });
-    },
-
-    loadMore() {
-      const increment = 5; // Number of podcasts to add each time
-      this.visibleCount = Math.min(this.visibleCount + increment, this.feeds.length);
-    },
-
-    addFavourite(feedId, feedTitle) {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
-
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/add-favorite', {
-            feed_id: feedId,
-            title: feedTitle,
-          }))
-          .then(() => {
-            show.value = true;
-            setTimeout(() => {
-              show.value = false;
-            }, 5000);
-          })
-          .catch(error => {
-            if (error.response && error.response.status === 401) {
-              const authStore = useAuthStore();
-              const messageStore = useMessageStore();
-              authStore.clearUser();
-              messageStore.setMessage('Your session has expired due to lack of activity.');
-              this.$router.push({ name: 'Login' });
-            } else {
-              const messageStore = useMessageStore();
-              messageStore.setMessage('To access this functionality you have to be logged in');
-              this.$router.push({ name: 'Login' });
-            }
-          });
-    },
-
-    stripHtmlTags(str) {
-      if (!str) return '';
-      return str.replace(/<[^>]*>/g, ''); // Regular expression to remove HTML tags
-    },
-
-    getReadableDate(unixTimestamp) {
-      const date = new Date(unixTimestamp * 1000);
-      // Format the date as you need
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-  }
-
-}
-</script>

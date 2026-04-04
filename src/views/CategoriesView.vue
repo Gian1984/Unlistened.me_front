@@ -1,7 +1,34 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import Footer from '../components/Footer.vue'
-import {MagnifyingGlassIcon} from "@heroicons/vue/20/solid/index.js";
+import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { podcastService } from '@/services/podcastService.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const categories = ref([])
+const loading = ref(true)
+
+async function fetchSearchCat() {
+  try {
+    const response = await podcastService.getCategories()
+    categories.value = response.data.feeds
+  } catch (err) {
+    console.error('Error fetching categories:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+function onClick(id) {
+  router.push({ name: 'SearchResults', query: { s: id } })
+}
+
+onMounted(() => {
+  fetchSearchCat()
+})
 </script>
+
 <template>
   <div class="bg-white py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -44,35 +71,3 @@ import {MagnifyingGlassIcon} from "@heroicons/vue/20/solid/index.js";
   </div>
   <Footer />
 </template>
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-export default {
-  data() {
-    return {
-      categories:[],
-      loading: true // Flag to indicate loading state
-    };
-  },
-
-  created() {
-    this.fetchSearchCat()
-  },
-
-  methods: {
-    fetchSearchCat() {
-      this.axios.get(base_Url + `api/feed-cat`)
-          .then(response => {
-            this.categories = response.data.feeds
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error('Error fetching search results:', error);
-            this.loading = false;
-          });
-    },
-    onClick(id) {
-      this.$router.push({ name: 'SearchResults', query: { s: id } });
-    },
-  },
-};
-</script>
