@@ -3,7 +3,8 @@
 ## Project Overview
 
 Vue 3 + Vite podcast streaming app with Tailwind CSS, Headless UI, Laravel Sanctum backend.
-17 routes, 14 views, 2 components (Footer, OffcanvasPlayer), 2 Pinia stores.
+17 routes, 14 views, 2 components (Footer, OffcanvasPlayer), 3 Pinia stores (auth, message, player).
+5 service modules: `api.js`, `podcastService.js`, `authService.js`, `userService.js`, `adminService.js`.
 
 Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 sidebar, White content.
 
@@ -25,19 +26,20 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 - Responsive: adapts to sidebar width
 
 **Improvements:**
-- [ ] Replace floating box with **full-width sticky bottom bar** (like CodeHelper)
-- [ ] Add **draggable progress bar** with thumb, not just click-to-seek
-- [ ] Add **time display** (current / total)
-- [ ] Add **playback speed** control (0.5x, 1x, 1.25x, 1.5x, 2x)
-- [ ] Add **skip forward/back** buttons (15s back, 30s forward)
+- [x] Replace floating box with **full-width sticky bottom bar** (like CodeHelper)
+- [x] Add **draggable progress bar** with thumb, not just click-to-seek
+- [x] Add **time display** (current / total)
+- [x] Add **playback speed** control (0.5x, 1x, 1.25x, 1.5x, 2x)
+- [x] Add **skip forward/back** buttons (15s back, 30s forward)
+- [x] Implement **MediaSession API** for lockscreen/notification controls
+- [x] Cover art and episode info display in player bar
 - [ ] Add **volume slider** (desktop only, hidden on mobile)
 - [ ] Add **favorite/bookmark** buttons directly in the player bar
-- [ ] Implement **MediaSession API** for lockscreen/notification controls
 - [ ] Cover art in player should **navigate to podcast episodes** on click
 - [ ] Closing player should **minimize**, not destroy (keep episode in memory for resume)
 - [ ] Add **queue** support: next/previous episode navigation
 
-**Files:** `src/components/OffcanvasPlayer.vue` (full rewrite)
+**Files:** `src/components/OffcanvasPlayer.vue` (full rewrite - DONE), `src/stores/playerStore.js` (NEW)
 
 ---
 
@@ -46,13 +48,14 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 **Current state:** Every view has `const base_Url = import.meta.env.VITE_BASE_URL` at the top and inline axios calls with `withCredentials: true, withXSRFToken: true` repeated everywhere. No centralized error handling.
 
 **Improvements:**
-- [ ] Create `src/services/api.js` with a configured axios instance
-- [ ] Centralize base URL, credentials, CSRF token, error interceptors
-- [ ] Create domain-specific services: `podcastService.js`, `authService.js`, `userService.js`
-- [ ] Add global error interceptor (401 → redirect to login, 500 → toast notification)
-- [ ] Remove `base_Url` declarations from all 15+ views
+- [x] Create `src/services/api.js` with a configured axios instance
+- [x] Centralize base URL, credentials, CSRF token, error interceptors
+- [x] Create domain-specific services: `podcastService.js`, `authService.js`, `userService.js`, `adminService.js`
+- [x] Add global error interceptor (401 → redirect to login)
+- [x] Remove `base_Url` declarations from all 15+ views
+- [x] Remove `vue-axios` plugin dependency (no longer needed)
 
-**Files:** New `src/services/` directory, then refactor all views
+**Files:** `src/services/api.js`, `src/services/podcastService.js`, `src/services/authService.js`, `src/services/userService.js`, `src/services/adminService.js` (ALL DONE)
 
 ---
 
@@ -61,10 +64,15 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 **Current state:** `NavigationView.vue` uses both `<script setup>` (lines 1-52, reactive refs) AND `<script>` (lines 283-430, Options API). Confusing, error-prone.
 
 **Improvements:**
-- [ ] Convert `NavigationView.vue` to pure Composition API (`<script setup>`)
-- [ ] Convert remaining Options API views to `<script setup>` for consistency
+- [x] Convert `NavigationView.vue` to pure Composition API (`<script setup>`)
+- [x] Convert all remaining Options API views to `<script setup>`:
+  - [x] LoginView, SignUpView, ForgotPasswordView, ResetPasswordView
+  - [x] FeedsView, CategoriesView, SearchResultView
+  - [x] FavouritesView, BookmarksView
+  - [x] SettingsView, DashboardView
+  - [x] FeedEpisodesView, SingleEpisodeView
 
-**Files:** `src/views/NavigationView.vue` (primary), all other views (gradual)
+**Files:** All 12 views migrated. `src/main.js` cleaned up (removed vue-axios).
 
 ---
 
@@ -331,14 +339,14 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 
 ## Implementation Order
 
-| Phase | Tasks | Effort |
+| Phase | Tasks | Status |
 |---|---|---|
-| **Phase 1** | Audio Player rewrite (1.1), API service layer (1.2) | 2-3 days |
-| **Phase 2** | Full dark mode (3.5), skeleton loading (2.1), empty states (2.5) | 1-2 days |
-| **Phase 3** | Navigation + search (2.3), category pills (2.4), card redesign (2.2) | 2 days |
-| **Phase 4** | Mobile bottom nav (3.4), auth pages polish (3.3) | 1-2 days |
-| **Phase 5** | Listening history (4.1), episode queue (4.2) | 2 days |
-| **Phase 6** | PWA (4.3), performance (5.1, 5.2), settings (4.4) | 1-2 days |
+| **Phase 1** | Audio Player rewrite (1.1), API service layer (1.2), script setup migration (1.3) | DONE |
+| **Phase 2** | Full dark mode (3.5), skeleton loading (2.1), empty states (2.5) | TODO |
+| **Phase 3** | Navigation + search (2.3), category pills (2.4), card redesign (2.2) | TODO |
+| **Phase 4** | Mobile bottom nav (3.4), auth pages polish (3.3) | TODO |
+| **Phase 5** | Listening history (4.1), episode queue (4.2) | TODO |
+| **Phase 6** | PWA (4.3), performance (5.1, 5.2), settings (4.4) | TODO |
 
 ---
 
@@ -347,7 +355,7 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 | File | Lines | Role |
 |---|---|---|
 | `src/views/NavigationView.vue` | 431 | Main layout, sidebar, header, search, categories |
-| `src/components/OffcanvasPlayer.vue` | ~100 | Audio player (needs rewrite) |
+| `src/components/OffcanvasPlayer.vue` | ~305 | Audio player (rewritten) |
 | `src/views/FeedsView.vue` | ~300 | Podcast browse/catalog |
 | `src/views/FeedEpisodesView.vue` | ~120 | Episodes list for a podcast |
 | `src/views/SingleEpisodeView.vue` | ~80 | Single episode detail |
@@ -361,6 +369,12 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 | `src/views/DashboardView.vue` | ~100 | Admin dashboard |
 | `src/stores/authStore.js` | 40 | Auth state |
 | `src/stores/messageStore.js` | 18 | Notifications |
+| `src/stores/playerStore.js` | 19 | Global audio player state (NEW) |
+| `src/services/api.js` | 30 | Centralized axios instance + 401 interceptor (NEW) |
+| `src/services/podcastService.js` | 81 | Podcast API calls (NEW) |
+| `src/services/authService.js` | 33 | Auth API calls (NEW) |
+| `src/services/userService.js` | 23 | User API calls (NEW) |
+| `src/services/adminService.js` | 38 | Admin API calls (NEW) |
 | `src/router/index.js` | 750 | Routing + SEO meta |
 
 ## Reference: CodeHelper Player
