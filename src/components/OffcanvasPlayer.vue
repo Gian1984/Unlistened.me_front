@@ -1,199 +1,304 @@
-<script setup>
-import { PauseIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
-import {PlayIcon} from "@heroicons/vue/24/outline/index.js";
-</script>
-
-
 <template>
+  <audio
+    ref="audioEl"
+    @loadedmetadata="onLoadedMetadata"
+    @timeupdate="onTimeUpdate"
+    @play="isPlaying = true"
+    @pause="isPlaying = false"
+    @ended="onEnded"
+  />
 
-
-  <!-- Global player live region, render this permanently at the end of the document -->
-  <div v-if="isVisible" aria-live="assertive" class="pointer-events-none fixed bottom-0 inset-0 flex items-end px-4 py-6 sm:p-6">
-    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <!-- Player panel, dynamically insert this into the live region when it needs to be displayed -->
-      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-indigo-100 shadow-lg ring-1 ring-black ring-opacity-5 border-2 border-indigo-500">
-          <div class="p-4">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <button @click="togglePlayPause" class="bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full">
-                  <component :is="isPlaying ? PauseIcon : PlayIcon" class="h-5 w-5 text-white"/>
-                </button>
-              </div>
-              <div class="ml-3 w-0 flex-1 pt-0.5">
-                <div class="flex justify-between align-middle">
-                  <p class="truncate">
-                    <span class="text-gray-900 font-semibold">Now playing:</span>
-                  </p>
-                  <button class="bg-indigo-100 font-bold text-gray-900 hover:bg-pink-500 hover:text-white py-1.5 px-1.5 rounded-full block ml-0" @click="closePlayer">
-                    <XMarkIcon class="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-                <p class="mb-2 truncate text-gray-600">
-                  {{ currentEpisode.title }}
-                </p>
-                <audio ref="audioPlayer" :src="currentEpisode.enclosureUrl" @loadedmetadata="initializePlayer" @timeupdate="updateProgress">
-                  Your browser does not support the audio element.
-                </audio>
-                <div class="relative w-full bg-white rounded-full h-2 cursor-pointer mb-2 overflow-hidden max-" @click="seek">
-                  <div class="bg-pink-500 h-2 rounded-full absolute top-0 left-0" :style="{ width: progressBarWidth }"></div>
-                </div>
-                <p class="text-sm font-medium text-gray-900">{{ currentTime }} / {{ duration }}</p>
-              </div>
-            </div>
-          </div>
+  <transition
+    enter-active-class="transition-transform duration-300 ease-out"
+    enter-from-class="translate-y-full"
+    enter-to-class="translate-y-0"
+    leave-active-class="transition-transform duration-200 ease-in"
+    leave-from-class="translate-y-0"
+    leave-to-class="translate-y-full"
+  >
+    <div
+      v-if="playerStore.isVisible && playerStore.currentEpisode"
+      class="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 shadow-2xl"
+    >
+      <!-- Progress bar -->
+      <div
+        ref="progressBarEl"
+        class="relative cursor-pointer group mx-4"
+        :class="isSeeking ? 'h-6 -mb-2' : 'h-5 -mb-1.5'"
+        @mousedown="onSeekStart"
+        @touchstart.prevent="onSeekStart"
+      >
+        <div
+          class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-700 rounded-full group-hover:h-1.5 transition-all"
+          :class="isSeeking ? 'h-1.5' : ''"
+        >
+          <div
+            class="absolute top-0 left-0 h-full bg-indigo-500 rounded-full"
+            :style="{ width: `${progress}%` }"
+          />
         </div>
-      </transition>
-    </div>
-  </div>
+        <div
+          class="absolute top-1/2 -translate-y-1/2 rounded-full bg-indigo-400 shadow-lg transition-transform"
+          :class="isSeeking ? 'w-4 h-4 scale-110' : 'w-3 h-3'"
+          :style="{ left: `calc(${progress}% - ${isSeeking ? 8 : 6}px)` }"
+        />
+      </div>
 
+      <!-- Controls row -->
+      <div class="flex items-center gap-3 px-4 py-3">
+        <!-- Cover art -->
+        <img
+          v-if="playerStore.currentEpisode.image"
+          :src="playerStore.currentEpisode.image"
+          :alt="playerStore.currentEpisode.title"
+          class="h-10 w-10 rounded object-cover shrink-0 bg-gray-700"
+          @error="($event.target).style.display = 'none'"
+        />
+        <div v-else class="h-10 w-10 rounded bg-gray-700 shrink-0 flex items-center justify-center">
+          <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+        </div>
+
+        <!-- Episode info -->
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white truncate leading-tight">
+            {{ playerStore.currentEpisode.title }}
+          </p>
+          <p v-if="playerStore.currentEpisode.feedTitle" class="text-xs text-gray-400 truncate leading-tight mt-0.5">
+            {{ playerStore.currentEpisode.feedTitle }}
+          </p>
+        </div>
+
+        <!-- Time display -->
+        <span class="hidden sm:block text-xs text-gray-400 shrink-0 tabular-nums">
+          {{ formatTime(currentTimeSec) }} / {{ formatTime(durationSec) }}
+        </span>
+
+        <!-- Speed control -->
+        <button
+          @click="cycleSpeed"
+          class="hidden sm:flex shrink-0 items-center justify-center h-7 px-1.5 rounded text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-700 transition-colors tabular-nums"
+          aria-label="Playback speed"
+        >
+          {{ playbackSpeed }}x
+        </button>
+
+        <!-- Skip back 15s -->
+        <button
+          @click="skip(-15)"
+          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Skip back 15 seconds"
+        >
+          <BackwardIcon class="h-4 w-4" />
+        </button>
+
+        <!-- Play / Pause -->
+        <button
+          @click="togglePlay"
+          class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          :aria-label="isPlaying ? 'Pause' : 'Play'"
+        >
+          <PauseIcon v-if="isPlaying" class="h-4 w-4 text-white" />
+          <PlayIcon v-else class="h-4 w-4 text-white ml-0.5" />
+        </button>
+
+        <!-- Skip forward 30s -->
+        <button
+          @click="skip(30)"
+          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Skip forward 30 seconds"
+        >
+          <ForwardIcon class="h-4 w-4" />
+        </button>
+
+        <!-- Close -->
+        <button
+          @click="handleClose"
+          class="shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Close player"
+        >
+          <XMarkIcon class="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  </transition>
 </template>
 
-<script>
-const base_Url = import.meta.env.VITE_BASE_URL
-export default {
-  props: {
-    episode: Object,
-  },
-  data() {
-    return {
-      isVisible: false,
-      currentEpisode: null,
-      isPlaying: false,
-      progressBarWidth: '0%',
-      currentTime: '0:00',
-      duration: '0:00',
-    };
-  },
-  watch: {
-    episode(newEpisode) {
-      if (newEpisode) {
-        this.currentEpisode = newEpisode;
-        this.isVisible = true;
-        this.isPlaying = false;
-        this.progressBarWidth = '0%';
-        this.$nextTick(() => {
-          if (this.$refs.audioPlayer) {
-            this.$refs.audioPlayer.load(); // Reload the new audio source
-          }
-        });
-      }
-    },
-  },
-  methods: {
+<script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
+import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
+import { usePlayerStore } from '@/stores/playerStore'
+import { podcastService } from '@/services/podcastService'
 
-    sendPlayData() {
-      this.axios.defaults.withCredentials = true;
-      this.axios.defaults.withXSRFToken = true;
+const playerStore = usePlayerStore()
 
-      let epID = this.currentEpisode.id
-      let epTI = this.currentEpisode.title
+const audioEl = ref(null)
+const isPlaying = ref(false)
+const progress = ref(0)
+const currentTimeSec = ref(0)
+const durationSec = ref(0)
+const playbackSpeed = ref(1)
+const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
-      this.axios.get(base_Url + 'sanctum/csrf-cookie')
-          .then(() => this.axios.post(base_Url + 'api/add_play_click', {
-            episode_id: epID,
-            episode_title: epTI,
-          }))
-          .catch(error => {
-            console.error('Play data fail');
-          });
-    },
+// MediaSession
+function updateMediaSession(episode) {
+  if (!('mediaSession' in navigator)) return
+  const artwork = []
+  if (episode.image) {
+    artwork.push(
+      { src: episode.image, sizes: '96x96', type: 'image/png' },
+      { src: episode.image, sizes: '256x256', type: 'image/png' },
+      { src: episode.image, sizes: '512x512', type: 'image/png' },
+    )
+  }
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: episode.title,
+    artist: episode.feedTitle || '',
+    album: 'Unlistened.me',
+    artwork,
+  })
+}
 
-
-    initializePlayer() {
-      const audioPlayer = this.$refs.audioPlayer;
-      if (audioPlayer) {
-        audioPlayer.addEventListener('play', this.onPlay);
-        audioPlayer.addEventListener('pause', this.onPause);
-        audioPlayer.addEventListener('ended', this.onEnded);
-        audioPlayer.addEventListener('timeupdate', this.updateProgress);
-        this.duration = this.formatTime(audioPlayer.duration);
-      }
-    },
-    togglePlayPause() {
-      const audioPlayer = this.$refs.audioPlayer;
-      if (audioPlayer) {
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-          this.sendPlayData();
-        } else {
-          audioPlayer.pause();
-        }
-      }
-    },
-    onPlay() {
-      this.isPlaying = true;
-    },
-    onPause() {
-      this.isPlaying = false;
-    },
-    onEnded() {
-      this.isPlaying = false;
-      this.progressBarWidth = '0%';
-    },
-    updateProgress() {
-      const audioPlayer = this.$refs.audioPlayer;
-      if (audioPlayer) {
-        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        this.progressBarWidth = `${progress}%`;
-        this.currentTime = this.formatTime(audioPlayer.currentTime);
-      }
-    },
-    seek(event) {
-      const audioPlayer = this.$refs.audioPlayer;
-      if (audioPlayer) {
-        const rect = event.target.getBoundingClientRect();
-        const offsetX = event.clientX - rect.left;
-        const newTime = (offsetX / rect.width) * audioPlayer.duration;
-        audioPlayer.currentTime = newTime;
-      }
-    },
-    closePlayer() {
-      this.isVisible = false;
-      const audioPlayer = this.$refs.audioPlayer;
-      if (audioPlayer) {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0; // Reset the current time
-        this.isPlaying = false;
-        this.progressBarWidth = '0%';
-        this.currentTime = '0:00';
-        this.duration = '0:00';
-      }
-    },
-    formatTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    },
-
-  },
-  mounted() {
-    this.initializePlayer();
-  },
-  beforeDestroy() {
-    const audioPlayer = this.$refs.audioPlayer;
-    if (audioPlayer) {
-      audioPlayer.removeEventListener('play', this.onPlay);
-      audioPlayer.removeEventListener('pause', this.onPause);
-      audioPlayer.removeEventListener('ended', this.onEnded);
-      audioPlayer.removeEventListener('timeupdate', this.updateProgress);
+function setupMediaSessionHandlers() {
+  if (!('mediaSession' in navigator)) return
+  navigator.mediaSession.setActionHandler('play', () => audioEl.value?.play())
+  navigator.mediaSession.setActionHandler('pause', () => audioEl.value?.pause())
+  navigator.mediaSession.setActionHandler('seekbackward', () => skip(-15))
+  navigator.mediaSession.setActionHandler('seekforward', () => skip(30))
+  navigator.mediaSession.setActionHandler('seekto', (details) => {
+    if (audioEl.value && details.seekTime != null) {
+      audioEl.value.currentTime = details.seekTime
     }
-  },
-};
+  })
+}
+
+onMounted(() => {
+  setupMediaSessionHandlers()
+})
+
+// React to episode changes
+watch(() => playerStore.currentEpisode, (episode) => {
+  if (!audioEl.value) return
+  if (!episode) {
+    audioEl.value.pause()
+    audioEl.value.src = ''
+    isPlaying.value = false
+    return
+  }
+  progress.value = 0
+  currentTimeSec.value = 0
+  durationSec.value = 0
+  audioEl.value.src = episode.enclosureUrl
+  audioEl.value.load()
+  updateMediaSession(episode)
+  audioEl.value.play().catch(() => {})
+  trackPlay(episode)
+})
+
+function trackPlay(episode) {
+  if (episode.id && episode.title) {
+    podcastService.trackPlay(episode.id, episode.title).catch(() => {})
+  }
+}
+
+function onLoadedMetadata() {
+  durationSec.value = audioEl.value?.duration || 0
+}
+
+function onTimeUpdate() {
+  if (!audioEl.value) return
+  currentTimeSec.value = audioEl.value.currentTime
+  if (audioEl.value.duration) {
+    progress.value = (audioEl.value.currentTime / audioEl.value.duration) * 100
+  }
+  if ('mediaSession' in navigator && audioEl.value.duration) {
+    navigator.mediaSession.setPositionState({
+      duration: audioEl.value.duration,
+      playbackRate: audioEl.value.playbackRate,
+      position: audioEl.value.currentTime,
+    })
+  }
+}
+
+function onEnded() {
+  isPlaying.value = false
+  progress.value = 100
+}
+
+function togglePlay() {
+  if (!audioEl.value) return
+  if (audioEl.value.paused) {
+    audioEl.value.play().catch(() => {})
+  } else {
+    audioEl.value.pause()
+  }
+}
+
+function skip(seconds) {
+  if (!audioEl.value) return
+  audioEl.value.currentTime = Math.max(0, Math.min(audioEl.value.duration || 0, audioEl.value.currentTime + seconds))
+}
+
+function cycleSpeed() {
+  const idx = speeds.indexOf(playbackSpeed.value)
+  playbackSpeed.value = speeds[(idx + 1) % speeds.length]
+  if (audioEl.value) audioEl.value.playbackRate = playbackSpeed.value
+}
+
+// Seek / scrub
+const progressBarEl = ref(null)
+const isSeeking = ref(false)
+
+function getSeekRatio(event) {
+  if (!progressBarEl.value) return 0
+  const rect = progressBarEl.value.getBoundingClientRect()
+  const clientX = event.touches
+    ? (event.touches[0]?.clientX ?? event.changedTouches[0]?.clientX ?? 0)
+    : event.clientX
+  return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+}
+
+function onSeekStart(event) {
+  if (!audioEl.value?.duration) return
+  isSeeking.value = true
+  const ratio = getSeekRatio(event)
+  progress.value = ratio * 100
+  audioEl.value.currentTime = ratio * audioEl.value.duration
+
+  const onMove = (e) => {
+    if (!audioEl.value?.duration) return
+    const r = getSeekRatio(e)
+    progress.value = r * 100
+    audioEl.value.currentTime = r * audioEl.value.duration
+  }
+  const onEnd = () => {
+    isSeeking.value = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onEnd)
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('touchend', onEnd)
+  }
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onEnd)
+  document.addEventListener('touchmove', onMove, { passive: true })
+  document.addEventListener('touchend', onEnd)
+}
+
+function handleClose() {
+  audioEl.value?.pause()
+  playerStore.close()
+}
+
+function formatTime(seconds) {
+  if (!seconds || isNaN(seconds)) return '0:00'
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
+onBeforeUnmount(() => {
+  audioEl.value?.pause()
+})
 </script>
-
-<style scoped>
-.audio-player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>
-
