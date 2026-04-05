@@ -25,6 +25,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify .htaccess in dist
+        run: |
+          cat dist/.htaccess
+          echo "✓ .htaccess present in dist/"
+
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -36,6 +41,7 @@ jobs:
           protocol: ftps
           security: loose
           state-name: .ftp-deploy-sync-state.json
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
