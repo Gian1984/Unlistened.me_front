@@ -1,5 +1,7 @@
 <script setup>
-import {defineComponent, h} from "vue";
+import { defineComponent, h } from "vue"
+
+const currentYear = new Date().getFullYear()
 
 const FooterNavigation = {
   main: [
@@ -67,32 +69,22 @@ const FooterNavigation = {
 }
 </script>
 <template>
-  <div class="bg-white">
+  <div class="bg-gray-900 border-t border-gray-800">
     <div class="mx-auto max-w-7xl overflow-hidden px-6 py-14 sm:py-12 lg:px-8">
       <nav class="-mb-10 columns-2 sm:flex sm:justify-center sm:space-x-12 text-center" aria-label="Footer">
         <div v-for="item in FooterNavigation.main" :key="item.name" class="pb-6">
-          <router-link :to="item.href" :class="[$route.path === item.href ? 'text-indigo-600 font-bold' : 'text-gray-900 hover:text-pink-500']">
+          <router-link :to="item.href" :class="[$route.path === item.href ? 'text-indigo-400 font-bold' : 'text-gray-400 hover:text-pink-400']">
             {{ item.name }}
           </router-link>
         </div>
       </nav>
       <div class="mt-10 flex justify-center space-x-10">
-        <a v-for="item in FooterNavigation.social" :key="item.name" :href="item.href" class="text-indigo-600 hover:text-pink-500">
+        <a v-for="item in FooterNavigation.social" :key="item.name" :href="item.href" class="text-indigo-400 hover:text-pink-400">
           <span class="sr-only">{{ item.name }}</span>
           <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
         </a>
       </div>
     </div>
-    <p class="py-3 text-center text-xs font-bold leading-5 text-gray-900">&copy; {{ currentYear }} Unlistened.me  all rights reserved. <a href="https://gianlucatiengo.com/" target="_blank" class="text-pink-600 hover:text-indigo-600 font-bold block">Powered by Gianluca Tiengo</a></p>
+    <p class="py-3 text-center text-xs font-bold leading-5 text-gray-500">&copy; {{ currentYear }} Unlistened.me all rights reserved. <a href="https://gianlucatiengo.com/" target="_blank" class="text-pink-500 hover:text-indigo-400 font-bold block">Powered by Gianluca Tiengo</a></p>
   </div>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      currentYear: new Date().getFullYear()
-    };
-  }
-};
-</script>
-

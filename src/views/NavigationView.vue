@@ -258,14 +258,14 @@ onMounted(() => {
     </div>
 
     <div class="lg:pl-72">
-      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-        <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
+      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-800 bg-gray-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+        <button type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
 
         <!-- Separator -->
-        <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
+        <div class="h-6 w-px bg-gray-700 lg:hidden" aria-hidden="true" />
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <div class="relative flex flex-1">
@@ -278,17 +278,17 @@ onMounted(() => {
               </PopoverButton>
 
               <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
-                <PopoverPanel v-slot="{ close }" class="absolute inset-x-0 top-0 -z-10 bg-white pt-16 shadow-lg ring-1 ring-gray-900/5">
+                <PopoverPanel v-slot="{ close }" class="absolute inset-x-0 top-0 -z-10 bg-gray-900 pt-16 shadow-lg ring-1 ring-gray-700">
                   <div class="pt-6">
                     <div class="mx-auto max-w-7xl px-3 lg:px-8">
-                      <h3 class="text-lg leading-6 text-gray-900">Search by Categories</h3>
+                      <h3 class="text-lg leading-6 text-white">Search by Categories</h3>
                     </div>
                   </div>
                   <div class="mx-auto grid max-w-7xl grid-cols-1 gap-2 px-1 sm:grid-cols-2 sm:gap-x-1 sm:gap-y-0 sm:py-6 lg:grid-cols-4 lg:gap-1 lg:px-3 xl:gap-1 py-6">
                     <div v-for="item in paginatedCategories" :key="item.name" class="group relative -mx-1 flex gap-1 rounded-lg p-1 text-sm sm:flex-col sm:p-1">
-                      <div class="flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-pink-500 px-1">
-                        <MagnifyingGlassIcon class="h-3 w-3 text-gray-900 mr-2"/>
-                        <button @click="() => { close(); onFilterClick(item.id); }" class="font-semibold text-gray-900 py-1">
+                      <div class="flex items-center justify-center rounded-lg bg-gray-800 group-hover:bg-pink-500 px-1">
+                        <MagnifyingGlassIcon class="h-3 w-3 text-gray-300 mr-2"/>
+                        <button @click="() => { close(); onFilterClick(item.id); }" class="font-semibold text-gray-300 py-1">
                           {{ item.name }}
                           <span class="absolute inset-0 sr-only">Search</span>
                         </button>
@@ -327,17 +327,17 @@ onMounted(() => {
               <MagnifyingGlassIcon class=" h-8 bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" />
             </button>
             <label for="search-field" class="sr-only">Search</label>
-            <input id="search-field" v-model="searchQuery"  @keyup.enter="onSearchClick" class="block h-full w-full border-0 bg-white focus:bg-white active:bg-white target:bg-white visited:bg-white pl-4 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
+            <input id="search-field" v-model="searchQuery"  @keyup.enter="onSearchClick" class="block h-full w-full border-0 bg-gray-950 focus:bg-gray-950 active:bg-gray-950 pl-4 pr-0 text-white placeholder:text-gray-500 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
           </div>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
 
-             <router-link to="/" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 lg:hidden">
+             <router-link to="/" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-300 lg:hidden">
                <span class="sr-only">View notifications</span>
                <img class="h-8 w-8 " src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
              </router-link>
 
             <!-- Separator -->
-            <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
+            <div class="h-6 w-px bg-gray-700 lg:hidden" aria-hidden="true" />
 
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
@@ -346,16 +346,16 @@ onMounted(() => {
                 <img v-if="authStore.user" class="h-8 w-8 rounded-full bg-gray-50" src="/images/check-circled-svgrepo-com.png" alt="checkmark logo user is logged in" />
                 <img v-else class="h-8 w-8 rounded-full bg-gray-50" src="/images/question-mark-circled-svgrepo-com.png" alt="question mark user is not logged in" />
                 <span class="hidden lg:flex lg:items-center">
-                  <span v-if="authStore.user" class="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">{{ authStore.user.name }}</span>
-                  <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-900" aria-hidden="true" />
+                  <span v-if="authStore.user" class="ml-4 text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
+                  <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
               </MenuButton>
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-gray-800 py-2 shadow-lg ring-1 ring-gray-700 focus:outline-none">
 
                   <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Signup' }" custom>
                     <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">
                         Create Account
                       </a>
                     </MenuItem>
@@ -363,7 +363,7 @@ onMounted(() => {
 
                   <RouterLink v-if="authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Settings' }" custom>
                     <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">
                         Welcome {{ authStore.user.name }} !
                       </a>
                     </MenuItem>
@@ -371,12 +371,12 @@ onMounted(() => {
 
                   <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Login' }" custom>
                     <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">Login</a>
+                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">Login</a>
                     </MenuItem>
                   </RouterLink>
 
                   <MenuItem v-if="authStore.user">
-                    <button  class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600" @click="logout">Sign out</button>
+                    <button  class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400" @click="logout">Sign out</button>
                   </MenuItem>
                 </MenuItems>
               </transition>
@@ -406,8 +406,9 @@ select:-webkit-autofill,
 select:-webkit-autofill:enabled,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
-  box-shadow: 0 0 0 1000px #ffffff inset;
-  background-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px #030712 inset;
+  box-shadow: 0 0 0 1000px #030712 inset;
+  background-color: #030712;
+  -webkit-text-fill-color: #ffffff;
 }
 </style>

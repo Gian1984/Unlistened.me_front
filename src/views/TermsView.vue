@@ -9,7 +9,7 @@ const features = [
   },
   {
     name: 'Third-Party Content and Links',
-    description: 'Unlistened.me may include links to third-party websites or services that are not owned or controlled by Unlistened.me. We do not endorse or assume any responsibility for any such third-party sites, information, materials, products, or services. If you access a third-party website from Unlistened.me, you do so at your own risk, and you understand that this agreement and Unlistened.me’s Privacy Policy do not apply to your use of such sites.',
+    description: 'Unlistened.me may include links to third-party websites or services that are not owned or controlled by Unlistened.me. We do not endorse or assume any responsibility for any such third-party sites, information, materials, products, or services. If you access a third-party website from Unlistened.me, you do so at your own risk, and you understand that this agreement and Unlistened.me\'s Privacy Policy do not apply to your use of such sites.',
   },
   {
     name: 'Intellectual Property',
@@ -54,23 +54,23 @@ const features = [
 </script>
 
 <template>
-  <div class="bg-white py-24 sm:py-24">
+  <div class="bg-gray-950 py-24 sm:py-24">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm pb-24">
         <img class="mx-auto h-64 w-auto" src="/images/unlistened.me_white_300.png" alt="Unlistened.me logo" />
       </div>
       <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
         <div>
-          <p class="text-base font-semibold leading-7 text-indigo-600">Please read carefoully our</p>
-          <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Terms and Conditions</h1>
-          <p class="mt-6 text-base leading-7 text-gray-900">
+          <p class="text-base font-semibold leading-7 text-indigo-400">Please read carefully our</p>
+          <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Terms and Conditions</h1>
+          <p class="mt-6 text-base leading-7 text-gray-400">
             Welcome to Unlistened.me. By using our podcast player application, you agree to the following terms and conditions. Please read them carefully.
           </p>
         </div>
-        <dl class="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
+        <dl class="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-400 sm:grid-cols-2 lg:gap-y-16">
           <div v-for="feature in features" :key="feature.name" class="relative pl-9">
-            <dt class="font-semibold text-gray-900">
-              <CheckIcon class="absolute left-0 top-1 h-5 w-5 text-indigo-500" aria-hidden="true" />
+            <dt class="font-semibold text-white">
+              <CheckIcon class="absolute left-0 top-1 h-5 w-5 text-indigo-400" aria-hidden="true" />
               {{ feature.name }}
             </dt>
             <dd class="mt-2">{{ feature.description }}</dd>

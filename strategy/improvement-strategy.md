@@ -85,12 +85,12 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 **Reference:** CodeHelper uses skeleton shimmer placeholders that match the content layout.
 
 **Improvements:**
-- [ ] Replace spinner with **skeleton cards** (gray shimmer blocks matching podcast card layout)
-- [ ] Skeleton for episode list (3-5 placeholder rows)
-- [ ] Skeleton for categories grid
-- [ ] Keep spinner only for small inline actions (button loading, etc.)
+- [x] Replace spinner with **skeleton cards** (gray shimmer blocks matching podcast card layout)
+- [x] Skeleton for episode list (3-5 placeholder rows)
+- [x] Skeleton for categories grid
+- [x] Keep spinner only for small inline actions (button loading, etc.)
 
-**Files:** Create `src/components/SkeletonCard.vue`, `src/components/SkeletonRow.vue`
+**Files:** `src/components/SkeletonCard.vue` (NEW), `src/components/SkeletonRow.vue` (NEW)
 
 ---
 
@@ -150,14 +150,15 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 **Current state:** Inconsistent empty states across views. Different SVG icons, different copy, different tone.
 
 **Improvements:**
-- [ ] Create a **shared EmptyState component** with icon, title, description, CTA button
-- [ ] Consistent style: gray icon (48px), descriptive text, action button
-- [ ] Custom messages per context:
+- [x] Create a **shared EmptyState component** with icon, title, description, CTA button
+- [x] Consistent style: gray icon (48px), descriptive text, action button
+- [x] Custom messages per context:
   - Favorites: "No saved podcasts yet. Browse and tap the heart to save."
   - Bookmarks: "No bookmarked episodes. Bookmark episodes to listen later."
   - Search: "No results for 'query'. Try a different search term."
+  - 404 pages: "Not Found" with back to listing CTA
 
-**Files:** Create `src/components/EmptyState.vue`, update all views
+**Files:** `src/components/EmptyState.vue` (NEW), updated FavouritesView, BookmarksView, SearchResultView, FeedEpisodesView, SingleEpisodeView
 
 ---
 
@@ -249,12 +250,15 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 **Current state:** Mix of dark (auth, settings, dashboard) and light (browse, search) pages. Inconsistent.
 
 **Improvements:**
-- [ ] Go **full dark mode** consistently across all pages (matches podcast app conventions - Spotify, Apple Podcasts, Pocket Casts all dark)
-- [ ] Use `gray-950` for main background, `gray-900` for cards, `gray-800` for elevated elements
-- [ ] Ensure text contrast meets WCAG AA (min 4.5:1 ratio)
-- [ ] Remove remaining white backgrounds from browse/search views
+- [x] Go **full dark mode** consistently across all pages (matches podcast app conventions - Spotify, Apple Podcasts, Pocket Casts all dark)
+- [x] Use `gray-950` for main background, `gray-900` for cards/footer, `gray-800` for elevated elements (dropdowns, notifications)
+- [x] Ensure text contrast meets WCAG AA (min 4.5:1 ratio)
+- [x] Remove remaining white backgrounds from browse/search views
+- [x] Updated notification toasts to dark theme across all views
+- [x] Fixed Footer mixed Options/Composition API pattern
+- [x] Updated all 20 views to consistent dark theme
 
-**Files:** All views, `src/assets/base.css`
+**Files:** All views, `src/assets/base.css` (rewritten), `src/components/Footer.vue` (rewritten)
 
 ---
 
@@ -327,6 +331,43 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 
 ---
 
+### 4.5 Capacitor Mobile App (App Store & Play Store)
+
+**Current state:** Web-only app. No native mobile presence.
+
+**Approach:** Use **Capacitor only** (no Ionic) to wrap the existing Vue + Tailwind app as a native iOS/Android app. The UI stays as-is; Capacitor provides the native shell.
+
+**Prerequisites:** Complete Phase 2-4 first (dark mode, bottom nav, mobile polish) so the app looks native and passes App Store review.
+
+**Setup:**
+```bash
+npm install @capacitor/core @capacitor/cli
+npx cap init "Unlistened.me" "me.unlistened.app"
+npx cap add ios
+npx cap add android
+```
+
+**Improvements:**
+- [ ] Initialize Capacitor project with iOS + Android targets
+- [ ] Configure splash screen and app icons (all required sizes)
+- [ ] Add **background audio** plugin (`@capacitor-community/background-mode` or native `UIBackgroundModes`)
+- [ ] Add **safe area insets** (`env(safe-area-inset-*)`) for notched devices
+- [ ] Configure `capacitor.config.ts` with server URL for dev, local for prod
+- [ ] Test audio playback in background on both platforms
+- [ ] Set up **Capacitor Preferences** plugin for persistent storage (replace localStorage)
+- [ ] Handle offline state gracefully (network status plugin)
+- [ ] Submit to **Apple App Store** ($99/year developer account)
+- [ ] Submit to **Google Play Store** ($25 one-time developer account)
+
+**Key challenges:**
+1. Background audio on iOS (requires `UIBackgroundModes` audio capability)
+2. App Store review — Apple rejects "wrapped websites"; dark mode + bottom tabs + native feel required
+3. Safe areas for iPhone notch/Dynamic Island
+
+**Files:** `capacitor.config.ts` (new), `ios/` (new), `android/` (new), `src/assets/base.css` (safe area insets)
+
+---
+
 ### 5.2 Image Optimization
 
 **Improvements:**
@@ -342,11 +383,12 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 | Phase | Tasks | Status |
 |---|---|---|
 | **Phase 1** | Audio Player rewrite (1.1), API service layer (1.2), script setup migration (1.3) | DONE |
-| **Phase 2** | Full dark mode (3.5), skeleton loading (2.1), empty states (2.5) | TODO |
+| **Phase 2** | Full dark mode (3.5), skeleton loading (2.1), empty states (2.5) | DONE |
 | **Phase 3** | Navigation + search (2.3), category pills (2.4), card redesign (2.2) | TODO |
 | **Phase 4** | Mobile bottom nav (3.4), auth pages polish (3.3) | TODO |
 | **Phase 5** | Listening history (4.1), episode queue (4.2) | TODO |
 | **Phase 6** | PWA (4.3), performance (5.1, 5.2), settings (4.4) | TODO |
+| **Phase 7** | Capacitor mobile app (4.5) | TODO |
 
 ---
 
@@ -370,6 +412,9 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 | `src/stores/authStore.js` | 40 | Auth state |
 | `src/stores/messageStore.js` | 18 | Notifications |
 | `src/stores/playerStore.js` | 19 | Global audio player state (NEW) |
+| `src/components/SkeletonCard.vue` | ~25 | Shimmer skeleton for podcast cards (NEW) |
+| `src/components/SkeletonRow.vue` | ~20 | Shimmer skeleton for episode rows (NEW) |
+| `src/components/EmptyState.vue` | ~25 | Reusable empty state with icon, title, CTA (NEW) |
 | `src/services/api.js` | 30 | Centralized axios instance + 401 interceptor (NEW) |
 | `src/services/podcastService.js` | 81 | Podcast API calls (NEW) |
 | `src/services/authService.js` | 33 | Auth API calls (NEW) |
