@@ -24,13 +24,16 @@ import {
   AdjustmentsHorizontalIcon,
   TagIcon
 } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { ChevronDownIcon, MagnifyingGlassIcon, ChevronLeftIcon } from '@heroicons/vue/20/solid'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/vue/20/solid/index.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { authService } from '@/services/authService.js'
+import { useSidebarState } from '@/composables/useSidebarState.js'
+
+const { isDesktopCollapsed, toggleDesktopCollapse } = useSidebarState()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -220,36 +223,45 @@ onMounted(() => {
     </TransitionRoot>
 
     <!-- Static sidebar for desktop -->
-    <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
-        <div class="flex h-24 shrink-0 items-center">
+    <div :class="[
+      'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300',
+      isDesktopCollapsed ? 'lg:w-20' : 'lg:w-72'
+    ]">
+      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-3 pb-4" :class="isDesktopCollapsed ? 'items-center' : 'px-6'">
+        <div class="flex h-24 shrink-0 items-center" :class="isDesktopCollapsed ? 'justify-center' : ''">
           <router-link to="/">
             <img class="h-16 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
           </router-link>
         </div>
-        <nav class="flex flex-1 flex-col">
+        <nav class="flex flex-1 flex-col" :class="isDesktopCollapsed ? 'w-full' : ''">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in navigation" :key="item.name">
-                  <router-link :to="item.href" :class="[$route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
+                  <router-link :to="item.href" :class="[$route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', isDesktopCollapsed ? 'justify-center' : '']" :title="isDesktopCollapsed ? item.name : undefined">
                     <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
-                    {{ item.name }}
+                    <span v-if="!isDesktopCollapsed">{{ item.name }}</span>
                   </router-link>
                 </li>
               </ul>
             </li>
+            <!-- Collapse toggle -->
+            <li>
+              <button @click="toggleDesktopCollapse" class="group flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : '-mx-2'" :title="isDesktopCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+                <ChevronLeftIcon :class="['h-6 w-6 shrink-0 transition-transform duration-300', isDesktopCollapsed ? 'rotate-180' : '']" aria-hidden="true" />
+                <span v-if="!isDesktopCollapsed">Collapse</span>
+              </button>
+            </li>
             <li v-if="isAuthenticated" class="mt-auto">
-              <router-link   to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
+              <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center mx-0' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
                 <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Settings
+                <span v-if="!isDesktopCollapsed">Settings</span>
               </router-link>
             </li>
             <li v-if="isAuthenticated && isAdmin">
-              <router-link to="/dashboard" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
+              <router-link to="/dashboard" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center mx-0' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
                 <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Dashboard
+                <span v-if="!isDesktopCollapsed">Dashboard</span>
               </router-link>
             </li>
           </ul>
@@ -257,7 +269,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="lg:pl-72">
+    <div :class="['transition-all duration-300', isDesktopCollapsed ? 'lg:pl-20' : 'lg:pl-72']">
       <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-800 bg-gray-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>

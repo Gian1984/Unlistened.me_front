@@ -18,7 +18,10 @@
   >
     <div
       v-if="playerStore.isVisible && playerStore.currentEpisode"
-      class="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 shadow-2xl"
+      :class="[
+        'fixed bottom-0 right-0 z-40 bg-gray-900 border-t border-gray-700 shadow-2xl transition-all duration-300',
+        isDesktopCollapsed ? 'left-0 lg:left-20' : 'left-0 lg:left-72'
+      ]"
     >
       <!-- Progress bar -->
       <div
@@ -129,8 +132,10 @@ import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
 import { podcastService } from '@/services/podcastService'
+import { useSidebarState } from '@/composables/useSidebarState.js'
 
 const playerStore = usePlayerStore()
+const { isDesktopCollapsed } = useSidebarState()
 
 const audioEl = ref(null)
 const isPlaying = ref(false)
