@@ -4,17 +4,18 @@ import { useRouter } from 'vue-router'
 import {
   ArrowRightIcon,
   TrashIcon,
+  Bars3Icon,
+  FolderPlusIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/vue/24/outline'
-import {
-  StarIcon
-} from '@heroicons/vue/24/solid'
+import { StarIcon } from '@heroicons/vue/24/solid'
+import { XMarkIcon } from '@heroicons/vue/20/solid'
+import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
-import { useAuthStore } from "@/stores/authStore.js"
+import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
-import { CheckCircleIcon } from "@heroicons/vue/24/outline/index.js"
-import { XCircleIcon, XMarkIcon } from "@heroicons/vue/20/solid/index.js"
-import draggable from 'vuedraggable'
 import { podcastService } from '@/services/podcastService.js'
 
 const router = useRouter()
@@ -23,7 +24,12 @@ const messageStore = useMessageStore()
 
 const favorites = ref([])
 const newSection = ref('')
-const availableSections = ref(['Current Favorites', 'To Listen Next', 'All-Time Favorites', 'Archived Episodes'])
+const availableSections = ref([
+  'Current Favorites',
+  'To Listen Next',
+  'All-Time Favorites',
+  'Archived Episodes'
+])
 const sections = ref([])
 const mainAreaItems = ref([])
 const show = ref(false)
@@ -35,7 +41,9 @@ async function fetchFavorites() {
     const response = await podcastService.getFavorites()
     favorites.value = response.data
 
+    sections.value = []
     mainAreaItems.value = response.data.filter(item => !item.section)
+
     availableSections.value.forEach(sectionName => {
       const items = response.data.filter(item => item.section === sectionName)
       if (items.length > 0) {
@@ -54,7 +62,10 @@ async function fetchFavorites() {
 }
 
 function addSection() {
-  if (newSection.value && !sections.value.find(section => section.name === newSection.value)) {
+  if (!newSection.value) return
+
+  const exists = sections.value.find(section => section.name === newSection.value)
+  if (!exists) {
     sections.value.push({ name: newSection.value, items: [] })
   }
 }
@@ -82,15 +93,26 @@ async function updateFavoriteSection(favoriteId, section) {
     show.value = true
     message.value = response.data.message
     notificationType.value = 'success'
-    setTimeout(() => { show.value = false; message.value = null }, 5000)
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 3000)
   } catch (error) {
     console.error('There was an error updating the section:', error)
+    notificationType.value = 'error'
+    message.value = 'Unable to update the section. Please try again.'
+    show.value = true
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 3000)
   }
 }
 
 async function deleteFavourite(feedId, sectionName) {
   try {
     const response = await podcastService.deleteFavorite(feedId)
+
     if (sectionName === 'main') {
       mainAreaItems.value = mainAreaItems.value.filter(item => item.feed_id !== feedId)
     } else {
@@ -99,10 +121,16 @@ async function deleteFavourite(feedId, sectionName) {
         section.items = section.items.filter(item => item.feed_id !== feedId)
       }
     }
+
+    favorites.value = favorites.value.filter(item => item.feed_id !== feedId)
+
     show.value = true
     message.value = response.data.message
     notificationType.value = 'success'
-    setTimeout(() => { show.value = false; message.value = null }, 5000)
+    setTimeout(() => {
+      show.value = false
+      message.value = null
+    }, 3000)
   } catch (error) {
     if (error.response && error.response.status === 401) {
       authStore.clearUser()
@@ -112,36 +140,57 @@ async function deleteFavourite(feedId, sectionName) {
       message.value = 'There was an error while deleting. Please try later.'
       notificationType.value = 'error'
       show.value = true
-      setTimeout(() => { show.value = false; message.value = null }, 5000)
+      setTimeout(() => {
+        show.value = false
+        message.value = null
+      }, 3000)
     }
   }
 }
 
+function stripHtmlTags(str) {
+  if (!str) return ''
+  return str.replace(/<[^>]*>/g, '')
+}
 onMounted(() => {
   fetchFavorites()
 })
 </script>
 
 <template>
-  <!--  Notification  -->
-  <div aria-live="assertive" class="pointer-events-none fixed z-10 inset-0 flex items-end px-4 py-6">
+  <!-- Notification -->
+  <div aria-live="assertive" class="pointer-events-none fixed inset-0 z-10 flex items-end px-4 py-6">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="show" :class="['pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-gray-800 shadow-lg ring-1 ring-gray-700 border-2', notificationType === 'success' ? 'border-green-500' : 'border-red-500']">
+      <transition
+          enter-active-class="transform ease-out duration-300 transition"
+          enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+          enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+          leave-active-class="transition ease-in duration-100"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+      >
+        <div
+            v-if="show"
+            :class="[
+            'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-gray-800 shadow-lg ring-1 ring-gray-700 border-2',
+            notificationType === 'success' ? 'border-green-500' : 'border-red-500'
+          ]"
+        >
           <div class="p-4">
             <div class="flex items-start">
-              <div class="flex-shrink-0">
-                <component :is="notificationType === 'success' ? CheckCircleIcon : XCircleIcon" :class="notificationType === 'success' ? 'h-6 w-6 text-green-400' : 'h-6 w-6 text-red-500'" aria-hidden="true" />
-              </div>
-              <div class="ml-3 w-0 flex-1 pt-0.5">
-                <p class="text-sm font-medium text-white">{{message}}</p>
-              </div>
-              <div class="ml-4 flex flex-shrink-0">
-                <button type="button" @click="show = false" class="inline-flex rounded-md bg-gray-800 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                  <span class="sr-only">Close</span>
-                  <XMarkIcon class="h-5 w-5" aria-hidden="true" />
-                </button>
-              </div>
+              <component
+                  :is="notificationType === 'success' ? CheckCircleIcon : XCircleIcon"
+                  :class="notificationType === 'success' ? 'h-6 w-6 flex-shrink-0 text-green-400' : 'h-6 w-6 flex-shrink-0 text-red-500'"
+                  aria-hidden="true"
+              />
+              <p class="ml-3 text-sm font-medium text-white">{{ message }}</p>
+              <button
+                  type="button"
+                  @click="show = false"
+                  class="ml-auto inline-flex rounded-md bg-gray-800 text-gray-400 hover:text-gray-300"
+              >
+                <XMarkIcon class="h-5 w-5" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -149,125 +198,249 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="bg-gray-950 px-6 py-24 sm:py-32 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:max-w-4xl">
-      <p class="text-base font-semibold leading-7 text-indigo-400">Your Favorite</p>
-      <h1 class="mt-2 text-4xl font-bold tracking-tight text-white sm:text-6xl">Feeds</h1>
-      <p class="mt-6 text-lg leading-8 text-gray-400">
-        Welcome to your personal hub for all things podcast! This special section is designed just for you,
-        here you can easily access and manage your favorite feeds. Whether you're revisiting an old favorite or keeping tabs
-        on episodes to enjoy later, this is your go-to spot for curated audio content.
-        Enjoy seamless browsing of your top picks and never miss a beat in the world of podcasts!
-      </p>
-    </div>
-  </div>
+  <div class="bg-gray-950 min-h-screen">
+    <div class="p-6 sm:p-8">
+      <!-- Header -->
+      <div class="mx-auto max-w-6xl mb-10">
+        <p class="text-sm font-semibold text-pink-400">Your library</p>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+          Favourite podcasts
+        </h1>
+        <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
+          Keep the podcasts you care about in one place. Create sections, drag cards between groups, and build your own listening space with a cleaner overview.
+        </p>
+      </div>
 
-  <div v-if="!favorites[0]" class="bg-gray-950 px-6 py-24 sm:py-32 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:max-w-4xl">
-      <EmptyState
-        :icon="StarIcon"
-        title="No Favorites Yet?"
-        description="It looks like you haven't added any favorites yet. Dive into our diverse library of podcasts and find those standout episodes that speak to you."
-        action-text="Start exploring"
-        action-link="/"
-      />
-    </div>
-  </div>
+      <!-- Empty state -->
+      <div v-if="!favorites.length" class="mx-auto max-w-4xl py-8">
+        <EmptyState
+            :icon="StarIcon"
+            title="No favourites yet"
+            description="You have not saved any podcasts yet. Explore the library and add the shows you want to keep close."
+            action-text="Start exploring"
+            action-link="/"
+        />
+      </div>
 
-  <div v-else class="pb-24 bg-gray-950">
-    <div class="bg-gray-950 pb-12 sm:pb-12">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl px-6 lg:px-8">
-        <div class="mx-auto">
-          <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Organize your feeds</h2>
-          <p class="leading-6 text-base text-gray-400 py-6">
-            Welcome to your personalized feeds hub! Here, you can easily manage your favorite feeds by creating and organizing them into custom categories. Whether you want to keep track of feeds to listen to next, highlight your all-time favorites, or archive past feeds, our flexible system allows you to create up to five unique sections. Simply select a category from the dropdown menu and drag your favorite feeds into the desired section for a streamlined and organized listening experience.
-          </p>
-          <p class="text-white font-bold">Custom categories :</p>
-          <div class="mx-auto lg:flex block justify-between align-middle">
-            <div class="lg:w-10/12 w-full">
-              <label for="location" class="sr-only">Custom categories</label>
-              <select v-model="newSection" id="location" name="location" class="mt-2 block w-full border-0 rounded-xl py-1.5 pl-3 pr-10 text-white bg-gray-800 ring-1 ring-inset ring-gray-700 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                <option v-for="section in availableSections" :key="section" :value="section">{{ section }}</option>
-              </select>
+      <!-- Content -->
+      <div v-else class="mx-auto max-w-6xl">
+        <!-- Section manager -->
+        <div class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-5 sm:p-6">
+          <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-2xl">
+              <h2 class="text-xl font-semibold text-white">Organize your favourites</h2>
+              <p class="mt-2 text-sm leading-7 text-gray-400">
+                Add a section and move your saved podcasts where they belong. Use sections to separate what you listen to now, what you want to revisit, and what you want to keep archived.
+              </p>
             </div>
-            <button class="lg:mt-1.5 mt-3 bg-indigo-600 hover:bg-pink-500 text-white text-sm font-bold py-2 px-4 mx-1 rounded-full flex align-middle transition-colors" @click="addSection">Add Section</button>
+
+            <div class="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+              <div class="min-w-[240px]">
+                <label for="favorite-section" class="sr-only">Select section</label>
+                <select
+                    v-model="newSection"
+                    id="favorite-section"
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option disabled value="">Choose a section</option>
+                  <option
+                      v-for="section in availableSections"
+                      :key="section"
+                      :value="section"
+                  >
+                    {{ section }}
+                  </option>
+                </select>
+              </div>
+
+              <button
+                  @click="addSection"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                <FolderPlusIcon class="h-4 w-4" />
+                Add section
+              </button>
+            </div>
           </div>
         </div>
-        <div class="mx-auto max-w-2xl lg:mx-0 mt-10">
-          <h2 class="text-xl font-bold tracking-tight text-white sm:text-2xl">Main area</h2>
-        </div>
-        <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-700 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
-          <draggable class="list-group" v-model="mainAreaItems" group="favorites" @change="onDragEnd" itemKey="id">
-            <template #item="{ element }">
-              <div class="bg-indigo-600 border-solid border-4 border-gray-950 rounded-2xl">
-                <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
-                  <div class="flex flex-wrap items-center justify-between">
-                    <div class="flex w-0 flex-1 items-center">
-                      <span class="flex rounded-lg bg-indigo-800 p-2">
-                        <StarIcon class="h-5 w-5 text-white" aria-hidden="true" />
-                      </span>
-                      <p class="ml-3 truncate font-medium text-white">
-                        <span>{{ element.title }}</span>
-                      </p>
-                    </div>
-                    <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-                      <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white transition-colors">
-                        <span class="sr-only">Visit feed</span>
-                        <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
-                      </router-link>
-                    </div>
-                    <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                      <button @click="deleteFavourite(element.feed_id, 'main')" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600 transition-colors">
-                        <span class="sr-only">Dismiss</span>
-                        <TrashIcon class="h-5 w-5" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </draggable>
-        </div>
-      </div>
-    </div>
 
-    <div v-for="(section, index) in sections" :key="section.name" :class="['py-6', index % 2 === 0 ? 'bg-gray-900' : 'bg-gray-950']">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl px-6 lg:px-8">
-        <div class="mx-auto max-w-2xl lg:mx-0">
-          <h2 class="text-xl font-bold tracking-tight text-white sm:text-2xl">{{ section.name }}</h2>
-        </div>
-        <div class="mx-auto mt-6 gap-x-8 gap-y-16 border rounded-2xl border-gray-700 pt-1 pb-10 sm:mt-6 sm:pb-16 lg:mx-0 lg:max-w-none">
-          <draggable class="list-group" v-model="section.items" group="favorites" @change="onDragEnd" itemKey="id">
-            <template #item="{ element }">
-              <div class="bg-indigo-600 border-solid border-4 border-gray-950 rounded-2xl">
-                <div class="mx-auto max-w-7xl px-3 py-3 sm:px-6 lg:px-8">
-                  <div class="flex flex-wrap items-center justify-between">
-                    <div class="flex w-0 flex-1 items-center">
-                      <span class="flex rounded-lg bg-indigo-800 p-2">
-                        <StarIcon class="h-5 w-5 text-white" aria-hidden="true" />
-                      </span>
-                      <p class="ml-3 truncate font-medium text-white">
-                        <span>{{ element.title }}</span>
+        <!-- Main area -->
+        <section class="mb-10">
+          <div class="mb-4 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-white">Main area</h2>
+              <p class="text-sm text-gray-500">Saved podcasts not yet organized</p>
+            </div>
+            <p class="text-sm text-gray-500">{{ mainAreaItems.length }} items</p>
+          </div>
+
+          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
+            <draggable
+                v-model="mainAreaItems"
+                group="favorites"
+                @change="onDragEnd"
+                itemKey="id"
+                class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 min-h-[120px]"
+            >
+              <template #item="{ element }">
+                <div class="group rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all overflow-hidden">
+                  <div class="flex items-start gap-3 p-4">
+                    <!-- Drag handle -->
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-400 cursor-grab active:cursor-grabbing">
+                      <Bars3Icon class="h-4 w-4" />
+                    </div>
+
+                    <!-- Cover -->
+                    <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                      <img
+                          :src="element.image || '/images/image_not_available_500.webp'"
+                          :alt="element.title"
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                      />
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </h3>
+                      <p class="text-xs text-gray-400 truncate mt-0.5">
+                        {{ element.author || 'Podcast' }}
+                      </p>
+                      <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                        {{ stripHtmlTags(element.description) }}
                       </p>
                     </div>
-                    <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto w-full">
-                      <router-link :to="'/feed/' + element.feed_id" type="button" class="items-center justify-center border border-transparent bg-white py-2 px-4 mx-1 rounded-full flex text-sm font-medium text-indigo-600 shadow-sm hover:bg-pink-500 hover:text-white transition-colors">
-                        <span class="sr-only">Visit feed</span>
-                        <ArrowRightIcon class="h-5 w-5" aria-hidden="true" />
-                      </router-link>
+                  </div>
+
+                  <!-- Bottom actions -->
+                  <div class="flex items-center gap-2 px-4 pb-3">
+                    <div class="flex items-center gap-1.5 text-xs text-pink-400">
+                      <StarIcon class="h-4 w-4" />
+                      <span>Saved</span>
                     </div>
-                    <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                      <button @click="deleteFavourite(element.feed_id, section.name)" type="button" class="-mr-1 py-2 px-4 mx-1 rounded-full flex p-2 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2 text-white hover:text-red-600 transition-colors">
-                        <span class="sr-only">Dismiss</span>
-                        <TrashIcon class="h-5 w-5" aria-hidden="true" />
-                      </button>
-                    </div>
+
+                    <button
+                        @click.prevent="deleteFavourite(element.feed_id, 'main')"
+                        class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-400 transition-colors"
+                        title="Remove from favourites"
+                    >
+                      <TrashIcon class="h-4 w-4" />
+                      <span class="hidden sm:inline">Remove</span>
+                    </button>
+
+                    <router-link
+                        :to="'/feed/' + element.feed_id"
+                        class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+                    >
+                      <span>Episodes</span>
+                      <ArrowRightIcon class="h-3.5 w-3.5" />
+                    </router-link>
                   </div>
                 </div>
-              </div>
-            </template>
-          </draggable>
-        </div>
+              </template>
+            </draggable>
+
+            <div
+                v-if="!mainAreaItems.length"
+                class="flex items-center justify-center rounded-lg border border-dashed border-gray-700 bg-gray-800/40 px-4 py-8 text-sm text-gray-500"
+            >
+              Drag saved podcasts here
+            </div>
+          </div>
+        </section>
+
+        <!-- Custom sections -->
+        <section
+            v-for="section in sections"
+            :key="section.name"
+            class="mb-8"
+        >
+          <div class="mb-4 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-white">{{ section.name }}</h2>
+              <p class="text-sm text-gray-500">Drag podcasts into this group</p>
+            </div>
+            <p class="text-sm text-gray-500">{{ section.items.length }} items</p>
+          </div>
+
+          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-4">
+            <draggable
+                v-model="section.items"
+                group="favorites"
+                @change="onDragEnd"
+                itemKey="id"
+                class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 min-h-[120px]"
+            >
+              <template #item="{ element }">
+                <div class="group rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all overflow-hidden">
+                  <div class="flex items-start gap-3 p-4">
+                    <!-- Drag handle -->
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-400 cursor-grab active:cursor-grabbing">
+                      <Bars3Icon class="h-4 w-4" />
+                    </div>
+
+                    <!-- Cover -->
+                    <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                      <img
+                          :src="element.image || '/images/image_not_available_500.webp'"
+                          :alt="element.title"
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                      />
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </h3>
+                      <p class="text-xs text-gray-400 truncate mt-0.5">
+                        {{ element.author || 'Podcast' }}
+                      </p>
+                      <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                        {{ stripHtmlTags(element.description) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Bottom actions -->
+                  <div class="flex items-center gap-2 px-4 pb-3">
+                    <div class="flex items-center gap-1.5 text-xs text-pink-400">
+                      <StarIcon class="h-4 w-4" />
+                      <span>Saved</span>
+                    </div>
+
+                    <button
+                        @click.prevent="deleteFavourite(element.feed_id, section.name)"
+                        class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-400 transition-colors"
+                        title="Remove from favourites"
+                    >
+                      <TrashIcon class="h-4 w-4" />
+                      <span class="hidden sm:inline">Remove</span>
+                    </button>
+
+                    <router-link
+                        :to="'/feed/' + element.feed_id"
+                        class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+                    >
+                      <span>Episodes</span>
+                      <ArrowRightIcon class="h-3.5 w-3.5" />
+                    </router-link>
+                  </div>
+                </div>
+              </template>
+            </draggable>
+
+            <div
+                v-if="!section.items.length"
+                class="flex items-center justify-center rounded-lg border border-dashed border-gray-700 bg-gray-800/40 px-4 py-8 text-sm text-gray-500"
+            >
+              Drop podcasts here
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
