@@ -4,7 +4,7 @@ defineProps({
   title: { type: String, required: true },
   description: { type: String, default: '' },
   actionText: { type: String, default: '' },
-  actionLink: { type: String, default: '/feed_listing' },
+  actionLink: { type: String, default: '/' },
 })
 </script>
 

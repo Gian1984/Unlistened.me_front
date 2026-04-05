@@ -23,9 +23,15 @@ const show = ref(false)
 const searchQuery = ref('')
 const activeCategory = ref(null)
 
+const visibleCount = ref(12)
+
 const displayedFeeds = computed(() => {
-  return feeds.value.slice(0, 12)
+  return feeds.value.slice(0, visibleCount.value)
 })
+
+function loadMore() {
+  visibleCount.value = Math.min(visibleCount.value + 12, feeds.value.length)
+}
 
 function onSearch() {
   if (searchQuery.value.trim()) {
@@ -142,12 +148,9 @@ onMounted(() => {
 
         <!-- Category pills -->
         <div v-if="!loadingCategories" class="flex flex-wrap gap-2">
-          <router-link
-            to="/feed_listing"
-            class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-indigo-600 text-white"
-          >
+          <span class="px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-600 text-white">
             Trending
-          </router-link>
+          </span>
           <button
             v-for="cat in categories.slice(0, 16)"
             :key="cat.id"
@@ -173,9 +176,6 @@ onMounted(() => {
       <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending</h2>
-          <router-link to="/feed_listing" class="text-sm text-indigo-400 hover:text-pink-400 transition-colors">
-            View all &rarr;
-          </router-link>
         </div>
 
         <!-- Loading skeleton -->
@@ -244,28 +244,28 @@ onMounted(() => {
           </li>
         </ul>
 
-        <!-- Load more link -->
-        <div v-if="!loading && feeds.length > 12" class="mt-6 flex justify-center">
-          <router-link
-            to="/feed_listing"
+        <!-- Load more -->
+        <div v-if="!loading && visibleCount < feeds.length" class="mt-6 flex justify-center">
+          <button
+            @click="loadMore"
             class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-colors"
           >
-            Browse all podcasts
+            Load more
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </button>
         </div>
       </div>
 
       <!-- Quick links -->
       <div class="mt-12 pt-8 border-t border-gray-800">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <router-link to="/feed_listing" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
+          <router-link to="/about" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/10">
               <ArrowRightIcon class="h-5 w-5 text-indigo-400" />
             </div>
             <div>
-              <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">All Podcasts</p>
-              <p class="text-xs text-gray-500">Browse the full catalogue</p>
+              <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">About</p>
+              <p class="text-xs text-gray-500">Learn about Unlistened.me</p>
             </div>
           </router-link>
           <router-link to="/categories" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">

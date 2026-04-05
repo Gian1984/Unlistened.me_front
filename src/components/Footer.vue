@@ -6,7 +6,7 @@ const currentYear = new Date().getFullYear()
 const FooterNavigation = {
   main: [
     { name: 'About', href: '/about', current: false },
-    { name: 'Podcasts', href: '/feed_listing', current: false },
+    { name: 'Categories', href: '/categories', current: false },
     { name: 'Favourites', href: '/favourites', current: false },
     { name: 'Bookmarks', href: '/bookmarks', current: false },
   ],

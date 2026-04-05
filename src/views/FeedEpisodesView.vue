@@ -1,7 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
-import SkeletonRow from '../components/SkeletonRow.vue'
 import EmptyState from '../components/EmptyState.vue'
 import { BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
@@ -24,14 +23,14 @@ const router = useRouter()
 const feedInfo = ref(null)
 const episodes = ref([])
 const error = ref(null)
-const visibleCount = ref(10)
+const visibleCount = ref(15)
 const loading = ref(true)
 const show = ref(false)
 
 const visibleEpisodes = computed(() => episodes.value.slice(0, visibleCount.value))
 
 function loadMore() {
-  visibleCount.value = Math.min(visibleCount.value + 5, episodes.value.length)
+  visibleCount.value = Math.min(visibleCount.value + 10, episodes.value.length)
 }
 
 function playEpisode(episode) {
@@ -84,7 +83,7 @@ async function addFavourite(feedId, feedTitle) {
   try {
     await podcastService.addFavorite(feedId, feedTitle)
     show.value = true
-    setTimeout(() => { show.value = false }, 5000)
+    setTimeout(() => { show.value = false }, 3000)
   } catch (err) {
     authStore.clearUser()
     messageStore.setMessage('To access this functionality you have to be logged in')
@@ -96,7 +95,7 @@ async function addBookmarks(episodeId, episodeTitle) {
   try {
     await podcastService.addBookmark(episodeId, episodeTitle)
     show.value = true
-    setTimeout(() => { show.value = false }, 5000)
+    setTimeout(() => { show.value = false }, 3000)
   } catch (err) {
     authStore.clearUser()
     messageStore.setMessage('To access this functionality you have to be logged in')
@@ -123,25 +122,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <!--  Notification  -->
+  <!-- Notification -->
   <div aria-live="assertive" class="pointer-events-none fixed z-10 inset-0 flex items-end px-4 py-6">
     <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
       <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div v-if="show" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-gray-800 shadow-lg ring-1 ring-gray-700 border-2 border-green-500">
           <div class="p-4">
             <div class="flex items-start">
-              <div class="flex-shrink-0">
-                <CheckCircleIcon class="h-6 w-6 text-green-400" aria-hidden="true" />
-              </div>
-              <div class="ml-3 w-0 flex-1 pt-0.5">
-                <p class="text-sm font-medium text-white">Successfully added!</p>
-              </div>
-              <div class="ml-4 flex flex-shrink-0">
-                <button type="button" @click="show = false" class="inline-flex rounded-md bg-gray-800 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-                  <span class="sr-only">Close</span>
-                  <XMarkIcon class="h-5 w-5" aria-hidden="true" />
-                </button>
-              </div>
+              <CheckCircleIcon class="h-6 w-6 flex-shrink-0 text-green-400" aria-hidden="true" />
+              <p class="ml-3 text-sm font-medium text-white">Successfully added!</p>
+              <button type="button" @click="show = false" class="ml-auto inline-flex rounded-md bg-gray-800 text-gray-400 hover:text-gray-300">
+                <XMarkIcon class="h-5 w-5" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -149,103 +141,139 @@ onMounted(() => {
     </div>
   </div>
 
-  <div v-if="loading" class="bg-gray-950 py-24 sm:py-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl">
-        <div class="mt-16 lg:mt-20">
-          <SkeletonCard />
-        </div>
-        <div class="mt-16 space-y-16 lg:mt-20">
-          <SkeletonRow v-for="n in 4" :key="n" />
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="bg-gray-950 min-h-screen">
+    <div class="p-6 sm:p-8">
 
-  <div v-else>
-    <div v-if="feedInfo && !error" class="bg-gray-950 pb-24 sm:pb-32 pt-4 sm:pt-6">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div class="mx-auto max-w-2xl lg:max-w-4xl">
-          <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            <article class="relative isolate flex flex-col gap-8 lg:flex-row">
-              <div class="relative aspect-square lg:w-64 lg:shrink-0">
-                <img :src="feedInfo.image || '/images/image_not_available_500.webp'" alt="" class="absolute inset-0 w-full aspect-square rounded-2xl bg-gray-800 object-cover" />
-                <div class="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 aspect-square w-full" />
-              </div>
-              <div>
-                <div class="flex items-center gap-x-4 text-xs">
-                  <time :datetime="feedInfo.newestItemPubdate" class="text-gray-500">{{ feedInfo.datePublishedPretty }}</time>
-                </div>
-                <div class="group relative max-w-xl">
-                  <h1 class="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    {{ feedInfo.title }}
-                  </h1>
-                  <p class="mt-5 text-sm leading-6 text-gray-400">{{ stripHtmlTags(feedInfo.description) }}</p>
-                </div>
-                <div class="mt-6 flex border-t border-gray-800 pt-6">
-                  <div class="relative flex items-center gap-x-4">
-                    <img :src="feedInfo.image || '/images/image_not_available_170.webp'" alt="" class="h-10 w-10 rounded-full bg-gray-800" />
-                    <div class="text-sm leading-6 flex">
-                      <button @click="addFavourite(feedInfo.id, feedInfo.title)" class="bg-pink-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 mx-1 rounded-full transition-colors">
-                        <StarIcon class="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </article>
+      <!-- Loading skeleton -->
+      <div v-if="loading">
+        <div class="mb-8">
+          <div class="flex items-start gap-4 p-4 rounded-lg bg-gray-800 border border-gray-700">
+            <div class="w-20 h-20 rounded-lg animate-shimmer shrink-0" />
+            <div class="flex-1 space-y-3">
+              <div class="h-6 w-2/3 rounded animate-shimmer" />
+              <div class="h-4 w-1/3 rounded animate-shimmer" />
+              <div class="h-3 w-full rounded animate-shimmer" />
+              <div class="h-3 w-3/4 rounded animate-shimmer" />
+            </div>
           </div>
-
-          <div class="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            <article v-for="episode in visibleEpisodes" :key="episode.id" class="relative isolate flex flex-col gap-8 lg:flex-row">
-              <div>
-                <div class="flex items-center gap-x-4 text-xs">
-                  <time :datetime="episode.datePublishedPretty" class="text-gray-500">{{ episode.datePublishedPretty }}</time>
-                </div>
-                <div class="group relative max-w-xl">
-                  <h2 class="mt-3 text-lg font-semibold leading-6 text-white group-hover:text-gray-300">
-                    <span class="text-white font-bold">{{ episode.title }}</span>
-                  </h2>
-                  <p class="mt-5 text-sm leading-6 text-gray-400">{{ stripHtmlTags(episode.description) }}</p>
-                </div>
-                <div class="mt-6 flex border-b border-gray-800 pt-3 pb-6">
-                  <div class="relative flex items-center gap-x-4">
-                    <div class="text-sm leading-6 flex">
-                      <button @click="playEpisode(episode)" class="bg-pink-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 mx-1 rounded-full flex transition-colors">
-                        <span class="sr-only">Play</span>
-                        <PlayIcon class="h-5 w-5" />
-                      </button>
-                      <button @click="addBookmarks(episode.id, episode.title)" class="bg-pink-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 mx-1 rounded-full transition-colors">
-                        <span class="sr-only">Add bookmark</span>
-                        <BookmarkIcon class="h-5 w-5" />
-                      </button>
-                      <button @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)" class="bg-pink-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 mx-1 rounded-full transition-colors">
-                        <span class="sr-only">Download</span>
-                        <ArrowDownTrayIcon class="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </article>
-            <button class="bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-4 mx-1 rounded-full flex transition-colors" v-if="visibleCount < episodes.length" @click="loadMore">Load More ...</button>
+        </div>
+        <div class="space-y-2">
+          <div v-for="n in 6" :key="n" class="flex items-center gap-3 p-3 rounded-lg bg-gray-800 border border-gray-700">
+            <div class="w-9 h-9 rounded-full animate-shimmer shrink-0" />
+            <div class="flex-1 space-y-2">
+              <div class="h-4 w-3/4 rounded animate-shimmer" />
+              <div class="h-3 w-1/3 rounded animate-shimmer" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-else class="bg-gray-950 py-32 sm:py-40">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <!-- Content -->
+      <div v-else-if="feedInfo && !error">
+        <!-- Podcast header card -->
+        <div class="flex items-start gap-4 mb-8 p-4 rounded-lg bg-gray-800 border border-gray-700">
+          <img
+            :src="feedInfo.image || '/images/image_not_available_500.webp'"
+            :alt="feedInfo.title"
+            class="w-20 h-20 rounded-lg object-cover shrink-0 bg-gray-700"
+          />
+          <div class="flex-1 min-w-0">
+            <h1 class="text-xl font-semibold text-white sm:text-2xl">{{ feedInfo.title }}</h1>
+            <p v-if="feedInfo.author" class="text-sm text-gray-400 mt-0.5">{{ feedInfo.author }}</p>
+            <p class="text-sm text-gray-500 mt-2 line-clamp-3 leading-relaxed">{{ stripHtmlTags(feedInfo.description) }}</p>
+          </div>
+          <button
+            @click="addFavourite(feedInfo.id, feedInfo.title)"
+            class="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 hover:text-pink-300 transition-colors"
+            title="Add to favourites"
+          >
+            <StarIcon class="h-5 w-5" />
+          </button>
+        </div>
+
+        <!-- Episode count -->
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          {{ episodes.length }} Episodes
+        </h2>
+
+        <!-- Episode list -->
+        <div class="space-y-2">
+          <div
+            v-for="episode in visibleEpisodes"
+            :key="episode.id"
+            :class="[
+              'flex items-center gap-3 p-3 rounded-lg border transition-colors group',
+              playerStore.currentEpisode?.id === episode.id
+                ? 'bg-indigo-500/10 border-indigo-500/40'
+                : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+            ]"
+          >
+            <!-- Play button -->
+            <button
+              @click="playEpisode(episode)"
+              :class="[
+                'shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none',
+                playerStore.currentEpisode?.id === episode.id
+                  ? 'bg-indigo-500 hover:bg-indigo-400'
+                  : 'bg-gray-700 hover:bg-indigo-600 group-hover:bg-indigo-600'
+              ]"
+              :aria-label="'Play ' + episode.title"
+            >
+              <PlayIcon class="h-4 w-4 text-white ml-0.5" />
+            </button>
+
+            <!-- Episode info -->
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">{{ episode.title }}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate">
+                <span v-if="episode.datePublishedPretty">{{ episode.datePublishedPretty }}</span>
+                <span v-if="episode.duration"> &middot; {{ Math.round(episode.duration / 60) }} min</span>
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-1 shrink-0">
+              <button
+                @click="addBookmarks(episode.id, episode.title)"
+                class="flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:text-indigo-400 hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
+                title="Bookmark"
+              >
+                <BookmarkIcon class="h-4 w-4" />
+              </button>
+              <button
+                @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)"
+                class="flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:text-indigo-400 hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
+                title="Download"
+              >
+                <ArrowDownTrayIcon class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Load more -->
+        <div v-if="visibleCount < episodes.length" class="mt-6 flex justify-center">
+          <button
+            @click="loadMore"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-300 hover:text-white hover:border-gray-500 transition-colors"
+          >
+            Load more episodes
+          </button>
+        </div>
+      </div>
+
+      <!-- Error / Not found -->
+      <div v-else class="py-20">
         <EmptyState
           :icon="ExclamationTriangleIcon"
           title="Not Found"
           description="We're sorry, but we are unable to find the feed you are looking for. Please use the search to try again."
-          action-text="Back to listing"
-          action-link="/feed_listing"
+          action-text="Back to home"
+          action-link="/"
         />
       </div>
+
     </div>
   </div>
-
   <Footer />
 </template>

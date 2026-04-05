@@ -15,7 +15,6 @@ import {
   Bars3Icon,
   Cog6ToothIcon,
   StarIcon,
-  FolderIcon,
   HomeIcon,
   UsersIcon,
   XMarkIcon,
@@ -46,7 +45,6 @@ const isAdmin = computed(() => authStore.isAdmin)
 // Navigation items
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
-  { name: 'Podcasts', href: '/feed_listing', icon: FolderIcon, current: false },
   { name: 'Categories', href: '/categories', icon: TagIcon, current: false },
   { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },

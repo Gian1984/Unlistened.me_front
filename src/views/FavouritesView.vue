@@ -169,7 +169,7 @@ onMounted(() => {
         title="No Favorites Yet?"
         description="It looks like you haven't added any favorites yet. Dive into our diverse library of podcasts and find those standout episodes that speak to you."
         action-text="Start exploring"
-        action-link="/feed_listing"
+        action-link="/"
       />
     </div>
   </div>

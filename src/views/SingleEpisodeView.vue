@@ -178,7 +178,7 @@ onMounted(() => {
           title="Not Found"
           description="We're sorry, but we are unable to find the episode you are looking for. Please use the search to try again."
           action-text="Back to listing"
-          action-link="/feed_listing"
+          action-link="/"
         />
       </div>
     </div>

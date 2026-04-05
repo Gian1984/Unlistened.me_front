@@ -134,7 +134,7 @@ watch(() => route.query, (newQuery) => {
             title="No results found"
             description="Sorry, your search returned no results. Try a different search term or browse our categories."
             action-text="Browse podcasts"
-            action-link="/feed_listing"
+            action-link="/"
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Footer from '../components/Footer.vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { podcastService } from '@/services/podcastService.js'
@@ -8,6 +8,13 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const categories = ref([])
 const loading = ref(true)
+const searchFilter = ref('')
+
+const filteredCategories = computed(() => {
+  if (!searchFilter.value) return categories.value
+  const q = searchFilter.value.toLowerCase()
+  return categories.value.filter(c => c.name.toLowerCase().includes(q))
+})
 
 async function fetchSearchCat() {
   try {
@@ -30,32 +37,50 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-gray-950 py-24 sm:py-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl">
-        <h1 class="mt-2 mb-6 text-3xl font-bold tracking-tight text-white sm:text-5xl">Explore Our Podcast Categories</h1>
-        <p class="mt-2 text-lg leading-6 text-gray-400">
-          Discover a wide range of podcast categories tailored to your interests. Whether you're into technology, health,
-          entertainment, or education, we have something for everyone. Browse through our categories to find your next favorite podcast and dive into a world of engaging content.
+  <div class="bg-gray-950 min-h-screen">
+    <div class="p-6 sm:p-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-5xl mb-3">Categories</h1>
+        <p class="text-gray-400 text-lg max-w-3xl">
+          Browse podcast genres and find shows that match your interests.
         </p>
       </div>
 
-      <div v-if="loading" class="mx-auto max-w-2xl lg:max-w-4xl pt-24">
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <div v-for="n in 12" :key="n" class="h-9 rounded-lg animate-shimmer" />
+      <!-- Filter input -->
+      <div class="mb-8">
+        <div class="relative max-w-sm">
+          <MagnifyingGlassIcon class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            v-model="searchFilter"
+            type="text"
+            placeholder="Filter categories..."
+            class="w-full rounded-lg bg-gray-800 border-2 border-gray-700 pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+          />
         </div>
       </div>
 
-      <div v-else class="mx-auto grid max-w-2xl lg:max-w-4xl grid-cols-1 gap-2 px-1 sm:grid-cols-2 sm:gap-x-1 sm:gap-y-0 sm:pt-24 lg:grid-cols-4 lg:gap-1 lg:px-3 xl:gap-1 pt-24">
-        <div v-for="item in categories" :key="item.name" class="group relative -mx-1 flex gap-1 rounded-lg p-1 text-sm sm:flex-col sm:p-1">
-          <div class="flex items-center justify-center rounded-lg bg-gray-800 group-hover:bg-pink-500 px-1 w-full transition-colors">
-            <MagnifyingGlassIcon class="h-3 w-3 text-gray-400 mr-2"/>
-            <button @click="onClick(item.id)" class="font-semibold text-gray-300 py-1">
-              {{ item.name }}
-              <span class="absolute inset-0" />
-            </button>
-          </div>
-        </div>
+      <!-- Loading skeleton -->
+      <div v-if="loading" class="flex flex-wrap gap-2">
+        <div v-for="n in 24" :key="n" class="h-9 rounded-full animate-shimmer" :style="{ width: (70 + Math.random() * 50) + 'px' }" />
+      </div>
+
+      <!-- Categories grid -->
+      <div v-else class="flex flex-wrap gap-2">
+        <button
+          v-for="cat in filteredCategories"
+          :key="cat.id"
+          @click="onClick(cat.id)"
+          class="group flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 border border-gray-700 text-sm font-medium text-gray-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-500 transition-colors"
+        >
+          <MagnifyingGlassIcon class="h-3.5 w-3.5 text-gray-500 group-hover:text-white transition-colors" />
+          {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- Empty filter state -->
+      <div v-if="!loading && filteredCategories.length === 0" class="py-12 text-center">
+        <p class="text-gray-500 text-sm">No categories matching "{{ searchFilter }}"</p>
       </div>
     </div>
   </div>

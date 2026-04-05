@@ -13,7 +13,7 @@ import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import SettingsView from "@/views/SettingsView.vue";
 import TermsView from "@/views/TermsView.vue";
-import FeedsView from "@/views/FeedsView.vue";
+
 import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
 import DashboardView from "@/views/DashboardView.vue";
 import ForbiddenView from "@/views/ForbiddenView.vue";
@@ -62,37 +62,7 @@ const router = createRouter({
     },
     {
       path: '/feed_listing',
-      name: 'Feeds',
-      component: FeedsView,
-      meta: {
-        title: "Feeds - Unlistened",
-        metaTags: [
-          {
-            name: 'description',
-            content: "Browse and listen to a variety of podcasts on Unlistened. Enjoy your favorite shows without tracking."
-          },
-          {
-            name: 'og:title',
-            content: "Unlistened - Podcasts"
-          },
-          {
-            name: 'og:url',
-            content: "https://www.unlistened.me/feed_listing"
-          },
-          {
-            name: 'og:type',
-            content: "website"
-          },
-          {
-            property: 'og:description',
-            content: "Browse and listen to a variety of podcasts on Unlistened. Enjoy your favorite shows without tracking."
-          },
-          {
-            property: 'og:image',
-            content: "https://www.unlistened.me/images/ogimage-min.png"
-          },
-        ]
-      }
+      redirect: '/',
     },
     {
       path: '/feed/:id',
