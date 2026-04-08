@@ -198,7 +198,7 @@ onMounted(() => {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mx-auto max-w-6xl mb-10">
+      <div class="mx-auto mb-10">
         <p class="text-sm font-semibold text-indigo-400">Your library</p>
         <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Bookmarks
@@ -220,7 +220,7 @@ onMounted(() => {
       </div>
 
       <!-- Content -->
-      <div v-else class="mx-auto max-w-6xl">
+      <div v-else class="mx-auto">
         <!-- Section creator -->
         <div class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-5 sm:p-6">
           <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
