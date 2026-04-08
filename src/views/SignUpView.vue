@@ -35,7 +35,7 @@ async function signup() {
   } else {
     sending.value = false
     password.value = ''
-    empty.value = 'Please accept Terms & conditions'
+    empty.value = 'Please accept the terms and conditions.'
     setTimeout(() => {
       empty.value = null
     }, 5000)
@@ -59,6 +59,9 @@ function closeAlertEmpty() {
       <h1 class="mt-2 text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl">
         Create your account
       </h1>
+      <p class="mt-3 text-center text-sm text-gray-400">
+        Save your favorite shows and pick up where you left off. Free, forever.
+      </p>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">

@@ -50,6 +50,9 @@ function closeAlert() {
       <h1 class="mt-2 text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl">
         Sign in to your account
       </h1>
+      <p class="mt-3 text-center text-sm text-gray-400">
+        Pick up where you left off and access your saved podcasts.
+      </p>
       <p v-if="message" class="mt-4 text-center text-sm text-gray-400">{{ message }}</p>
     </div>
 

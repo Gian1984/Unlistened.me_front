@@ -156,10 +156,10 @@ watch(
       <!-- Header -->
       <div class="mx-auto max-w-6xl mb-10">
         <p class="text-sm font-semibold text-indigo-400">{{ pageEyebrow }}</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           {{ pageTitle }}
         </h1>
-        <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
+        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
           {{ pageDescription }}
         </p>
       </div>

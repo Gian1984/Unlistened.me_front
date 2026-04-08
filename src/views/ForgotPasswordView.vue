@@ -48,7 +48,7 @@ function closeAlert() {
       <div class="rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
         <div class="space-y-6">
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-white">Email verification</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-white">Email address</label>
             <div class="mt-2">
               <input
                   v-model="email"
@@ -90,7 +90,7 @@ function closeAlert() {
                 @click="reset"
                 class="flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
-              Proceed
+              Send reset link
             </button>
             <button
                 v-else
@@ -117,7 +117,7 @@ function closeAlert() {
       </div>
 
       <p class="mt-6 text-center text-sm text-gray-500">
-        Remembered your password?
+        Remember your password?
         <router-link to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
           Sign in
         </router-link>

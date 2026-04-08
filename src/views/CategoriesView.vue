@@ -41,9 +41,9 @@ onMounted(() => {
     <div class="p-6 sm:p-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-5xl mb-3">Categories</h1>
-        <p class="text-gray-400 text-lg max-w-3xl">
-          Browse podcast genres and find shows that match your interests.
+        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl mb-3">Categories</h1>
+        <p class="text-base leading-7 text-gray-400 max-w-3xl">
+          Browse podcasts by genre and find shows that match your interests.
         </p>
       </div>
 

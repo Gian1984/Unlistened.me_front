@@ -7,7 +7,7 @@ const links = [
   {
     name: 'Documentation',
     href: '/documentation',
-    description: 'Learn more about the app.',
+    description: 'Learn how the app works.',
     icon: BookOpenIcon,
   },
   {
@@ -17,9 +17,9 @@ const links = [
     icon: UserGroupIcon,
   },
   {
-    name: 'Terms and Conditions',
+    name: 'Terms and conditions',
     href: '/terms',
-    description: 'Read the terms and conditions of Unlistened.',
+    description: 'Read our terms and conditions.',
     icon: BookmarkSquareIcon,
   },
 ]
@@ -33,11 +33,11 @@ const links = [
         <section class="mb-10">
           <div class="max-w-3xl">
             <p class="text-sm font-semibold text-indigo-400">404</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               This page does not exist
             </h1>
-            <p class="mt-4 text-lg leading-8 text-gray-400">
-              Sorry, we could not find the page you are looking for. Try one of the links below or head back home.
+            <p class="mt-4 text-base leading-7 text-gray-400">
+              We could not find the page you were looking for. Try one of the links below or head back home.
             </p>
           </div>
         </section>

@@ -11,11 +11,11 @@ import { ShieldExclamationIcon } from '@heroicons/vue/24/outline'
         <section class="mb-10">
           <div class="max-w-3xl">
             <p class="text-sm font-semibold text-indigo-400">403</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Forbidden
             </h1>
-            <p class="mt-4 text-lg leading-8 text-gray-400">
-              You do not have the necessary permissions to access this resource. If you believe this is a mistake, please contact support.
+            <p class="mt-4 text-base leading-7 text-gray-400">
+              You do not have permission to view this page. If you think this is a mistake, please contact support.
             </p>
           </div>
         </section>
@@ -30,7 +30,7 @@ import { ShieldExclamationIcon } from '@heroicons/vue/24/outline'
               <div class="flex-1">
                 <h2 class="text-lg font-semibold text-white">Access denied</h2>
                 <p class="mt-2 text-sm leading-7 text-gray-400">
-                  This page is restricted to authorized users. If you need access, reach out to our support team and we will help you get back on track.
+                  This page is reserved for authorized users. If you need access, contact our support team and we will help you out.
                 </p>
                 <div class="mt-6 flex flex-wrap items-center gap-3">
                   <router-link

@@ -8,6 +8,7 @@ import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -17,8 +18,13 @@ authStore.initializeAuth()
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
 const playerStore = usePlayerStore()
+const historyStore = useHistoryStore()
 const route = useRoute()
 const router = useRouter()
+
+function episodeProgress(episodeId) {
+  return historyStore.getProgress(episodeId)
+}
 
 const feedInfo = ref(null)
 const episodes = ref([])
@@ -202,7 +208,7 @@ onMounted(() => {
             v-for="episode in visibleEpisodes"
             :key="episode.id"
             :class="[
-              'flex items-center gap-3 p-3 rounded-lg border transition-colors group',
+              'relative flex items-center gap-3 p-3 rounded-lg border transition-colors group overflow-hidden',
               playerStore.currentEpisode?.id === episode.id
                 ? 'bg-indigo-500/10 border-indigo-500/40'
                 : 'bg-gray-800 border-gray-700 hover:border-gray-600'
@@ -224,10 +230,30 @@ onMounted(() => {
 
             <!-- Episode info -->
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-white truncate">{{ episode.title }}</p>
+              <div class="flex items-center gap-2">
+                <p
+                  :class="[
+                    'text-sm font-medium truncate',
+                    episodeProgress(episode.id)?.completed ? 'text-gray-400' : 'text-white'
+                  ]"
+                >
+                  {{ episode.title }}
+                </p>
+                <CheckCircleIcon
+                  v-if="episodeProgress(episode.id)?.completed"
+                  class="h-4 w-4 shrink-0 text-green-500"
+                  title="Played"
+                />
+              </div>
               <p class="text-xs text-gray-400 mt-0.5 truncate">
                 <span v-if="episode.datePublishedPretty">{{ episode.datePublishedPretty }}</span>
                 <span v-if="episode.duration"> &middot; {{ Math.round(episode.duration / 60) }} min</span>
+                <span
+                  v-if="episodeProgress(episode.id) && !episodeProgress(episode.id).completed && episodeProgress(episode.id).percent > 0"
+                  class="text-indigo-400"
+                >
+                  &middot; {{ Math.round(episodeProgress(episode.id).percent) }}% played
+                </span>
               </p>
             </div>
 
@@ -247,6 +273,17 @@ onMounted(() => {
               >
                 <ArrowDownTrayIcon class="h-4 w-4" />
               </button>
+            </div>
+
+            <!-- Progress bar overlay -->
+            <div
+              v-if="episodeProgress(episode.id) && !episodeProgress(episode.id).completed && episodeProgress(episode.id).percent > 0"
+              class="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700/50"
+            >
+              <div
+                class="h-full bg-indigo-500"
+                :style="{ width: episodeProgress(episode.id).percent + '%' }"
+              />
             </div>
           </div>
         </div>

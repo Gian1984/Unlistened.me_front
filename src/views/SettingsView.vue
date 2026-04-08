@@ -216,11 +216,11 @@ async function deleteAccount(user) {
         <!-- Header -->
         <div class="mb-10">
           <p class="text-sm font-semibold text-indigo-400">Your account</p>
-          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Settings
           </h1>
-          <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
-            Update your personal information, reach out for support, or manage your account. Keep your Unlistened experience tailored to you.
+          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
+            Update your personal information, reach out for support, or manage your account.
           </p>
         </div>
 
@@ -310,12 +310,12 @@ async function deleteAccount(user) {
         <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
           <h2 class="text-xl font-semibold text-white">Contact us</h2>
           <p class="mt-2 text-sm leading-7 text-gray-400">
-            Got a question or need a hand? Send us a message and our team will get back to you as soon as possible.
+            Have a question or need help? Send us a message and we will get back to you soon.
           </p>
 
           <div class="mt-6 space-y-5">
             <div>
-              <label for="object" class="block text-sm font-medium leading-6 text-white">Object</label>
+              <label for="object" class="block text-sm font-medium leading-6 text-white">Subject</label>
               <div class="mt-2 max-w-xl">
                 <input
                     v-model="object"
@@ -374,7 +374,7 @@ async function deleteAccount(user) {
         <section class="mb-10 rounded-2xl border border-red-500/30 bg-red-500/5 p-6 sm:p-8">
           <h2 class="text-xl font-semibold text-white">Delete account</h2>
           <p class="mt-2 max-w-3xl text-sm leading-7 text-gray-400">
-            By deleting your account, you will permanently lose access to your profile, saved podcasts, bookmarks, and all personalized settings. This action cannot be undone.
+            Deleting your account permanently removes your profile, saved podcasts, bookmarks, and preferences. This action cannot be undone.
           </p>
 
           <div class="mt-6">

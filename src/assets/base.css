@@ -34,6 +34,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent iOS Safari from zooming on input focus.
+   Any font size below 16px triggers the auto zoom on touch devices. */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+@media (min-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 14px;
+  }
+}
+
 @layer utilities {
   .animate-shimmer {
     background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);

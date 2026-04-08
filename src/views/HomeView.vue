@@ -3,16 +3,20 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
-import { StarIcon, ArrowRightIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { StarIcon, ArrowRightIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
+import { useHistoryStore } from '@/stores/historyStore.js'
+import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
 
 const authStore = useAuthStore()
 authStore.initializeAuth()
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
+const historyStore = useHistoryStore()
+const playerStore = usePlayerStore()
 const router = useRouter()
 
 const feeds = ref([])
@@ -46,6 +50,22 @@ function clearSearch() {
 
 function selectCategory(catId, catName) {
   router.push({ name: 'SearchResults', query: { s: catId, name: catName } })
+}
+
+function resumeEntry(entry) {
+  playerStore.play({
+    id: entry.episodeId,
+    title: entry.title,
+    enclosureUrl: entry.enclosureUrl,
+    image: entry.image,
+    feedTitle: entry.feedTitle,
+    feedId: entry.feedId,
+  })
+}
+
+function entryProgressPercent(entry) {
+  if (!entry.duration || entry.duration <= 0) return 0
+  return Math.min(100, Math.max(0, (entry.currentTime / entry.duration) * 100))
 }
 
 async function fetchTrending() {
@@ -117,11 +137,12 @@ onMounted(() => {
     <div class="p-6 sm:p-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-5xl mb-3">
-          Discover Podcasts
+        <p class="text-sm font-semibold text-pink-400">Welcome to Unlistened</p>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Discover your next podcast
         </h1>
-        <p class="text-gray-400 text-lg max-w-3xl">
-          Browse trending shows, explore by category, and start listening. Free, private, no tracking.
+        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
+          Browse trending shows, explore by category, and start listening. Free. Private. No tracking.
         </p>
       </div>
 
@@ -169,6 +190,51 @@ onMounted(() => {
         <!-- Category pills skeleton -->
         <div v-else class="flex flex-wrap gap-2">
           <div v-for="n in 10" :key="n" class="h-7 rounded-full animate-shimmer" :style="{ width: (60 + Math.random() * 40) + 'px' }" />
+        </div>
+      </div>
+
+      <!-- Continue listening -->
+      <div v-if="historyStore.continueListening.length" class="mb-10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-300">Continue listening</h2>
+        </div>
+        <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory">
+          <button
+            v-for="entry in historyStore.continueListening.slice(0, 10)"
+            :key="entry.episodeId"
+            @click="resumeEntry(entry)"
+            class="snap-start shrink-0 w-64 text-left rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all overflow-hidden group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            <div class="flex items-center gap-3 p-3">
+              <!-- Cover -->
+              <div class="relative shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                <img
+                  :src="entry.image || '/images/image_not_available_500.webp'"
+                  :alt="entry.title"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <PlayIcon class="h-7 w-7 text-white" />
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                  {{ entry.title }}
+                </p>
+                <p v-if="entry.feedTitle" class="text-xs text-gray-400 truncate mt-0.5">{{ entry.feedTitle }}</p>
+                <p class="text-xs text-indigo-400 mt-1">Resume</p>
+              </div>
+            </div>
+            <!-- Progress bar -->
+            <div class="h-1 bg-gray-700">
+              <div
+                class="h-full bg-indigo-500 transition-all"
+                :style="{ width: entryProgressPercent(entry) + '%' }"
+              />
+            </div>
+          </button>
         </div>
       </div>
 

@@ -192,7 +192,7 @@ onMounted(() => {
                 </time>
               </div>
 
-              <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-5xl leading-tight">
+              <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl leading-tight">
                 {{ episode.title }}
               </h1>
 

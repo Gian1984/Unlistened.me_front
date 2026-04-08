@@ -198,11 +198,11 @@ onMounted(() => {
       <!-- Header -->
       <div class="mx-auto max-w-6xl mb-10">
         <p class="text-sm font-semibold text-pink-400">Your library</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Favourite podcasts
         </h1>
-        <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
-          Keep your saved podcasts organized in one place. Create sections, drag podcasts where you want them, and keep your library easy to browse.
+        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
+          All your saved podcasts in one place. Create sections and drag shows to organize your library the way you like.
         </p>
       </div>
 
@@ -211,8 +211,8 @@ onMounted(() => {
         <EmptyState
             :icon="StarIcon"
             title="No favourites yet"
-            description="You have not saved any podcasts yet. Explore the library and add the shows you want to keep close."
-            action-text="Start exploring"
+            description="You have not saved any podcasts yet. Browse the library and tap the star to add a show."
+            action-text="Start browsing"
             action-link="/"
         />
       </div>
@@ -225,7 +225,7 @@ onMounted(() => {
             <div class="max-w-2xl">
               <h2 class="text-xl font-semibold text-white">Organize your favourites</h2>
               <p class="mt-2 text-sm leading-7 text-gray-400">
-                Add a section and drag podcasts into it. Use this space to separate what you listen to most, what you want to hear next, and what you want to archive.
+                Add a section and drag podcasts into it. A simple way to separate what you listen to most, what you want to hear next, and what you want to keep for later.
               </p>
             </div>
 

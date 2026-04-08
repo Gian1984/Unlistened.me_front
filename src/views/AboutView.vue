@@ -42,10 +42,10 @@ const highlights = [
           <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
             <div>
               <p class="text-sm font-semibold text-indigo-400">About</p>
-              <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+              <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 Unlistened.me
               </h1>
-              <p class="mt-4 max-w-2xl text-lg leading-8 text-gray-400">
+              <p class="mt-4 max-w-2xl text-base leading-7 text-gray-400">
                 Unlistened.me is a podcast player designed to make discovery simple, pleasant, and focused.
                 Whether you listen every day or only from time to time, the platform helps you find shows worth your attention in a clean and private environment.
               </p>

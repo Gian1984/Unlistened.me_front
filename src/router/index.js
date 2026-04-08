@@ -31,15 +31,15 @@ const router = createRouter({
       component: HomeView,
       meta: {
         requiresAuth: false,
-        title: "Home - Unlistened",
+        title: "Home | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Discover new podcasts on Unlistened, a free podcast app without cookies or profiling."
+            content: "Discover new podcasts on Unlistened, the free podcast player with no cookies and no tracking."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Home"
+            content: "Unlistened, your private podcast player"
           },
           {
             name: 'og:url',
@@ -51,7 +51,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Discover new podcasts on Unlistened, a free podcast app without cookies or profiling."
+            content: "Discover new podcasts on Unlistened, the free podcast player with no cookies and no tracking."
           },
           {
             property: 'og:image',
@@ -69,15 +69,15 @@ const router = createRouter({
       name: 'episodes',
       component: FeedEpisodesView,
       meta: {
-        title: "Podcast Episodes - Unlistened",
+        title: "Episodes | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
+            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no tracking."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Podcast Episodes"
+            content: "Episodes on Unlistened"
           },
           {
             name: 'og:url',
@@ -89,7 +89,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no profiling."
+            content: "Listen to episodes from your favorite podcasts on Unlistened. No cookies, no tracking."
           },
           {
             property: 'og:image',
@@ -103,15 +103,15 @@ const router = createRouter({
       name: 'episode',
       component: SingleEpisodeView,
       meta: {
-        title: "Podcast - Unlistened",
+        title: "Episode | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Listen episode from your favorite podcasts on Unlistened. No cookies, no profiling."
+            content: "Listen to a podcast episode on Unlistened. No cookies, no tracking."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Podcast"
+            content: "Podcast episode on Unlistened"
           },
           {
             name: 'og:url',
@@ -123,7 +123,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Listen to episode from your favorite podcasts on Unlistened. No cookies, no profiling."
+            content: "Listen to a podcast episode on Unlistened. No cookies, no tracking."
           },
           {
             property: 'og:image',
@@ -137,15 +137,15 @@ const router = createRouter({
       name: 'SearchResults',
       component: SearchResultView,
       meta: {
-        title: "Search Results - Unlistened",
+        title: "Search results | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Find your favorite podcasts with Unlistened's powerful search feature."
+            content: "Find your favorite podcasts with the Unlistened search."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Search Results"
+            content: "Search results on Unlistened"
           },
           {
             name: 'og:url',
@@ -157,7 +157,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Find your favorite podcasts with Unlistened's powerful search feature."
+            content: "Find your favorite podcasts with the Unlistened search."
           },
           {
             property: 'og:image',
@@ -171,15 +171,15 @@ const router = createRouter({
       name: 'Login',
       component: LoginView,
       meta: {
-        title: "Login - Unlistened",
+        title: "Sign in | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Log in to Unlistened to access your favorite podcasts and bookmarks."
+            content: "Sign in to Unlistened to access your favorite podcasts and bookmarks."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Login"
+            content: "Sign in to Unlistened"
           },
           {
             name: 'og:url',
@@ -191,7 +191,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Log in to Unlistened to access your favorite podcasts and bookmarks."
+            content: "Sign in to Unlistened to access your favorite podcasts and bookmarks."
           },
           {
             property: 'og:image',
@@ -205,15 +205,15 @@ const router = createRouter({
       name: 'Signup',
       component: SignUpView,
       meta: {
-        title: "Sign up - Unlistened",
+        title: "Create account | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Sign up to Unlistened to save your favorite podcasts and access them anytime."
+            content: "Create a free Unlistened account to save your favorite podcasts and pick up where you left off."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Sign up"
+            content: "Create your Unlistened account"
           },
           {
             name: 'og:url',
@@ -225,7 +225,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Sign up to Unlistened to save your favorite podcasts and access them anytime."
+            content: "Create a free Unlistened account to save your favorite podcasts and pick up where you left off."
           },
           {
             property: 'og:image',
@@ -240,15 +240,15 @@ const router = createRouter({
       component: FavouritesView,
       meta: {
         requiresAuth: true,
-        title: "Favourites - Unlistened",
+        title: "Favourites | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Access your favorite podcasts on Unlistened. Log in to save and retrieve your favorites."
+            content: "Your saved podcasts on Unlistened. Sign in to keep them in sync."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Favourites"
+            content: "Your favourites on Unlistened"
           },
           {
             name: 'og:url',
@@ -260,7 +260,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Access your favorite podcasts on Unlistened. Log in to save and retrieve your favorites."
+            content: "Your saved podcasts on Unlistened. Sign in to keep them in sync."
           },
           {
             property: 'og:image',
@@ -275,15 +275,15 @@ const router = createRouter({
       component: BookmarksView,
       meta: {
         requiresAuth: true,
-        title: "Bookmarks - Unlistened",
+        title: "Bookmarks | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Bookmark your favorite podcast episodes on Unlistened for easy access later."
+            content: "Save episodes to listen later. Your bookmarks live here."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Bookmarks"
+            content: "Your bookmarks on Unlistened"
           },
           {
             name: 'og:url',
@@ -295,7 +295,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Bookmark your favorite podcast episodes on Unlistened for easy access later."
+            content: "Save episodes to listen later. Your bookmarks live here."
           },
           {
             property: 'og:image',
@@ -309,11 +309,11 @@ const router = createRouter({
       name: 'About',
       component: AboutView,
       meta: {
-        title: "About - Unlistened",
+        title: "About | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Learn more about Unlistened, the free podcast app that respects your privacy."
+            content: "Learn about Unlistened, the free podcast player that respects your privacy."
           },
           {
             name: 'og:title',
@@ -329,7 +329,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Learn more about Unlistened, the free podcast app that respects your privacy."
+            content: "Learn about Unlistened, the free podcast player that respects your privacy."
           },
           {
             property: 'og:image',
@@ -343,15 +343,15 @@ const router = createRouter({
       name: 'Forgot',
       component: ForgotPasswordView,
       meta: {
-        title: "Forgot Password - Unlistened",
+        title: "Forgot password | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Reset your password on Unlistened to regain access to your account."
+            content: "Recover your Unlistened account. We will email you a reset link."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Forgot Password"
+            content: "Forgot your password?"
           },
           {
             name: 'og:url',
@@ -363,7 +363,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Reset your password on Unlistened to regain access to your account."
+            content: "Recover your Unlistened account. We will email you a reset link."
           },
           {
             property: 'og:image',
@@ -377,15 +377,15 @@ const router = createRouter({
       name: 'Reset',
       component: ResetPasswordView,
       meta: {
-        title: "Reset Password - Unlistened",
+        title: "Reset password | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Reset your password on Unlistened using the link sent to your email."
+            content: "Choose a new password for your Unlistened account."
           },
           {
             name: 'og:title',
-            content: "Reset Password - Unlistened"
+            content: "Reset your Unlistened password"
           },
           {
             name: 'og:url',
@@ -397,7 +397,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Reset your password on Unlistened using the link sent to your email."
+            content: "Choose a new password for your Unlistened account."
           },
           {
             property: 'og:image',
@@ -412,15 +412,15 @@ const router = createRouter({
       component: SettingsView,
       meta: {
         requiresAuth: true,
-        title: "Settings - Unlistened",
+        title: "Settings | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Manage your account settings on Unlistened. Customize your experience and preferences."
+            content: "Manage your Unlistened account, your details, and your preferences."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Settings"
+            content: "Account settings"
           },
           {
             name: 'og:url',
@@ -432,7 +432,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Manage your account settings on Unlistened. Customize your experience and preferences."
+            content: "Manage your Unlistened account, your details, and your preferences."
           },
           {
             property: 'og:image',
@@ -446,15 +446,15 @@ const router = createRouter({
       name: 'TermsAndConditions',
       component: TermsView,
       meta: {
-        title: "Terms and Conditions - Unlistened ",
+        title: "Terms and conditions | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Read the terms and conditions of Unlistened, including content responsibility, trademarks, user information, and our non-profit service policy."
+            content: "Read the Unlistened terms and conditions, including content responsibility, trademarks, user information, and our non profit service policy."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Terms and Conditions"
+            content: "Unlistened terms and conditions"
           },
           {
             name: 'og:url',
@@ -466,7 +466,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Read the terms and conditions of Unlistened, including content responsibility, trademarks, user information, and our non-profit service policy."
+            content: "Read the Unlistened terms and conditions, including content responsibility, trademarks, user information, and our non profit service policy."
           },
           {
             property: 'og:image',
@@ -482,15 +482,15 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: true,
-        title: "Settings - Unlistened ",
+        title: "Dashboard | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Manage Unlistened."
+            content: "Admin dashboard for Unlistened."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Dashboard"
+            content: "Unlistened admin dashboard"
           },
           {
             name: 'og:url',
@@ -502,7 +502,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Unlistened - Dashboard"
+            content: "Admin dashboard for Unlistened."
           },
           {
             property: 'og:image',
@@ -516,15 +516,15 @@ const router = createRouter({
       name: 'Categories',
       component: CategoriesView,
       meta: {
-        title: "Categories - Unlistened",
+        title: "Categories | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Explore a wide range of podcast categories available on Unlistened."
+            content: "Browse podcasts by category on Unlistened."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Categories"
+            content: "Podcast categories on Unlistened"
           },
           {
             name: 'og:url',
@@ -536,7 +536,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Explore a wide range of podcast categories available on Unlistened."
+            content: "Browse podcasts by category on Unlistened."
           },
           {
             property: 'og:image',
@@ -551,15 +551,15 @@ const router = createRouter({
       name: 'Documentation',
       component: DocumentationView,
       meta: {
-        title: "Documentation - Unlistened",
+        title: "Documentation | Unlistened",
         metaTags: [
           {
             name: 'description',
-            content: "Find out more about Unlistened, including used technologies, key features, and installation instructions."
+            content: "Technical documentation for Unlistened, including features, technologies, and setup instructions."
           },
           {
             name: 'og:title',
-            content: "Unlistened - Documentation"
+            content: "Unlistened documentation"
           },
           {
             name: 'og:url',
@@ -571,7 +571,7 @@ const router = createRouter({
           },
           {
             property: 'og:description',
-            content: "Find out more about Unlistened, including used technologies, key features, and installation instructions."
+            content: "Technical documentation for Unlistened, including features, technologies, and setup instructions."
           },
           {
             property: 'og:image',
@@ -585,7 +585,7 @@ const router = createRouter({
       name: 'Forbidden',
       component: ForbiddenView,
       meta: {
-        title: "Forbidden - Unlistened",
+        title: "Forbidden | Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -593,7 +593,7 @@ const router = createRouter({
           },
           {
             name: 'og:title',
-            content: "Unlistened - Forbidden"
+            content: "Access denied"
           },
           {
             name: 'og:url',
@@ -619,7 +619,7 @@ const router = createRouter({
       name: 'NotFound',
       component: NotFoundView,
       meta: {
-        title: "404 Not Found - Unlistened",
+        title: "Page not found | Unlistened",
         metaTags: [
           {
             name: 'description',
@@ -627,7 +627,7 @@ const router = createRouter({
           },
           {
             name: 'og:title',
-            content: "Unlistened - 404 Not Found"
+            content: "Page not found"
           },
           {
             name: 'og:url',

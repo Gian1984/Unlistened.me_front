@@ -299,10 +299,10 @@ onMounted(() => {
         <!-- Header -->
         <div class="mb-10">
           <p class="text-sm font-semibold text-indigo-400">Admin</p>
-          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Dashboard
           </h1>
-          <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
+          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
             Keep track of platform activity, monitor key metrics, and manage users and support messages.
           </p>
         </div>

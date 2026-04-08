@@ -200,11 +200,11 @@ onMounted(() => {
       <!-- Header -->
       <div class="mx-auto max-w-6xl mb-10">
         <p class="text-sm font-semibold text-indigo-400">Your library</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Bookmarks
         </h1>
-        <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
-          Keep your saved episodes organized in one place. Create sections, move episodes with drag and drop, and keep your listening queue clean and easy to manage.
+        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
+          All your saved episodes in one place. Create sections and drag episodes to keep your listening queue tidy.
         </p>
       </div>
 
@@ -213,8 +213,8 @@ onMounted(() => {
         <EmptyState
             :icon="BookmarkIcon"
             title="No bookmarks yet"
-            description="You have not saved any episodes yet. Start exploring and bookmark the episodes you want to revisit later."
-            action-text="Start exploring"
+            description="You have not saved any episodes yet. Browse podcasts and bookmark the ones you want to listen to later."
+            action-text="Start browsing"
             action-link="/"
         />
       </div>
@@ -227,7 +227,7 @@ onMounted(() => {
             <div class="max-w-2xl">
               <h2 class="text-xl font-semibold text-white">Organize your bookmarks</h2>
               <p class="mt-2 text-sm leading-7 text-gray-400">
-                Add a section and drag episodes into it. Use this space to separate what you want to hear next, what you want to keep forever, and what you want to archive.
+                Add a section and drag episodes into it. A simple way to separate what you want to hear next, what you want to keep, and what you want to archive.
               </p>
             </div>
 

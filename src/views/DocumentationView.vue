@@ -75,10 +75,10 @@ const features = [
         <section class="mb-12">
           <div class="max-w-4xl">
             <p class="text-sm font-semibold text-indigo-400">Documentation</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Unlistened.me
             </h1>
-            <p class="mt-4 text-lg leading-8 text-gray-400">
+            <p class="mt-4 text-base leading-7 text-gray-400">
               This page gives a clear overview of the project, the technologies behind it, and the main features that shape the platform experience.
             </p>
             <p class="mt-4 text-base leading-7 text-gray-500">

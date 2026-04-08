@@ -4,7 +4,7 @@
     @loadedmetadata="onLoadedMetadata"
     @timeupdate="onTimeUpdate"
     @play="isPlaying = true"
-    @pause="isPlaying = false"
+    @pause="onPause"
     @ended="onEnded"
   />
 
@@ -131,10 +131,12 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
+import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 
 const playerStore = usePlayerStore()
+const historyStore = useHistoryStore()
 const { isDesktopCollapsed } = useSidebarState()
 
 const audioEl = ref(null)
@@ -144,6 +146,12 @@ const currentTimeSec = ref(0)
 const durationSec = ref(0)
 const playbackSpeed = ref(1)
 const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2]
+
+// History tracking
+const HISTORY_SAVE_INTERVAL_SEC = 5
+const RESUME_MIN_SECONDS = 5
+let lastHistorySaveAt = 0
+let pendingResumeTime = 0
 
 // MediaSession
 function updateMediaSession(episode) {
@@ -184,20 +192,33 @@ onMounted(() => {
 // React to episode changes
 watch(() => playerStore.currentEpisode, (episode) => {
   if (!audioEl.value) return
+  // Persist progress for the previous episode before switching
+  saveHistoryNow()
   if (!episode) {
     audioEl.value.pause()
     audioEl.value.src = ''
     isPlaying.value = false
+    pendingResumeTime = 0
     return
   }
   progress.value = 0
   currentTimeSec.value = 0
   durationSec.value = 0
+  lastHistorySaveAt = 0
+  // Look up saved progress for resume
+  const savedProgress = historyStore.getProgress(episode.id)
+  pendingResumeTime =
+    savedProgress &&
+    !savedProgress.completed &&
+    savedProgress.currentTime > RESUME_MIN_SECONDS
+      ? savedProgress.currentTime
+      : 0
   audioEl.value.src = episode.enclosureUrl
   audioEl.value.load()
   updateMediaSession(episode)
   audioEl.value.play().catch(() => {})
   trackPlay(episode)
+  historyStore.recordPlay(episode)
 })
 
 function trackPlay(episode) {
@@ -208,6 +229,10 @@ function trackPlay(episode) {
 
 function onLoadedMetadata() {
   durationSec.value = audioEl.value?.duration || 0
+  if (pendingResumeTime > 0 && audioEl.value) {
+    audioEl.value.currentTime = pendingResumeTime
+    pendingResumeTime = 0
+  }
 }
 
 function onTimeUpdate() {
@@ -223,11 +248,36 @@ function onTimeUpdate() {
       position: audioEl.value.currentTime,
     })
   }
+  // Throttled history save
+  if (
+    audioEl.value.currentTime - lastHistorySaveAt >= HISTORY_SAVE_INTERVAL_SEC
+  ) {
+    saveHistoryNow()
+  }
+}
+
+function saveHistoryNow() {
+  const episode = playerStore.currentEpisode
+  if (!episode?.id || !audioEl.value) return
+  const ct = audioEl.value.currentTime || 0
+  const dur = audioEl.value.duration || 0
+  if (ct <= 0) return
+  historyStore.updateProgress(episode.id, ct, dur)
+  lastHistorySaveAt = ct
 }
 
 function onEnded() {
   isPlaying.value = false
   progress.value = 100
+  const episode = playerStore.currentEpisode
+  if (episode?.id) {
+    historyStore.markCompleted(episode.id)
+  }
+}
+
+function onPause() {
+  isPlaying.value = false
+  saveHistoryNow()
 }
 
 function togglePlay() {
@@ -290,6 +340,7 @@ function onSeekStart(event) {
 }
 
 function handleClose() {
+  saveHistoryNow()
   audioEl.value?.pause()
   playerStore.close()
 }
@@ -304,6 +355,7 @@ function formatTime(seconds) {
 }
 
 onBeforeUnmount(() => {
+  saveHistoryNow()
   audioEl.value?.pause()
 })
 </script>
