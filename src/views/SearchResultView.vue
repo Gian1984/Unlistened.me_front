@@ -32,9 +32,15 @@ const show = ref(false)
 
 const visibleFeeds = computed(() => feeds.value.slice(0, visibleCount.value))
 
+const pageEyebrow = computed(() => {
+  if (route.query.q) return 'Search'
+  if (route.query.s) return 'Category'
+  return 'Browse'
+})
+
 const pageTitle = computed(() => {
   if (route.query.q) return `Results for "${route.query.q}"`
-  if (route.query.s) return 'Category results'
+  if (route.query.s) return route.query.name || 'Category results'
   return 'Search results'
 })
 
@@ -43,7 +49,7 @@ const pageDescription = computed(() => {
     return 'Here are the podcasts matching your search. Explore, save your favourites, and start listening.'
   }
   if (route.query.s) {
-    return 'Browse podcasts from the selected category and discover new episodes to enjoy.'
+    return `Browse podcasts in ${route.query.name || 'this category'}. Explore new shows and start listening.`
   }
   return 'Explore podcasts that match your search.'
 })
@@ -148,17 +154,18 @@ watch(
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-5xl mb-3">
+      <div class="mx-auto max-w-6xl mb-10">
+        <p class="text-sm font-semibold text-indigo-400">{{ pageEyebrow }}</p>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
           {{ pageTitle }}
         </h1>
-        <p class="text-gray-400 text-lg max-w-3xl">
+        <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
           {{ pageDescription }}
         </p>
       </div>
 
       <!-- Loading -->
-      <div v-if="loading">
+      <div v-if="loading" class="mx-auto max-w-6xl">
         <div class="mb-6">
           <div class="flex items-center justify-between mb-4">
             <div class="h-6 w-40 rounded animate-shimmer"></div>
@@ -171,7 +178,7 @@ watch(
       </div>
 
       <!-- Empty state -->
-      <div v-else-if="noResult" class="py-10">
+      <div v-else-if="noResult" class="mx-auto max-w-4xl py-10">
         <EmptyState
             :icon="MagnifyingGlassIcon"
             title="No results found"
@@ -182,7 +189,7 @@ watch(
       </div>
 
       <!-- Results -->
-      <div v-else>
+      <div v-else class="mx-auto max-w-6xl">
         <div class="mb-6 flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-300">
             Podcasts found

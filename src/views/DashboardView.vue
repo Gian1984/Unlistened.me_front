@@ -293,202 +293,200 @@ onMounted(() => {
   <!--  Notification  -->
 
 
-  <div class="min-h-full bg-gray-950">
-    <div class="py-10">
+  <div class="bg-gray-950 min-h-screen">
+    <div class="p-6 sm:p-8">
+      <div class="mx-auto max-w-6xl">
+        <!-- Header -->
+        <div class="mb-10">
+          <p class="text-sm font-semibold text-indigo-400">Admin</p>
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            Dashboard
+          </h1>
+          <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
+            Keep track of platform activity, monitor key metrics, and manage users and support messages.
+          </p>
+        </div>
 
-      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h1 class="text-4xl font-bold tracking-tight sm:text-6xl text-white">Dashboard</h1>
-      </div>
-
-      <!-- Activity list -->
-
-      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div class="bg-gray-900">
-          <div class="mx-auto max-w-7xl">
-            <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
-              <div v-for="(value, key) in topStats" :key="key" class="bg-gray-900 px-4 py-6 sm:px-6 lg:px-8">
-                <p class="text-sm font-medium leading-6 text-gray-400">{{ key }}</p>
-                <p class="mt-2 flex items-baseline gap-x-2">
-                  <span class="text-4xl font-semibold tracking-tight text-white">{{ value }}</span>
-                </p>
-              </div>
+        <!-- Top stats -->
+        <section class="mb-10">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div
+                v-for="(value, key) in topStats"
+                :key="key"
+                class="rounded-2xl border border-gray-800 bg-gray-900/50 p-5"
+            >
+              <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ key }}</p>
+              <p class="mt-2 text-3xl font-semibold tracking-tight text-white">{{ value }}</p>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Activity list -->
+        <!-- Charts -->
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Statistics per month</h2>
+          <p class="mt-2 text-sm text-gray-400">Monthly breakdown of downloaded and played podcasts.</p>
 
-      <!-- Charts list -->
-
-      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div class="py-10">
-          <h3 class="text-2xl font-bold leading-7 text-white">Statistics per month</h3>
-        </div>
-        <div class="grid grid-cols-1 grid-rows-2 sm:grid-cols-2 sm:grid-rows-1">
-          <div class="relative sm:flex sm:justify-center py-10 px-8" v-if="downloadChartData">
-            <h2 class="sm:pb-4 text-sm font-semibold leading-6 text-white">Downloaded</h2>
-            <Pie :options="chartOptions" :data="downloadChartData" />
-          </div>
-          <div class="relative sm:flex sm:justify-center py-10 px-8" v-if="playChartData">
-            <h3 class="sm:pb-4 text-sm font-semibold leading-6 text-white">Played</h3>
-            <Pie :options="chartOptions" :data="playChartData" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Charts list -->
-
-      <!-- Questions list -->
-
-      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h2 class="text-2xl font-bold leading-7 text-white">Questions received</h2>
-        <div class="pb-2 pt-6">
-          <label for="search" class="block text-sm font-medium leading-6 text-white">Quick search</label>
-          <div class="relative mt-2 flex items-center">
-            <input v-model="faqFilter" type="text" name="search" id="search" placeholder="Filter by email" class="block w-full rounded-md border-0 py-1.5 pr-14 text-white bg-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
-        <ul role="list" class="divide-y divide-gray-100">
-          <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
-            <div class="min-w-0">
-              <div class="flex items-start gap-x-3">
-                <p class="text-sm font-semibold leading-6 text-white">{{ faq.username }}</p>
-                <a :href="`mailto:${faq.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset hover:text-white">{{ faq.email }}</a>
-              </div>
-              <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-                <p class="whitespace-nowrap">
-                  Created at <time :datetime="faq.created_at">{{ new Date(faq.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
-                </p>
-                <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
-                  <circle cx="1" cy="1" r="1" />
-                </svg>
-                <p class="truncate">{{faq.message_obj}}</p>
-              </div>
-              <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-                <p class="text-white">
-                  {{faq.message_desc}}
-                </p>
-              </div>
+          <div class="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div v-if="downloadChartData" class="rounded-xl border border-gray-800 bg-gray-950/60 p-5">
+              <h3 class="text-sm font-semibold text-white mb-4 text-center">Downloaded</h3>
+              <Pie :options="chartOptions" :data="downloadChartData" />
             </div>
-            <div class="flex flex-none items-center gap-x-4">
-              <button @click="toggleFaqStatus(faq)"  class="flex">
-                <component :is="faq.was_answered ? CheckCircleIcon : XCircleIcon" :class="faq.was_answered ? 'h-6 w-6 text-green-700 hover:text-green-400' : 'h-6 w-6 text-red-800 hover:text-red-400'" aria-hidden="true" />
-              </button>
-              <Menu as="div" class="relative flex-none">
-                <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-500">
-                  <span class="sr-only">Open options</span>
-                  <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
-                </MenuButton>
-                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                  <MenuItems class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none bg-red-400 hover:bg-red-600 text-gray-900 hover:text-white">
-                    <MenuItem v-slot="{ active }">
-                      <button @click="deleteFaq(faq.id, index)" :class="[active ? 'bg-red-400 hover:bg-red-600' : '', 'block px-3 py-1 text-sm leading-6']"> Delete message<span class="sr-only">from {{ faq.username }}</span></button>
-                    </MenuItem>
-                  </MenuItems>
-                </transition>
-              </Menu>
+            <div v-if="playChartData" class="rounded-xl border border-gray-800 bg-gray-950/60 p-5">
+              <h3 class="text-sm font-semibold text-white mb-4 text-center">Played</h3>
+              <Pie :options="chartOptions" :data="playChartData" />
             </div>
-          </li>
-        </ul>
+          </div>
+        </section>
 
-        <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-          <div class="-mt-px flex w-0 flex-1">
-            <button @click="prevPage('faqs')" :disabled="currentPageFaqs === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageFaqs !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs === 1}">
-              <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
+        <!-- Questions list -->
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Questions received</h2>
+          <p class="mt-2 text-sm text-gray-400">Messages submitted through the contact form.</p>
+
+          <div class="mt-6">
+            <label for="faqSearch" class="block text-sm font-medium leading-6 text-white">Quick search</label>
+            <div class="relative mt-2">
+              <input
+                  v-model="faqFilter"
+                  type="text"
+                  name="faqSearch"
+                  id="faqSearch"
+                  placeholder="Filter by email"
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+              />
+            </div>
+          </div>
+
+          <ul role="list" class="mt-4 divide-y divide-gray-800">
+            <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
+              <div class="min-w-0">
+                <div class="flex items-start gap-x-3">
+                  <p class="text-sm font-semibold leading-6 text-white">{{ faq.username }}</p>
+                  <a :href="`mailto:${faq.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ faq.email }}</a>
+                </div>
+                <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                  <p class="whitespace-nowrap">
+                    Created at <time :datetime="faq.created_at">{{ new Date(faq.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
+                  </p>
+                  <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
+                    <circle cx="1" cy="1" r="1" />
+                  </svg>
+                  <p class="truncate">{{ faq.message_obj }}</p>
+                </div>
+                <div class="mt-1 text-xs leading-5 text-gray-400">
+                  <p>{{ faq.message_desc }}</p>
+                </div>
+              </div>
+              <div class="flex flex-none items-center gap-x-4">
+                <button @click="toggleFaqStatus(faq)" class="flex">
+                  <component :is="faq.was_answered ? CheckCircleIcon : XCircleIcon" :class="faq.was_answered ? 'h-6 w-6 text-green-500 hover:text-green-400' : 'h-6 w-6 text-red-500 hover:text-red-400'" aria-hidden="true" />
+                </button>
+                <Menu as="div" class="relative flex-none">
+                  <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">
+                    <span class="sr-only">Open options</span>
+                    <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
+                  </MenuButton>
+                  <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems class="absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-lg focus:outline-none">
+                      <MenuItem v-slot="{ active }">
+                        <button @click="deleteFaq(faq.id, index)" :class="[active ? 'bg-red-600 text-white' : 'text-red-400', 'block w-full px-3 py-2 text-left text-sm']">Delete message<span class="sr-only"> from {{ faq.username }}</span></button>
+                      </MenuItem>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+              </div>
+            </li>
+          </ul>
+
+          <div class="mt-2 flex items-center justify-between border-t border-gray-800 pt-4">
+            <button @click="prevPage('faqs')" :disabled="currentPageFaqs === 1" :class="currentPageFaqs === 1 ? 'inline-flex items-center gap-2 text-sm font-medium text-gray-600 cursor-default' : 'inline-flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-indigo-400'">
+              <ArrowLongLeftIcon class="h-5 w-5" aria-hidden="true" />
               Previous
             </button>
-          </div>
-          <div class="hidden md:-mt-px md:flex">
-            <button v-for="page in visiblePagesFaqs" :key="page" @click="goToPage('faqs', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentPageFaqs === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentPageFaqs !== page}" aria-current="page">{{ page }}</button>
-            <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-pink-500">...</button>
-          </div>
-          <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= filteredFaqs.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageFaqs * faqsPerPage < filteredFaqs.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageFaqs * faqsPerPage >= filteredFaqs.length}">
+            <div class="hidden md:flex gap-2">
+              <button v-for="page in visiblePagesFaqs" :key="page" @click="goToPage('faqs', page)" :class="currentPageFaqs === page ? 'h-8 w-8 rounded-lg bg-indigo-600 text-sm font-medium text-white' : 'h-8 w-8 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white'">{{ page }}</button>
+              <button v-if="showNextButtonFaqs" @click="nextPageSet('faqs')" class="h-8 w-8 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white">...</button>
+            </div>
+            <button @click="nextPage('faqs')" :disabled="currentPageFaqs * faqsPerPage >= filteredFaqs.length" :class="currentPageFaqs * faqsPerPage >= filteredFaqs.length ? 'inline-flex items-center gap-2 text-sm font-medium text-gray-600 cursor-default' : 'inline-flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-indigo-400'">
               Next
-              <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
+              <ArrowLongRightIcon class="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </section>
 
-      </div>
+        <!-- Users list -->
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Users list</h2>
+          <p class="mt-2 text-sm text-gray-400">Manage registered users and their roles.</p>
 
-      <!-- Questions list -->
-
-      <!-- Users list -->
-
-      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <h2 class="text-2xl font-bold leading-7 text-white">Users list</h2>
-        <div class="pb-2 pt-6">
-          <label for="search" class="block text-sm font-medium leading-6 text-white">Quick search</label>
-          <div class="relative mt-2 flex items-center">
-            <input v-model="userFilter" type="text" name="search" id="search" placeholder="Filter by email" class="block w-full rounded-md border-0 py-1.5 pr-14 text-white bg-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+          <div class="mt-6">
+            <label for="userSearch" class="block text-sm font-medium leading-6 text-white">Quick search</label>
+            <div class="relative mt-2">
+              <input
+                  v-model="userFilter"
+                  type="text"
+                  name="userSearch"
+                  id="userSearch"
+                  placeholder="Filter by email"
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+              />
+            </div>
           </div>
-        </div>
-        <ul role="list" class="divide-y divide-gray-100">
-          <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-6 py-5">
-            <div class="min-w-0">
-              <div class="flex items-start gap-x-3">
-                <p class="text-sm font-semibold leading-6 text-white">{{ user.name }}</p>
-                <a :href="`mailto:${user.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset hover:text-white">{{ user.email }}</a>
+
+          <ul role="list" class="mt-4 divide-y divide-gray-800">
+            <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-6 py-5">
+              <div class="min-w-0">
+                <div class="flex items-start gap-x-3">
+                  <p class="text-sm font-semibold leading-6 text-white">{{ user.name }}</p>
+                  <a :href="`mailto:${user.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ user.email }}</a>
+                </div>
+                <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                  <p class="whitespace-nowrap">
+                    Created at <time :datetime="user.created_at">{{ new Date(user.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
+                  </p>
+                  <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
+                    <circle cx="1" cy="1" r="1" />
+                  </svg>
+                  <p class="truncate">Role: {{ user.is_admin === 1 ? 'Admin' : 'User' }}</p>
+                </div>
               </div>
-              <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-                <p class="whitespace-nowrap">
-                  Created at <time :datetime="user.created_at">{{ new Date(user.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
-                </p>
-                <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
-                  <circle cx="1" cy="1" r="1" />
-                </svg>
-                <p class="truncate">Role: {{ user.is_admin === 1 ? 'Admin' : 'User' }}</p>
+              <div class="flex flex-none items-center gap-x-4">
+                <button @click="toggleAdminStatus(user)" class="flex">
+                  <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" :class="user.is_admin ? 'h-6 w-6 text-pink-400 hover:text-pink-300' : 'h-6 w-6 text-green-500 hover:text-green-400'" aria-hidden="true" />
+                </button>
+                <Menu as="div" class="relative flex-none">
+                  <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">
+                    <span class="sr-only">Open options</span>
+                    <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
+                  </MenuButton>
+                  <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems class="absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-lg focus:outline-none">
+                      <MenuItem v-slot="{ active }">
+                        <button @click="deleteAccount(user.id, index)" :class="[active ? 'bg-red-600 text-white' : 'text-red-400', 'block w-full px-3 py-2 text-left text-sm']">Delete user<span class="sr-only">, {{ user.name }}</span></button>
+                      </MenuItem>
+                    </MenuItems>
+                  </transition>
+                </Menu>
               </div>
-            </div>
-            <div class="flex flex-none items-center gap-x-4">
+            </li>
+          </ul>
 
-              <button @click="toggleAdminStatus(user)"  class="flex">
-                <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" :class="user.is_admin ? 'h-6 w-6 text-pink-700 hover:text-pink-400' : 'h-6 w-6 text-green-700 hover:text-green-400'" aria-hidden="true" />
-              </button>
-
-              <Menu as="div" class="relative flex-none">
-                <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-500">
-                  <span class="sr-only">Open options</span>
-                  <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
-                </MenuButton>
-                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                  <MenuItems class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none bg-red-400 hover:bg-red-600 text-gray-900 hover:text-white">
-                    <MenuItem v-slot="{ active }">
-                      <button @click="deleteAccount(user.id, index)" :class="[active ? 'bg-red-400 hover:bg-red-600' : '', 'block px-3 py-1 text-sm leading-6']">Delete user<span class="sr-only">, {{ user.name }}</span></button>
-                    </MenuItem>
-                  </MenuItems>
-                </transition>
-              </Menu>
-            </div>
-          </li>
-        </ul>
-
-        <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-          <div class="-mt-px flex w-0 flex-1">
-            <button @click="prevPage('users')" :disabled="currentPageUsers === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageUsers !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers === 1}">
-              <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
+          <div class="mt-2 flex items-center justify-between border-t border-gray-800 pt-4">
+            <button @click="prevPage('users')" :disabled="currentPageUsers === 1" :class="currentPageUsers === 1 ? 'inline-flex items-center gap-2 text-sm font-medium text-gray-600 cursor-default' : 'inline-flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-indigo-400'">
+              <ArrowLongLeftIcon class="h-5 w-5" aria-hidden="true" />
               Previous
             </button>
-          </div>
-          <div class="hidden md:-mt-px md:flex">
-            <button v-for="page in visiblePagesUsers" :key="page" @click="goToPage('users', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentPageUsers === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentPageUsers !== page}" aria-current="page">{{ page }}</button>
-            <button v-if="showNextButtonUsers" @click="nextPageSet('users')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-indigo-500">...</button>
-          </div>
-          <div class="-mt-px flex w-0 flex-1 justify-end">
-            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= filteredUsers.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentPageUsers * usersPerPage < filteredUsers.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentPageUsers * usersPerPage >= filteredUsers.length}">
+            <div class="hidden md:flex gap-2">
+              <button v-for="page in visiblePagesUsers" :key="page" @click="goToPage('users', page)" :class="currentPageUsers === page ? 'h-8 w-8 rounded-lg bg-indigo-600 text-sm font-medium text-white' : 'h-8 w-8 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white'">{{ page }}</button>
+              <button v-if="showNextButtonUsers" @click="nextPageSet('users')" class="h-8 w-8 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white">...</button>
+            </div>
+            <button @click="nextPage('users')" :disabled="currentPageUsers * usersPerPage >= filteredUsers.length" :class="currentPageUsers * usersPerPage >= filteredUsers.length ? 'inline-flex items-center gap-2 text-sm font-medium text-gray-600 cursor-default' : 'inline-flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-indigo-400'">
               Next
-              <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
+              <ArrowLongRightIcon class="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
-        </div>
-
+        </section>
       </div>
-
-      <!-- Users list -->
-
-
     </div>
   </div>
 </template>

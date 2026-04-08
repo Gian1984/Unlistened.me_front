@@ -27,8 +27,8 @@ async function fetchSearchCat() {
   }
 }
 
-function onClick(id) {
-  router.push({ name: 'SearchResults', query: { s: id } })
+function onClick(id, name) {
+  router.push({ name: 'SearchResults', query: { s: id, name } })
 }
 
 onMounted(() => {
@@ -70,7 +70,7 @@ onMounted(() => {
         <button
           v-for="cat in filteredCategories"
           :key="cat.id"
-          @click="onClick(cat.id)"
+          @click="onClick(cat.id, cat.name)"
           class="group flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 border border-gray-700 text-sm font-medium text-gray-300 hover:bg-indigo-600 hover:text-white hover:border-indigo-500 transition-colors"
         >
           <MagnifyingGlassIcon class="h-3.5 w-3.5 text-gray-500 group-hover:text-white transition-colors" />

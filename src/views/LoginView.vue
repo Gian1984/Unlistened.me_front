@@ -43,66 +43,99 @@ function closeAlert() {
 </script>
 
 <template>
-  <div class="flex h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-black">
-    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <img class="mx-auto h-32 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Your Company" />
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Sign in to your account</h2>
-      <p v-if="message" class="mt-5 text-center text-white font-bold">{{ message }}</p>
+  <div class="flex min-h-screen flex-col justify-center bg-gray-950 px-6 py-12 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <img class="mx-auto h-28 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
+      <p class="mt-6 text-center text-sm font-semibold text-indigo-400">Welcome back</p>
+      <h1 class="mt-2 text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        Sign in to your account
+      </h1>
+      <p v-if="message" class="mt-4 text-center text-sm text-gray-400">{{ message }}</p>
     </div>
 
-    <form @submit.prevent="login">
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <div class="space-y-6">
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+        <form @submit.prevent="login" class="space-y-6">
           <div>
             <label for="email" class="block text-sm font-medium leading-6 text-white">Email address</label>
             <div class="mt-2">
-              <input v-model="email" id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required />
+              <input
+                  v-model="email"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+              />
             </div>
           </div>
 
           <div>
             <div class="flex items-center justify-between">
               <label for="password" class="block text-sm font-medium leading-6 text-white">Password</label>
-              <div class="text-sm">
-                <router-link to="/forgot_password" class="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</router-link>
-              </div>
+              <router-link
+                  to="/forgot_password"
+                  class="text-sm font-semibold text-indigo-400 transition-colors hover:text-pink-400"
+              >
+                Forgot password?
+              </router-link>
             </div>
             <div class="mt-2">
-              <input v-model="password" id="password" name="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
+              <input
+                  v-model="password"
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+              />
             </div>
           </div>
 
-          <div v-if="errors" class="rounded-md bg-red-50 p-4">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <button v-on:click="closeAlert()" type="button">
-                  <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
-                </button>
+          <div v-if="errors" class="rounded-lg border border-red-500/40 bg-red-500/10 p-4">
+            <div class="flex items-start gap-3">
+              <XCircleIcon class="h-5 w-5 flex-none text-red-400" aria-hidden="true" />
+              <div class="flex-1 text-sm text-red-300">
+                {{ errors.error }}
               </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Error</h3>
-                <div class="mt-2 text-sm text-red-700">
-                  <ul role="list" class="list-disc space-y-1 pl-5">
-                    <li>{{errors.error}}</li>
-                  </ul>
-                </div>
-              </div>
+              <button @click="closeAlert" type="button" class="text-red-400 hover:text-red-300">
+                <span class="sr-only">Close</span>
+                <XCircleIcon class="h-4 w-4" aria-hidden="true" />
+              </button>
             </div>
           </div>
 
-          <div class="mx-auto text-center">
-            <button v-if="sending" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-black transition ease-in-out duration-150 cursor-not-allowed" disabled="">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Login...
-            </button>
-            <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Login</button>
-          </div>
-        </div>
+          <button
+              v-if="!sending"
+              type="submit"
+              class="flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            Sign in
+          </button>
 
+          <button
+              v-else
+              type="button"
+              disabled
+              class="flex w-full items-center justify-center rounded-lg bg-indigo-600/50 px-4 py-2.5 text-sm font-semibold text-white cursor-not-allowed"
+          >
+            <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Signing in...
+          </button>
+        </form>
       </div>
-    </form>
+
+      <p class="mt-6 text-center text-sm text-gray-500">
+        New to Unlistened.me?
+        <router-link to="/sign_up" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+          Create an account
+        </router-link>
+      </p>
+    </div>
   </div>
 </template>

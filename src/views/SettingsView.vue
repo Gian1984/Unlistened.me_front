@@ -210,151 +210,183 @@ async function deleteAccount(user) {
   <!--  Notification  -->
 
 
-  <div class="mx-auto max-w-7xl px-6 lg:px-8 bg-gray-950 py-24 sm:py-32">
-    <div class="mx-auto max-w-2xl lg:max-w-4xl">
-      <div class="px-4 sm:px-0">
-        <h1 class="mt-2 text-4xl font-bold tracking-tight text-white sm:text-6xl">Personal information</h1>
-        <p class="mt-8 max-w-2xl text-base leading-6 text-white">
-          Welcome to the Settings page of Unlistened.me. From here, you can easily update your personal information to better tailor your podcast listening experience. Modify your profile details, and customize your preferences to ensure Unlistened meets your needs.<br><br>
-          Take control of your account and make the most out of your podcast journey with Unlistened.
-        </p>
-      </div>
-      <div class="mt-6 border-t border-gray-100">
-        <dl class="divide-y divide-gray-100">
+  <div class="bg-gray-950 min-h-screen">
+    <div class="p-6 sm:p-8">
+      <div class="mx-auto max-w-6xl">
+        <!-- Header -->
+        <div class="mb-10">
+          <p class="text-sm font-semibold text-indigo-400">Your account</p>
+          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+            Settings
+          </h1>
+          <p class="mt-4 max-w-3xl text-lg leading-8 text-gray-400">
+            Update your personal information, reach out for support, or manage your account. Keep your Unlistened experience tailored to you.
+          </p>
+        </div>
 
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-white">Username</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="max-w-xl">
-                <label for="email" class="sr-only">Username</label>
-                <div>
-                  <input v-model="username" type="text" name="username" id="username" :placeholder="authStore.user.name" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
-                </div>
-              </div>
-            </dd>
-          </div>
+        <!-- Personal information -->
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Personal information</h2>
+          <p class="mt-2 text-sm leading-7 text-gray-400">
+            Update your username, email, and language preferences.
+          </p>
 
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-white">Email address</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="max-w-xl">
-                <label for="email" class="sr-only">Email address</label>
-                <div>
-                  <input v-model="email" id="email" name="email" type="email" :placeholder="authStore.user.email" autocomplete="email" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
-                </div>
+          <div class="mt-6 space-y-5">
+            <div>
+              <label for="username" class="block text-sm font-medium leading-6 text-white">Username</label>
+              <div class="mt-2 max-w-xl">
+                <input
+                    v-model="username"
+                    type="text"
+                    name="username"
+                    id="username"
+                    :placeholder="authStore.user.name"
+                    required
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                />
               </div>
-            </dd>
-          </div>
+            </div>
 
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-white">Language</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="max-w-xl">
-                <label for="location" class="sr-only">Languages</label>
-                <div>
-                  <select id="location" v-model="preferred_language" name="location" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-gray-500 shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
-                    <option v-if="authStore.user.preferred_language" selected class="text-gray-500" value="">{{ languages[authStore.user.preferred_language] || authStore.user.preferred_language }}</option>
-                    <option v-else selected class="text-gray-500" value="">Your language</option>
-                    <option v-for="(lang, code) in languages" :key="code" :value="code">
-                      {{ lang }}
-                    </option>
-                  </select>
-                </div>
+            <div>
+              <label for="email" class="block text-sm font-medium leading-6 text-white">Email address</label>
+              <div class="mt-2 max-w-xl">
+                <input
+                    v-model="email"
+                    id="email"
+                    name="email"
+                    type="email"
+                    :placeholder="authStore.user.email"
+                    autocomplete="email"
+                    required
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                />
               </div>
-            </dd>
-          </div>
+            </div>
 
-          <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900"></dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="flex">
-                <button @click="updateAccount()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
-                  <ArrowPathIcon class="h-5 w-5 mr-1" />
-                  Update
-                </button>
-                <button v-if="updating" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-gray-950 transition ease-in-out duration-150 cursor-not-allowed" disabled="">
-                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Upadating...
-                </button>
+            <div>
+              <label for="location" class="block text-sm font-medium leading-6 text-white">Language</label>
+              <div class="mt-2 max-w-xl">
+                <select
+                    id="location"
+                    v-model="preferred_language"
+                    name="location"
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                >
+                  <option v-if="authStore.user.preferred_language" selected value="">{{ languages[authStore.user.preferred_language] || authStore.user.preferred_language }}</option>
+                  <option v-else selected value="">Your language</option>
+                  <option v-for="(lang, code) in languages" :key="code" :value="code">
+                    {{ lang }}
+                  </option>
+                </select>
               </div>
-            </dd>
-          </div>
-        </dl>
-      </div>
-      <div class="px-4 sm:px-0 mt-20">
-        <h2 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Contact us</h2>
-        <p class="mt-3 max-w-2xl text-base leading-6 text-white">
-          If you have any questions or need assistance, please fill out the form below and our support team will get back to you as soon as possible.
-        </p>
-      </div>
-      <div class="mt-6 border-t border-gray-100">
-        <dl class="divide-y divide-gray-100">
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-white">Object</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="max-w-xl">
-                <label for="object" class="sr-only">Object</label>
-                <div class="mt-2">
-                  <input v-model="object" type="text" name="object" id="object" placeholder="Object" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
-                </div>
-              </div>
-            </dd>
-          </div>
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-white">Description</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="max-w-xl">
-                <label for="description" class="sr-only">Email address</label>
-                <div class="mt-2">
-                  <textarea v-model="description"  maxlength="255"  id="description" name="description" type="text" rows="6" placeholder="Enter your message (max 255 characters)" class="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" required/>
-                </div>
-              </div>
-            </dd>
-          </div>
+            </div>
 
-          <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900"></dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <div class="flex">
-                <button @click="sendReq()" class="flex bg-pink-500 text-white hover:bg-indigo-600 font-bold text-sm py-2 px-4 mx-1 rounded-full">
-                  <PaperAirplaneIcon class="h-5 w-5 mr-1" />
-                  Send
-                </button>
-                <button v-if="sending" type="button" class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-pink-500 bg-gray-950 transition ease-in-out duration-150 cursor-not-allowed" disabled="">
-                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Sending...
-                </button>
-              </div>
-            </dd>
-          </div>
-        </dl>
-      </div>
-      <div class="px-4 sm:px-0 mt-20">
-        <h2 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Delete account</h2>
-        <p class="mt-3 max-w-2xl text-base leading-6 text-white">
-          We're sorry to see you go. By deleting your account, you will permanently lose access to your profile, saved podcasts, bookmarks, and all personalized settings. This action cannot be undone.<br><br>
-          If you are certain you want to proceed, please confirm your decision below. Should you have any questions or need assistance, feel free to reach out to our support team before finalizing this action.<br><br>
-          Thank you for being a part of Unlistened.me. We hope to see you again in the future.
-        </p>
-      </div>
-      <div class="mt-6 border-t border-gray-100">
-        <dl class="divide-y divide-gray-100">
-          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6 text-gray-900 sr-only">Delete</dt>
-            <dd class="mt-1 sm:col-span-2 sm:mt-0">
-              <button @click="deleteAccount(authStore.user)" class="flex bg-red-500 text-white hover:bg-red-50 hover:text-gray-900 font-bold text-sm py-2 px-4 mx-1 rounded-full">
-                <TrashIcon class="h-5 w-5 mr-1" />
-                Delete
+            <div class="pt-2">
+              <button
+                  v-if="!updating"
+                  @click="updateAccount()"
+                  class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                <ArrowPathIcon class="h-4 w-4" />
+                Update
               </button>
-            </dd>
+              <button
+                  v-else
+                  type="button"
+                  disabled
+                  class="inline-flex items-center gap-2 rounded-lg bg-indigo-600/50 px-4 py-2.5 text-sm font-medium text-white cursor-not-allowed"
+              >
+                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Updating...
+              </button>
+            </div>
           </div>
-        </dl>
+        </section>
+
+        <!-- Contact us -->
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Contact us</h2>
+          <p class="mt-2 text-sm leading-7 text-gray-400">
+            Got a question or need a hand? Send us a message and our team will get back to you as soon as possible.
+          </p>
+
+          <div class="mt-6 space-y-5">
+            <div>
+              <label for="object" class="block text-sm font-medium leading-6 text-white">Object</label>
+              <div class="mt-2 max-w-xl">
+                <input
+                    v-model="object"
+                    type="text"
+                    name="object"
+                    id="object"
+                    placeholder="Subject"
+                    required
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="description" class="block text-sm font-medium leading-6 text-white">Description</label>
+              <div class="mt-2 max-w-xl">
+                <textarea
+                    v-model="description"
+                    maxlength="255"
+                    id="description"
+                    name="description"
+                    rows="6"
+                    placeholder="Enter your message (max 255 characters)"
+                    required
+                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                />
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button
+                  v-if="!sending"
+                  @click="sendReq()"
+                  class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                <PaperAirplaneIcon class="h-4 w-4" />
+                Send
+              </button>
+              <button
+                  v-else
+                  type="button"
+                  disabled
+                  class="inline-flex items-center gap-2 rounded-lg bg-indigo-600/50 px-4 py-2.5 text-sm font-medium text-white cursor-not-allowed"
+              >
+                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sending...
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Danger zone -->
+        <section class="mb-10 rounded-2xl border border-red-500/30 bg-red-500/5 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold text-white">Delete account</h2>
+          <p class="mt-2 max-w-3xl text-sm leading-7 text-gray-400">
+            By deleting your account, you will permanently lose access to your profile, saved podcasts, bookmarks, and all personalized settings. This action cannot be undone.
+          </p>
+
+          <div class="mt-6">
+            <button
+                @click="deleteAccount(authStore.user)"
+                class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-500"
+            >
+              <TrashIcon class="h-4 w-4" />
+              Delete account
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   </div>

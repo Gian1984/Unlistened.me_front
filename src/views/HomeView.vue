@@ -44,8 +44,8 @@ function clearSearch() {
   searchQuery.value = ''
 }
 
-function selectCategory(catId) {
-  router.push({ name: 'SearchResults', query: { s: catId } })
+function selectCategory(catId, catName) {
+  router.push({ name: 'SearchResults', query: { s: catId, name: catName } })
 }
 
 async function fetchTrending() {
@@ -154,7 +154,7 @@ onMounted(() => {
           <button
             v-for="cat in categories.slice(0, 16)"
             :key="cat.id"
-            @click="selectCategory(cat.id)"
+            @click="selectCategory(cat.id, cat.name)"
             class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700"
           >
             {{ cat.name }}
