@@ -408,13 +408,4 @@ onMounted(() => {
   </div>
 
   <Footer />
-</template>              Drop podcasts here
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
-
-  <Footer />
 </template>
