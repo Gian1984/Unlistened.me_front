@@ -16,6 +16,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
+import SkeletonRow from '../components/SkeletonRow.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { podcastService } from '@/services/podcastService.js'
@@ -27,6 +28,7 @@ const authStore = useAuthStore()
 const messageStore = useMessageStore()
 
 const favorites = ref([])
+const isLoading = ref(true)
 const newSection = ref('')
 const availableSections = ref([
   'Current Favorites',
@@ -213,8 +215,15 @@ onMounted(() => {
         </p>
       </div>
 
+      <!-- Loading state -->
+      <div v-if="isLoading" class="mx-auto max-w-4xl py-8">
+        <div class="space-y-4">
+          <SkeletonRow v-for="i in 3" :key="i" />
+        </div>
+      </div>
+
       <!-- Empty state -->
-      <div v-if="!favorites.length" class="mx-auto max-w-4xl py-8">
+      <div v-else-if="!favorites.length" class="mx-auto max-w-4xl py-8">
         <EmptyState
             :icon="StarIcon"
             title="No favourites yet"

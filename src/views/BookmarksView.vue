@@ -18,6 +18,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
+import SkeletonRow from '../components/SkeletonRow.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { podcastService } from '@/services/podcastService.js'
@@ -29,6 +30,7 @@ const authStore = useAuthStore()
 const messageStore = useMessageStore()
 
 const bookmarks = ref([])
+const isLoading = ref(true)
 const newSection = ref('')
 const availableSections = ref([
   'Current Bookmarks',
@@ -43,6 +45,7 @@ const message = ref('')
 const notificationType = ref('success')
 
 async function fetchBookmarks() {
+  isLoading.value = true
   try {
     const response = await podcastService.getBookmarks()
     bookmarks.value = response.data
@@ -63,6 +66,8 @@ async function fetchBookmarks() {
     } else {
       console.error('Error fetching bookmarks')
     }
+  } finally {
+    isLoading.value = false
   }
 }
 

@@ -1,6 +1,6 @@
 export const documentationSeo = {
-  title: 'Documentation | Unlistened.me',
-  description: 'Technical documentation for Unlistened.me — features, technologies used, and setup instructions.',
+  title: 'User guide | Unlistened.me',
+  description: 'Learn how to use Unlistened.me — creating an account, discovering podcasts, listening, saving favourites, bookmarking episodes, and more.',
   canonical: 'https://www.unlistened.me/documentation',
   ogType: 'website',
 }

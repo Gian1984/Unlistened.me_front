@@ -6,16 +6,33 @@ import { dashboardSeo } from '@/seo/registry/index.js'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 
 useSeo(dashboardSeo)
-import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
+import { EllipsisVerticalIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { XMarkIcon, XCircleIcon, ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/vue/20/solid/index.js'
-import { UserIcon, CheckCircleIcon, WrenchScrewdriverIcon } from '@heroicons/vue/24/outline/index.js'
+import {
+  UserIcon,
+  CheckCircleIcon,
+  WrenchScrewdriverIcon,
+  ChartBarIcon,
+  UsersIcon,
+  ChatBubbleLeftRightIcon,
+  ArrowTrendingUpIcon,
+  InboxIcon,
+  ShieldCheckIcon,
+} from '@heroicons/vue/24/outline/index.js'
 import { adminService } from '@/services/adminService.js'
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from 'chart.js'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -29,8 +46,78 @@ const notificationType = ref('success')
 // Charts
 const downloadChartData = ref(null)
 const playChartData = ref(null)
-const chartOptions = ref({ responsive: true })
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#111827',
+      borderColor: '#374151',
+      borderWidth: 1,
+      titleColor: '#f9fafb',
+      bodyColor: '#d1d5db',
+      padding: 12,
+      cornerRadius: 8,
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: '#9ca3af', font: { size: 11 } },
+    },
+    y: {
+      beginAtZero: true,
+      grid: { color: 'rgba(75, 85, 99, 0.25)', drawBorder: false },
+      ticks: { color: '#9ca3af', font: { size: 11 } },
+    },
+  },
+})
 const topStats = ref(null)
+
+// Stat meta — maps backend keys to icon + accent color
+const statMeta = {
+  'Total users': { icon: UsersIcon, accent: 'indigo' },
+  'Total podcasts downloaded': { icon: ArrowTrendingUpIcon, accent: 'emerald' },
+  'Total podcasts listened': { icon: ChartBarIcon, accent: 'pink' },
+  'Total questions received': { icon: InboxIcon, accent: 'amber' },
+}
+
+function getStatMeta(key) {
+  return statMeta[key] || { icon: ChartBarIcon, accent: 'indigo' }
+}
+
+const accentClasses = {
+  indigo: 'bg-indigo-500/10 text-indigo-400 ring-indigo-500/20',
+  emerald: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20',
+  pink: 'bg-pink-500/10 text-pink-400 ring-pink-500/20',
+  amber: 'bg-amber-500/10 text-amber-400 ring-amber-500/20',
+}
+
+// Avatar initials + deterministic color from string
+function getInitials(name = '') {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() || '')
+    .join('')
+}
+
+const avatarPalette = [
+  'bg-indigo-500/15 text-indigo-300 ring-indigo-500/30',
+  'bg-pink-500/15 text-pink-300 ring-pink-500/30',
+  'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
+  'bg-amber-500/15 text-amber-300 ring-amber-500/30',
+  'bg-sky-500/15 text-sky-300 ring-sky-500/30',
+  'bg-violet-500/15 text-violet-300 ring-violet-500/30',
+]
+
+function getAvatarColor(seed = '') {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) hash = (hash + seed.charCodeAt(i)) % avatarPalette.length
+  return avatarPalette[hash]
+}
 
 // FAQs
 const faqs = ref([])
@@ -135,22 +222,28 @@ async function fetchStats() {
     const currentYear = new Date().getFullYear()
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    const prepareChartData = (data, backgroundColor) => ({
-      labels: data.map(item => monthNames[item.month - 1]),
+    const prepareChartData = (data, color) => ({
+      labels: data.map(item => monthNames[item.month - 1].slice(0, 3)),
       datasets: [{
-        backgroundColor,
+        label: 'Clicks',
+        backgroundColor: color,
+        hoverBackgroundColor: color,
+        borderRadius: 6,
+        borderSkipped: false,
+        barThickness: 'flex',
+        maxBarThickness: 28,
         data: data.map(item => item.clicks),
       }]
     })
 
     downloadChartData.value = prepareChartData(
       clicksDownloadPerMonth.filter(item => item.year === currentYear),
-      ['#41B883', '#E46651', '#00D8FF', '#DD1B16', '#f94144', '#f3722c', '#f8961e', '#f9c74f', '#43aa8b', '#577590', '#6a4c93', '#ffa600']
+      '#6366f1'
     )
 
     playChartData.value = prepareChartData(
       clicksPlayPerMonth.filter(item => item.year === currentYear),
-      ['#41B883', '#E46651', '#00D8FF', '#DD1B16', '#f94144', '#f3722c', '#f8961e', '#f9c74f', '#43aa8b', '#577590', '#6a4c93', '#ffa600']
+      '#ec4899'
     )
   } catch (error) {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -301,14 +394,19 @@ onMounted(() => {
     <div class="p-6 sm:p-8">
       <div class="mx-auto max-w-6xl">
         <!-- Header -->
-        <div class="mb-10">
-          <p class="text-sm font-semibold text-indigo-400">Admin</p>
-          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Dashboard
-          </h1>
-          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-            Keep track of platform activity, monitor key metrics, and manage users and support messages.
-          </p>
+        <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
+              <ShieldCheckIcon class="h-3.5 w-3.5" />
+              Admin area
+            </div>
+            <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Dashboard
+            </h1>
+            <p class="mt-3 max-w-3xl text-base leading-7 text-gray-400">
+              Keep track of platform activity, monitor key metrics, and manage users and support messages.
+            </p>
+          </div>
         </div>
 
         <!-- Top stats -->
@@ -317,73 +415,131 @@ onMounted(() => {
             <div
                 v-for="(value, key) in topStats"
                 :key="key"
-                class="rounded-2xl border border-gray-800 bg-gray-900/50 p-5"
+                class="group relative overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50 p-5 transition-all hover:border-gray-700 hover:bg-gray-900/80"
             >
-              <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ key }}</p>
-              <p class="mt-2 text-3xl font-semibold tracking-tight text-white">{{ value }}</p>
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ key }}</p>
+                  <p class="mt-2 text-3xl font-semibold tracking-tight text-white">{{ value }}</p>
+                </div>
+                <div
+                    :class="['flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset', accentClasses[getStatMeta(key).accent]]"
+                >
+                  <component :is="getStatMeta(key).icon" class="h-5 w-5" />
+                </div>
+              </div>
+              <div class="pointer-events-none absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
           </div>
         </section>
 
         <!-- Charts -->
         <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Statistics per month</h2>
-          <p class="mt-2 text-sm text-gray-400">Monthly breakdown of downloaded and played podcasts.</p>
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+              <ChartBarIcon class="h-5 w-5" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-white">Statistics per month</h2>
+              <p class="mt-1 text-sm text-gray-400">Monthly breakdown of downloaded and played podcasts.</p>
+            </div>
+          </div>
 
-          <div class="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
+          <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div v-if="downloadChartData" class="rounded-xl border border-gray-800 bg-gray-950/60 p-5">
-              <h3 class="text-sm font-semibold text-white mb-4 text-center">Downloaded</h3>
-              <Pie :options="chartOptions" :data="downloadChartData" />
+              <div class="mb-4 flex items-center gap-2">
+                <span class="inline-block h-2 w-2 rounded-full bg-indigo-500" />
+                <h3 class="text-sm font-semibold text-white">Downloaded</h3>
+              </div>
+              <div class="h-60">
+                <Bar :options="chartOptions" :data="downloadChartData" />
+              </div>
             </div>
             <div v-if="playChartData" class="rounded-xl border border-gray-800 bg-gray-950/60 p-5">
-              <h3 class="text-sm font-semibold text-white mb-4 text-center">Played</h3>
-              <Pie :options="chartOptions" :data="playChartData" />
+              <div class="mb-4 flex items-center gap-2">
+                <span class="inline-block h-2 w-2 rounded-full bg-pink-500" />
+                <h3 class="text-sm font-semibold text-white">Played</h3>
+              </div>
+              <div class="h-60">
+                <Bar :options="chartOptions" :data="playChartData" />
+              </div>
             </div>
           </div>
         </section>
 
         <!-- Questions list -->
         <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Questions received</h2>
-          <p class="mt-2 text-sm text-gray-400">Messages submitted through the contact form.</p>
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-inset ring-amber-500/20">
+              <ChatBubbleLeftRightIcon class="h-5 w-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-white">Questions received</h2>
+              <p class="mt-1 text-sm text-gray-400">Messages submitted through the contact form.</p>
+            </div>
+            <span class="rounded-full bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300 ring-1 ring-inset ring-gray-700">
+              {{ filteredFaqs.length }}
+            </span>
+          </div>
 
           <div class="mt-6">
-            <label for="faqSearch" class="block text-sm font-medium leading-6 text-white">Quick search</label>
-            <div class="relative mt-2">
+            <label for="faqSearch" class="sr-only">Quick search</label>
+            <div class="relative">
+              <MagnifyingGlassIcon class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
               <input
                   v-model="faqFilter"
                   type="text"
                   name="faqSearch"
                   id="faqSearch"
                   placeholder="Filter by email"
-                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
               />
             </div>
           </div>
 
           <ul role="list" class="mt-4 divide-y divide-gray-800">
-            <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-center justify-between gap-x-6 py-5">
-              <div class="min-w-0">
-                <div class="flex items-start gap-x-3">
+            <li v-for="(faq, index) in paginatedFaqs" :key="index" class="flex items-start justify-between gap-x-4 py-5">
+              <div
+                  :class="['flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-1 ring-inset', getAvatarColor(faq.username || faq.email)]"
+              >
+                {{ getInitials(faq.username || faq.email) }}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <p class="text-sm font-semibold leading-6 text-white">{{ faq.username }}</p>
-                  <a :href="`mailto:${faq.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ faq.email }}</a>
+                  <a :href="`mailto:${faq.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ faq.email }}</a>
+                  <span
+                      :class="[
+                        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset',
+                        faq.was_answered
+                          ? 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20'
+                          : 'bg-amber-500/10 text-amber-400 ring-amber-500/20'
+                      ]"
+                  >
+                    <span :class="['h-1.5 w-1.5 rounded-full', faq.was_answered ? 'bg-emerald-400' : 'bg-amber-400']" />
+                    {{ faq.was_answered ? 'Answered' : 'Pending' }}
+                  </span>
                 </div>
                 <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                   <p class="whitespace-nowrap">
-                    Created at <time :datetime="faq.created_at">{{ new Date(faq.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
+                    <time :datetime="faq.created_at">{{ new Date(faq.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
                   </p>
                   <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
                     <circle cx="1" cy="1" r="1" />
                   </svg>
-                  <p class="truncate">{{ faq.message_obj }}</p>
+                  <p class="truncate font-medium text-gray-400">{{ faq.message_obj }}</p>
                 </div>
-                <div class="mt-1 text-xs leading-5 text-gray-400">
+                <div class="mt-1.5 text-xs leading-5 text-gray-400">
                   <p>{{ faq.message_desc }}</p>
                 </div>
               </div>
-              <div class="flex flex-none items-center gap-x-4">
-                <button @click="toggleFaqStatus(faq)" class="flex">
-                  <component :is="faq.was_answered ? CheckCircleIcon : XCircleIcon" :class="faq.was_answered ? 'h-6 w-6 text-green-500 hover:text-green-400' : 'h-6 w-6 text-red-500 hover:text-red-400'" aria-hidden="true" />
+              <div class="flex flex-none items-center gap-x-1">
+                <button
+                    @click="toggleFaqStatus(faq)"
+                    :title="faq.was_answered ? 'Mark as pending' : 'Mark as answered'"
+                    class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-gray-800"
+                >
+                  <component :is="faq.was_answered ? CheckCircleIcon : XCircleIcon" :class="faq.was_answered ? 'h-5 w-5 text-emerald-400' : 'h-5 w-5 text-amber-400'" aria-hidden="true" />
                 </button>
                 <Menu as="div" class="relative flex-none">
                   <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">
@@ -420,43 +576,70 @@ onMounted(() => {
 
         <!-- Users list -->
         <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Users list</h2>
-          <p class="mt-2 text-sm text-gray-400">Manage registered users and their roles.</p>
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+              <UsersIcon class="h-5 w-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-white">Users list</h2>
+              <p class="mt-1 text-sm text-gray-400">Manage registered users and their roles.</p>
+            </div>
+            <span class="rounded-full bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300 ring-1 ring-inset ring-gray-700">
+              {{ filteredUsers.length }}
+            </span>
+          </div>
 
           <div class="mt-6">
-            <label for="userSearch" class="block text-sm font-medium leading-6 text-white">Quick search</label>
-            <div class="relative mt-2">
+            <label for="userSearch" class="sr-only">Quick search</label>
+            <div class="relative">
+              <MagnifyingGlassIcon class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
               <input
                   v-model="userFilter"
                   type="text"
                   name="userSearch"
                   id="userSearch"
                   placeholder="Filter by email"
-                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  class="block w-full rounded-lg border border-gray-700 bg-gray-800 py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
               />
             </div>
           </div>
 
           <ul role="list" class="mt-4 divide-y divide-gray-800">
-            <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-6 py-5">
-              <div class="min-w-0">
-                <div class="flex items-start gap-x-3">
+            <li v-for="(user, index) in paginatedUsers" :key="index" class="flex items-center justify-between gap-x-4 py-5">
+              <div
+                  :class="['flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-1 ring-inset', getAvatarColor(user.name || user.email)]"
+              >
+                {{ getInitials(user.name || user.email) }}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <p class="text-sm font-semibold leading-6 text-white">{{ user.name }}</p>
-                  <a :href="`mailto:${user.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ user.email }}</a>
+                  <a :href="`mailto:${user.email}?subject=Unlistened.me user info`" class="rounded-md whitespace-nowrap px-1.5 py-0.5 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-700 hover:text-white">{{ user.email }}</a>
+                  <span
+                      :class="[
+                        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset',
+                        user.is_admin
+                          ? 'bg-pink-500/10 text-pink-400 ring-pink-500/20'
+                          : 'bg-gray-800 text-gray-400 ring-gray-700'
+                      ]"
+                  >
+                    <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" class="h-3 w-3" />
+                    {{ user.is_admin ? 'Admin' : 'User' }}
+                  </span>
                 </div>
                 <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
                   <p class="whitespace-nowrap">
-                    Created at <time :datetime="user.created_at">{{ new Date(user.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
+                    Joined <time :datetime="user.created_at">{{ new Date(user.created_at).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</time>
                   </p>
-                  <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
-                    <circle cx="1" cy="1" r="1" />
-                  </svg>
-                  <p class="truncate">Role: {{ user.is_admin === 1 ? 'Admin' : 'User' }}</p>
                 </div>
               </div>
-              <div class="flex flex-none items-center gap-x-4">
-                <button @click="toggleAdminStatus(user)" class="flex">
-                  <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" :class="user.is_admin ? 'h-6 w-6 text-pink-400 hover:text-pink-300' : 'h-6 w-6 text-green-500 hover:text-green-400'" aria-hidden="true" />
+              <div class="flex flex-none items-center gap-x-1">
+                <button
+                    @click="toggleAdminStatus(user)"
+                    :title="user.is_admin ? 'Revoke admin' : 'Promote to admin'"
+                    class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-gray-800"
+                >
+                  <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" :class="user.is_admin ? 'h-5 w-5 text-pink-400' : 'h-5 w-5 text-gray-400'" aria-hidden="true" />
                 </button>
                 <Menu as="div" class="relative flex-none">
                   <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">

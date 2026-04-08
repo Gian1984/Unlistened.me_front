@@ -1,9 +1,18 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { settingsSeo } from '@/seo/registry/index.js'
-import { TrashIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/vue/24/outline/index.js'
+import {
+  TrashIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  UserCircleIcon,
+  EnvelopeIcon,
+  LanguageIcon,
+  ChatBubbleLeftRightIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/vue/24/outline/index.js'
 
 useSeo(settingsSeo)
 import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
@@ -24,6 +33,24 @@ const preferred_language = ref('')
 const show = ref(false)
 const message = ref('')
 const notificationType = ref('success')
+const confirmDeleteOpen = ref(false)
+
+const userInitials = computed(() => {
+  const source = authStore.user?.name || authStore.user?.email || ''
+  return source
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() || '')
+    .join('')
+})
+
+const currentLanguageLabel = computed(() => {
+  const code = authStore.user?.preferred_language
+  return code ? (languages[code] || code) : 'Not set'
+})
+
+const descriptionLength = computed(() => description.value?.length || 0)
 
 const languages = {
   'af': 'Afrikaans',
@@ -172,12 +199,21 @@ async function sendReq() {
   }
 }
 
-async function deleteAccount(user) {
+function openDeleteConfirm() {
+  confirmDeleteOpen.value = true
+}
+
+function closeDeleteConfirm() {
+  confirmDeleteOpen.value = false
+}
+
+async function confirmDeleteAccount() {
   try {
-    await userService.deleteAccount(user.id)
+    await userService.deleteAccount(authStore.user.id)
     authStore.clearUser()
     router.push({ name: 'Login' })
   } catch (error) {
+    confirmDeleteOpen.value = false
     showNotification('There was an error while deleting your account, please try later.', 'error')
   }
 }
@@ -216,9 +252,9 @@ async function deleteAccount(user) {
 
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
-      <div class="mx-auto max-w-6xl">
+      <div class="mx-auto max-w-4xl">
         <!-- Header -->
-        <div class="mb-10">
+        <div class="mb-8">
           <p class="text-sm font-semibold text-indigo-400">Your account</p>
           <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Settings
@@ -228,12 +264,44 @@ async function deleteAccount(user) {
           </p>
         </div>
 
+        <!-- Profile hero -->
+        <section class="mb-8 overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-indigo-500/10 via-gray-900/50 to-gray-900/50 p-6 sm:p-8">
+          <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+            <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/20 text-2xl font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30">
+              {{ userInitials }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-lg font-semibold text-white">{{ authStore.user?.name }}</p>
+              <p class="mt-0.5 truncate text-sm text-gray-400">{{ authStore.user?.email }}</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300 ring-1 ring-inset ring-gray-700">
+                  <LanguageIcon class="h-3.5 w-3.5" />
+                  {{ currentLanguageLabel }}
+                </span>
+                <span
+                    v-if="authStore.user?.is_admin"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-pink-500/10 px-2.5 py-1 text-xs font-medium text-pink-400 ring-1 ring-inset ring-pink-500/20"
+                >
+                  Admin
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Personal information -->
-        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Personal information</h2>
-          <p class="mt-2 text-sm leading-7 text-gray-400">
-            Update your username, email, and language preferences.
-          </p>
+        <section class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+              <UserCircleIcon class="h-5 w-5" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-white">Personal information</h2>
+              <p class="mt-1 text-sm leading-6 text-gray-400">
+                Update your username, email, and language preferences.
+              </p>
+            </div>
+          </div>
 
           <div class="mt-6 space-y-5">
             <div>
@@ -311,11 +379,18 @@ async function deleteAccount(user) {
         </section>
 
         <!-- Contact us -->
-        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Contact us</h2>
-          <p class="mt-2 text-sm leading-7 text-gray-400">
-            Have a question or need help? Send us a message and we will get back to you soon.
-          </p>
+        <section class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
+              <ChatBubbleLeftRightIcon class="h-5 w-5" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-white">Contact us</h2>
+              <p class="mt-1 text-sm leading-6 text-gray-400">
+                Have a question or need help? Send us a message and we will get back to you soon.
+              </p>
+            </div>
+          </div>
 
           <div class="mt-6 space-y-5">
             <div>
@@ -334,7 +409,10 @@ async function deleteAccount(user) {
             </div>
 
             <div>
-              <label for="description" class="block text-sm font-medium leading-6 text-white">Description</label>
+              <div class="flex items-center justify-between">
+                <label for="description" class="block text-sm font-medium leading-6 text-white">Description</label>
+                <span class="text-xs text-gray-500">{{ descriptionLength }} / 255</span>
+              </div>
               <div class="mt-2 max-w-xl">
                 <textarea
                     v-model="description"
@@ -376,14 +454,21 @@ async function deleteAccount(user) {
 
         <!-- Danger zone -->
         <section class="mb-10 rounded-2xl border border-red-500/30 bg-red-500/5 p-6 sm:p-8">
-          <h2 class="text-xl font-semibold text-white">Delete account</h2>
-          <p class="mt-2 max-w-3xl text-sm leading-7 text-gray-400">
-            Deleting your account permanently removes your profile, saved podcasts, bookmarks, and preferences. This action cannot be undone.
-          </p>
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-400 ring-1 ring-inset ring-red-500/20">
+              <ExclamationTriangleIcon class="h-5 w-5" />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-white">Delete account</h2>
+              <p class="mt-1 max-w-3xl text-sm leading-6 text-gray-400">
+                Deleting your account permanently removes your profile, saved podcasts, bookmarks, and preferences. This action cannot be undone.
+              </p>
+            </div>
+          </div>
 
           <div class="mt-6">
             <button
-                @click="deleteAccount(authStore.user)"
+                @click="openDeleteConfirm"
                 class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-500"
             >
               <TrashIcon class="h-4 w-4" />
@@ -394,4 +479,52 @@ async function deleteAccount(user) {
       </div>
     </div>
   </div>
+
+  <!-- Delete confirmation modal -->
+  <transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+  >
+    <div
+        v-if="confirmDeleteOpen"
+        class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+        @click.self="closeDeleteConfirm"
+    >
+      <div class="w-full max-w-md rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-2xl">
+        <div class="flex items-start gap-4">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400 ring-1 ring-inset ring-red-500/20">
+            <ExclamationTriangleIcon class="h-6 w-6" />
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-semibold text-white">Delete your account?</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-400">
+              This will permanently remove your profile, saved podcasts, bookmarks and preferences. This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+              type="button"
+              @click="closeDeleteConfirm"
+              class="inline-flex items-center justify-center rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-200 transition-colors hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+              type="button"
+              @click="confirmDeleteAccount"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-500"
+          >
+            <TrashIcon class="h-4 w-4" />
+            Yes, delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
