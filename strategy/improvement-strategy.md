@@ -215,9 +215,13 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 
 ### 3.3 Auth Pages (Login/Register/Reset)
 
-**Current state:** Full black background with centered form. Functional but plain. No visual branding.
+**Current state:** Harmonized dark theme with centered `rounded-2xl` card layout. Eyebrow text, dark inputs, red-500/40 error alerts. Still missing visual branding/illustration.
 
 **Improvements:**
+- [x] Harmonize to **dark theme** with `rounded-2xl border border-gray-800 bg-gray-900/50` card layout
+- [x] Standardize inputs to dark theme (`bg-gray-800` + `border-gray-700`)
+- [x] Standardize error alerts (`border-red-500/40 bg-red-500/10`)
+- [x] Add eyebrow text and consistent header structure across all auth pages
 - [ ] Add **split layout**: left side with branding/illustration, right side with form (desktop)
 - [ ] Add **podcast waveform animation** or subtle background pattern
 - [ ] Show **social proof**: "Join X listeners" or similar
@@ -225,7 +229,7 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 - [ ] Show/hide password toggle icon
 - [ ] Improve error messages: inline below each field, not just a top alert
 
-**Files:** `src/views/LoginView.vue`, `src/views/SignUpView.vue`, `src/views/ForgotPasswordView.vue`
+**Files:** `src/views/LoginView.vue`, `src/views/SignUpView.vue`, `src/views/ForgotPasswordView.vue`, `src/views/ResetPasswordView.vue`
 
 ---
 
@@ -259,6 +263,36 @@ Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 
 - [x] Updated all 20 views to consistent dark theme
 
 **Files:** All views, `src/assets/base.css` (rewritten), `src/components/Footer.vue` (rewritten)
+
+---
+
+### 3.6 Page Layout Harmonization
+
+**Current state:** All pages now share the same wrapper, container, header, and card patterns. Eyebrow text, h1 hierarchy, descriptions, and section spacing are consistent across the app.
+
+**Pattern adopted:**
+- Page wrapper: `bg-gray-950 min-h-screen` + `p-6 sm:p-8`
+- Container: `mx-auto max-w-6xl`
+- Eyebrow: `text-sm font-semibold text-pink-400` (or `text-indigo-400`)
+- H1: `text-3xl font-semibold tracking-tight text-white sm:text-5xl`
+- Description: `text-lg leading-8 text-gray-400`
+- Section cards: `rounded-2xl border border-gray-800 bg-gray-900/50 p-5 sm:p-6`
+- Inputs: `rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white`
+- Primary buttons: `rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500`
+- Error states: `rounded-lg border border-red-500/40 bg-red-500/10 p-4`
+- Success states: `rounded-lg border border-green-500/40 bg-green-500/10 p-4`
+
+**Improvements:**
+- [x] Auth pages (Login, SignUp, ForgotPassword, ResetPassword) — centered `sm:max-w-md` card layout
+- [x] Error pages (404 NotFound, 403 Forbidden) — restructured with `max-w-6xl` + eyebrow + info card
+- [x] SettingsView — three `rounded-2xl` sections (Personal info, Contact, Danger zone)
+- [x] DashboardView — wrapped stats / charts / questions / users sections in harmonized cards
+- [x] SearchResultView — wrapped header + results in `max-w-6xl`, added eyebrow, fixed category title bug
+- [x] HomeView / CategoriesView — `selectCategory` now passes the category name via router query so SearchResultView shows the real name
+- [x] Confirmed AboutView, DocumentationView, TermsView, FeedEpisodesView, FavouritesView, BookmarksView, SingleEpisodeView already match the pattern
+- [x] Deleted unused legacy `FeedsView.vue`
+
+**Files:** all 20 views audited, 8 modified, 1 deleted
 
 ---
 
@@ -384,6 +418,7 @@ npx cap add android
 |---|---|---|
 | **Phase 1** | Audio Player rewrite (1.1), API service layer (1.2), script setup migration (1.3) | DONE |
 | **Phase 2** | Full dark mode (3.5), skeleton loading (2.1), empty states (2.5) | DONE |
+| **Phase 2.5** | Page layout harmonization (3.6) — auth, error, settings, dashboard, search results | DONE |
 | **Phase 3** | Navigation + search (2.3), category pills (2.4), card redesign (2.2) | TODO |
 | **Phase 4** | Mobile bottom nav (3.4), auth pages polish (3.3) | TODO |
 | **Phase 5** | Listening history (4.1), episode queue (4.2) | TODO |
@@ -398,7 +433,7 @@ npx cap add android
 |---|---|---|
 | `src/views/NavigationView.vue` | 431 | Main layout, sidebar, header, search, categories |
 | `src/components/OffcanvasPlayer.vue` | ~305 | Audio player (rewritten) |
-| `src/views/FeedsView.vue` | ~300 | Podcast browse/catalog |
+| `src/views/HomeView.vue` | ~200 | Home page (harmonized) |
 | `src/views/FeedEpisodesView.vue` | ~120 | Episodes list for a podcast |
 | `src/views/SingleEpisodeView.vue` | ~80 | Single episode detail |
 | `src/views/SearchResultView.vue` | ~150 | Search results |
