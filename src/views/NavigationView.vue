@@ -228,7 +228,7 @@ onMounted(() => {
       <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-3 pb-4" :class="isDesktopCollapsed ? 'items-center' : 'px-6'">
         <div class="flex h-24 shrink-0 items-center" :class="isDesktopCollapsed ? 'justify-center' : ''">
           <router-link to="/">
-            <img class="h-16 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
+            <img class="h-12 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
           </router-link>
         </div>
         <nav class="flex flex-1 flex-col" :class="isDesktopCollapsed ? 'w-full' : ''">

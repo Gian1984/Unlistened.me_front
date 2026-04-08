@@ -1,18 +1,15 @@
 <template>
-  <article class="relative isolate flex flex-col gap-4">
-    <div class="space-y-3 py-2">
-      <div class="h-3 w-28 rounded animate-shimmer" />
-      <div class="h-5 w-2/3 rounded animate-shimmer" />
-      <div class="space-y-2 mt-2">
-        <div class="h-3 w-full rounded animate-shimmer" />
-        <div class="h-3 w-full rounded animate-shimmer" />
-        <div class="h-3 w-1/2 rounded animate-shimmer" />
-      </div>
-      <div class="flex gap-2 mt-4 pt-4 border-b border-gray-800 pb-6">
-        <div class="h-9 w-9 rounded-full animate-shimmer" />
-        <div class="h-9 w-9 rounded-full animate-shimmer" />
-        <div class="h-9 w-9 rounded-full animate-shimmer" />
-      </div>
+  <!-- Matches the episode row in FeedEpisodesView:
+       play circle | title + meta | bookmark + download icons -->
+  <article class="flex items-center gap-3 p-3 rounded-lg bg-gray-800 border border-gray-700">
+    <div class="shrink-0 w-9 h-9 rounded-full animate-shimmer" />
+    <div class="flex-1 min-w-0 space-y-2">
+      <div class="h-4 w-3/4 rounded animate-shimmer" />
+      <div class="h-3 w-1/3 rounded animate-shimmer" />
+    </div>
+    <div class="flex items-center gap-1 shrink-0">
+      <div class="w-7 h-7 rounded-full animate-shimmer" />
+      <div class="w-7 h-7 rounded-full animate-shimmer" />
     </div>
   </article>
 </template>

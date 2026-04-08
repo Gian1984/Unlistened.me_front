@@ -1,24 +1,25 @@
 <template>
-  <article class="relative isolate flex flex-col gap-8 lg:flex-row">
-    <div class="relative aspect-square lg:w-64 lg:shrink-0">
-      <div class="absolute inset-0 aspect-square w-full rounded-2xl animate-shimmer" />
-    </div>
-    <div class="flex-1 space-y-4 py-2">
-      <div class="h-3 w-32 rounded animate-shimmer" />
-      <div class="h-6 w-3/4 rounded animate-shimmer" />
-      <div class="space-y-2 mt-4">
-        <div class="h-3 w-full rounded animate-shimmer" />
+  <!-- Matches the compact horizontal podcast card in HomeView and SearchResultView -->
+  <article class="rounded-lg bg-gray-800 border border-gray-700 overflow-hidden">
+    <!-- Image + text row -->
+    <div class="flex items-center gap-3 p-4">
+      <div class="shrink-0 w-16 h-16 rounded-md animate-shimmer" />
+      <div class="flex-1 min-w-0 space-y-2">
+        <div class="h-4 w-3/4 rounded animate-shimmer" />
+        <div class="h-3 w-1/2 rounded animate-shimmer" />
         <div class="h-3 w-full rounded animate-shimmer" />
         <div class="h-3 w-2/3 rounded animate-shimmer" />
       </div>
-      <div class="flex items-center gap-x-4 mt-6 pt-6 border-t border-gray-800">
-        <div class="h-10 w-10 rounded-full animate-shimmer" />
-        <div class="h-4 w-24 rounded animate-shimmer" />
-        <div class="flex gap-2 ml-auto">
-          <div class="h-9 w-9 rounded-full animate-shimmer" />
-          <div class="h-9 w-9 rounded-full animate-shimmer" />
-        </div>
-      </div>
+    </div>
+    <!-- Category badges -->
+    <div class="px-4 pb-3 flex gap-1.5">
+      <div class="h-5 w-14 rounded-full animate-shimmer" />
+      <div class="h-5 w-20 rounded-full animate-shimmer" />
+    </div>
+    <!-- Action row -->
+    <div class="flex items-center px-4 pb-3">
+      <div class="h-4 w-10 rounded animate-shimmer" />
+      <div class="h-4 w-16 rounded animate-shimmer ml-auto" />
     </div>
   </article>
 </template>

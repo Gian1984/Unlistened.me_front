@@ -1,6 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
-import SkeletonCard from '../components/SkeletonCard.vue'
+import SkeletonRow from '../components/SkeletonRow.vue'
 import EmptyState from '../components/EmptyState.vue'
 import { BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
@@ -189,13 +189,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="space-y-2">
-          <div v-for="n in 6" :key="n" class="flex items-center gap-3 p-3 rounded-lg bg-gray-800 border border-gray-700">
-            <div class="w-9 h-9 rounded-full animate-shimmer shrink-0" />
-            <div class="flex-1 space-y-2">
-              <div class="h-4 w-3/4 rounded animate-shimmer" />
-              <div class="h-3 w-1/3 rounded animate-shimmer" />
-            </div>
-          </div>
+          <SkeletonRow v-for="n in 6" :key="n" />
         </div>
       </div>
 
