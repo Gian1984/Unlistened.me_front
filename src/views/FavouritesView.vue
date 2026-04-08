@@ -41,6 +41,7 @@ const message = ref('')
 const notificationType = ref('success')
 
 async function fetchFavorites() {
+  isLoading.value = true
   try {
     const response = await podcastService.getFavorites()
     favorites.value = response.data
@@ -61,6 +62,8 @@ async function fetchFavorites() {
     } else {
       console.error('Error fetching favorites')
     }
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -397,6 +400,15 @@ onMounted(() => {
                 class="flex items-center justify-center rounded-lg border border-dashed border-gray-700 bg-gray-800/40 px-4 py-8 text-sm text-gray-500"
             >
               Drop podcasts here
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</template>              Drop podcasts here
             </div>
           </div>
         </section>

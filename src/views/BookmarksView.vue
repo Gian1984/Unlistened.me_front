@@ -212,8 +212,15 @@ onMounted(() => {
         </p>
       </div>
 
+      <!-- Loading state -->
+      <div v-if="isLoading" class="mx-auto max-w-4xl py-8">
+          <div class="space-y-4">
+              <SkeletonRow v-for="i in 3" :key="i" />
+          </div>
+      </div>
+
       <!-- Empty state -->
-      <div v-if="!bookmarks.length" class="mx-auto max-w-4xl py-8">
+      <div v-else-if="!bookmarks.length" class="mx-auto max-w-4xl py-8">
         <EmptyState
             :icon="BookmarkIcon"
             title="No bookmarks yet"

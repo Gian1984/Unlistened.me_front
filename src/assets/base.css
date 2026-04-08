@@ -42,13 +42,6 @@ select {
   font-size: 16px;
 }
 
-@media (min-width: 640px) {
-  input,
-  textarea,
-  select {
-    font-size: 14px;
-  }
-}
 
 @layer utilities {
   .animate-shimmer {
