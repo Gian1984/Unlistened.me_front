@@ -19,9 +19,13 @@ import {
   UsersIcon,
   XMarkIcon,
   BookmarkIcon,
-  PaperClipIcon,
+  BookOpenIcon,
   AdjustmentsHorizontalIcon,
-  TagIcon
+  TagIcon,
+  Squares2X2Icon,
+  ArrowRightOnRectangleIcon,
+  ArrowLeftOnRectangleIcon,
+  UserPlusIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon, ChevronLeftIcon } from '@heroicons/vue/20/solid'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
@@ -42,14 +46,24 @@ authStore.initializeAuth()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const isAdmin = computed(() => authStore.isAdmin)
 
+const userInitials = computed(() => {
+  const source = authStore.user?.name || authStore.user?.email || ''
+  return source
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() || '')
+    .join('')
+})
+
 // Navigation items
 const navigation = [
   { name: 'Home', href: '/', icon: HomeIcon, current: true },
   { name: 'Categories', href: '/categories', icon: TagIcon, current: false },
   { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
   { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
+  { name: 'Documentation', href: '/documentation', icon: BookOpenIcon, current: false },
   { name: 'About', href: '/about', icon: UsersIcon, current: false },
-  { name: 'Documentation', href: '/documentation', icon: PaperClipIcon, current: false },
 ]
 
 const sidebarOpen = ref(false)
@@ -200,16 +214,21 @@ onMounted(() => {
                       </ul>
                     </li>
                     <li v-if="isAuthenticated" class="mt-auto">
-                      <router-link to="/settings"  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
-                        <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                        Settings
-                      </router-link>
-                    </li>
-                    <li v-if="isAuthenticated && isAdmin">
-                      <router-link to="/dashboard"  class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
-                        <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                        Dashboard
-                      </router-link>
+                      <div class="mb-2 border-t border-gray-800" />
+                      <ul role="list" class="-mx-2 space-y-1">
+                        <li>
+                          <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
+                            <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                            Settings
+                          </router-link>
+                        </li>
+                        <li v-if="isAdmin">
+                          <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
+                            <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                            Dashboard
+                          </router-link>
+                        </li>
+                      </ul>
                     </li>
                   </ul>
                 </nav>
@@ -251,16 +270,21 @@ onMounted(() => {
               </button>
             </li>
             <li v-if="isAuthenticated" class="mt-auto">
-              <router-link to="/settings" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center mx-0' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
-                <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                <span v-if="!isDesktopCollapsed">Settings</span>
-              </router-link>
-            </li>
-            <li v-if="isAuthenticated && isAdmin">
-              <router-link to="/dashboard" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center mx-0' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
-                <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                <span v-if="!isDesktopCollapsed">Dashboard</span>
-              </router-link>
+              <div class="mb-2 border-t border-gray-800" :class="isDesktopCollapsed ? 'mx-2' : '-mx-2'" />
+              <ul role="list" class="space-y-1" :class="isDesktopCollapsed ? '' : '-mx-2'">
+                <li>
+                  <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
+                    <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                    <span v-if="!isDesktopCollapsed">Settings</span>
+                  </router-link>
+                </li>
+                <li v-if="isAdmin">
+                  <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
+                    <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                    <span v-if="!isDesktopCollapsed">Dashboard</span>
+                  </router-link>
+                </li>
+              </ul>
             </li>
           </ul>
         </nav>
@@ -351,43 +375,127 @@ onMounted(() => {
 
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
-              <MenuButton class="-m-1.5 flex items-center p-1.5">
+              <MenuButton class="-m-1.5 flex items-center gap-x-3 rounded-full p-1.5 transition-colors hover:bg-gray-900">
                 <span class="sr-only">Open user menu</span>
-                <img v-if="authStore.user" class="h-8 w-8 rounded-full bg-gray-50" src="/images/check-circled-svgrepo-com.png" alt="checkmark logo user is logged in" />
-                <img v-else class="h-8 w-8 rounded-full bg-gray-50" src="/images/question-mark-circled-svgrepo-com.png" alt="question mark user is not logged in" />
+                <div
+                    v-if="authStore.user"
+                    class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-500/15 text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30"
+                >
+                  {{ userInitials }}
+                </div>
+                <div
+                    v-else
+                    class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
+                >
+                  <UsersIcon class="h-5 w-5" />
+                </div>
                 <span class="hidden lg:flex lg:items-center">
-                  <span v-if="authStore.user" class="ml-4 text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
+                  <span v-if="authStore.user" class="text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
+                  <span v-else class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
                   <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
               </MenuButton>
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right rounded-md bg-gray-800 py-2 shadow-lg ring-1 ring-gray-700 focus:outline-none">
+                <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl focus:outline-none">
 
-                  <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Signup' }" custom>
-                    <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">
-                        Create Account
-                      </a>
+                  <!-- Authenticated header -->
+                  <div v-if="authStore.user" class="flex items-center gap-3 border-b border-gray-800 bg-gradient-to-br from-indigo-500/10 to-gray-900 px-4 py-4">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-500/15 text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30">
+                      {{ userInitials }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-semibold text-white">{{ authStore.user.name }}</p>
+                      <p class="truncate text-xs text-gray-400">{{ authStore.user.email }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Guest header -->
+                  <div v-else class="border-b border-gray-800 bg-gradient-to-br from-indigo-500/10 to-gray-900 px-4 py-4">
+                    <p class="text-sm font-semibold text-white">Welcome</p>
+                    <p class="mt-0.5 text-xs text-gray-400">Sign in to access your library</p>
+                  </div>
+
+                  <!-- Authenticated links -->
+                  <div v-if="authStore.user" class="py-1">
+                    <MenuItem v-slot="{ active, close }">
+                      <router-link
+                          to="/settings"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <Cog6ToothIcon class="h-4 w-4 text-gray-500" />
+                        Account settings
+                      </router-link>
                     </MenuItem>
-                  </RouterLink>
-
-                  <RouterLink v-if="authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Settings' }" custom>
-                    <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">
-                        Welcome {{ authStore.user.name }} !
-                      </a>
+                    <MenuItem v-slot="{ active, close }">
+                      <router-link
+                          to="/favourites"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <StarIcon class="h-4 w-4 text-gray-500" />
+                        My favourites
+                      </router-link>
                     </MenuItem>
-                  </RouterLink>
-
-                  <RouterLink v-if="!authStore.user" v-slot="{ href, navigate }" :to="{ name: 'Login' }" custom>
-                    <MenuItem v-slot="{ close }">
-                      <a :href="href" @click.prevent="navigate();close()" class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400">Login</a>
+                    <MenuItem v-slot="{ active, close }">
+                      <router-link
+                          to="/bookmarks"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <BookmarkIcon class="h-4 w-4 text-gray-500" />
+                        My bookmarks
+                      </router-link>
                     </MenuItem>
-                  </RouterLink>
+                    <MenuItem v-if="isAdmin" v-slot="{ active, close }">
+                      <router-link
+                          to="/dashboard"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <Squares2X2Icon class="h-4 w-4 text-gray-500" />
+                        Admin dashboard
+                      </router-link>
+                    </MenuItem>
+                  </div>
 
-                  <MenuItem v-if="authStore.user">
-                    <button  class="block px-3 py-1 text-sm font-semibold leading-6 text-gray-200 hover:text-indigo-400" @click="logout">Sign out</button>
-                  </MenuItem>
+                  <!-- Guest links -->
+                  <div v-else class="py-1">
+                    <MenuItem v-slot="{ active, close }">
+                      <router-link
+                          :to="{ name: 'Login' }"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-500" />
+                        Sign in
+                      </router-link>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active, close }">
+                      <router-link
+                          :to="{ name: 'Signup' }"
+                          @click="close"
+                          :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <UserPlusIcon class="h-4 w-4 text-gray-500" />
+                        Create account
+                      </router-link>
+                    </MenuItem>
+                  </div>
+
+                  <!-- Sign out -->
+                  <div v-if="authStore.user" class="border-t border-gray-800 py-1">
+                    <MenuItem v-slot="{ active }">
+                      <button
+                          type="button"
+                          @click="logout"
+                          :class="[active ? 'bg-red-500/10 text-red-300' : 'text-red-400', 'flex w-full items-center gap-3 px-4 py-2 text-sm']"
+                      >
+                        <ArrowLeftOnRectangleIcon class="h-4 w-4" />
+                        Sign out
+                      </button>
+                    </MenuItem>
+                  </div>
                 </MenuItems>
               </transition>
             </Menu>

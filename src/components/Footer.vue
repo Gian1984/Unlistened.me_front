@@ -5,10 +5,12 @@ const currentYear = new Date().getFullYear()
 
 const FooterNavigation = {
   main: [
-    { name: 'About', href: '/about', current: false },
+    { name: 'Home', href: '/', current: false },
     { name: 'Categories', href: '/categories', current: false },
     { name: 'Favourites', href: '/favourites', current: false },
     { name: 'Bookmarks', href: '/bookmarks', current: false },
+    { name: 'Documentation', href: '/documentation', current: false },
+    { name: 'About', href: '/about', current: false },
   ],
   social: [
     {
@@ -79,7 +81,14 @@ const FooterNavigation = {
         </div>
       </nav>
       <div class="mt-10 flex justify-center space-x-10">
-        <a v-for="item in FooterNavigation.social" :key="item.name" :href="item.href" class="text-indigo-400 hover:text-pink-400">
+        <a
+            v-for="item in FooterNavigation.social"
+            :key="item.name"
+            :href="item.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-indigo-400 hover:text-pink-400"
+        >
           <span class="sr-only">{{ item.name }}</span>
           <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
         </a>
