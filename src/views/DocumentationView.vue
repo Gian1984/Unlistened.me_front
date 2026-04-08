@@ -1,5 +1,7 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { documentationSeo } from '@/seo/registry/index.js'
 import {
   CheckCircleIcon,
   CodeBracketIcon,
@@ -7,6 +9,8 @@ import {
   ShieldCheckIcon,
   WrenchScrewdriverIcon,
 } from '@heroicons/vue/24/outline'
+
+useSeo(documentationSeo)
 
 const technologies = [
   {

@@ -15,6 +15,9 @@ import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { buildEpisodeSchema } from '@/seo/schemas/episode.js'
+import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
 const authStore = useAuthStore()
 authStore.initializeAuth()
@@ -30,6 +33,33 @@ const episode = ref(null)
 const error = ref(null)
 const loading = ref(true)
 const show = ref(false)
+
+const seoConfig = computed(() => {
+  if (!episode.value) {
+    return { title: 'Loading... | Unlistened.me', robots: 'noindex' }
+  }
+  const breadcrumbs = [{ name: 'Home', url: 'https://www.unlistened.me/' }]
+  if (episode.value.feedId && episode.value.feedTitle) {
+    breadcrumbs.push({ name: episode.value.feedTitle, url: `https://www.unlistened.me/feed/${episode.value.feedId}` })
+  }
+  breadcrumbs.push({ name: episode.value.title, url: `https://www.unlistened.me/episode/${episode.value.id}` })
+
+  return {
+    title: episode.value.feedTitle
+      ? `${episode.value.title} — ${episode.value.feedTitle} | Unlistened.me`
+      : `${episode.value.title} | Unlistened.me`,
+    description: episode.value.description,
+    canonical: `https://www.unlistened.me/episode/${episode.value.id}`,
+    ogType: 'article',
+    ogImage: episode.value.image,
+    jsonLd: [
+      buildEpisodeSchema(episode.value),
+      buildBreadcrumbSchema(breadcrumbs),
+    ].filter(Boolean),
+  }
+})
+
+useSeo(seoConfig)
 
 const isCurrentEpisode = computed(() => {
   return playerStore.currentEpisode?.id === episode.value?.id

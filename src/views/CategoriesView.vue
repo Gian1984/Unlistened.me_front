@@ -4,6 +4,10 @@ import Footer from '../components/Footer.vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { podcastService } from '@/services/podcastService.js'
 import { useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { categoriesSeo } from '@/seo/registry/index.js'
+
+useSeo(categoriesSeo)
 
 const router = useRouter()
 const categories = ref([])

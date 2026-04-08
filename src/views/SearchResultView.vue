@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { useRoute, useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
 
 const authStore = useAuthStore()
 authStore.initializeAuth()
@@ -53,6 +54,23 @@ const pageDescription = computed(() => {
   }
   return 'Explore podcasts that match your search.'
 })
+
+const seoConfig = computed(() => ({
+  title: route.query.q
+    ? `"${route.query.q}" — Podcast Search | Unlistened.me`
+    : route.query.name
+      ? `${route.query.name} Podcasts | Unlistened.me`
+      : 'Search Results | Unlistened.me',
+  description: route.query.q
+    ? `Search results for "${route.query.q}" on Unlistened.me. Find and stream podcasts for free, no tracking.`
+    : route.query.name
+      ? `Browse ${route.query.name} podcasts on Unlistened.me. Free to listen, no cookies, no tracking.`
+      : 'Find your next favourite podcast on Unlistened.me.',
+  canonical: 'https://www.unlistened.me/search-results',
+  ogType: 'website',
+}))
+
+useSeo(seoConfig)
 
 function loadMore() {
   visibleCount.value = Math.min(visibleCount.value + 12, feeds.value.length)

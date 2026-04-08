@@ -1,7 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { settingsSeo } from '@/seo/registry/index.js'
 import { TrashIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/vue/24/outline/index.js'
+
+useSeo(settingsSeo)
 import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
 import { XCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid/index.js'
 import { useAuthStore } from '@/stores/authStore.js'

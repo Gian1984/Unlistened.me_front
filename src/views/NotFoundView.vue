@@ -1,6 +1,10 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { notFoundSeo } from '@/seo/registry/index.js'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+
+useSeo(notFoundSeo)
 import { BookmarkSquareIcon, BookOpenIcon, UserGroupIcon } from '@heroicons/vue/24/solid'
 
 const links = [

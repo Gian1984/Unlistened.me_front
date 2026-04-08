@@ -10,6 +10,10 @@ import { useMessageStore } from '@/stores/messageStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { homeSeo } from '@/seo/registry/index.js'
+
+useSeo(homeSeo)
 
 const authStore = useAuthStore()
 authStore.initializeAuth()

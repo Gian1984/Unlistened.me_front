@@ -5,6 +5,10 @@ import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { authService } from '@/services/authService.js'
 import { useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { loginSeo } from '@/seo/registry/index.js'
+
+useSeo(loginSeo)
 
 const authStore = useAuthStore()
 const messageStore = useMessageStore()

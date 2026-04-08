@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
 import { authService } from '@/services/authService.js'
 import { useRoute, useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { resetSeo } from '@/seo/registry/index.js'
+
+useSeo(resetSeo)
 
 const route = useRoute()
 const router = useRouter()

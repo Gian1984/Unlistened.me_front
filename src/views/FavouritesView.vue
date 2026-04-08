@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { favouritesSeo } from '@/seo/registry/index.js'
 import {
   ArrowRightIcon,
   TrashIcon,
@@ -17,6 +19,8 @@ import EmptyState from '../components/EmptyState.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { podcastService } from '@/services/podcastService.js'
+
+useSeo(favouritesSeo)
 
 const router = useRouter()
 const authStore = useAuthStore()

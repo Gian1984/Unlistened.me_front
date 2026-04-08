@@ -1,5 +1,7 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { aboutSeo } from '@/seo/registry/index.js'
 import {
   CheckCircleIcon,
   ArrowTopRightOnSquareIcon,
@@ -7,6 +9,8 @@ import {
   ShieldCheckIcon,
   BookOpenIcon,
 } from '@heroicons/vue/24/outline'
+
+useSeo(aboutSeo)
 
 const highlights = [
   {

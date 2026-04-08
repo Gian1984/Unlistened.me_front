@@ -12,6 +12,9 @@ import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { buildPodcastSchema } from '@/seo/schemas/podcast.js'
+import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
 const authStore = useAuthStore()
 authStore.initializeAuth()
@@ -29,6 +32,28 @@ function episodeProgress(episodeId) {
 const feedInfo = ref(null)
 const episodes = ref([])
 const error = ref(null)
+
+const seoConfig = computed(() => {
+  if (!feedInfo.value) {
+    return { title: 'Loading... | Unlistened.me', robots: 'noindex' }
+  }
+  return {
+    title: `${feedInfo.value.title} — Episodes | Unlistened.me`,
+    description: feedInfo.value.description,
+    canonical: `https://www.unlistened.me/feed/${feedInfo.value.id}`,
+    ogType: 'website',
+    ogImage: feedInfo.value.image,
+    jsonLd: [
+      buildPodcastSchema(feedInfo.value),
+      buildBreadcrumbSchema([
+        { name: 'Home', url: 'https://www.unlistened.me/' },
+        { name: feedInfo.value.title, url: `https://www.unlistened.me/feed/${feedInfo.value.id}` },
+      ]),
+    ].filter(Boolean),
+  }
+})
+
+useSeo(seoConfig)
 const visibleCount = ref(15)
 const loading = ref(true)
 const show = ref(false)

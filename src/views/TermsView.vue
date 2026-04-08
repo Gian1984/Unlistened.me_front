@@ -1,11 +1,15 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { termsSeo } from '@/seo/registry/index.js'
 import {
   CheckCircleIcon,
   ShieldCheckIcon,
   ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
+
+useSeo(termsSeo)
 
 const termsSections = [
   {

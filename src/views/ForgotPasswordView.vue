@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import { XCircleIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { authService } from '@/services/authService.js'
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { forgotSeo } from '@/seo/registry/index.js'
+
+useSeo(forgotSeo)
 
 const email = ref('')
 const validation = ref('')
