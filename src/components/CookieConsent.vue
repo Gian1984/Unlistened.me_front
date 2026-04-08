@@ -7,6 +7,9 @@ import {
   MegaphoneIcon,
   Cog6ToothIcon,
 } from '@heroicons/vue/24/outline'
+import { usePlayerStore } from '@/stores/playerStore.js'
+
+const playerStore = usePlayerStore()
 
 // localStorage key
 const STORAGE_KEY = 'unlistened_cookie_consent_v1'
@@ -331,7 +334,10 @@ watch(preferencesOpen, (open) => {
       type="button"
       @click="reopenBanner"
       title="Cookie preferences"
-      class="fixed bottom-4 left-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-700 bg-gray-900/90 text-indigo-400 shadow-lg backdrop-blur-md transition-all hover:border-indigo-500/50 hover:bg-gray-800 hover:text-indigo-300"
+      :class="[
+        'fixed right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-gray-700 bg-gray-900/90 text-indigo-400 shadow-lg backdrop-blur-md transition-all hover:border-indigo-500/50 hover:bg-gray-800 hover:text-indigo-300',
+        playerStore.isVisible ? 'bottom-24' : 'bottom-6'
+      ]"
   >
     <span class="sr-only">Manage cookie preferences</span>
     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
