@@ -26,6 +26,7 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
   UserPlusIcon,
+  MusicalNoteIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, ChevronRightIcon, MagnifyingGlassIcon, ChevronLeftIcon, XMarkIcon as XMarkSolid } from '@heroicons/vue/20/solid'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
@@ -62,6 +63,7 @@ const navigationSections = [
     items: [
       { name: 'Home', href: '/', icon: HomeIcon },
       { name: 'Categories', href: '/categories', icon: TagIcon },
+      { name: 'Music', href: '/music', icon: MusicalNoteIcon },
     ],
   },
   {

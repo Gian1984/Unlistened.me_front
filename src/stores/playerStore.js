@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const usePlayerStore = defineStore('player', () => {
   const currentEpisode = ref(null)
   const isVisible = ref(false)
 
-  function play(episode) {
-    currentEpisode.value = { ...episode }
+  function play(item) {
+    currentEpisode.value = {
+      ...item,
+      contentType: item.contentType || 'podcast',
+    }
     isVisible.value = true
   }
 
@@ -15,5 +18,8 @@ export const usePlayerStore = defineStore('player', () => {
     currentEpisode.value = null
   }
 
-  return { currentEpisode, isVisible, play, close }
+  const isMusic = computed(() => currentEpisode.value?.contentType === 'music')
+  const isPodcast = computed(() => currentEpisode.value?.contentType !== 'music')
+
+  return { currentEpisode, isVisible, play, close, isMusic, isPodcast }
 })

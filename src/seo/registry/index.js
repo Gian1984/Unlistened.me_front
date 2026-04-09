@@ -5,6 +5,7 @@ export { searchSeo } from './search.js'
 export { termsSeo } from './terms.js'
 export { privacySeo } from './privacy.js'
 export { documentationSeo } from './documentation.js'
+export { musicSeo } from './music.js'
 export {
   loginSeo,
   signupSeo,

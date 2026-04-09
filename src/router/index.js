@@ -20,6 +20,7 @@ import ForbiddenView from "@/views/ForbiddenView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import DocumentationView from "@/views/DocumentationView.vue";
 import CategoriesView from "@/views/CategoriesView.vue";
+import MusicHomeView from "@/views/MusicHomeView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -111,6 +112,11 @@ const router = createRouter({
       path: '/categories',
       name: 'Categories',
       component: CategoriesView,
+    },
+    {
+      path: '/music',
+      name: 'Music',
+      component: MusicHomeView,
     },
     {
       path: '/documentation',

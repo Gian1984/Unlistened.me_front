@@ -303,9 +303,11 @@ Route::middleware('auth:sanctum')->prefix('music')->group(function () {
 | DELETE | `/api/music/playlists/{id}/tracks/{trackId}` | Sanctum | Rimuovi traccia da playlist |
 | PUT | `/api/music/playlists/{id}/reorder` | Sanctum | Riordina tracce (body: `tracks[]`) |
 
-### 5. New database models
+### 5. Database tables — LIVE ✅
 
-**Migration: `music_favorites`**
+Three tables are deployed and migrated on the production VPS as of 2026-04-09. The frontend can rely on this schema today.
+
+**Table `music_favorites`** — flat list of liked tracks per user (Spotify "Liked Songs").
 
 ```php
 Schema::create('music_favorites', function (Blueprint $table) {
@@ -314,16 +316,54 @@ Schema::create('music_favorites', function (Blueprint $table) {
     $table->string('jamendo_track_id');
     $table->string('title');
     $table->string('artist_name');
+    $table->string('artist_id');
+    $table->string('album_name')->nullable();
     $table->string('album_image')->nullable();
     $table->string('audio_url');
     $table->integer('duration')->default(0);
-    $table->string('section')->nullable();
+    $table->string('license_ccurl')->nullable();
+    $table->string('shareurl')->nullable();
     $table->timestamps();
     $table->unique(['user_id', 'jamendo_track_id']);
 });
 ```
 
-This mirrors the existing `favorites` table pattern used for podcast favourites.
+**Table `music_playlists`** — user-created named collections.
+
+```php
+Schema::create('music_playlists', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->string('name');
+    $table->string('description')->nullable();
+    $table->timestamps();
+});
+```
+
+**Table `music_playlist_tracks`** — positioned tracks inside a playlist.
+
+```php
+Schema::create('music_playlist_tracks', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('playlist_id')->constrained('music_playlists')->cascadeOnDelete();
+    $table->string('jamendo_track_id');
+    $table->string('title');
+    $table->string('artist_name');
+    $table->string('artist_id');
+    $table->string('album_image')->nullable();
+    $table->string('audio_url');
+    $table->integer('duration')->default(0);
+    $table->string('license_ccurl')->nullable();
+    $table->integer('position')->default(0);
+    $table->timestamps();
+    $table->unique(['playlist_id', 'jamendo_track_id']);
+});
+```
+
+**Why two separate concepts (favorites vs playlists), unlike podcasts:**
+- Podcasts use `favorites` + free-form `section` strings, because users tend to *organise* a small bookmarked list.
+- Music users *consume* large libraries and benefit from the Spotify model: one global "Liked songs" list (`music_favorites`) plus named, ordered, reorderable collections (`music_playlists` + `music_playlist_tracks`).
+- The playlist tracks table denormalises track metadata so that playlists keep working even if a track is later removed from Jamendo. The CC license URL is stored too — required to honour attribution offline.
 
 ### 6. `config/services.php`
 
@@ -335,114 +375,339 @@ This mirrors the existing `favorites` table pattern used for podcast favourites.
 
 ---
 
-## Frontend Changes Required (Vue 3)
+## Frontend Strategy (Vue 3) — Spotify-like, integrated with the podcast app
 
-### 1. Service: `src/services/musicService.js` — DONE ✅
+The goal is **one product, two content types**. The user should never feel they're crossing a border between "podcasts" and "music"; the same player, the same library page, the same search results page handle both. Music adapts the UX expectations of Spotify (Liked songs, named playlists, queue, now playing with attribution always visible) while staying inside the existing dark theme and the existing components.
+
+### Guiding principles
+
+1. **Reuse, don't fork.** The single `<OffcanvasPlayer>` plays everything. The single `playerStore` holds whatever is currently playing. The single `historyStore` tracks every play. Differences are expressed via a `contentType` discriminator on each item, not via parallel components.
+2. **Author and license are non-negotiable.** Every UI surface that shows a Jamendo track displays the artist name and a license badge. No exceptions. Removing the artist or hiding the license is a CC violation.
+3. **Library is unified, taxonomy is per-content-type.** The sidebar "Library" section lists Favourites (podcast feeds), Bookmarks (podcast episodes), Liked songs (music tracks), and Playlists (music). Same dark cards, same drag/drop pattern already used for podcast favourites.
+4. **Search is unified.** The header search bar searches both PodcastIndex and Jamendo in parallel. Results land on a single page with two tabs (Podcasts | Music) and a counter on each.
+5. **Spotify-style queue.** Music gets a real "play next / add to queue / autoplay similar" mechanic via a new `queueStore`. Podcasts can opt in later (out of scope for v1).
+
+### 1. Service layer — DONE ✅
+
+`src/services/musicService.js` already exists and wraps every live endpoint:
 
 ```js
 import api from './api.js'
 
 export const musicService = {
-  // Public — no auth
-  getTrending: (limit = 20, genre = '')  => api.get('/music/trending', { params: { limit, genre } }),
-  search: (q, genre = '', offset = 0)    => api.get('/music/search',   { params: { q, genre, offset } }),
-  getTrack: (id)                          => api.get(`/music/track/${id}`),
-  getSimilar: (id)                        => api.get(`/music/track/${id}/similar`),
-  getAlbum: (id)                          => api.get(`/music/album/${id}`),
-  getArtist: (id)                         => api.get(`/music/artist/${id}`),
-  getRadios: ()                           => api.get('/music/radios'),
+  // Public, no auth
+  getTrending:  (limit = 20, genre = '') => api.get('/music/trending', { params: { limit, genre } }),
+  search:       (q, genre = '', offset = 0) => api.get('/music/search',  { params: { q, genre, offset } }),
+  getTrack:     (id)                         => api.get(`/music/track/${id}`),
+  getSimilar:   (id)                         => api.get(`/music/track/${id}/similar`),
+  getAlbum:     (id)                         => api.get(`/music/album/${id}`),
+  getArtist:    (id)                         => api.get(`/music/artist/${id}`),
+  getRadios:    ()                           => api.get('/music/radios'),
 
-  // Favorites — auth required
-  getFavorites: ()                        => api.get('/music/favorites'),
-  addFavorite: (track)                    => api.post('/music/favorites', track),
-  removeFavorite: (trackId)              => api.delete(`/music/favorites/${trackId}`),
-  checkFavorite: (trackId)               => api.get(`/music/favorites/${trackId}/check`),
+  // Favorites (auth required, Sanctum bearer)
+  getFavorites:    ()         => api.get('/music/favorites'),
+  addFavorite:     (track)    => api.post('/music/favorites', track),
+  removeFavorite:  (trackId)  => api.delete(`/music/favorites/${trackId}`),
+  checkFavorite:   (trackId)  => api.get(`/music/favorites/${trackId}/check`),
 
-  // Playlists — auth required
-  getPlaylists: ()                        => api.get('/music/playlists'),
-  createPlaylist: (data)                  => api.post('/music/playlists', data),
-  getPlaylist: (id)                       => api.get(`/music/playlists/${id}`),
-  updatePlaylist: (id, data)              => api.put(`/music/playlists/${id}`, data),
-  deletePlaylist: (id)                    => api.delete(`/music/playlists/${id}`),
-  addTrackToPlaylist: (id, track)         => api.post(`/music/playlists/${id}/tracks`, track),
-  removeTrackFromPlaylist: (id, trackId)  => api.delete(`/music/playlists/${id}/tracks/${trackId}`),
-  reorderPlaylist: (id, tracks)           => api.put(`/music/playlists/${id}/reorder`, { tracks }),
+  // Playlists (auth required)
+  getPlaylists:           ()                  => api.get('/music/playlists'),
+  createPlaylist:         (data)              => api.post('/music/playlists', data),
+  getPlaylist:            (id)                => api.get(`/music/playlists/${id}`),
+  updatePlaylist:         (id, data)          => api.put(`/music/playlists/${id}`, data),
+  deletePlaylist:         (id)                => api.delete(`/music/playlists/${id}`),
+  addTrackToPlaylist:     (id, track)         => api.post(`/music/playlists/${id}/tracks`, track),
+  removeTrackFromPlaylist:(id, trackId)       => api.delete(`/music/playlists/${id}/tracks/${trackId}`),
+  reorderPlaylist:        (id, tracks)        => api.put(`/music/playlists/${id}/reorder`, { tracks }),
 }
 ```
 
-### 2. Player store update (`src/stores/playerStore.js`)
+When sending track payloads to `addFavorite` or `addTrackToPlaylist`, include **all** fields the controller validates against (`jamendo_track_id`, `title`, `artist_name`, `artist_id`, `audio_url`) plus the optional but strongly recommended ones (`album_name`, `album_image`, `duration`, `license_ccurl`, `shareurl`). The license URL is what powers the attribution badge — never drop it.
 
-The existing player already handles any audio URL in `enclosureUrl`. Add a `contentType` field to distinguish podcast episodes from music tracks:
+### 2. Player store: one player, two content types
+
+`src/stores/playerStore.js` becomes the single source of truth for whatever is playing, regardless of content type. Add a `contentType` field and helper getters; do not split into `musicPlayerStore`.
 
 ```js
-function play(episode) {
-  currentEpisode.value = {
-    ...episode,
-    contentType: episode.contentType || 'podcast', // 'podcast' | 'music'
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const usePlayerStore = defineStore('player', () => {
+  const currentItem = ref(null)   // renamed from currentEpisode for honesty
+  const isVisible = ref(false)
+
+  function play(item) {
+    currentItem.value = {
+      ...item,
+      contentType: item.contentType || 'podcast', // 'podcast' | 'music'
+    }
+    isVisible.value = true
   }
-  isVisible.value = true
-}
+  function close() {
+    isVisible.value = false
+    currentItem.value = null
+  }
+
+  const isMusic   = computed(() => currentItem.value?.contentType === 'music')
+  const isPodcast = computed(() => currentItem.value?.contentType === 'podcast')
+
+  // Backwards compat: keep currentEpisode as an alias so existing podcast code keeps working.
+  const currentEpisode = currentItem
+
+  return { currentItem, currentEpisode, isVisible, play, close, isMusic, isPodcast }
+})
 ```
 
-The `OffcanvasPlayer.vue` needs no structural changes — it already plays any URL set in `enclosureUrl`. Minor changes:
-- Show a music note icon when `contentType === 'music'` instead of the podcast icon
-- Show "Jamendo — CC licensed" attribution link below the track title
-- Skip the `trackPlay()` API call (or route it to a music-specific analytics endpoint)
-
-### 3. New routes in `src/router/index.js`
+When the music side calls `play()`, it must build a payload that `OffcanvasPlayer` can already consume:
 
 ```js
+playerStore.play({
+  contentType: 'music',
+  id:           track.id,            // jamendo id, kept as a string
+  title:        track.name,
+  enclosureUrl: track.audio,         // mapped from Jamendo's `audio` field
+  image:        track.album_image,
+  feedTitle:    track.artist_name,   // reused as the secondary line
+  artistId:     track.artist_id,
+  albumName:    track.album_name,
+  licenseUrl:   track.license_ccurl,
+  shareUrl:     track.shareurl,
+  duration:     track.duration,
+})
+```
+
+The mapping `feedTitle = artist_name` lets `<OffcanvasPlayer>` show artist as the secondary line for free, with no template changes — it already renders `currentEpisode.feedTitle`. Album, license and share URL are new fields the player will conditionally render (see below).
+
+### 3. `OffcanvasPlayer.vue` adaptations
+
+The existing component at `src/components/OffcanvasPlayer.vue` already plays any URL set in `enclosureUrl`. Required changes:
+
+- **Icon swap**: when `playerStore.isMusic` show `MusicalNoteIcon` (already imported as the fallback). When podcast keep the cover or fallback as today.
+- **Attribution row**: directly under the secondary line (artist), render an inline `<LicenseBadge>` plus a small "via Jamendo" link to `currentItem.shareUrl`. This row only appears when `isMusic === true`.
+- **Speed control**: hide for music (`v-if="playerStore.isPodcast"` on the speed button). Cycling speed on a song is a podcast convention, not a music one.
+- **Skip controls**: keep the same ±15/±30 buttons; but for music, also expose **previous track / next track** when a queue is active (see queue store below). The icons `BackwardIcon` / `ForwardIcon` already exist.
+- **History tracking**: keep calling `historyStore.recordPlay(item)` regardless of type — the store learns the discriminator (see point 5).
+- **Analytics call**: `trackPlay()` already gates on `episode.id && episode.title`. Add a branch: if music, call a future `musicService.trackPlay()` instead of `podcastService.trackPlay()`. For now it can be a no-op so the player ships before backend analytics for music exist.
+
+No structural changes to the audio element, the seek logic, the MediaSession code, or the visibilitychange fix shipped earlier — all of that benefits music for free.
+
+### 4. Queue store (Spotify-style "Play next" / "Add to queue")
+
+New file `src/stores/queueStore.js`. Only needed for music in v1.
+
+```js
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useQueueStore = defineStore('queue', () => {
+  const items = ref([])      // upcoming tracks
+  const history = ref([])    // played tracks (for "previous")
+
+  function setQueue(tracks, startIndex = 0) {
+    items.value = tracks.slice(startIndex + 1)
+    history.value = tracks.slice(0, startIndex)
+  }
+  function addToQueue(track)   { items.value.push(track) }
+  function playNext(track)     { items.value.unshift(track) }
+  function consumeNext()       { return items.value.shift() || null }
+  function pushHistory(track)  { history.value.push(track) }
+  function popPrevious()       { return history.value.pop() || null }
+  function clear()             { items.value = []; history.value = [] }
+
+  const hasNext     = computed(() => items.value.length > 0)
+  const hasPrevious = computed(() => history.value.length > 0)
+  return { items, history, setQueue, addToQueue, playNext, consumeNext, pushHistory, popPrevious, clear, hasNext, hasPrevious }
+})
+```
+
+`OffcanvasPlayer.vue`'s `onEnded` handler, when `playerStore.isMusic`, calls `queueStore.consumeNext()` and feeds the next track to `playerStore.play()` for autoplay. When the queue is empty, fall back to `musicService.getSimilar(currentId)` to keep the listening session alive (Spotify-style autoplay).
+
+### 5. History store: extend to two content types
+
+`src/stores/historyStore.js` already powers "Continue listening" on `HomeView`. Extend it with a `type` field on every entry:
+
+```js
+historyStore.recordPlay({ ...item, type: item.contentType || 'podcast' })
+```
+
+`continueListening` becomes a getter that returns mixed entries; the `HomeView` "Continue listening" rail then renders both podcast covers and music tracks side by side. Each entry uses an icon badge in the corner: musical note for music, podcast icon for podcasts. Resume behavior is identical (seek to last position, play).
+
+For music-specific history (e.g. a "Recently played tracks" rail on the Music home), filter the same store: `historyStore.continueListening.filter(e => e.type === 'music')`.
+
+### 6. Routes
+
+```js
+// src/router/index.js
 { path: '/music',              name: 'Music',         component: () => import('@/views/MusicHomeView.vue') },
+{ path: '/music/search',       name: 'MusicSearch',   component: () => import('@/views/MusicSearchView.vue') },
 { path: '/music/track/:id',    name: 'MusicTrack',    component: () => import('@/views/MusicTrackView.vue') },
 { path: '/music/album/:id',    name: 'MusicAlbum',    component: () => import('@/views/MusicAlbumView.vue') },
 { path: '/music/artist/:id',   name: 'MusicArtist',   component: () => import('@/views/MusicArtistView.vue') },
 { path: '/music/radios',       name: 'MusicRadios',   component: () => import('@/views/MusicRadiosView.vue') },
+{ path: '/music/liked',        name: 'MusicLiked',    component: () => import('@/views/MusicLikedView.vue'),     meta: { requiresAuth: true } },
+{ path: '/music/playlists',    name: 'MusicPlaylists',component: () => import('@/views/MusicPlaylistsView.vue'), meta: { requiresAuth: true } },
+{ path: '/music/playlist/:id', name: 'MusicPlaylist', component: () => import('@/views/MusicPlaylistView.vue'),  meta: { requiresAuth: true } },
 ```
 
-### 4. New views to create
+All music routes are lazy-loaded so the podcast bundle stays small for users who never touch music.
 
-| View | Content |
-|---|---|
-| `MusicHomeView.vue` | Hero + trending tracks grid + genre filter pills + radio stations |
-| `MusicTrackView.vue` | Track detail, artist info, album art, similar tracks, play/favourite |
-| `MusicAlbumView.vue` | Album cover, tracklist, play all |
-| `MusicArtistView.vue` | Artist bio, discography grid |
-| `MusicRadiosView.vue` | Genre radio cards — click plays a Jamendo radio stream |
+### 7. Views to create
 
-All views follow the existing dark theme pattern (`bg-gray-950`, `rounded-2xl border border-gray-800`, etc.).
+| View | Content | Key elements |
+|---|---|---|
+| `MusicHomeView.vue` | Music landing | Hero text, "Continue listening (music)" rail, trending tracks grid, genre filter pills, featured radios row, "Made for you" placeholder for v2 |
+| `MusicSearchView.vue` | Music-only search | Reused if user lands directly on it; the global search prefers the unified results page |
+| `MusicTrackView.vue` | Single track | Big cover, title, artist link, album link, license badge, play button, like button, "Add to playlist" menu, similar tracks rail |
+| `MusicAlbumView.vue` | Album detail | Cover, artist link, year, tracklist with per-row play / like / add to queue, "Play album" sets the queue and starts at #1 |
+| `MusicArtistView.vue` | Artist detail | Bio, top tracks, discography grid, follow placeholder for v2 |
+| `MusicRadiosView.vue` | Genre radios | Cards by genre; clicking starts the Jamendo radio stream — player hides duration/seek and shows "LIVE" badge instead |
+| `MusicLikedView.vue` | Liked songs | Single virtual playlist of all `music_favorites`, sortable by date added/title/artist, "Play all" button |
+| `MusicPlaylistsView.vue` | Playlist hub | Grid of user playlists with cover (mosaic of first 4 tracks), create button, drag to reorder |
+| `MusicPlaylistView.vue` | Single playlist | Editable title/description, drag-to-reorder track list (vuedraggable, same pattern as `FavouritesView`), per-row controls, share link |
 
-### 5. Navigation sidebar update (`NavigationView.vue`)
+All views follow the existing dark theme tokens (`bg-gray-950`, `rounded-2xl border border-gray-800`, indigo accents). Music gets **pink-400 accents in addition to indigo** as a subtle visual cue ("library" pink for podcast favourites is already the convention; we keep music neutral indigo to avoid clashing).
 
-Add a new "Music" section to `navigationSections`:
+### 8. Navigation sidebar update
+
+`src/views/NavigationView.vue` already has `navigationSections` split into Discover / Library / More. Extend it:
 
 ```js
-{
-  label: 'Music',
-  items: [
-    { name: 'Browse Music', href: '/music',        icon: MusicalNoteIcon },
-    { name: 'Radio',        href: '/music/radios', icon: RadioIcon },
-  ],
-},
+const navigationSections = [
+  {
+    label: 'Discover',
+    items: [
+      { name: 'Home',       href: '/',           icon: HomeIcon },
+      { name: 'Categories', href: '/categories', icon: TagIcon },
+      { name: 'Music',      href: '/music',      icon: MusicalNoteIcon },
+      { name: 'Radio',      href: '/music/radios', icon: RadioIcon },
+    ],
+  },
+  {
+    label: 'Library',
+    items: [
+      { name: 'Favourites',   href: '/favourites',      icon: StarIcon },
+      { name: 'Bookmarks',    href: '/bookmarks',       icon: BookmarkIcon },
+      { name: 'Liked songs',  href: '/music/liked',     icon: HeartIcon },
+      { name: 'Playlists',    href: '/music/playlists', icon: QueueListIcon },
+    ],
+  },
+  {
+    label: 'More',
+    items: [
+      { name: 'Documentation', href: '/documentation', icon: BookOpenIcon },
+      { name: 'About',         href: '/about',         icon: UsersIcon },
+    ],
+  },
+]
 ```
 
-### 6. Attribution component
+The Library section is the heart of the integration: podcast and music live shoulder-to-shoulder with the same visual treatment.
 
-Required by Creative Commons licenses. Create `src/components/JamendoAttribution.vue`:
+### 9. Unified search
 
-```html
+The existing topbar search currently routes to `SearchResults` (podcasts only). Three-step migration:
+
+1. **`SearchResults.vue` becomes a tabbed page.** Two tabs: "Podcasts" and "Music". On submit, fire both `podcastService.search(q)` and `musicService.search(q)` in parallel and render them in their respective tabs. Show item counts in the tab labels.
+2. **Empty state per tab**: if podcasts return 0 but music returns N, the UI nudges the user to switch tab ("Nothing in podcasts, but we found 12 tracks in music").
+3. **Tab persistence**: remember the last tab via `localStorage` so power users who only listen to music skip the podcast tab on reload.
+
+This avoids a parallel `MusicSearchView` for the common case while still keeping the dedicated route available for deep links.
+
+---
+
+## Author and License — required everywhere a track is shown
+
+This is the most important rule of the whole integration. Creative Commons licences require **visible attribution**: artist name, track title, license, and a link back to the source. Failing to display them is a breach of the licence terms.
+
+### `LicenseBadge.vue` — single source of truth
+
+Create `src/components/music/LicenseBadge.vue`. It accepts a CC URL and renders a compact pill with:
+- the short license code (`CC BY`, `CC BY-SA`, `CC BY-NC`, `CC BY-NC-SA`, `CC BY-ND`, `CC BY-NC-ND`)
+- a tooltip with the full name
+- an `href` to the canonical creativecommons.org page
+
+```vue
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  url: { type: String, default: '' },
+  size: { type: String, default: 'sm' }, // 'sm' | 'xs'
+})
+
+const LICENSE_TABLE = {
+  'by':       { code: 'CC BY',       label: 'Attribution' },
+  'by-sa':    { code: 'CC BY-SA',    label: 'Attribution, ShareAlike' },
+  'by-nc':    { code: 'CC BY-NC',    label: 'Attribution, NonCommercial' },
+  'by-nc-sa': { code: 'CC BY-NC-SA', label: 'Attribution, NonCommercial, ShareAlike' },
+  'by-nd':    { code: 'CC BY-ND',    label: 'Attribution, NoDerivatives' },
+  'by-nc-nd': { code: 'CC BY-NC-ND', label: 'Attribution, NonCommercial, NoDerivatives' },
+}
+
+const info = computed(() => {
+  if (!props.url) return null
+  const match = props.url.match(/licenses\/([a-z-]+)\//)
+  const key = match?.[1] ?? ''
+  return LICENSE_TABLE[key] || { code: 'CC', label: 'Creative Commons' }
+})
+</script>
+
 <template>
   <a
-    :href="track.shareurl"
+    v-if="info"
+    :href="url"
     target="_blank"
     rel="noopener noreferrer"
-    class="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-400 transition-colors"
+    :title="info.label + ' — opens creativecommons.org'"
+    :class="[
+      'inline-flex items-center rounded-full border border-gray-700 bg-gray-800/60 font-medium tabular-nums uppercase tracking-wide text-gray-300 transition-colors hover:border-indigo-500/50 hover:text-indigo-300',
+      size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-xs'
+    ]"
   >
-    <span>{{ track.artist_name }} — {{ track.name }}</span>
-    <span class="text-gray-600">· via Jamendo</span>
-    <span class="text-gray-600">· {{ licenseShortName }}</span>
+    {{ info.code }}
   </a>
 </template>
 ```
+
+### `JamendoAttribution.vue` — full attribution line
+
+Compose `LicenseBadge` with the artist link and "via Jamendo" link. Use this everywhere a track is displayed in detail (track view, album view, player attribution row).
+
+```vue
+<template>
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400">
+    <router-link
+      :to="{ name: 'MusicArtist', params: { id: track.artist_id } }"
+      class="font-medium text-gray-300 hover:text-indigo-400 transition-colors"
+    >
+      {{ track.artist_name }}
+    </router-link>
+    <span class="text-gray-600">·</span>
+    <a :href="track.shareurl" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-400 transition-colors">
+      via Jamendo
+    </a>
+    <LicenseBadge :url="track.license_ccurl" size="xs" />
+  </div>
+</template>
+```
+
+### Where each component appears
+
+| Surface | Artist | License badge |
+|---|---|---|
+| Track row in any list (search, album, playlist, liked) | Always, as the secondary line (clickable, links to artist page) | Always, inline at the right of the row |
+| `MusicTrackView` hero | Artist name, large, clickable | Below the title, full `<JamendoAttribution>` |
+| `MusicAlbumView` hero | Artist name, large, clickable | Per-track in the row, plus the album-level license summary if all tracks share the same license |
+| `MusicArtistView` hero | Artist name as the page title | Per-track in the discography rail |
+| `OffcanvasPlayer` (when `isMusic`) | Artist as the secondary line (already free via `feedTitle` mapping) | `<LicenseBadge :url="currentItem.licenseUrl" size="xs" />` directly under, plus "via Jamendo" share link |
+| `HomeView` "Continue listening" rail | Artist name, with a `MusicalNoteIcon` corner badge | Optional: omit on the rail to keep the card compact, but **must** show as soon as the track is opened |
+| Notification toasts ("Added to liked songs") | Artist name in the message body | Not required on transient toasts |
+
+Rule of thumb: **if the title is visible, the artist must be visible. If the user can interact with the track (play, like, queue), the license must be reachable in one click.**
+
+### Footer disclosure
+
+Add one line to `Footer.vue` next to the existing legal links: `Music provided by <a href="https://www.jamendo.com">Jamendo</a> under Creative Commons licenses.` This satisfies the platform-level attribution and complements the per-track attribution above.
 
 ---
 
@@ -450,14 +715,16 @@ Required by Creative Commons licenses. Create `src/components/JamendoAttribution
 
 | Feature | Podcasts (PodcastIndex) | Music (Jamendo) |
 |---|---|---|
-| Icon in player | Podcast icon | Musical note icon |
-| Skip buttons | ±15s / ±30s | ±15s / ±30s |
-| Speed control | Yes (0.5x – 2x) | Hide (not relevant for music) |
-| Attribution | "Saved podcast" | Artist + CC license link |
-| History tracking | `historyStore` | Separate `musicHistoryStore` or same store with type flag |
-| Track play | `/api/add_play_click` | `/api/music/play` (new endpoint) |
-| Queue / next | Episode queue | Album tracklist queue |
-| Seek | Yes | Yes |
+| Icon in player | Cover or podcast icon | Cover or musical note icon |
+| Skip buttons | ±15s / ±30s | ±15s / ±30s + previous track / next track when queue active |
+| Speed control | 0.5x to 2x | Hidden |
+| Secondary line | Feed title | Artist name (linked) |
+| Attribution row | None | LicenseBadge + "via Jamendo" link, always visible |
+| History tracking | `historyStore` (type: podcast) | `historyStore` (type: music) — same store |
+| Track play analytics | `podcastService.trackPlay` | `musicService.trackPlay` (TODO endpoint) |
+| Queue / next | None in v1 | `queueStore` autoplay + similar tracks fallback |
+| Seek | Yes | Yes (hidden for live radio streams) |
+| MediaSession metadata | title, artist=feed | title, artist=real artist, album=album_name |
 
 ---
 
@@ -493,25 +760,46 @@ Jamendo free API:
 
 ## Implementation Order
 
-| Phase | Task | Effort |
-|---|---|---|
-| 1 | Register Jamendo developer account, get `client_id` | 15m |
-| 2 | Backend: `JamendoService.php` + `MusicController.php` + routes + migration | 3–4h |
-| 3 | Frontend: `musicService.js` + router entries | 1h |
-| 4 | `MusicHomeView.vue` (trending + genre filter) | 3h |
-| 5 | Player integration (contentType flag + attribution) | 1h |
-| 6 | `MusicRadiosView.vue` (genre radios) | 2h |
-| 7 | `MusicTrackView.vue` + `MusicAlbumView.vue` + `MusicArtistView.vue` | 4h |
-| 8 | Music favourites (frontend + backend) | 2h |
-| 9 | Attribution component everywhere | 1h |
-| 10 | Sidebar navigation update | 30m |
+Status legend: ✅ done, 🟡 partial, ⬜ todo.
+
+| # | Phase | Task | Status |
+|---|---|---|---|
+| 1 | Backend | Jamendo developer account + `client_id` env var | ✅ |
+| 2 | Backend | `JamendoService` + `MusicController` + public routes | ✅ |
+| 3 | Backend | `music_favorites`, `music_playlists`, `music_playlist_tracks` migrations | ✅ |
+| 4 | Backend | `MusicFavoriteController` + `MusicPlaylistController` + auth routes | ✅ |
+| 5 | Frontend | `src/services/musicService.js` wrapping every endpoint | ✅ |
+| 6 | Frontend | Add `music_*` routes to `src/router/index.js` (lazy-loaded) | ⬜ |
+| 7 | Frontend | Extend `playerStore` with `contentType`, `isMusic`, `isPodcast` | ⬜ |
+| 8 | Frontend | `LicenseBadge.vue` + `JamendoAttribution.vue` components | ⬜ |
+| 9 | Frontend | `OffcanvasPlayer.vue`: hide speed for music, show attribution row, branch icon | ⬜ |
+| 10 | Frontend | Sidebar: add Music + Radio to Discover, Liked songs + Playlists to Library | ⬜ |
+| 11 | Frontend | `MusicHomeView.vue` (trending + genres + radios + continue listening rail) | ⬜ |
+| 12 | Frontend | `MusicTrackView.vue` + `MusicAlbumView.vue` + `MusicArtistView.vue` | ⬜ |
+| 13 | Frontend | `MusicLikedView.vue` (single virtual playlist of `music_favorites`) | ⬜ |
+| 14 | Frontend | `MusicPlaylistsView.vue` + `MusicPlaylistView.vue` (drag/drop reorder) | ⬜ |
+| 15 | Frontend | `MusicRadiosView.vue` (genre radios + LIVE player mode) | ⬜ |
+| 16 | Frontend | `queueStore.js` + autoplay/similar fallback in `OffcanvasPlayer.onEnded` | ⬜ |
+| 17 | Frontend | Extend `historyStore` with `type`, mix music + podcast in "Continue listening" | ⬜ |
+| 18 | Frontend | `SearchResults.vue` becomes tabbed (Podcasts | Music) with parallel calls | ⬜ |
+| 19 | Frontend | Footer: add Jamendo CC disclosure line | ⬜ |
+| 20 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
+
+Recommended sequence for the first PR after this strategy is approved: **6 → 7 → 8 → 9 → 10 → 11**. That ships a working browse-and-play music experience with attribution, riding entirely on the existing player. Library/playlists/queue come in a second PR.
 
 ---
 
+## Resolved Decisions
+
+1. **Music favourites storage** → separate `music_favorites` table. Already deployed. Cleaner schema, no `type` column hack on the podcast `favorites` table.
+2. **Library taxonomy** → music uses `music_favorites` (Liked songs, flat) + `music_playlists` (named, ordered, drag-reorderable). Podcasts keep `favorites` + `bookmarks` with section strings. Two models, one Library section in the sidebar.
+3. **Unified search** → yes, tabbed `SearchResults` page (Podcasts | Music) with parallel API calls.
+4. **Player** → single `OffcanvasPlayer` + single `playerStore`, discriminated via `contentType`. No fork.
+
 ## Open Questions
 
-1. **Unified search?** Should the header search bar search both podcasts AND music simultaneously, or is music search separate? A unified results page with tabs (Podcasts / Music) would be ideal UX.
-2. **Music favourites storage:** Store in existing `favorites` table with a `type` column (`podcast`/`music`)? Or a separate `music_favorites` table? Separate table is cleaner and avoids mixing schemas.
-3. **Offline music?** Jamendo allows downloading (with attribution). Could cache a few tracks locally for offline playback — requires significant storage management logic. Out of scope for v1.
-4. **Mobile app (future Capacitor build):** Jamendo streams work over HTTPS on mobile browsers without any extra config. No native SDK needed.
-5. **Jamendo Radio streams:** Radio `stream` URLs are persistent HLS streams — they work with the existing `<audio>` element but the player's seek bar and duration should be hidden for live radio.
+1. **Offline music?** Jamendo allows downloading (with attribution). Could cache a few tracks locally for offline playback — requires significant storage management logic. Out of scope for v1.
+2. **Mobile app (future Capacitor build):** Jamendo streams work over HTTPS on mobile browsers without any extra config. No native SDK needed.
+3. **Jamendo Radio streams:** Radio `stream` URLs are persistent HLS streams — they work with the existing `<audio>` element, but the player's seek bar and duration must be hidden and a "LIVE" badge shown when `currentItem.isLive === true`.
+4. **Music play analytics:** Should we ship a `POST /music/play` endpoint for the dashboard, or is per-track Jamendo telemetry enough? Decide before view #11 ships.
+5. **Playlist cover mosaic:** rendering 4-track mosaics client-side for playlist cards — generate at view time from `album_image` URLs, or pre-compute on the backend? Lean towards client-side for v1.

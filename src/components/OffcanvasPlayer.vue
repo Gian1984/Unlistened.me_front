@@ -69,7 +69,34 @@
           <p class="text-sm font-semibold text-white truncate leading-tight">
             {{ playerStore.currentEpisode.title }}
           </p>
-          <p v-if="playerStore.currentEpisode.feedTitle" class="text-xs text-gray-400 truncate leading-tight mt-0.5">
+          <!-- Music: artist + license + via Jamendo (CC attribution required) -->
+          <div
+            v-if="playerStore.isMusic"
+            class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400 leading-tight"
+          >
+            <span class="truncate">{{ playerStore.currentEpisode.feedTitle }}</span>
+            <LicenseBadge
+              v-if="playerStore.currentEpisode.licenseUrl"
+              :url="playerStore.currentEpisode.licenseUrl"
+              size="xs"
+            />
+            <a
+              v-if="playerStore.currentEpisode.shareUrl"
+              :href="playerStore.currentEpisode.shareUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click.stop
+              class="hidden sm:inline shrink-0 text-gray-500 hover:text-indigo-400 transition-colors"
+              title="Open on Jamendo"
+            >
+              · via Jamendo
+            </a>
+          </div>
+          <!-- Podcast: feed title -->
+          <p
+            v-else-if="playerStore.currentEpisode.feedTitle"
+            class="text-xs text-gray-400 truncate leading-tight mt-0.5"
+          >
             {{ playerStore.currentEpisode.feedTitle }}
           </p>
         </div>
@@ -79,8 +106,9 @@
           {{ formatTime(currentTimeSec) }} / {{ formatTime(durationSec) }}
         </span>
 
-        <!-- Speed control -->
+        <!-- Speed control (podcasts only) -->
         <button
+          v-if="playerStore.isPodcast"
           @click="cycleSpeed"
           class="hidden sm:flex shrink-0 items-center justify-center h-7 px-1.5 rounded text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-700 transition-colors tabular-nums"
           aria-label="Playback speed"
@@ -137,6 +165,7 @@ import { usePlayerStore } from '@/stores/playerStore'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
 
 const playerStore = usePlayerStore()
 const historyStore = useHistoryStore()
@@ -171,10 +200,11 @@ function updateMediaSession(episode) {
       { src: episode.image, sizes: '512x512', type: 'image/png' },
     )
   }
+  const isMusic = episode.contentType === 'music'
   navigator.mediaSession.metadata = new MediaMetadata({
     title: episode.title,
     artist: episode.feedTitle || '',
-    album: 'Unlistened.me',
+    album: isMusic ? (episode.albumName || 'Jamendo') : 'Unlistened.me',
     artwork,
   })
 }
@@ -280,8 +310,13 @@ watch(() => playerStore.currentEpisode, (episode) => {
       navigator.mediaSession.playbackState = 'paused'
     }
   })
-  trackPlay(episode)
-  historyStore.recordPlay(episode)
+  // Music in v1 is play-only: no analytics call (podcast endpoint), no
+  // history pollution. Both will come back when the music history/playback
+  // store is wired up.
+  if (episode.contentType !== 'music') {
+    trackPlay(episode)
+    historyStore.recordPlay(episode)
+  }
 })
 
 function trackPlay(episode) {
@@ -322,6 +357,8 @@ function onTimeUpdate() {
 function saveHistoryNow() {
   const episode = playerStore.currentEpisode
   if (!episode?.id || !audioEl.value) return
+  // Music in v1: no history persistence (avoid mixing with podcast continue listening).
+  if (episode.contentType === 'music') return
   const ct = audioEl.value.currentTime || 0
   const dur = audioEl.value.duration || 0
   if (ct <= 0) return
@@ -343,7 +380,7 @@ function onEnded() {
     navigator.mediaSession.playbackState = 'none'
   }
   const episode = playerStore.currentEpisode
-  if (episode?.id) {
+  if (episode?.id && episode.contentType !== 'music') {
     historyStore.markCompleted(episode.id)
   }
 }
