@@ -27,9 +27,8 @@ import {
   ArrowLeftOnRectangleIcon,
   UserPlusIcon,
 } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon, ChevronLeftIcon } from '@heroicons/vue/20/solid'
+import { ChevronDownIcon, ChevronRightIcon, MagnifyingGlassIcon, ChevronLeftIcon, XMarkIcon as XMarkSolid } from '@heroicons/vue/20/solid'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/vue/20/solid/index.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
@@ -56,49 +55,43 @@ const userInitials = computed(() => {
     .join('')
 })
 
-// Navigation items
-const navigation = [
-  { name: 'Home', href: '/', icon: HomeIcon, current: true },
-  { name: 'Categories', href: '/categories', icon: TagIcon, current: false },
-  { name: 'Favourites', href: '/favourites', icon: StarIcon, current: false },
-  { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon, current: false },
-  { name: 'Documentation', href: '/documentation', icon: BookOpenIcon, current: false },
-  { name: 'About', href: '/about', icon: UsersIcon, current: false },
+// Navigation sections
+const navigationSections = [
+  {
+    label: 'Discover',
+    items: [
+      { name: 'Home', href: '/', icon: HomeIcon },
+      { name: 'Categories', href: '/categories', icon: TagIcon },
+    ],
+  },
+  {
+    label: 'Library',
+    items: [
+      { name: 'Favourites', href: '/favourites', icon: StarIcon },
+      { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon },
+    ],
+  },
+  {
+    label: 'More',
+    items: [
+      { name: 'Documentation', href: '/documentation', icon: BookOpenIcon },
+      { name: 'About', href: '/about', icon: UsersIcon },
+    ],
+  },
 ]
 
 const sidebarOpen = ref(false)
 
-// Reactive data (previously in data())
+// Reactive data
 const searchQuery = ref('')
 const categories = ref([])
-const currentCategories = ref(1)
-const categoriesPerPage = ref(8)
-const maxVisiblePagesCategories = ref(3)
+const categoryFilter = ref('')
 const preferredLanguage = ref('')
 
-// Computed properties
-const paginatedCategories = computed(() => {
-  const start = (currentCategories.value - 1) * categoriesPerPage.value
-  const end = start + categoriesPerPage.value
-  return categories.value.slice(start, end)
-})
-
-const totalPagesCategories = computed(() => {
-  return Math.ceil(categories.value.length / categoriesPerPage.value)
-})
-
-const visiblePagesCategories = computed(() => {
-  const pages = []
-  const startPage = Math.max(1, currentCategories.value - Math.floor(maxVisiblePagesCategories.value / 2))
-  const endPage = Math.min(totalPagesCategories.value, startPage + maxVisiblePagesCategories.value - 1)
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i)
-  }
-  return pages
-})
-
-const showNextButtonCategories = computed(() => {
-  return currentCategories.value + Math.floor(maxVisiblePagesCategories.value / 2) < totalPagesCategories.value
+const filteredCategories = computed(() => {
+  const q = categoryFilter.value.trim().toLowerCase()
+  if (!q) return categories.value
+  return categories.value.filter(c => (c.name || '').toLowerCase().includes(q))
 })
 
 // Methods
@@ -107,6 +100,10 @@ function onSearchClick() {
     router.push({ name: 'SearchResults', query: { q: searchQuery.value } })
     searchQuery.value = ''
   }
+}
+
+function clearSearch() {
+  searchQuery.value = ''
 }
 
 function onFilterClick(id) {
@@ -145,30 +142,6 @@ async function detectBrowserLanguage() {
   }
 }
 
-function nextPage(type) {
-  if (type === 'categories' && currentCategories.value * categoriesPerPage.value < categories.value.length) {
-    currentCategories.value += 1
-  }
-}
-
-function prevPage(type) {
-  if (type === 'categories' && currentCategories.value > 1) {
-    currentCategories.value -= 1
-  }
-}
-
-function goToPage(type, page) {
-  if (type === 'categories') {
-    currentCategories.value = page
-  }
-}
-
-function nextPageSet(type) {
-  if (type === 'categories') {
-    currentCategories.value = Math.min(totalPagesCategories.value, currentCategories.value + maxVisiblePagesCategories.value)
-  }
-}
-
 // Lifecycle: created() equivalent - runs immediately
 fetchSearchCat()
 
@@ -198,15 +171,18 @@ onMounted(() => {
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
               <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
-                <div class="flex h-32 shrink-0 items-center">
-                  <img class="h-16 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
+                <div class="flex h-24 shrink-0 items-center">
+                  <router-link to="/" @click="sidebarOpen = false">
+                    <img class="h-12 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
+                  </router-link>
                 </div>
                 <nav class="flex flex-1 flex-col">
-                  <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                    <li>
-                      <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
-                          <router-link :to="item.href" :class="[ $route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" @click.native="sidebarOpen = false">
+                  <ul role="list" class="flex flex-1 flex-col gap-y-5">
+                    <li v-for="section in navigationSections" :key="section.label">
+                      <p class="px-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ section.label }}</p>
+                      <ul role="list" class="mt-1 -mx-2 space-y-1">
+                        <li v-for="item in section.items" :key="item.name">
+                          <router-link :to="item.href" :class="[ $route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" @click="sidebarOpen = false">
                             <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                             {{ item.name }}
                           </router-link>
@@ -217,13 +193,13 @@ onMounted(() => {
                       <div class="mb-2 border-t border-gray-800" />
                       <ul role="list" class="-mx-2 space-y-1">
                         <li>
-                          <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
+                          <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
                             <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Settings
                           </router-link>
                         </li>
                         <li v-if="isAdmin">
-                          <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click.native="sidebarOpen = false">
+                          <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
                             <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Dashboard
                           </router-link>
@@ -251,10 +227,17 @@ onMounted(() => {
           </router-link>
         </div>
         <nav class="flex flex-1 flex-col" :class="isDesktopCollapsed ? 'w-full' : ''">
-          <ul role="list" class="flex flex-1 flex-col gap-y-7">
-            <li>
-              <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
+          <ul role="list" class="flex flex-1 flex-col gap-y-5">
+            <li v-for="section in navigationSections" :key="section.label">
+              <p
+                  v-if="!isDesktopCollapsed"
+                  class="px-2 text-xs font-semibold uppercase tracking-wide text-gray-500"
+              >
+                {{ section.label }}
+              </p>
+              <div v-else class="mx-auto h-px w-6 bg-gray-800" aria-hidden="true" />
+              <ul role="list" class="mt-1 -mx-2 space-y-1">
+                <li v-for="item in section.items" :key="item.name">
                   <router-link :to="item.href" :class="[$route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', isDesktopCollapsed ? 'justify-center' : '']" :title="isDesktopCollapsed ? item.name : undefined">
                     <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">{{ item.name }}</span>
@@ -292,87 +275,103 @@ onMounted(() => {
     </div>
 
     <div :class="['transition-all duration-300', isDesktopCollapsed ? 'lg:pl-20' : 'lg:pl-72']">
-      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-800 bg-gray-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-        <button type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden" @click="sidebarOpen = true">
+      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-3 border-b border-gray-800 bg-gray-950/95 px-4 shadow-sm backdrop-blur-md sm:gap-x-4 sm:px-6 lg:px-8">
+        <button type="button" class="-m-2.5 p-2.5 text-gray-400 transition-colors hover:text-white lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
 
-        <!-- Separator -->
-        <div class="h-6 w-px bg-gray-700 lg:hidden" aria-hidden="true" />
+        <div class="flex flex-1 items-center gap-x-3 self-stretch sm:gap-x-4">
+          <!-- Search bar -->
+          <div class="flex flex-1 items-center py-3">
+            <div class="group relative flex w-full max-w-2xl items-center gap-2 rounded-full border border-gray-800 bg-gray-900 px-3 py-1.5 transition-colors focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20 hover:border-gray-700">
+              <button
+                  type="button"
+                  @click="onSearchClick"
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300"
+              >
+                <span class="sr-only">Search</span>
+                <MagnifyingGlassIcon class="h-4 w-4" aria-hidden="true" />
+              </button>
 
-        <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-          <div class="relative flex flex-1">
+              <label for="search-field" class="sr-only">Search podcasts</label>
+              <input
+                  id="search-field"
+                  v-model="searchQuery"
+                  @keyup.enter="onSearchClick"
+                  type="search"
+                  name="search"
+                  placeholder="Search podcasts, hosts, topics..."
+                  class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-0"
+              />
 
-            <Popover class="hidden md:flex align-middle px-2 ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
+              <button
+                  v-if="searchQuery"
+                  type="button"
+                  @click="clearSearch"
+                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-800 hover:text-white"
+                  aria-label="Clear search"
+              >
+                <XMarkSolid class="h-3.5 w-3.5" />
+              </button>
 
-              <PopoverButton class="ring-0 outline-none focus:outline-none focus:ring-0 focus:border-transparent">
-                <span class="sr-only">filters</span>
-                <AdjustmentsHorizontalIcon class=" h-8 bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" aria-hidden="true" />
-              </PopoverButton>
+              <!-- Filter by category popover -->
+              <Popover class="relative shrink-0">
+                <PopoverButton
+                    class="flex h-7 items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 text-xs font-medium text-indigo-300 ring-1 ring-inset ring-indigo-500/30 transition-colors hover:bg-indigo-500/20 hover:text-white focus:outline-none"
+                    title="Filter by category"
+                >
+                  <AdjustmentsHorizontalIcon class="h-3.5 w-3.5" aria-hidden="true" />
+                  <span class="hidden sm:inline">Filters</span>
+                </PopoverButton>
 
-              <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 -translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
-                <PopoverPanel v-slot="{ close }" class="absolute inset-x-0 top-0 -z-10 bg-gray-900 pt-16 shadow-lg ring-1 ring-gray-700">
-                  <div class="pt-6">
-                    <div class="mx-auto max-w-7xl px-3 lg:px-8">
-                      <h3 class="text-lg leading-6 text-white">Search by Categories</h3>
-                    </div>
-                  </div>
-                  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-2 px-1 sm:grid-cols-2 sm:gap-x-1 sm:gap-y-0 sm:py-6 lg:grid-cols-4 lg:gap-1 lg:px-3 xl:gap-1 py-6">
-                    <div v-for="item in paginatedCategories" :key="item.name" class="group relative -mx-1 flex gap-1 rounded-lg p-1 text-sm sm:flex-col sm:p-1">
-                      <div class="flex items-center justify-center rounded-lg bg-gray-800 group-hover:bg-pink-500 px-1">
-                        <MagnifyingGlassIcon class="h-3 w-3 text-gray-300 mr-2"/>
-                        <button @click="() => { close(); onFilterClick(item.id); }" class="font-semibold text-gray-300 py-1">
-                          {{ item.name }}
-                          <span class="absolute inset-0 sr-only">Search</span>
-                        </button>
+                <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
+                  <PopoverPanel v-slot="{ close }" class="absolute right-0 z-50 mt-3 w-[22rem] origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
+                    <div class="border-b border-gray-800 px-4 pt-4 pb-3">
+                      <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Browse by category</p>
+                      <div class="relative mt-2">
+                        <MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <input
+                            v-model="categoryFilter"
+                            type="search"
+                            placeholder="Filter categories"
+                            class="w-full rounded-lg border border-gray-800 bg-gray-950 py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
                       </div>
                     </div>
-                  </div>
-                  <div class="bg-gray-900">
-                    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 pb-4">
-                      <div class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-                        <div class="-mt-px flex w-0 flex-1">
-                          <button @click="prevPage('categories')" :disabled="currentCategories === 1" :class="{'inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentCategories !== 1, 'inline-flex items-center border-t-2 border-gray-600 pr-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories === 1}">
-                            <ArrowLongLeftIcon class="mr-3 h-5 w-5" aria-hidden="true" />
-                            Previous
+                    <div class="max-h-72 overflow-y-auto p-2">
+                      <p v-if="!categories.length" class="px-2 py-6 text-center text-xs text-gray-500">Loading categories...</p>
+                      <p v-else-if="!filteredCategories.length" class="px-2 py-6 text-center text-xs text-gray-500">No categories match.</p>
+                      <ul v-else class="grid grid-cols-2 gap-1">
+                        <li v-for="cat in filteredCategories" :key="cat.id">
+                          <button
+                              type="button"
+                              @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
+                              class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                          >
+                            <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                            <span class="truncate">{{ cat.name }}</span>
                           </button>
-                        </div>
-                        <div class="hidden md:-mt-px md:flex">
-                          <button v-for="page in visiblePagesCategories" :key="page" @click="goToPage('categories', page)" :class="{'inline-flex items-center border-t-2 border-indigo-500 text-indigo-500 px-4 pt-4 text-sm font-medium': currentCategories === page, 'inline-flex items-center border-t-2 border-transparent text-white hover:text-pink-500 hover:border-pink-500 px-4 pt-4 text-sm font-medium': currentCategories !== page}" aria-current="page">{{ page }}</button>
-                          <button v-if="showNextButtonCategories" @click="nextPageSet('categories')" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-white hover:text-pink-500">...</button>
-                        </div>
-                        <div class="-mt-px flex w-0 flex-1 justify-end">
-                          <button @click="nextPage('categories')" :disabled="currentCategories * categoriesPerPage >= categories.length" :class="{'inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-white hover:border-pink-500 hover:text-pink-500': currentCategories * categoriesPerPage < categories.length, 'inline-flex items-center border-t-2 border-gray-600 pl-1 pt-4 text-sm font-medium text-gray-600 cursor-default': currentCategories * categoriesPerPage >= categories.length}">
-                            Next
-                            <ArrowLongRightIcon class="ml-3 h-5 w-5" aria-hidden="true" />
-                          </button>
-                        </div>
-                      </div>
+                        </li>
+                      </ul>
                     </div>
-                  </div>
-                </PopoverPanel>
-              </transition>
-            </Popover>
-
-
-            <button @click="onSearchClick">
-              <span class="sr-only">Search</span>
-              <MagnifyingGlassIcon class=" h-8 bg-indigo-600 hover:bg-pink-500 text-white font-bold py-2 px-2 rounded-full" />
-            </button>
-            <label for="search-field" class="sr-only">Search</label>
-            <input id="search-field" v-model="searchQuery"  @keyup.enter="onSearchClick" class="block h-full w-full border-0 bg-gray-950 focus:bg-gray-950 active:bg-gray-950 pl-4 pr-0 text-white placeholder:text-gray-500 focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search"/>
+                    <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
+                      <router-link
+                          to="/categories"
+                          @click="close"
+                          class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
+                      >
+                        See all categories
+                        <ChevronRightIcon class="h-4 w-4" />
+                      </router-link>
+                    </div>
+                  </PopoverPanel>
+                </transition>
+              </Popover>
+            </div>
           </div>
-          <div class="flex items-center gap-x-4 lg:gap-x-6">
 
-             <router-link to="/" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-300 lg:hidden">
-               <span class="sr-only">View notifications</span>
-               <img class="h-8 w-8 " src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
-             </router-link>
-
-            <!-- Separator -->
-            <div class="h-6 w-px bg-gray-700 lg:hidden" aria-hidden="true" />
-
+          <div class="flex items-center gap-x-3 lg:gap-x-4">
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
               <MenuButton class="-m-1.5 flex items-center gap-x-3 rounded-full p-1.5 transition-colors hover:bg-gray-900">

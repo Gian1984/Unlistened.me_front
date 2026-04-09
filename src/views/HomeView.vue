@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
 import { StarIcon, ArrowRightIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/vue/20/solid'
+import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
@@ -28,8 +28,6 @@ const categories = ref([])
 const loading = ref(true)
 const loadingCategories = ref(true)
 const show = ref(false)
-const searchQuery = ref('')
-const activeCategory = ref(null)
 
 const visibleCount = ref(12)
 
@@ -39,17 +37,6 @@ const displayedFeeds = computed(() => {
 
 function loadMore() {
   visibleCount.value = Math.min(visibleCount.value + 12, feeds.value.length)
-}
-
-function onSearch() {
-  if (searchQuery.value.trim()) {
-    router.push({ name: 'SearchResults', query: { q: searchQuery.value } })
-    searchQuery.value = ''
-  }
-}
-
-function clearSearch() {
-  searchQuery.value = ''
 }
 
 function selectCategory(catId, catName) {
@@ -141,36 +128,17 @@ onMounted(() => {
     <div class="p-6 sm:p-8">
       <!-- Header -->
       <div class="mb-8">
-        <p class="text-sm font-semibold text-pink-400">Welcome to Unlistened</p>
+        <p class="text-sm font-semibold text-pink-400">Hello, listener</p>
         <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Discover your next podcast
+          Your next favourite show is one tap away
         </h1>
         <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          Browse trending shows, explore by category, and start listening. Free. Private. No tracking.
+          Grab a coffee, plug in your headphones and let your ears wander. Trending picks, fresh categories and brand new gems are all waiting below.
         </p>
       </div>
 
-      <!-- Search input -->
+      <!-- Categories -->
       <div class="mb-8 space-y-4">
-        <div class="relative max-w-lg">
-          <MagnifyingGlassIcon class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            v-model="searchQuery"
-            type="search"
-            placeholder="Search podcasts..."
-            class="w-full rounded-lg bg-gray-800 border-2 border-gray-700 pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
-            @keyup.enter="onSearch"
-          />
-          <button
-            v-if="searchQuery"
-            @click="clearSearch"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-            aria-label="Clear search"
-          >
-            <XMarkIcon class="h-4 w-4" />
-          </button>
-        </div>
-
         <!-- Category pills -->
         <div v-if="!loadingCategories" class="flex flex-wrap gap-2">
           <span class="px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-600 text-white">

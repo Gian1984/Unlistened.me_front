@@ -13,6 +13,7 @@ import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import SettingsView from "@/views/SettingsView.vue";
 import TermsView from "@/views/TermsView.vue";
+import PrivacyView from "@/views/PrivacyView.vue";
 import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
 import DashboardView from "@/views/DashboardView.vue";
 import ForbiddenView from "@/views/ForbiddenView.vue";
@@ -94,6 +95,11 @@ const router = createRouter({
       path: '/terms',
       name: 'TermsAndConditions',
       component: TermsView,
+    },
+    {
+      path: '/privacy',
+      name: 'Privacy',
+      component: PrivacyView,
     },
     {
       path: '/dashboard',

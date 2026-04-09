@@ -130,6 +130,10 @@ function closeAlertEmpty() {
               <router-link to="/terms" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
                 terms and conditions
               </router-link>
+              and the
+              <router-link to="/privacy" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+                privacy policy
+              </router-link>
             </label>
           </div>
 
