@@ -86,7 +86,7 @@ function playTrack(t, index) {
     duration: tr.duration,
   }))
   queueStore.setQueue(allTracks, index)
-  playerStore.play(t)
+  playerStore.play(allTracks[index])
 }
 
 function isCurrentTrack(t) {
