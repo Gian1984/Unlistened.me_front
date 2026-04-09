@@ -8,6 +8,7 @@ import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useQueueStore } from '@/stores/queueStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { ref, computed, onMounted } from 'vue'
@@ -21,6 +22,7 @@ authStore.initializeAuth()
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
 const route = useRoute()
 const router = useRouter()
@@ -64,7 +66,7 @@ function loadMore() {
   visibleCount.value = Math.min(visibleCount.value + 10, episodes.value.length)
 }
 
-function playEpisode(episode) {
+function playEpisode(episode, index = null) {
   playerStore.play({
     id: episode.id,
     title: episode.title,
@@ -73,6 +75,19 @@ function playEpisode(episode) {
     feedTitle: feedInfo.value?.title || '',
     feedId: feedInfo.value?.id || null,
   })
+  if (index !== null) {
+    const episodeList = visibleEpisodes.value.map(ep => ({
+      contentType: 'podcast',
+      id: ep.id,
+      title: ep.title,
+      enclosureUrl: ep.enclosureUrl,
+      image: feedInfo.value?.image || '',
+      feedTitle: feedInfo.value?.title || '',
+      feedId: feedInfo.value?.id || null,
+      duration: ep.duration,
+    }))
+    queueStore.setQueue(episodeList, index)
+  }
 }
 
 function stripHtmlTags(str) {
@@ -224,7 +239,7 @@ onMounted(() => {
         <!-- Episode list -->
         <div class="space-y-2">
           <div
-            v-for="episode in visibleEpisodes"
+            v-for="(episode, idx) in visibleEpisodes"
             :key="episode.id"
             :class="[
               'relative flex items-center gap-3 p-3 rounded-lg border transition-colors group overflow-hidden',
@@ -235,7 +250,7 @@ onMounted(() => {
           >
             <!-- Play button -->
             <button
-              @click="playEpisode(episode)"
+              @click="playEpisode(episode, idx)"
               :class="[
                 'shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none',
                 playerStore.isCurrent(episode.id)

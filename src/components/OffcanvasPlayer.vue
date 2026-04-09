@@ -151,8 +151,8 @@
           <ForwardIcon class="h-4 w-4" />
         </button>
 
-        <!-- Previous / Next track (music only, when queue has items) -->
-        <template v-if="playerStore.isMusic && queueStore.hasPrevious">
+        <!-- Previous / Next track (when queue has items) -->
+        <template v-if="queueStore.hasPrevious">
           <button
             @click="playPrevious"
             class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
@@ -161,7 +161,7 @@
             <BackwardIcon class="h-4 w-4" />
           </button>
         </template>
-        <template v-if="playerStore.isMusic && queueStore.hasNext">
+        <template v-if="queueStore.hasNext">
           <button
             @click="playNext"
             class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
