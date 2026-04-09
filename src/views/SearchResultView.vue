@@ -359,7 +359,7 @@ watch(
               <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">{{ idx + 1 }}</span>
 
               <div 
-                class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+                class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer group"
                 @click="playTrack(track)"
               >
                 <img
@@ -372,7 +372,8 @@ watch(
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
                 </div>
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity"
+                  :class="isCurrentTrack(track) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                   <PauseIcon v-if="isCurrentTrack(track)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
