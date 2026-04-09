@@ -25,6 +25,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Generate Sitemap
+        run: npm run generate-sitemap
+
       - name: Verify .htaccess in dist
         run: |
           cat dist/.htaccess
