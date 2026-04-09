@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import {
   ArrowRightIcon,
   StarIcon,
@@ -16,6 +17,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
+import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { musicService } from '@/services/musicService.js'
 import { useRoute, useRouter } from 'vue-router'
@@ -26,6 +28,8 @@ authStore.initializeAuth()
 
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
+
+const playerStore = usePlayerStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -144,6 +148,28 @@ async function addFavourite(feedId, feedTitle) {
 function stripHtmlTags(str) {
   if (!str) return ''
   return str.replace(/<[^>]*>/g, '')
+}
+
+function playTrack(track) {
+  playerStore.play({
+    contentType: 'music',
+    id: track.id,
+    title: track.name,
+    enclosureUrl: track.audio,
+    image: track.album_image,
+    feedTitle: track.artist_name,
+    artistId: track.artist_id,
+    albumName: track.album_name,
+    licenseUrl: track.license_ccurl,
+    shareUrl: track.shareurl,
+    duration: track.duration,
+  })
+}
+
+function isCurrentTrack(track) {
+  return playerStore.isVisible
+    && playerStore.currentEpisode
+    && String(playerStore.currentEpisode.id) === String(track.id)
 }
 
 watch(
@@ -332,7 +358,10 @@ watch(
             >
               <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">{{ idx + 1 }}</span>
 
-              <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+              <div 
+                class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+                @click="playTrack(track)"
+              >
                 <img
                     v-if="track.album_image"
                     :src="track.album_image"
@@ -343,10 +372,18 @@ watch(
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
                 </div>
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                  <PauseIcon v-if="isCurrentTrack(track)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
               </div>
 
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold truncate text-white group-hover:text-indigo-300">
+                <p 
+                  class="text-sm font-semibold truncate transition-colors cursor-pointer"
+                  :class="isCurrentTrack(track) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+                  @click="playTrack(track)"
+                >
                   {{ track.name }}
                 </p>
                 <div class="flex items-center gap-1 text-xs text-gray-400">
