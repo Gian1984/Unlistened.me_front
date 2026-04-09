@@ -172,7 +172,7 @@ watch(
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mx-auto max-w-6xl mb-10">
+      <div class="mx-auto mb-10">
         <p class="text-sm font-semibold text-indigo-400">{{ pageEyebrow }}</p>
         <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           {{ pageTitle }}

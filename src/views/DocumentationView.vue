@@ -161,7 +161,7 @@ function scrollToSection(id) {
 <template>
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
-      <div class="mx-auto max-w-5xl">
+      <div class="mx-auto">
         <!-- Header -->
         <section class="mb-10">
           <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
