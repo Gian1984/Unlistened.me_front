@@ -291,7 +291,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div :class="['transition-all duration-300', isDesktopCollapsed ? 'lg:pl-20' : 'lg:pl-72']">
+    <div :class="['transition-all duration-300 overflow-hidden w-full', isDesktopCollapsed ? 'lg:pl-20 pl-0' : 'lg:pl-72 pl-0']">
       <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-2 border-b border-gray-800 bg-gray-950/95 px-3 shadow-sm backdrop-blur-md sm:gap-x-4 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-400 transition-colors hover:text-white lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
@@ -300,31 +300,29 @@ onMounted(() => {
 
         <div class="flex flex-1 items-center gap-x-2 self-stretch sm:gap-x-4">
           <!-- Search bar -->
-          <div class="flex flex-1 items-center py-3">
-            <div class="group relative flex w-full max-w-2xl items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900 px-2 py-1.5 transition-colors focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20 hover:border-gray-700 sm:gap-2 sm:px-3">
+          <div class="flex flex-1 items-center py-3 min-w-0">
+            <div class="group relative flex w-full items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900 px-2 py-1.5 transition-colors focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20 hover:border-gray-700 sm:gap-2 sm:px-3 md:max-w-2xl min-w-0">
               <!-- Search type toggle -->
               <div class="flex shrink-0 rounded-full bg-gray-800 p-0.5">
                 <button
                   type="button"
                   @click="onSearchClick"
-                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors"
+                  class="flex items-center gap-1 rounded-full px-1.5 py-1 text-xs font-medium transition-colors sm:px-2"
                   :class="searchType === 'podcasts' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'"
                   title="Search podcasts"
                 >
                   <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
-                  <span class="hidden sm:inline">Podcasts</span>
                 </button>
                 <button
                   type="button"
                   @click="onMusicSearchClick"
-                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors"
+                  class="flex items-center gap-1 rounded-full px-1.5 py-1 text-xs font-medium transition-colors sm:px-2"
                   :class="searchType === 'music' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'"
                   title="Search music"
                 >
                   <MusicalNoteIcon class="h-3.5 w-3.5" />
-                  <span class="hidden sm:inline">Music</span>
                 </button>
               </div>
 
@@ -342,9 +340,9 @@ onMounted(() => {
                   id="search-field"
                   v-model="searchQuery"
                   @keyup.enter="searchType === 'music' ? onMusicSearchClick() : onSearchClick()"
-                  type="search"
+                  type="text"
                   name="search"
-                  placeholder="Search podcasts or music..."
+                  placeholder="Search..."
                   class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-0"
               />
 
@@ -359,7 +357,7 @@ onMounted(() => {
               </button>
 
               <!-- Filter by category popover -->
-              <Popover class="relative shrink-0">
+              <Popover class="relative shrink-0 hidden sm:block">
                 <PopoverButton
                     class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300 focus:outline-none sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30 sm:hover:bg-indigo-500/20 sm:hover:text-white"
                     title="Filter by category"
@@ -414,22 +412,22 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="flex items-center gap-x-3 lg:gap-x-4">
+          <div class="flex items-center gap-x-2 lg:gap-x-4">
             <!-- Profile dropdown -->
-            <Menu as="div" class="relative">
-              <MenuButton class="-m-1.5 flex items-center gap-x-3 rounded-full p-1.5 transition-colors hover:bg-gray-900">
+            <Menu as="div" class="relative shrink-0">
+              <MenuButton class="-m-1.5 flex items-center gap-x-2 rounded-full p-1.5 transition-colors hover:bg-gray-900">
                 <span class="sr-only">Open user menu</span>
                 <div
                     v-if="authStore.user"
-                    class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-500/15 text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30"
+                    class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-indigo-500/15 text-xs sm:text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30"
                 >
                   {{ userInitials }}
                 </div>
                 <div
                     v-else
-                    class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
+                    class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
                 >
-                  <UsersIcon class="h-5 w-5" />
+                  <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <span class="hidden lg:flex lg:items-center">
                   <span v-if="authStore.user" class="text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
