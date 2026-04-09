@@ -379,9 +379,12 @@ onMounted(() => {
             >
               <template #item="{ element }">
                 <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
-                  <div class="flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-300 active:cursor-grabbing" title="Drag to a section">
+                  <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to a section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
+                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                    {{ mainAreaItems.indexOf(element) + 1 }}
+                  </span>
 
                   <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
                     <BookmarkIcon class="h-4 w-4" />
@@ -461,9 +464,12 @@ onMounted(() => {
             >
               <template #item="{ element }">
                 <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
-                  <div class="flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-300 active:cursor-grabbing" title="Drag to another section">
+                  <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to another section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
+                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                    {{ section.items.indexOf(element) + 1 }}
+                  </span>
 
                   <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
                     <BookmarkIcon class="h-4 w-4" />
