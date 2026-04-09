@@ -17,6 +17,7 @@ import {
 import { musicService } from '@/services/musicService.js'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useQueueStore } from '@/stores/queueStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
@@ -29,6 +30,7 @@ const route = useRoute()
 const router = useRouter()
 const library = useMusicLibraryStore()
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
 const messageStore = useMessageStore()
 const authStore = useAuthStore()
 
@@ -67,20 +69,22 @@ async function fetchPlaylist() {
 onMounted(fetchPlaylist)
 watch(playlistId, fetchPlaylist)
 
-function playTrack(t) {
-  playerStore.play({
+function playTrack(t, index) {
+  const allTracks = tracks.value.map(tr => ({
     contentType: 'music',
-    id: t.jamendo_track_id,
-    title: t.title,
-    enclosureUrl: t.audio_url,
-    image: t.album_image,
-    feedTitle: t.artist_name,
-    artistId: t.artist_id,
-    albumName: t.album_name,
-    licenseUrl: t.license_ccurl,
-    shareUrl: t.shareurl,
-    duration: t.duration,
-  })
+    id: tr.jamendo_track_id,
+    title: tr.title,
+    enclosureUrl: tr.audio_url,
+    image: tr.album_image,
+    feedTitle: tr.artist_name,
+    artistId: tr.artist_id,
+    albumName: tr.album_name,
+    licenseUrl: tr.license_ccurl,
+    shareUrl: tr.shareurl,
+    duration: tr.duration,
+  }))
+  queueStore.setQueue(allTracks, index)
+  playerStore.play(t)
 }
 
 function isCurrentTrack(t) {
@@ -91,7 +95,21 @@ function isCurrentTrack(t) {
 
 function playAll() {
   if (!tracks.value.length) return
-  playTrack(tracks.value[0])
+  const allTracks = tracks.value.map(tr => ({
+    contentType: 'music',
+    id: tr.jamendo_track_id,
+    title: tr.title,
+    enclosureUrl: tr.audio_url,
+    image: tr.album_image,
+    feedTitle: tr.artist_name,
+    artistId: tr.artist_id,
+    albumName: tr.album_name,
+    licenseUrl: tr.license_ccurl,
+    shareUrl: tr.shareurl,
+    duration: tr.duration,
+  }))
+  queueStore.setQueue(allTracks, 0)
+  playerStore.play(allTracks[0])
 }
 
 async function removeTrack(t) {
@@ -255,7 +273,7 @@ function formatDuration(seconds) {
         <li
           v-for="(t, idx) in tracks"
           :key="t.jamendo_track_id"
-          @click="playTrack(t)"
+          @click="playTrack(t, idx)"
           class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
         >
           <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">

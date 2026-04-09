@@ -151,6 +151,26 @@
           <ForwardIcon class="h-4 w-4" />
         </button>
 
+        <!-- Previous / Next track (music only, when queue has items) -->
+        <template v-if="playerStore.isMusic && queueStore.hasPrevious">
+          <button
+            @click="playPrevious"
+            class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Previous track"
+          >
+            <BackwardIcon class="h-4 w-4" />
+          </button>
+        </template>
+        <template v-if="playerStore.isMusic && queueStore.hasNext">
+          <button
+            @click="playNext"
+            class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Next track"
+          >
+            <ForwardIcon class="h-4 w-4" />
+          </button>
+        </template>
+
         <!-- Close -->
         <button
           @click="handleClose"
@@ -169,13 +189,16 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
+import { useQueueStore } from '@/stores/queueStore'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService'
+import { musicService } from '@/services/musicService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
 const { isDesktopCollapsed } = useSidebarState()
 
@@ -412,6 +435,12 @@ function onEnded() {
   if (episode?.id && episode.contentType !== 'music') {
     historyStore.markCompleted(episode.id)
   }
+  if (playerStore.isMusic) {
+    const next = queueStore.consumeNext()
+    if (next) {
+      playerStore.play(next)
+    }
+  }
 }
 
 function onPause() {
@@ -442,6 +471,20 @@ function cycleSpeed() {
   const idx = speeds.indexOf(playbackSpeed.value)
   playbackSpeed.value = speeds[(idx + 1) % speeds.length]
   if (audioEl.value) audioEl.value.playbackRate = playbackSpeed.value
+}
+
+function playNext() {
+  const next = queueStore.consumeNext()
+  if (next) {
+    playerStore.play(next)
+  }
+}
+
+function playPrevious() {
+  const prev = queueStore.popPrevious()
+  if (prev) {
+    playerStore.play(prev)
+  }
 }
 
 // Seek / scrub
