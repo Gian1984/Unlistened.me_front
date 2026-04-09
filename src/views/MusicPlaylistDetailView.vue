@@ -288,23 +288,26 @@ function formatDuration(seconds) {
       <draggable
         v-model="tracks"
         item-key="jamendo_track_id"
-        handle=".drag-handle"
         @change="onDragEnd"
         class="space-y-2"
       >
         <template #item="{ element: t, index: idx }">
           <li
-            @click="playTrack(t, idx)"
             class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
           >
-            <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to reorder">
+            <!-- Drag handle: visible on mobile, hidden on desktop (whole row draggable) -->
+            <div class="drag-handle sm:cursor-grab sm:active:cursor-grabbing cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to reorder">
               <Bars3Icon class="h-4 w-4" />
             </div>
-            <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block sm:w-6 sm:text-center tabular-nums">
+            <span class="w-6 shrink-0 text-center text-xs text-gray-500 sm:w-6 sm:text-center tabular-nums">
               {{ idx + 1 }}
             </span>
 
-            <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+            <!-- Cover with play overlay - click to play -->
+            <div 
+              class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+              @click="playTrack(t, idx)"
+            >
               <img
                 v-if="t.album_image"
                 :src="t.album_image"
@@ -315,7 +318,7 @@ function formatDuration(seconds) {
               <div v-else class="w-full h-full flex items-center justify-center">
                 <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
               </div>
-              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
                 <PauseIcon v-if="isCurrentTrack(t)" class="h-6 w-6 text-white" />
                 <PlayIcon v-else class="h-6 w-6 text-white" />
               </div>
@@ -323,8 +326,9 @@ function formatDuration(seconds) {
 
             <div class="flex-1 min-w-0">
               <p
-                class="text-sm font-semibold truncate transition-colors"
+                class="text-sm font-semibold truncate transition-colors cursor-pointer"
                 :class="isCurrentTrack(t) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+                @click.stop="playTrack(t, idx)"
               >
                 {{ t.title }}
               </p>
