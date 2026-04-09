@@ -35,6 +35,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { musicService } from '@/services/musicService.js'
 import { authService } from '@/services/authService.js'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 
@@ -103,7 +104,14 @@ const filteredCategories = computed(() => {
 // Methods
 function onSearchClick() {
   if (searchQuery.value.trim() !== '') {
-    router.push({ name: 'SearchResults', query: { q: searchQuery.value } })
+    router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'podcasts' } })
+    searchQuery.value = ''
+  }
+}
+
+function onMusicSearchClick() {
+  if (searchQuery.value.trim() !== '') {
+    router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'music' } })
     searchQuery.value = ''
   }
 }
@@ -291,6 +299,32 @@ onMounted(() => {
           <!-- Search bar -->
           <div class="flex flex-1 items-center py-3">
             <div class="group relative flex w-full max-w-2xl items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900 px-2 py-1.5 transition-colors focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20 hover:border-gray-700 sm:gap-2 sm:px-3">
+              <!-- Search type toggle -->
+              <div class="flex shrink-0 rounded-full bg-gray-800 p-0.5">
+                <button
+                  type="button"
+                  @click="onSearchClick"
+                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-gray-400 transition-colors hover:text-white"
+                  :class="{'bg-indigo-600 text-white': false}"
+                  title="Search podcasts"
+                >
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                  <span class="hidden sm:inline">Podcasts</span>
+                </button>
+                <button
+                  type="button"
+                  @click="onMusicSearchClick"
+                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-gray-400 transition-colors hover:text-white"
+                  :class="{'bg-indigo-600 text-white': false}"
+                  title="Search music"
+                >
+                  <MusicalNoteIcon class="h-3.5 w-3.5" />
+                  <span class="hidden sm:inline">Music</span>
+                </button>
+              </div>
+
               <button
                   type="button"
                   @click="onSearchClick"
@@ -300,14 +334,14 @@ onMounted(() => {
                 <MagnifyingGlassIcon class="h-4 w-4" aria-hidden="true" />
               </button>
 
-              <label for="search-field" class="sr-only">Search podcasts</label>
+              <label for="search-field" class="sr-only">Search</label>
               <input
                   id="search-field"
                   v-model="searchQuery"
                   @keyup.enter="onSearchClick"
                   type="search"
                   name="search"
-                  placeholder="Search podcasts, hosts, topics..."
+                  placeholder="Search podcasts or music..."
                   class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-0"
               />
 

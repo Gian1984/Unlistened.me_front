@@ -3,16 +3,20 @@ import { ref, computed, watch } from 'vue'
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
 import EmptyState from '../components/EmptyState.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
 import {
   ArrowRightIcon,
   StarIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  MusicalNoteIcon,
 } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { musicService } from '@/services/musicService.js'
 import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 
@@ -26,12 +30,17 @@ const route = useRoute()
 const router = useRouter()
 
 const feeds = ref([])
+const musicTracks = ref([])
 const visibleCount = ref(12)
 const noResult = ref(false)
 const loading = ref(true)
 const show = ref(false)
 
+const searchType = computed(() => route.query.type || 'podcasts')
+const isMusic = computed(() => searchType.value === 'music')
+
 const visibleFeeds = computed(() => feeds.value.slice(0, visibleCount.value))
+const visibleMusic = computed(() => musicTracks.value.slice(0, visibleCount.value))
 
 const pageEyebrow = computed(() => {
   if (route.query.q) return 'Search'
@@ -73,7 +82,7 @@ const seoConfig = computed(() => ({
 useSeo(seoConfig)
 
 function loadMore() {
-  visibleCount.value = Math.min(visibleCount.value + 12, feeds.value.length)
+  visibleCount.value = Math.min(visibleCount.value + 12, isMusic.value ? musicTracks.value.length : feeds.value.length)
 }
 
 async function fetchSearchResults(param, value) {
@@ -82,21 +91,32 @@ async function fetchSearchResults(param, value) {
   loading.value = true
   noResult.value = false
   feeds.value = []
+  musicTracks.value = []
   visibleCount.value = 12
 
+  const type = route.query.type || 'podcasts'
+
   try {
-    let response
+    if (type === 'music') {
+      const response = await musicService.search(value, '', 0)
+      if (response.data?.results?.length === 0) {
+        noResult.value = true
+      } else if (response.data?.results) {
+        musicTracks.value = response.data.results
+      }
+    } else {
+      let response
+      if (param === 'q') {
+        response = await podcastService.searchByTitle(value)
+      } else if (param === 's') {
+        response = await podcastService.searchByCategory(value)
+      }
 
-    if (param === 'q') {
-      response = await podcastService.searchByTitle(value)
-    } else if (param === 's') {
-      response = await podcastService.searchByCategory(value)
-    }
-
-    if (response && response.data.feeds.length === 0) {
-      noResult.value = true
-    } else if (response) {
-      feeds.value = response.data.feeds
+      if (response && response.data.feeds.length === 0) {
+        noResult.value = true
+      } else if (response) {
+        feeds.value = response.data.feeds
+      }
     }
   } catch (err) {
     console.error('Error fetching search results:', err)
@@ -199,103 +219,156 @@ watch(
       <div v-else-if="noResult" class="mx-auto max-w-4xl py-10">
         <EmptyState
             :icon="MagnifyingGlassIcon"
-            title="No results found"
-            description="Sorry, your search returned no results. Try a different search term or browse our categories."
-            action-text="Browse podcasts"
-            action-link="/"
+            :title="isMusic ? 'No music found' : 'No results found'"
+            :description="isMusic ? 'Sorry, your music search returned no results.' : 'Sorry, your search returned no results. Try a different search term or browse our categories.'"
+            :action-text="isMusic ? 'Discover music' : 'Browse podcasts'"
+            :action-link="isMusic ? '/music' : '/'"
         />
       </div>
 
       <!-- Results -->
       <div v-else class="mx-auto">
-        <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-300">
-            Podcasts found
-          </h2>
-          <p class="text-sm text-gray-500">
-            {{ feeds.length }} result<span v-if="feeds.length !== 1">s</span>
-          </p>
-        </div>
+        <!-- Podcast results -->
+        <template v-if="!isMusic">
+          <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-300">Podcasts found</h2>
+            <p class="text-sm text-gray-500">{{ feeds.length }} result<span v-if="feeds.length !== 1">s</span></p>
+          </div>
 
-        <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          <li
-              v-for="feed in visibleFeeds"
-              :key="feed.id"
-              class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
-          >
-            <router-link :to="'/feed/' + feed.id" class="block">
-              <div class="flex items-center gap-3 p-4">
-                <!-- Cover -->
-                <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
-                  <img
-                      :src="feed.image || '/images/image_not_available_500.webp'"
-                      :alt="feed.title"
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                  />
+          <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <li
+                v-for="feed in visibleFeeds"
+                :key="feed.id"
+                class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+            >
+              <router-link :to="'/feed/' + feed.id" class="block">
+                <div class="flex items-center gap-3 p-4">
+                  <!-- Cover -->
+                  <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                    <img
+                        :src="feed.image || '/images/image_not_available_500.webp'"
+                        :alt="feed.title"
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                  </div>
+
+                  <!-- Info -->
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                      {{ feed.title }}
+                    </h3>
+                    <p class="text-xs text-gray-400 truncate mt-0.5">
+                      {{ feed.author }}
+                    </p>
+                    <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                      {{ stripHtmlTags(feed.description) }}
+                    </p>
+                  </div>
                 </div>
 
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
-                    {{ feed.title }}
-                  </h3>
-                  <p class="text-xs text-gray-400 truncate mt-0.5">
-                    {{ feed.author }}
-                  </p>
-                  <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
-                    {{ stripHtmlTags(feed.description) }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Category badges -->
-              <div
-                  v-if="feed.categories && Object.keys(feed.categories).length"
-                  class="px-4 pb-3 flex flex-wrap gap-1"
-              >
-                <span
-                    v-for="(catName, catId) in Object.fromEntries(Object.entries(feed.categories || {}).slice(0, 3))"
-                    :key="catId"
-                    class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300"
+                <!-- Category badges -->
+                <div
+                    v-if="feed.categories && Object.keys(feed.categories).length"
+                    class="px-4 pb-3 flex flex-wrap gap-1"
                 >
-                  {{ catName }}
-                </span>
-              </div>
-            </router-link>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2 px-4 pb-3">
-              <button
-                  @click.prevent="addFavourite(feed.id, feed.title)"
-                  class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-pink-400 transition-colors"
-                  title="Add to favourites"
-              >
-                <StarIcon class="h-4 w-4" />
-                <span class="hidden sm:inline">Save</span>
-              </button>
-
-              <router-link
-                  :to="'/feed/' + feed.id"
-                  class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
-              >
-                <span>Episodes</span>
-                <ArrowRightIcon class="h-3.5 w-3.5" />
+                  <span
+                      v-for="(catName, catId) in Object.fromEntries(Object.entries(feed.categories || {}).slice(0, 3))"
+                      :key="catId"
+                      class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300"
+                  >
+                    {{ catName }}
+                  </span>
+                </div>
               </router-link>
-            </div>
-          </li>
-        </ul>
 
-        <!-- Load more -->
-        <div v-if="visibleCount < feeds.length" class="mt-6 flex justify-center">
-          <button
-              @click="loadMore"
-              class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-colors"
-          >
-            Load more
-            <ArrowRightIcon class="h-4 w-4" />
-          </button>
-        </div>
+              <!-- Actions -->
+              <div class="flex items-center gap-2 px-4 pb-3">
+                <button
+                    @click.prevent="addFavourite(feed.id, feed.title)"
+                    class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-pink-400 transition-colors"
+                    title="Add to favourites"
+                >
+                  <StarIcon class="h-4 w-4" />
+                  <span class="hidden sm:inline">Save</span>
+                </button>
+
+                <router-link
+                    :to="'/feed/' + feed.id"
+                    class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+                >
+                  <span>Episodes</span>
+                  <ArrowRightIcon class="h-3.5 w-3.5" />
+                </router-link>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Load more -->
+          <div v-if="visibleCount < feeds.length" class="mt-6 flex justify-center">
+            <button
+                @click="loadMore"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-colors"
+            >
+              Load more
+              <ArrowRightIcon class="h-4 w-4" />
+            </button>
+          </div>
+        </template>
+
+        <!-- Music results -->
+        <template v-else>
+          <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-300">Music found</h2>
+            <p class="text-sm text-gray-500">{{ musicTracks.length }} track<span v-if="musicTracks.length !== 1">s</span></p>
+          </div>
+
+          <ul class="space-y-2">
+            <li
+                v-for="(track, idx) in visibleMusic"
+                :key="track.id"
+                class="group flex items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+            >
+              <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">{{ idx + 1 }}</span>
+
+              <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+                <img
+                    v-if="track.album_image"
+                    :src="track.album_image"
+                    :alt="track.name"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate text-white group-hover:text-indigo-300">
+                  {{ track.name }}
+                </p>
+                <p class="text-xs text-gray-400 truncate">{{ track.artist_name }}</p>
+              </div>
+
+              <div class="flex shrink-0 items-center gap-0.5">
+                <FavoriteMusicButton :track="track" size="sm" />
+                <AddToPlaylistMenu :track="track" size="sm" />
+              </div>
+            </li>
+          </ul>
+
+          <!-- Load more -->
+          <div v-if="visibleCount < musicTracks.length" class="mt-6 flex justify-center">
+            <button
+                @click="loadMore"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-colors"
+            >
+              Load more
+              <ArrowRightIcon class="h-4 w-4" />
+            </button>
+          </div>
+        </template>
       </div>
     </div>
   </div>

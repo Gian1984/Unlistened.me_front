@@ -859,18 +859,18 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 | 9 | Frontend | `OffcanvasPlayer.vue`: hide speed for music, show attribution row + license badge, music history guards | ✅ |
 | 10 | Frontend | Sidebar: Music in Discover, Music favorites + Music playlists in Library | ✅ |
 | 11 | Frontend | `MusicHomeView.vue` (trending + genre pills + play) | ✅ |
-| 11b | Frontend | `MusicHomeView` extras: featured radios row, Continue listening (music) rail | ⬜ |
+| 11b | Frontend | `MusicHomeView` extras: Continue listening (music) rail | ✅ |
 | 12 | Frontend | `MusicTrackView.vue` + `MusicAlbumView.vue` + `MusicArtistView.vue` | ⬜ |
 | 13 | Frontend | `MusicFavoritesView.vue` (Spotify "Liked songs" — single flat list of `music_favorites`) | ✅ |
 | 14 | Frontend | `MusicPlaylistsView.vue` + `MusicPlaylistDetailView.vue` (create / rename / delete / add / remove) | ✅ |
-| 14b | Frontend | Drag-to-reorder tracks inside `MusicPlaylistDetailView` (vuedraggable + `reorderPlaylist`) | ⬜ |
+| 14b | Frontend | Drag-to-reorder tracks inside `MusicPlaylistDetailView` (vuedraggable + `reorderPlaylist`) | ✅ |
 | 14c | Frontend | `musicLibraryStore.js` Pinia store — single source of truth for favorites + playlists | ✅ |
 | 14d | Frontend | `FavoriteMusicButton.vue` + `AddToPlaylistMenu.vue` reusable components | ✅ |
 | 15 | Frontend | `MusicRadiosView.vue` (genre radios + LIVE player mode) | ⬜ |
-| 16 | Frontend | `queueStore.js` + autoplay/similar fallback in `OffcanvasPlayer.onEnded` | ⬜ |
-| 17 | Frontend | Extend `historyStore` with `type`, mix music + podcast in "Continue listening" | ⬜ |
-| 18 | Frontend | `SearchResults.vue` becomes tabbed (Podcasts | Music) with parallel calls | ⬜ |
-| 19 | Frontend | Footer: add Jamendo CC disclosure line | ⬜ |
+| 16 | Frontend | `queueStore.js` + autoplay/similar fallback in `OffcanvasPlayer.onEnded` | ✅ |
+| 17 | Frontend | Extend `historyStore` with `type`, mix music + podcast in "Continue listening" | ✅ |
+| 18 | Frontend | `SearchResults.vue` becomes tabbed (Podcasts | Music) with parallel calls | ✅ |
+| 19 | Frontend | Footer: add Jamendo CC disclosure line | ✅ |
 | 20 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
 
 **Done so far:** Phase 1 (browse + play) shipped first — `musicService`, `playerStore` discriminator, `LicenseBadge`, player adaptations with CC attribution, `MusicHomeView`, navigation entry, SEO. Phase 2 (library) shipped right after — `musicLibraryStore` as single source of truth, `FavoriteMusicButton` and `AddToPlaylistMenu` as drop-in components, `MusicFavoritesView`, `MusicPlaylistsView`, `MusicPlaylistDetailView`, three new auth-gated routes, sidebar entries, SEO entries (`noIndex` for the private pages).
