@@ -354,6 +354,7 @@ watch(() => playerStore.currentEpisode, (episode) => {
     audioEl.value.removeAttribute('src')
     audioEl.value.load()
     isPlaying.value = false
+    playerStore.setPlaying(false)
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = null
       navigator.mediaSession.playbackState = 'none'
@@ -452,6 +453,7 @@ function saveHistoryNow() {
 
 function onPlay() {
   isPlaying.value = true
+  playerStore.setPlaying(true)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'playing'
   }
@@ -459,6 +461,7 @@ function onPlay() {
 
 async function onEnded() {
   isPlaying.value = false
+  playerStore.setPlaying(false)
   progress.value = 100
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'none'
@@ -503,6 +506,7 @@ async function onEnded() {
 
 function onPause() {
   isPlaying.value = false
+  playerStore.setPlaying(false)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'paused'
   }
@@ -519,6 +523,13 @@ function togglePlay() {
     audioEl.value.pause()
   }
 }
+
+// Track-list rows in the music views call playerStore.togglePlay() when
+// the user clicks the cover of the currently active track. The audio
+// element lives here, so we react to a counter signal from the store.
+watch(() => playerStore.toggleSignal, () => {
+  togglePlay()
+})
 
 function skip(seconds) {
   if (!audioEl.value) return

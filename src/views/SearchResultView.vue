@@ -154,6 +154,12 @@ function stripHtmlTags(str) {
 }
 
 function playTrack(track) {
+  // Track already loaded → toggle pause/resume so the pause icon in
+  // the row actually pauses instead of restarting from 0.
+  if (playerStore.isCurrent(track.id)) {
+    playerStore.togglePlay()
+    return
+  }
   const allTracks = musicTracks.value.map(jamendoToPlayerPayload)
   const index = allTracks.findIndex(t => String(t.id) === String(track.id))
   if (index === -1) {
@@ -165,7 +171,7 @@ function playTrack(track) {
 }
 
 function isCurrentTrack(track) {
-  return playerStore.isCurrent(track.id)
+  return playerStore.isPlayingTrack(track.id)
 }
 
 watch(

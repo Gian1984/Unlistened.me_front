@@ -73,13 +73,19 @@ onMounted(fetchPlaylist)
 watch(playlistId, fetchPlaylist)
 
 function playTrack(t, index) {
+  // Track already loaded → toggle pause/resume so the pause icon in
+  // the row actually pauses instead of restarting from 0.
+  if (playerStore.isCurrent(t.jamendo_track_id)) {
+    playerStore.togglePlay()
+    return
+  }
   const allTracks = tracks.value.map(backendRowToPlayerPayload)
   queueStore.setQueue(allTracks, index)
   playerStore.play(allTracks[index])
 }
 
 function isCurrentTrack(t) {
-  return playerStore.isCurrent(t.jamendo_track_id)
+  return playerStore.isPlayingTrack(t.jamendo_track_id)
 }
 
 function playAll() {

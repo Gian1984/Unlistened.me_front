@@ -29,6 +29,12 @@ const messageStore = useMessageStore()
 onMounted(() => library.loadFavorites())
 
 function playFavorite(fav) {
+  // Track already loaded → toggle pause/resume so the pause icon in
+  // the row actually pauses instead of restarting from 0.
+  if (playerStore.isCurrent(fav.jamendo_track_id)) {
+    playerStore.togglePlay()
+    return
+  }
   const allFavorites = library.favorites.map(backendRowToPlayerPayload)
   const index = allFavorites.findIndex(
     t => String(t.id) === String(fav.jamendo_track_id)
@@ -42,7 +48,7 @@ function playFavorite(fav) {
 }
 
 function isCurrentTrack(fav) {
-  return playerStore.isCurrent(fav.jamendo_track_id)
+  return playerStore.isPlayingTrack(fav.jamendo_track_id)
 }
 
 async function removeOne(fav) {

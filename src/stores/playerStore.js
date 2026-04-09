@@ -5,6 +5,14 @@ import { useQueueStore } from '@/stores/queueStore.js'
 export const usePlayerStore = defineStore('player', () => {
   const currentEpisode = ref(null)
   const isVisible = ref(false)
+  // Mirrors the audio element's actual playing state. OffcanvasPlayer
+  // is the single writer (via setPlaying); views read this to decide
+  // whether a track row should show a play or pause icon.
+  const isPlaying = ref(false)
+  // Bumped by views/components that want to toggle play/pause without
+  // touching the audio element directly. OffcanvasPlayer watches this
+  // and calls its local togglePlay() handler on each change.
+  const toggleSignal = ref(0)
 
   function play(item) {
     // If the play call isn't part of an active queue context (i.e. a
@@ -28,6 +36,7 @@ export const usePlayerStore = defineStore('player', () => {
   function close() {
     isVisible.value = false
     currentEpisode.value = null
+    isPlaying.value = false
   }
 
   function isCurrent(episodeId) {
@@ -36,16 +45,36 @@ export const usePlayerStore = defineStore('player', () => {
       && String(currentEpisode.value.id) === String(episodeId)
   }
 
+  // True only when this id is the active episode AND audio is actually
+  // playing. Use this in track lists so a "pause" icon really means
+  // "click to pause" — never "click to restart from zero".
+  function isPlayingTrack(episodeId) {
+    return isPlaying.value && isCurrent(episodeId)
+  }
+
+  function setPlaying(value) {
+    isPlaying.value = !!value
+  }
+
+  function togglePlay() {
+    toggleSignal.value++
+  }
+
   const isMusic = computed(() => currentEpisode.value?.contentType === 'music')
   const isPodcast = computed(() => currentEpisode.value?.contentType !== 'music')
 
-  return { 
-    currentEpisode, 
-    isVisible, 
-    play, 
-    close, 
-    isCurrent, 
-    isMusic, 
-    isPodcast 
+  return {
+    currentEpisode,
+    isVisible,
+    isPlaying,
+    toggleSignal,
+    play,
+    close,
+    isCurrent,
+    isPlayingTrack,
+    setPlaying,
+    togglePlay,
+    isMusic,
+    isPodcast,
   }
 })
