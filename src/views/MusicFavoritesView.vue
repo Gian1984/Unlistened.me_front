@@ -26,6 +26,23 @@ const messageStore = useMessageStore()
 onMounted(() => library.loadFavorites())
 
 function playFavorite(fav) {
+  const allFavorites = library.favorites.map(f => ({
+    contentType: 'music',
+    id: f.jamendo_track_id,
+    title: f.title,
+    enclosureUrl: f.audio_url,
+    image: f.album_image,
+    feedTitle: f.artist_name,
+    artistId: f.artist_id,
+    albumName: f.album_name,
+    licenseUrl: f.license_ccurl,
+    shareUrl: f.shareurl,
+    duration: f.duration,
+  }))
+  const index = allFavorites.findIndex(t => t.id === fav.jamendo_track_id)
+  if (index !== -1) {
+    queueStore.setQueue(allFavorites, index)
+  }
   playerStore.play({
     contentType: 'music',
     id: fav.jamendo_track_id,

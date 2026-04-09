@@ -125,9 +125,10 @@
 
         <!-- Previous track (|<<) -->
         <button
-          v-if="queueStore.hasPrevious"
           @click="playPrevious"
-          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasPrevious }"
+          :disabled="!queueStore.hasPrevious"
           aria-label="Previous track"
         >
           <ChevronDoubleLeftIcon class="h-5 w-5" />
@@ -136,7 +137,7 @@
         <!-- Skip back 15s (<<) -->
         <button
           @click="skip(-15)"
-          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           aria-label="Skip back 15 seconds"
         >
           <BackwardIcon class="h-4 w-4" />
@@ -155,7 +156,7 @@
         <!-- Skip forward 30s (>>) -->
         <button
           @click="skip(30)"
-          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           aria-label="Skip forward 30 seconds"
         >
           <ArrowUturnRightIcon class="h-4 w-4" />
@@ -163,9 +164,10 @@
 
         <!-- Next track (>>|) -->
         <button
-          v-if="queueStore.hasNext"
           @click="playNext"
-          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasNext }"
+          :disabled="!queueStore.hasNext"
           aria-label="Next track"
         >
           <ChevronDoubleRightIcon class="h-5 w-5" />

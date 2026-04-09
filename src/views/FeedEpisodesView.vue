@@ -67,6 +67,19 @@ function loadMore() {
 }
 
 function playEpisode(episode, index = null) {
+  const episodeList = visibleEpisodes.value.map(ep => ({
+    contentType: 'podcast',
+    id: ep.id,
+    title: ep.title,
+    enclosureUrl: ep.enclosureUrl,
+    image: feedInfo.value?.image || '',
+    feedTitle: feedInfo.value?.title || '',
+    feedId: feedInfo.value?.id || null,
+    duration: ep.duration,
+  }))
+  if (index !== null) {
+    queueStore.setQueue(episodeList, index)
+  }
   playerStore.play({
     id: episode.id,
     title: episode.title,
@@ -75,19 +88,6 @@ function playEpisode(episode, index = null) {
     feedTitle: feedInfo.value?.title || '',
     feedId: feedInfo.value?.id || null,
   })
-  if (index !== null) {
-    const episodeList = visibleEpisodes.value.map(ep => ({
-      contentType: 'podcast',
-      id: ep.id,
-      title: ep.title,
-      enclosureUrl: ep.enclosureUrl,
-      image: feedInfo.value?.image || '',
-      feedTitle: feedInfo.value?.title || '',
-      feedId: feedInfo.value?.id || null,
-      duration: ep.duration,
-    }))
-    queueStore.setQueue(episodeList, index)
-  }
 }
 
 function stripHtmlTags(str) {

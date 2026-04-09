@@ -87,7 +87,7 @@ function loadMore() {
 }
 
 function playTrack(track) {
-  playerStore.play({
+  const trackItem = {
     contentType: 'music',
     id: track.id,
     title: track.name,
@@ -99,7 +99,25 @@ function playTrack(track) {
     licenseUrl: track.license_ccurl,
     shareUrl: track.shareurl,
     duration: track.duration,
-  })
+  }
+  const allTracks = tracks.value.map(tr => ({
+    contentType: 'music',
+    id: tr.id,
+    title: tr.name,
+    enclosureUrl: tr.audio,
+    image: tr.album_image,
+    feedTitle: tr.artist_name,
+    artistId: tr.artist_id,
+    albumName: tr.album_name,
+    licenseUrl: tr.license_ccurl,
+    shareUrl: tr.shareurl,
+    duration: tr.duration,
+  }))
+  const index = allTracks.findIndex(t => t.id === track.id)
+  if (index !== -1) {
+    queueStore.setQueue(allTracks, index)
+  }
+  playerStore.play(trackItem)
 }
 
 function isCurrentTrack(track) {

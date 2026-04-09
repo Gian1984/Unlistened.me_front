@@ -18,6 +18,7 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useQueueStore } from '@/stores/queueStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { musicService } from '@/services/musicService.js'
 import { useRoute, useRouter } from 'vue-router'
@@ -30,6 +31,7 @@ const messageStore = useMessageStore()
 messageStore.initializeMessage()
 
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -151,6 +153,23 @@ function stripHtmlTags(str) {
 }
 
 function playTrack(track) {
+  const allTracks = musicTracks.value.map(tr => ({
+    contentType: 'music',
+    id: tr.id,
+    title: tr.name,
+    enclosureUrl: tr.audio,
+    image: tr.album_image,
+    feedTitle: tr.artist_name,
+    artistId: tr.artist_id,
+    albumName: tr.album_name,
+    licenseUrl: tr.license_ccurl,
+    shareUrl: tr.shareurl,
+    duration: tr.duration,
+  }))
+  const index = allTracks.findIndex(t => t.id === track.id)
+  if (index !== -1) {
+    queueStore.setQueue(allTracks, index)
+  }
   playerStore.play({
     contentType: 'music',
     id: track.id,
