@@ -29,49 +29,35 @@ async function generateSitemap() {
     const routeStrings = routesStringContent.split(/},\s*\n\s*{/);
 
     const routes = routeStrings.map(routeStr => {
-      let cleanedRouteStr = routeStr.trim();
-      if (!cleanedRouteStr.startsWith('{')) {
-        cleanedRouteStr = `{${cleanedRouteStr}`;
-      }
-      if (!cleanedRouteStr.endsWith('}')) {
-        cleanedRouteStr = `${cleanedRouteStr}}`;
-      }
+      // Extract properties directly from the route string using regex
+      const pathMatch = routeStr.match(/path:\s*['"`](.*?)['"`],?/);
+      const nameMatch = routeStr.match(/name:\s*['"`](.*?)['"`],?/);
+      const redirectMatch = routeStr.match(/redirect:\s*['"`](.*?)['"`],?/);
+      const metaMatch = routeStr.match(/meta:\s*({[\s\S]*?}),?/);
 
-      // Replace property names with quoted keys to make it valid JSON-like
-      cleanedRouteStr = cleanedRouteStr
-        .replace(/(\w+):/g, '"$1":') // Quote keys like path: to "path":
-        .replace(/'/g, '"')         // Replace single quotes with double quotes
-        .replace(/(\/\*[\s\S]*?\*\/)/g, '') // Remove multi-line comments
-        .replace(/\/\/.*$/gm, '')   // Remove single-line comments
-        .replace(/component:\s*\w+,?/g, ''); // Remove component property entirely
-
-      // For `meta: { requiresAuth: true }`
-      cleanedRouteStr = cleanedRouteStr.replace(/"meta":\s*({[\s\S]*?}),?/g, (match, metaContent) => {
-        return `"meta":${metaContent.replace(/(\w+):\s*(true|false)/g, '"$1":$2')}`;
-      });
-
-      try {
-        return JSON.parse(cleanedRouteStr);
-      } catch (parseError) {
-        console.warn('Could not parse route string (ignoring component references):', cleanedRouteStr);
-        // Fallback for more complex meta or unhandled cases
-        // Attempt to extract basic path and name via regex if JSON.parse fails
-        const pathMatch = cleanedRouteStr.match(/"path":"(.*?)"/);
-        const nameMatch = cleanedRouteStr.match(/"name":"(.*?)"/);
-        const redirectMatch = cleanedRouteStr.match(/"redirect":"(.*?)"/);
-        const requiresAuthMatch = cleanedRouteStr.match(/"requiresAuth":true/);
-        const requiresAdminMatch = cleanedRouteStr.match(/"requiresAdmin":true/);
-
-        return {
-          path: pathMatch ? pathMatch[1] : '',
-          name: nameMatch ? nameMatch[1] : '',
-          redirect: redirectMatch ? redirectMatch[1] : undefined,
-          meta: {
+      let meta = {};
+      if (metaMatch && metaMatch[1]) {
+        // Attempt to parse meta content, handling boolean values
+        let metaContent = metaMatch[1].replace(/(\w+):\s*(true|false)/g, '"$1":$2');
+        try {
+          meta = JSON.parse(metaContent);
+        } catch (e) {
+          // Fallback for meta if JSON.parse fails, try to extract specific meta properties
+          const requiresAuthMatch = metaContent.match(/requiresAuth:\s*true/);
+          const requiresAdminMatch = metaContent.match(/requiresAdmin:\s*true/);
+          meta = {
             requiresAuth: !!requiresAuthMatch,
             requiresAdmin: !!requiresAdminMatch,
-          }
-        };
+          };
+        }
       }
+
+      return {
+        path: pathMatch ? pathMatch[1] : '',
+        name: nameMatch ? nameMatch[1] : '',
+        redirect: redirectMatch ? redirectMatch[1] : undefined,
+        meta: meta,
+      };
     });
 
     const sitemapEntries = [];
