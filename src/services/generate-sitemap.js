@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const routesFilePath = path.resolve(__dirname, '../router/index.js');
 const sitemapOutputPath = path.resolve(__dirname, '../../../dist/sitemap.xml');
