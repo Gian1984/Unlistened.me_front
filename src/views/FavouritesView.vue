@@ -16,7 +16,6 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
-import SkeletonRow from '../components/SkeletonRow.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { podcastService } from '@/services/podcastService.js'
@@ -222,9 +221,49 @@ onMounted(() => {
       </div>
 
       <!-- Loading state -->
-      <div v-if="isLoading" class="mx-auto max-w-4xl py-8">
-        <div class="space-y-4">
-          <SkeletonRow v-for="i in 3" :key="i" />
+      <div v-if="isLoading">
+        <!-- Organize card skeleton -->
+        <div class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-5 sm:p-6">
+          <div class="h-5 w-48 rounded animate-shimmer" />
+          <div class="mt-3 space-y-2">
+            <div class="h-3.5 w-full max-w-lg rounded animate-shimmer" />
+            <div class="h-3.5 w-2/3 rounded animate-shimmer" />
+          </div>
+          <div class="mt-5 grid gap-3 sm:grid-cols-3">
+            <div v-for="i in 3" :key="i" class="h-16 rounded-xl border border-gray-800 bg-gray-950/50 animate-shimmer" />
+          </div>
+          <div class="mt-6 flex flex-wrap gap-2">
+            <div v-for="i in 4" :key="i" class="h-7 w-28 rounded-full animate-shimmer" />
+          </div>
+          <div class="mt-5 flex flex-col gap-2 sm:flex-row">
+            <div class="h-10 flex-1 rounded-lg animate-shimmer" />
+            <div class="h-10 w-32 shrink-0 rounded-lg animate-shimmer" />
+          </div>
+        </div>
+
+        <!-- Inbox skeleton -->
+        <div class="mb-10">
+          <div class="mb-4 flex items-center justify-between">
+            <div class="space-y-1.5">
+              <div class="h-5 w-14 rounded animate-shimmer" />
+              <div class="h-3.5 w-64 rounded animate-shimmer" />
+            </div>
+            <div class="h-3.5 w-10 rounded animate-shimmer" />
+          </div>
+          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-3 sm:p-4 space-y-2">
+            <div v-for="i in 4" :key="i" class="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3">
+              <div class="h-9 w-9 shrink-0 rounded-full animate-shimmer" />
+              <div class="h-9 w-9 shrink-0 rounded-full animate-shimmer" />
+              <div class="flex-1 min-w-0 space-y-1.5">
+                <div class="h-4 w-3/4 rounded animate-shimmer" />
+                <div class="h-3 w-1/3 rounded animate-shimmer" />
+              </div>
+              <div class="flex shrink-0 gap-1">
+                <div class="h-8 w-8 rounded-full animate-shimmer" />
+                <div class="h-8 w-8 rounded-full animate-shimmer" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

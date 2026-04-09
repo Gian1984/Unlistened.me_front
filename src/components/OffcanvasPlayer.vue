@@ -3,6 +3,7 @@
     ref="audioEl"
     preload="auto"
     playsinline
+    x-webkit-airplay="allow"
     @loadedmetadata="onLoadedMetadata"
     @timeupdate="onTimeUpdate"
     @play="onPlay"
@@ -155,6 +156,10 @@ const RESUME_MIN_SECONDS = 5
 let lastHistorySaveAt = 0
 let pendingResumeTime = 0
 
+// Screen-off / background audio continuity
+let userInitiatedPause = false
+let wasPlayingBeforeHidden = false
+
 // MediaSession
 function updateMediaSession(episode) {
   if (!('mediaSession' in navigator)) return
@@ -185,13 +190,14 @@ function safeSetActionHandler(action, handler) {
 function setupMediaSessionHandlers() {
   if (!('mediaSession' in navigator)) return
   safeSetActionHandler('play', async () => {
+    userInitiatedPause = false
     try {
       await audioEl.value?.play()
     } catch (e) {
       // ignore
     }
   })
-  safeSetActionHandler('pause', () => audioEl.value?.pause())
+  safeSetActionHandler('pause', () => { userInitiatedPause = true; audioEl.value?.pause() })
   safeSetActionHandler('stop', () => handleClose())
   safeSetActionHandler('seekbackward', (details) => skip(-(details?.seekOffset || 15)))
   safeSetActionHandler('seekforward', (details) => skip(details?.seekOffset || 30))
@@ -211,12 +217,23 @@ onMounted(() => {
 })
 
 // Some mobile browsers throttle JS in background tabs and the audio element can
-// drop out of sync with the OS lock screen. When the page becomes visible again,
-// re-sync the MediaSession state so play/pause buttons keep working.
+// drop out of sync with the OS lock screen. Track state on hide so we can
+// detect an OS-initiated pause and resume when the screen comes back on.
 function onVisibilityChange() {
-  if (document.visibilityState !== 'visible') return
-  if (!('mediaSession' in navigator) || !audioEl.value) return
-  navigator.mediaSession.playbackState = audioEl.value.paused ? 'paused' : 'playing'
+  if (document.visibilityState === 'hidden') {
+    wasPlayingBeforeHidden = !!audioEl.value && !audioEl.value.paused
+    return
+  }
+  if (!audioEl.value) return
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = audioEl.value.paused ? 'paused' : 'playing'
+  }
+  // If audio was playing before the screen turned off and the OS paused it
+  // without the user asking, resume automatically.
+  if (wasPlayingBeforeHidden && audioEl.value.paused && !userInitiatedPause) {
+    audioEl.value.play().catch(() => {})
+  }
+  wasPlayingBeforeHidden = false
 }
 
 // React to episode changes
@@ -252,9 +269,17 @@ watch(() => playerStore.currentEpisode, (episode) => {
   // immediately. Without this iOS may kill audio shortly after the screen
   // turns off because it thinks no media is active.
   updateMediaSession(episode)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'playing'
+  }
+  userInitiatedPause = false
   audioEl.value.src = episode.enclosureUrl
   audioEl.value.load()
-  audioEl.value.play().catch(() => {})
+  audioEl.value.play().catch(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused'
+    }
+  })
   trackPlay(episode)
   historyStore.recordPlay(episode)
 })
@@ -334,8 +359,10 @@ function onPause() {
 function togglePlay() {
   if (!audioEl.value) return
   if (audioEl.value.paused) {
+    userInitiatedPause = false
     audioEl.value.play().catch(() => {})
   } else {
+    userInitiatedPause = true
     audioEl.value.pause()
   }
 }
@@ -391,6 +418,7 @@ function onSeekStart(event) {
 }
 
 function handleClose() {
+  userInitiatedPause = true
   saveHistoryNow()
   audioEl.value?.pause()
   playerStore.close()
