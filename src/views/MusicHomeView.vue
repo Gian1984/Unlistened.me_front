@@ -87,23 +87,19 @@ function loadMore() {
 }
 
 function playTrack(track) {
-  if (playerStore.isCurrent(track.id)) {
-    playerStore.togglePlayback()
-  } else {
-    playerStore.play({
-      contentType: 'music',
-      id: track.id,
-      title: track.name,
-      enclosureUrl: track.audio,
-      image: track.album_image,
-      feedTitle: track.artist_name,
-      artistId: track.artist_id,
-      albumName: track.album_name,
-      licenseUrl: track.license_ccurl,
-      shareUrl: track.shareurl,
-      duration: track.duration,
-    })
-  }
+  playerStore.play({
+    contentType: 'music',
+    id: track.id,
+    title: track.name,
+    enclosureUrl: track.audio,
+    image: track.album_image,
+    feedTitle: track.artist_name,
+    artistId: track.artist_id,
+    albumName: track.album_name,
+    licenseUrl: track.license_ccurl,
+    shareUrl: track.shareurl,
+    duration: track.duration,
+  })
 }
 
 function isCurrentTrack(track) {
@@ -256,9 +252,8 @@ onMounted(() => {
               <div v-else class="w-full h-full flex items-center justify-center">
                 <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
               </div>
-              <div class="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity"
-                :class="isCurrentTrack(track) && playerStore.isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 sm:opacity-100'">
-                <PauseIcon v-if="isCurrentTrack(track) && playerStore.isPlaying" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                <PauseIcon v-if="isCurrentTrack(track)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
             </div>

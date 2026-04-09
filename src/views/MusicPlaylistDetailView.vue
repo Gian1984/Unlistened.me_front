@@ -72,10 +72,6 @@ onMounted(fetchPlaylist)
 watch(playlistId, fetchPlaylist)
 
 function playTrack(t, index) {
-  if (playerStore.isCurrent(t.jamendo_track_id)) {
-    playerStore.togglePlayback()
-    return
-  }
   const allTracks = tracks.value.map(tr => ({
     contentType: 'music',
     id: tr.jamendo_track_id,
@@ -312,9 +308,8 @@ function formatDuration(seconds) {
               <div v-else class="w-full h-full flex items-center justify-center">
                 <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
               </div>
-              <div class="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity"
-                :class="isCurrentTrack(t) && playerStore.isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 sm:opacity-100'">
-                <PauseIcon v-if="isCurrentTrack(t) && playerStore.isPlaying" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                <PauseIcon v-if="isCurrentTrack(t)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
             </div>

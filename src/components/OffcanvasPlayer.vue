@@ -123,7 +123,17 @@
           {{ playbackSpeed }}x
         </button>
 
-        <!-- Skip back 15s -->
+        <!-- Previous track (|<<) -->
+        <button
+          v-if="queueStore.hasPrevious"
+          @click="playPrevious"
+          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Previous track"
+        >
+          <ChevronDoubleLeftIcon class="h-5 w-5" />
+        </button>
+
+        <!-- Skip back 15s (<<) -->
         <button
           @click="skip(-15)"
           class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
@@ -142,7 +152,7 @@
           <PlayIcon v-else class="h-4 w-4 text-white ml-0.5" />
         </button>
 
-        <!-- Skip forward 30s -->
+        <!-- Skip forward 30s (>>) -->
         <button
           @click="skip(30)"
           class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
@@ -151,25 +161,15 @@
           <ArrowUturnRightIcon class="h-4 w-4" />
         </button>
 
-        <!-- Previous / Next track (when queue has items) -->
-        <template v-if="queueStore.hasPrevious">
-          <button
-            @click="playPrevious"
-            class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-            aria-label="Previous track"
-          >
-            <ArrowUturnLeftIcon class="h-4 w-4" />
-          </button>
-        </template>
-        <template v-if="queueStore.hasNext">
-          <button
-            @click="playNext"
-            class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-            aria-label="Next track"
-          >
-            <ArrowUturnRightIcon class="h-4 w-4" />
-          </button>
-        </template>
+        <!-- Next track (>>|) -->
+        <button
+          v-if="queueStore.hasNext"
+          @click="playNext"
+          class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Next track"
+        >
+          <ChevronDoubleRightIcon class="h-5 w-5" />
+        </button>
 
         <!-- Close -->
         <button
@@ -187,7 +187,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
-import { XMarkIcon, MusicalNoteIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, BackwardIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, MusicalNoteIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon, BackwardIcon, ArrowUturnRightIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useQueueStore } from '@/stores/queueStore'
 import { useHistoryStore } from '@/stores/historyStore.js'
@@ -328,7 +328,6 @@ watch(() => playerStore.currentEpisode, (episode) => {
     audioEl.value.removeAttribute('src')
     audioEl.value.load()
     isPlaying.value = false
-    playerStore.setPlaying(false)
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = null
       navigator.mediaSession.playbackState = 'none'
@@ -336,8 +335,6 @@ watch(() => playerStore.currentEpisode, (episode) => {
     pendingResumeTime = 0
     return
   }
-  // Sync state with playerStore
-  isPlaying.value = playerStore.isPlaying
   progress.value = 0
   currentTimeSec.value = 0
   durationSec.value = 0
@@ -419,7 +416,6 @@ function saveHistoryNow() {
 
 function onPlay() {
   isPlaying.value = true
-  playerStore.setPlaying(true)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'playing'
   }
@@ -427,7 +423,6 @@ function onPlay() {
 
 function onEnded() {
   isPlaying.value = false
-  playerStore.setPlaying(false)
   progress.value = 100
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'none'
@@ -444,7 +439,6 @@ function onEnded() {
 
 function onPause() {
   isPlaying.value = false
-  playerStore.setPlaying(false)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'paused'
   }
