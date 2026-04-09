@@ -91,6 +91,7 @@ const sidebarOpen = ref(false)
 
 // Reactive data
 const searchQuery = ref('')
+const searchType = ref('podcasts')
 const categories = ref([])
 const categoryFilter = ref('')
 const preferredLanguage = ref('')
@@ -103,6 +104,7 @@ const filteredCategories = computed(() => {
 
 // Methods
 function onSearchClick() {
+  searchType.value = 'podcasts'
   if (searchQuery.value.trim() !== '') {
     router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'podcasts' } })
     searchQuery.value = ''
@@ -110,6 +112,7 @@ function onSearchClick() {
 }
 
 function onMusicSearchClick() {
+  searchType.value = 'music'
   if (searchQuery.value.trim() !== '') {
     router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'music' } })
     searchQuery.value = ''
@@ -304,8 +307,8 @@ onMounted(() => {
                 <button
                   type="button"
                   @click="onSearchClick"
-                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-gray-400 transition-colors hover:text-white"
-                  :class="{'bg-indigo-600 text-white': false}"
+                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors"
+                  :class="searchType === 'podcasts' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'"
                   title="Search podcasts"
                 >
                   <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,8 +319,8 @@ onMounted(() => {
                 <button
                   type="button"
                   @click="onMusicSearchClick"
-                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-gray-400 transition-colors hover:text-white"
-                  :class="{'bg-indigo-600 text-white': false}"
+                  class="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors"
+                  :class="searchType === 'music' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'"
                   title="Search music"
                 >
                   <MusicalNoteIcon class="h-3.5 w-3.5" />
@@ -327,7 +330,7 @@ onMounted(() => {
 
               <button
                   type="button"
-                  @click="onSearchClick"
+                  @click="searchType === 'music' ? onMusicSearchClick() : onSearchClick()"
                   class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300"
               >
                 <span class="sr-only">Search</span>
@@ -338,7 +341,7 @@ onMounted(() => {
               <input
                   id="search-field"
                   v-model="searchQuery"
-                  @keyup.enter="onSearchClick"
+                  @keyup.enter="searchType === 'music' ? onMusicSearchClick() : onSearchClick()"
                   type="search"
                   name="search"
                   placeholder="Search podcasts or music..."
@@ -542,7 +545,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <main>
+      <main class="overflow-x-hidden">
         <RouterView />
       </main>
 
