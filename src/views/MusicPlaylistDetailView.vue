@@ -293,66 +293,73 @@ function formatDuration(seconds) {
       >
         <template #item="{ element: t, index: idx }">
           <li
-            class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+            class="group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
           >
-            <!-- Drag handle: visible on mobile, hidden on desktop (whole row draggable) -->
-            <div class="drag-handle sm:cursor-grab sm:active:cursor-grabbing cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to reorder">
-              <Bars3Icon class="h-4 w-4" />
-            </div>
-            <span class="w-6 shrink-0 text-center text-xs text-gray-500 sm:w-6 sm:text-center tabular-nums">
-              {{ idx + 1 }}
-            </span>
-
-            <!-- Cover with play overlay - click to play -->
-            <div 
-              class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
-              @click="playTrack(t, idx)"
-            >
-              <img
-                v-if="t.album_image"
-                :src="t.album_image"
-                :alt="t.title"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
-              </div>
-              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
-                <PauseIcon v-if="isCurrentTrack(t)" class="h-6 w-6 text-white" />
-                <PlayIcon v-else class="h-6 w-6 text-white" />
-              </div>
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <p
-                class="text-sm font-semibold truncate transition-colors cursor-pointer"
-                :class="isCurrentTrack(t) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
-                @click.stop="playTrack(t, idx)"
+            <!-- Mobile: compact row with cover, title, actions -->
+            <div class="flex items-center gap-3">
+              <!-- Cover with play overlay - click to play -->
+              <div 
+                class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+                @click="playTrack(t, idx)"
               >
-                {{ t.title }}
-              </p>
-              <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
-                <span class="truncate">{{ t.artist_name }}</span>
-                <LicenseBadge :url="t.license_ccurl" size="xs" />
+                <img
+                  v-if="t.album_image"
+                  :src="t.album_image"
+                  :alt="t.title"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+                </div>
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                  <PauseIcon v-if="isCurrentTrack(t)" class="h-6 w-6 text-white" />
+                  <PlayIcon v-else class="h-6 w-6 text-white" />
+                </div>
+              </div>
+
+              <!-- Index (hidden on mobile, handled by order) -->
+              <span class="hidden sm:block w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                {{ idx + 1 }}
+              </span>
+
+              <!-- Title + artist -->
+              <div class="flex-1 min-w-0">
+                <p
+                  class="text-sm font-semibold truncate transition-colors cursor-pointer"
+                  :class="isCurrentTrack(t) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+                  @click="playTrack(t, idx)"
+                >
+                  {{ t.title }}
+                </p>
+                <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
+                  <span class="truncate">{{ t.artist_name }}</span>
+                  <LicenseBadge :url="t.license_ccurl" size="xs" />
+                </div>
               </div>
             </div>
 
-            <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
-              {{ formatDuration(t.duration) }}
-            </span>
+            <!-- Bottom row: duration + actions -->
+            <div class="flex items-center justify-between pl-15 sm:pl-0">
+              <span class="text-xs text-gray-500 tabular-nums sm:hidden">
+                {{ formatDuration(t.duration) }}
+              </span>
+              <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
+                {{ formatDuration(t.duration) }}
+              </span>
 
-            <div class="flex shrink-0 items-center gap-0.5">
-              <FavoriteMusicButton :track="asTrackForLibrary(t)" size="sm" />
-              <button
-                type="button"
-                @click.stop="removeTrack(t)"
-                :title="'Remove from playlist'"
-                :aria-label="'Remove from playlist'"
-                class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
-              >
-                <TrashIcon class="h-4 w-4" />
-              </button>
+              <div class="flex shrink-0 items-center gap-0.5">
+                <FavoriteMusicButton :track="asTrackForLibrary(t)" size="sm" />
+                <button
+                  type="button"
+                  @click.stop="removeTrack(t)"
+                  :title="'Remove from playlist'"
+                  :aria-label="'Remove from playlist'"
+                  class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+                >
+                  <TrashIcon class="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </li>
         </template>
