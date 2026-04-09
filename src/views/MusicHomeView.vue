@@ -232,16 +232,18 @@ onMounted(() => {
           <li
             v-for="(track, idx) in tracks"
             :key="track.id"
-            @click="playTrack(track)"
-            class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+            class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
           >
             <!-- Index -->
-            <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
+            <span class="hidden w-5 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
               {{ idx + 1 }}
             </span>
 
             <!-- Cover with hover play overlay -->
-            <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+            <div 
+              class="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+              @click="playTrack(track)"
+            >
               <img
                 v-if="track.album_image"
                 :src="track.album_image"
@@ -252,21 +254,22 @@ onMounted(() => {
               <div v-else class="w-full h-full flex items-center justify-center">
                 <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
               </div>
-              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <PauseIcon v-if="isCurrentTrack(track)" class="h-6 w-6 text-white" />
-                <PlayIcon v-else class="h-6 w-6 text-white" />
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                <PauseIcon v-if="isCurrentTrack(track)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
             </div>
 
-            <!-- Title + artist + license badge (CC attribution required) -->
-            <div class="flex-1 min-w-0">
+            <!-- Title + artist + license badge -->
+            <div class="flex-1 min-w-0 min-w-0">
               <p
-                class="text-sm font-semibold truncate transition-colors"
+                class="text-sm font-semibold truncate transition-colors cursor-pointer"
                 :class="isCurrentTrack(track) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+                @click="playTrack(track)"
               >
                 {{ track.name }}
               </p>
-              <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
+              <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
                 <span class="truncate">{{ track.artist_name }}</span>
                 <LicenseBadge :url="track.license_ccurl" size="xs" />
               </div>

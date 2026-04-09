@@ -115,15 +115,17 @@ function asTrack(fav) {
         <li
           v-for="(fav, idx) in library.favorites"
           :key="fav.jamendo_track_id"
-          @click="playFavorite(fav)"
-          class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+          class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
         >
-          <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
+          <span class="hidden w-5 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
             {{ idx + 1 }}
           </span>
 
-          <!-- Cover -->
-          <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+          <!-- Cover with play overlay -->
+          <div 
+            class="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+            @click="playFavorite(fav)"
+          >
             <img
               v-if="fav.album_image"
               :src="fav.album_image"
@@ -134,21 +136,22 @@ function asTrack(fav) {
             <div v-else class="w-full h-full flex items-center justify-center">
               <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
             </div>
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <PauseIcon v-if="isCurrentTrack(fav)" class="h-6 w-6 text-white" />
-              <PlayIcon v-else class="h-6 w-6 text-white" />
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+              <PauseIcon v-if="isCurrentTrack(fav)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
 
           <!-- Title + artist -->
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 min-w-0">
             <p
-              class="text-sm font-semibold truncate transition-colors"
+              class="text-sm font-semibold truncate transition-colors cursor-pointer"
               :class="isCurrentTrack(fav) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+              @click="playFavorite(fav)"
             >
               {{ fav.title }}
             </p>
-            <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
+            <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
               <span class="truncate">{{ fav.artist_name }}</span>
               <LicenseBadge :url="fav.license_ccurl" size="xs" />
             </div>
