@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const routesFilePath = path.resolve(__dirname, '../router/index.js');
-const sitemapOutputPath = path.resolve(__dirname, '../../../dist/sitemap.xml');
+const sitemapOutputPath = path.resolve(__dirname, '../../dist/sitemap.xml');
 const baseUrl = 'https://www.unlistened.me/';
 
 async function generateSitemap() {
