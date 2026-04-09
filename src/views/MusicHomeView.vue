@@ -3,7 +3,11 @@ import { ref, onMounted } from 'vue'
 import { MusicalNoteIcon, PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
@@ -12,6 +16,8 @@ import { musicSeo } from '@/seo/registry/index.js'
 useSeo(musicSeo)
 
 const playerStore = usePlayerStore()
+const authStore = useAuthStore()
+const library = useMusicLibraryStore()
 
 const tracks = ref([])
 const loading = ref(true)
@@ -79,7 +85,15 @@ function formatDuration(seconds) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-onMounted(() => fetchTrending())
+onMounted(() => {
+  fetchTrending()
+  // Hydrate library state so heart icons render the correct status
+  // immediately (no fetch storm — store is idempotent + cached).
+  if (authStore.isAuthenticated) {
+    library.loadFavorites()
+    library.loadPlaylists()
+  }
+})
 </script>
 
 <template>
@@ -185,6 +199,12 @@ onMounted(() => fetchTrending())
             <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
               {{ formatDuration(track.duration) }}
             </span>
+
+            <!-- Library actions: favorite + add to playlist -->
+            <div class="flex shrink-0 items-center gap-0.5">
+              <FavoriteMusicButton :track="track" size="sm" />
+              <AddToPlaylistMenu :track="track" size="sm" />
+            </div>
           </li>
         </ul>
       </div>

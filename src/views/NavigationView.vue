@@ -27,6 +27,8 @@ import {
   ArrowLeftOnRectangleIcon,
   UserPlusIcon,
   MusicalNoteIcon,
+  HeartIcon,
+  ListBulletIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, ChevronRightIcon, MagnifyingGlassIcon, ChevronLeftIcon, XMarkIcon as XMarkSolid } from '@heroicons/vue/20/solid'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
@@ -71,6 +73,8 @@ const navigationSections = [
     items: [
       { name: 'Favourites', href: '/favourites', icon: StarIcon },
       { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon },
+      { name: 'Music favorites', href: '/music/favorites', icon: HeartIcon },
+      { name: 'Music playlists', href: '/music/playlists', icon: ListBulletIcon },
     ],
   },
   {

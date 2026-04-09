@@ -387,6 +387,89 @@ The goal is **one product, two content types**. The user should never feel they'
 4. **Search is unified.** The header search bar searches both PodcastIndex and Jamendo in parallel. Results land on a single page with two tabs (Podcasts | Music) and a counter on each.
 5. **Spotify-style queue.** Music gets a real "play next / add to queue / autoplay similar" mechanic via a new `queueStore`. Podcasts can opt in later (out of scope for v1).
 
+### Phase 2 — Library architecture as shipped — DONE ✅
+
+The favorites + playlists layer is built around **one Pinia store** that owns all library state, and **two reusable button components** that read/write through it. Every track surface in the app — list rows, the player, the playlist detail page — uses the same components and gets identical behaviour for free.
+
+#### `src/stores/musicLibraryStore.js`
+
+Single source of truth for the user's Jamendo library. Key design choices:
+
+- **Two parallel state buckets**: `favorites: []` (full backend rows) + `favoriteIds: Set<string>` (just the Jamendo IDs). The Set is what `isFavorite(trackId)` reads, so heart icons re-render in O(1) without scanning the array.
+- **Lazy hydration, cached.** `loadFavorites()` and `loadPlaylists()` are no-ops once `favoritesLoaded`/`playlistsLoaded` flip. `MusicHomeView` calls them on mount only when authenticated; ospite users stay on the public path with no API call.
+- **Optimistic add/remove with rollback.** `addFavorite` synchronously inserts an `_optimistic: true` row and adds the id to the Set, then awaits the POST. On success it swaps the optimistic row with the real one if the backend returns it; on failure it removes the id from the Set and restores the previous array. `removeFavorite` mirrors this. The user sees the heart fill/empty instantly.
+- **Shape normalisation.** `addFavorite(track)` accepts either a raw Jamendo track (`.id`, `.name`, `.audio`, ...) or a backend row (`.jamendo_track_id`, `.title`, `.audio_url`, ...) — the store does the mapping to the backend column names. This is what lets `FavoriteMusicButton` work everywhere without callers having to convert shapes.
+- **Playlist mutators bump local counters.** `addTrackToPlaylist` increments `tracks_count` on the matching playlist in the array. The `MusicPlaylistsView` grid reflects the new count without a refetch.
+- **`reset()`** is exposed for the eventual logout hook (clears both buckets and the loaded flags).
+
+Public surface:
+
+```js
+const library = useMusicLibraryStore()
+
+// state
+library.favorites          // ref<Array> — backend rows
+library.favoriteIds        // ref<Set<string>>
+library.playlists          // ref<Array>
+library.favoritesLoading   // ref<boolean>
+library.playlistsLoading   // ref<boolean>
+
+// getters
+library.isFavorite(trackId)
+library.favoritesCount
+library.playlistsCount
+
+// favorites
+library.loadFavorites(force = false)
+library.toggleFavorite(track)              // returns true if added, false if removed
+library.addFavorite(track)
+library.removeFavorite(trackId)
+
+// playlists
+library.loadPlaylists(force = false)
+library.createPlaylist(name, description = '')
+library.renamePlaylist(id, name, description)
+library.deletePlaylist(id)
+library.addTrackToPlaylist(playlistId, track)
+library.removeTrackFromPlaylist(playlistId, trackId)
+
+library.reset()                            // logout hook
+```
+
+#### `src/components/music/FavoriteMusicButton.vue`
+
+Heart icon toggle. Auth gating built in: ospite users get a `messageStore` notice + redirect to `/login`. Spans `<button>` with `@click.stop` so it never triggers the parent row click. Sizes: `xs` (h-7), `sm` (h-8), `md` (h-9). Color states: pink-400 when liked, gray-500 → pink-400 on hover when unliked. Uses outline + solid heart icons.
+
+#### `src/components/music/AddToPlaylistMenu.vue`
+
+Headless UI `Menu` dropdown. Lazy-loads the playlist list on first open via `library.loadPlaylists()`. Inline "New playlist" form (input + Create/Cancel) inside the dropdown so the user can create-and-add in one flow without navigating away. Same auth gating + `@click.stop` as the heart button. Truncates the playlist name in each `MenuItem` and shows `tracks_count` if the backend exposes it.
+
+#### `src/views/MusicFavoritesView.vue`
+
+Single virtual playlist of all `music_favorites`, rendered as the same row layout as `MusicHomeView` so users feel at home: index, cover with hover-play overlay, title + artist + license badge, duration, then per-row `AddToPlaylistMenu` + delete trash button. Empty state via `EmptyState` with link back to `/music`. SEO `musicFavoritesSeo` is `noIndex: true`.
+
+#### `src/views/MusicPlaylistsView.vue`
+
+Hub. Top of page is a "Create a new playlist" card with name input + create button. Below: responsive grid of cards (`sm:grid-cols-2 lg:grid-cols-3`) — each card shows `ListBulletIcon`, name, description, `tracks_count`, an open arrow that routes to `MusicPlaylistDetail`, and a trash button (with `confirm()` guard). Empty state via `EmptyState`. SEO `musicPlaylistsSeo` is `noIndex: true`.
+
+#### `src/views/MusicPlaylistDetailView.vue`
+
+Single playlist detail. Header has the icon tile, breadcrumb back link, name (with inline rename — pencil icon → input + check/cancel), description, track counter, "Play" button (sets the player to track #1), and a "Delete" button. Body is the same row layout as the favorites view, with per-row `FavoriteMusicButton` + remove-from-playlist trash. Loads via `musicService.getPlaylist(id)` directly (full hydrate including the embedded `tracks` array) instead of going through the store, since the store only caches the playlist *list*, not the per-playlist tracklists.
+
+#### Wire-in points
+
+- **`MusicHomeView`**: each track row now ends with `<FavoriteMusicButton :track />` + `<AddToPlaylistMenu :track />`. `onMounted` also calls `library.loadFavorites()` and `library.loadPlaylists()` if authenticated, so heart icons render the right state from the first paint.
+- **`OffcanvasPlayer`**: a `currentMusicTrack` computed maps the player's normalized episode payload back to the raw Jamendo shape, and `<FavoriteMusicButton :track="currentMusicTrack" />` is rendered next to the time display when `playerStore.isMusic`. Liking from the player updates the Set, and any other heart in the app (the row that started the play, the favorites view if open) re-renders.
+- **`NavigationView` Library section**: extended with `Music favorites` (`/music/favorites`, `HeartIcon`) and `Music playlists` (`/music/playlists`, `ListBulletIcon`). Same dark card style as the existing Favourites/Bookmarks rows.
+- **Routes**: `/music/favorites`, `/music/playlists`, `/music/playlists/:id` — all `meta: { requiresAuth: true }`.
+
+#### What's intentionally NOT in Phase 2
+
+- **Drag-to-reorder** inside a playlist (the `reorderPlaylist` endpoint is wired in the service but no UI yet — track #14b in the implementation order).
+- **Per-playlist track caching** in the store. Each `MusicPlaylistDetailView` mount fetches its own tracklist from the API. We can revisit if traffic warrants it.
+- **`musicService.checkFavorite(id)`**: not used. The store's `favoriteIds` Set already answers the question without an extra round trip; the endpoint stays in the service for future direct-link / SSR scenarios.
+- **`JamendoAttribution.vue` wrapper**: skipped. `LicenseBadge` is embedded directly inline in track rows and the player, which is enough attribution and saves a layer of indirection. We'll add the wrapper if and when track/album/artist deep pages need a richer attribution block.
+
 ### 1. Service layer — DONE ✅
 
 `src/services/musicService.js` already exists and wraps every live endpoint:
@@ -769,15 +852,20 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 | 3 | Backend | `music_favorites`, `music_playlists`, `music_playlist_tracks` migrations | ✅ |
 | 4 | Backend | `MusicFavoriteController` + `MusicPlaylistController` + auth routes | ✅ |
 | 5 | Frontend | `src/services/musicService.js` wrapping every endpoint | ✅ |
-| 6 | Frontend | Add `music_*` routes to `src/router/index.js` (lazy-loaded) | ⬜ |
-| 7 | Frontend | Extend `playerStore` with `contentType`, `isMusic`, `isPodcast` | ⬜ |
-| 8 | Frontend | `LicenseBadge.vue` + `JamendoAttribution.vue` components | ⬜ |
-| 9 | Frontend | `OffcanvasPlayer.vue`: hide speed for music, show attribution row, branch icon | ⬜ |
-| 10 | Frontend | Sidebar: add Music + Radio to Discover, Liked songs + Playlists to Library | ⬜ |
-| 11 | Frontend | `MusicHomeView.vue` (trending + genres + radios + continue listening rail) | ⬜ |
+| 6 | Frontend | Add `/music` + library music routes to `src/router/index.js` | ✅ |
+| 7 | Frontend | Extend `playerStore` with `contentType`, `isMusic`, `isPodcast` | ✅ |
+| 8 | Frontend | `LicenseBadge.vue` component | ✅ |
+| 8b | Frontend | `JamendoAttribution.vue` (deferred — `LicenseBadge` is embedded inline directly in track rows / player, no separate wrapper needed yet) | ⬜ |
+| 9 | Frontend | `OffcanvasPlayer.vue`: hide speed for music, show attribution row + license badge, music history guards | ✅ |
+| 10 | Frontend | Sidebar: Music in Discover, Music favorites + Music playlists in Library | ✅ |
+| 11 | Frontend | `MusicHomeView.vue` (trending + genre pills + play) | ✅ |
+| 11b | Frontend | `MusicHomeView` extras: featured radios row, Continue listening (music) rail | ⬜ |
 | 12 | Frontend | `MusicTrackView.vue` + `MusicAlbumView.vue` + `MusicArtistView.vue` | ⬜ |
-| 13 | Frontend | `MusicLikedView.vue` (single virtual playlist of `music_favorites`) | ⬜ |
-| 14 | Frontend | `MusicPlaylistsView.vue` + `MusicPlaylistView.vue` (drag/drop reorder) | ⬜ |
+| 13 | Frontend | `MusicFavoritesView.vue` (Spotify "Liked songs" — single flat list of `music_favorites`) | ✅ |
+| 14 | Frontend | `MusicPlaylistsView.vue` + `MusicPlaylistDetailView.vue` (create / rename / delete / add / remove) | ✅ |
+| 14b | Frontend | Drag-to-reorder tracks inside `MusicPlaylistDetailView` (vuedraggable + `reorderPlaylist`) | ⬜ |
+| 14c | Frontend | `musicLibraryStore.js` Pinia store — single source of truth for favorites + playlists | ✅ |
+| 14d | Frontend | `FavoriteMusicButton.vue` + `AddToPlaylistMenu.vue` reusable components | ✅ |
 | 15 | Frontend | `MusicRadiosView.vue` (genre radios + LIVE player mode) | ⬜ |
 | 16 | Frontend | `queueStore.js` + autoplay/similar fallback in `OffcanvasPlayer.onEnded` | ⬜ |
 | 17 | Frontend | Extend `historyStore` with `type`, mix music + podcast in "Continue listening" | ⬜ |
@@ -785,7 +873,9 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 | 19 | Frontend | Footer: add Jamendo CC disclosure line | ⬜ |
 | 20 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
 
-Recommended sequence for the first PR after this strategy is approved: **6 → 7 → 8 → 9 → 10 → 11**. That ships a working browse-and-play music experience with attribution, riding entirely on the existing player. Library/playlists/queue come in a second PR.
+**Done so far:** Phase 1 (browse + play) shipped first — `musicService`, `playerStore` discriminator, `LicenseBadge`, player adaptations with CC attribution, `MusicHomeView`, navigation entry, SEO. Phase 2 (library) shipped right after — `musicLibraryStore` as single source of truth, `FavoriteMusicButton` and `AddToPlaylistMenu` as drop-in components, `MusicFavoritesView`, `MusicPlaylistsView`, `MusicPlaylistDetailView`, three new auth-gated routes, sidebar entries, SEO entries (`noIndex` for the private pages).
+
+**Next up (recommended PR):** **15 → 16 → 17 → 11b** — radios, then queue + autoplay similar, then mixed continue-listening. After that, **12** (track/album/artist deep pages) and **18** (unified tabbed search). Reorder (14b) and footer disclosure (19) are quick polish items that can ride along any PR.
 
 ---
 
@@ -795,6 +885,10 @@ Recommended sequence for the first PR after this strategy is approved: **6 → 7
 2. **Library taxonomy** → music uses `music_favorites` (Liked songs, flat) + `music_playlists` (named, ordered, drag-reorderable). Podcasts keep `favorites` + `bookmarks` with section strings. Two models, one Library section in the sidebar.
 3. **Unified search** → yes, tabbed `SearchResults` page (Podcasts | Music) with parallel API calls.
 4. **Player** → single `OffcanvasPlayer` + single `playerStore`, discriminated via `contentType`. No fork.
+5. **Library state** → single `musicLibraryStore` (Pinia) holds favorites + playlists, lazy-hydrated and cached. Components never call `musicService` directly for library state — they go through the store so optimistic updates stay coherent across the app. Per-playlist tracklists stay outside the store and are fetched per view, since they're rarely revisited.
+6. **Reusable library actions** → `FavoriteMusicButton.vue` + `AddToPlaylistMenu.vue` are the only entry points for liking / adding to a playlist. Both accept either raw Jamendo shapes or backend rows; both gate on auth; both stop event propagation so they can be dropped into clickable rows. New surfaces (track/album/artist pages, search results) reuse them as-is.
+7. **`JamendoAttribution.vue` wrapper** → not built. The bare `LicenseBadge` rendered inline next to the artist name is enough attribution for list rows and the player. Reconsider only when a track/album/artist deep page needs a richer block.
+8. **`musicService.checkFavorite(id)`** → kept in the service but unused by the app. The store's `favoriteIds` Set answers the question synchronously; the endpoint stays available for SSR / direct-link scenarios.
 
 ## Open Questions
 

@@ -106,6 +106,13 @@
           {{ formatTime(currentTimeSec) }} / {{ formatTime(durationSec) }}
         </span>
 
+        <!-- Favorite (music only) -->
+        <FavoriteMusicButton
+          v-if="currentMusicTrack"
+          :track="currentMusicTrack"
+          size="sm"
+        />
+
         <!-- Speed control (podcasts only) -->
         <button
           v-if="playerStore.isPodcast"
@@ -158,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
@@ -166,10 +173,32 @@ import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 
 const playerStore = usePlayerStore()
 const historyStore = useHistoryStore()
 const { isDesktopCollapsed } = useSidebarState()
+
+// When the player is showing a Jamendo track, expose it in the raw
+// shape that FavoriteMusicButton / AddToPlaylistMenu expect. The
+// player normalizes incoming items into a podcast-style payload, so
+// we map back here instead of leaking player concerns into the store.
+const currentMusicTrack = computed(() => {
+  const ep = playerStore.currentEpisode
+  if (!ep || ep.contentType !== 'music') return null
+  return {
+    id: ep.id,
+    name: ep.title,
+    artist_name: ep.feedTitle,
+    artist_id: ep.artistId,
+    album_name: ep.albumName,
+    album_image: ep.image,
+    audio: ep.enclosureUrl,
+    duration: ep.duration,
+    license_ccurl: ep.licenseUrl,
+    shareurl: ep.shareUrl,
+  }
+})
 
 const audioEl = ref(null)
 const isPlaying = ref(false)
