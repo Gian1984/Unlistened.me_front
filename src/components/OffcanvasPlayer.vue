@@ -148,7 +148,7 @@
           class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           aria-label="Skip forward 30 seconds"
         >
-          <ForwardIcon class="h-4 w-4" />
+          <ArrowUturnRightIcon class="h-4 w-4" />
         </button>
 
         <!-- Previous / Next track (when queue has items) -->
@@ -158,7 +158,7 @@
             class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
             aria-label="Previous track"
           >
-            <BackwardIcon class="h-4 w-4" />
+            <ArrowUturnLeftIcon class="h-4 w-4" />
           </button>
         </template>
         <template v-if="queueStore.hasNext">
@@ -167,7 +167,7 @@
             class="hidden sm:flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
             aria-label="Next track"
           >
-            <ForwardIcon class="h-4 w-4" />
+            <ArrowUturnRightIcon class="h-4 w-4" />
           </button>
         </template>
 
@@ -187,7 +187,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
-import { XMarkIcon, MusicalNoteIcon, BackwardIcon, ForwardIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, MusicalNoteIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, BackwardIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useQueueStore } from '@/stores/queueStore'
 import { useHistoryStore } from '@/stores/historyStore.js'
@@ -328,6 +328,7 @@ watch(() => playerStore.currentEpisode, (episode) => {
     audioEl.value.removeAttribute('src')
     audioEl.value.load()
     isPlaying.value = false
+    playerStore.setPlaying(false)
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = null
       navigator.mediaSession.playbackState = 'none'
@@ -335,6 +336,8 @@ watch(() => playerStore.currentEpisode, (episode) => {
     pendingResumeTime = 0
     return
   }
+  // Sync state with playerStore
+  isPlaying.value = playerStore.isPlaying
   progress.value = 0
   currentTimeSec.value = 0
   durationSec.value = 0
@@ -416,6 +419,7 @@ function saveHistoryNow() {
 
 function onPlay() {
   isPlaying.value = true
+  playerStore.setPlaying(true)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'playing'
   }
@@ -423,6 +427,7 @@ function onPlay() {
 
 function onEnded() {
   isPlaying.value = false
+  playerStore.setPlaying(false)
   progress.value = 100
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'none'
@@ -431,16 +436,15 @@ function onEnded() {
   if (episode?.id && episode.contentType !== 'music') {
     historyStore.markCompleted(episode.id)
   }
-  if (playerStore.isMusic) {
-    const next = queueStore.consumeNext()
-    if (next) {
-      playerStore.play(next)
-    }
+  const next = queueStore.consumeNext()
+  if (next) {
+    playerStore.play(next)
   }
 }
 
 function onPause() {
   isPlaying.value = false
+  playerStore.setPlaying(false)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.playbackState = 'paused'
   }

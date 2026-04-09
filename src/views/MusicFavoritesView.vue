@@ -26,19 +26,23 @@ const messageStore = useMessageStore()
 onMounted(() => library.loadFavorites())
 
 function playFavorite(fav) {
-  playerStore.play({
-    contentType: 'music',
-    id: fav.jamendo_track_id,
-    title: fav.title,
-    enclosureUrl: fav.audio_url,
-    image: fav.album_image,
-    feedTitle: fav.artist_name,
-    artistId: fav.artist_id,
-    albumName: fav.album_name,
-    licenseUrl: fav.license_ccurl,
-    shareUrl: fav.shareurl,
-    duration: fav.duration,
-  })
+  if (playerStore.isCurrent(fav.jamendo_track_id)) {
+    playerStore.togglePlayback()
+  } else {
+    playerStore.play({
+      contentType: 'music',
+      id: fav.jamendo_track_id,
+      title: fav.title,
+      enclosureUrl: fav.audio_url,
+      image: fav.album_image,
+      feedTitle: fav.artist_name,
+      artistId: fav.artist_id,
+      albumName: fav.album_name,
+      licenseUrl: fav.license_ccurl,
+      shareUrl: fav.shareurl,
+      duration: fav.duration,
+    })
+  }
 }
 
 function isCurrentTrack(fav) {
@@ -134,8 +138,9 @@ function asTrack(fav) {
             <div v-else class="w-full h-full flex items-center justify-center">
               <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
             </div>
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
-              <PauseIcon v-if="isCurrentTrack(fav)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity"
+              :class="isCurrentTrack(fav) && playerStore.isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 sm:opacity-100'">
+              <PauseIcon v-if="isCurrentTrack(fav) && playerStore.isPlaying" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>

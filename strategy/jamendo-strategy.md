@@ -857,21 +857,81 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 | 8 | Frontend | `LicenseBadge.vue` component | ✅ |
 | 8b | Frontend | `JamendoAttribution.vue` (deferred — `LicenseBadge` is embedded inline directly in track rows / player, no separate wrapper needed yet) | ⬜ |
 | 9 | Frontend | `OffcanvasPlayer.vue`: hide speed for music, show attribution row + license badge, music history guards | ✅ |
+| 9b | Frontend | `OffcanvasPlayer.vue`: prev/next track buttons for both music AND podcasts when queue active | ✅ |
 | 10 | Frontend | Sidebar: Music in Discover, Music favorites + Music playlists in Library | ✅ |
 | 11 | Frontend | `MusicHomeView.vue` (trending + genre pills + play) | ✅ |
 | 11b | Frontend | `MusicHomeView` extras: Continue listening (music) rail | ✅ |
+| 11c | Frontend | `MusicHomeView`: responsive mobile layout fixes | ✅ |
 | 12 | Frontend | `MusicTrackView.vue` + `MusicAlbumView.vue` + `MusicArtistView.vue` | ⬜ |
 | 13 | Frontend | `MusicFavoritesView.vue` (Spotify "Liked songs" — single flat list of `music_favorites`) | ✅ |
+| 13b | Frontend | `MusicFavoritesView`: responsive mobile layout | ✅ |
 | 14 | Frontend | `MusicPlaylistsView.vue` + `MusicPlaylistDetailView.vue` (create / rename / delete / add / remove) | ✅ |
 | 14b | Frontend | Drag-to-reorder tracks inside `MusicPlaylistDetailView` (vuedraggable + `reorderPlaylist`) | ✅ |
 | 14c | Frontend | `musicLibraryStore.js` Pinia store — single source of truth for favorites + playlists | ✅ |
 | 14d | Frontend | `FavoriteMusicButton.vue` + `AddToPlaylistMenu.vue` reusable components | ✅ |
+| 14e | Frontend | `MusicPlaylistDetailView`: responsive mobile layout | ✅ |
 | 15 | Frontend | `MusicRadiosView.vue` (genre radios + LIVE player mode) | ⬜ |
 | 16 | Frontend | `queueStore.js` + autoplay/similar fallback in `OffcanvasPlayer.onEnded` | ✅ |
 | 17 | Frontend | Extend `historyStore` with `type`, mix music + podcast in "Continue listening" | ✅ |
 | 18 | Frontend | `SearchResults.vue` becomes tabbed (Podcasts | Music) with parallel calls | ✅ |
+| 18b | Frontend | Navigation search bar: podcast/music type toggle with working state | ✅ |
+| 18c | Frontend | `SearchResultView.vue`: music results with LicenseBadge + play overlay on hover | ✅ |
+| 18d | Frontend | `SearchResultView.vue`: uses playerStore.isCurrent() for track highlighting | ✅ |
 | 19 | Frontend | Footer: add Jamendo CC disclosure line | ✅ |
-| 20 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
+| 20 | Frontend | Player store: add `isCurrent(id)` method for centralized current track checking | ✅ |
+| 21 | Frontend | `FeedEpisodesView`: queue creation when playing episode (all visible episodes) | ✅ |
+| 22 | Frontend | Responsive fixes: overflow-x-hidden on main, mobile-optimized search bar | ✅ |
+| 23 | Frontend | Navigation: fix double X in search input (type="search" → type="text") | ✅ |
+| 24 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
+
+**Completed Features (as of 2026-04-09):**
+
+### Backend (Laravel)
+- `JamendoService.php` - API wrapper for Jamendo (search, trending, track, album, artist, radios, similar)
+- `MusicController.php` - REST endpoints for all music operations
+- `MusicFavoriteController.php` - Favorites CRUD
+- `MusicPlaylistController.php` - Playlists CRUD with track management
+- Database: `music_favorites`, `music_playlists`, `music_playlist_tracks` tables
+- Routes: Public (`/api/music/*`) + Authenticated (`/api/music/favorites`, `/api/music/playlists/*`)
+
+### Frontend Stores (Pinia)
+- `playerStore.js` - Single player for both podcasts and music with `contentType` discriminator, `isMusic`, `isPodcast`, `isCurrent(id)` methods
+- `queueStore.js` - Queue management (setQueue, consumeNext, popPrevious, hasNext, hasPrevious)
+- `historyStore.js` - Extended with `type` field for both podcast and music plays
+- `musicLibraryStore.js` - Unified favorites and playlists management with optimistic updates
+
+### Frontend Services
+- `musicService.js` - All API endpoints (trending, search, track, album, artist, radios, favorites, playlists)
+
+### Frontend Components
+- `LicenseBadge.vue` - Creative Commons license display component
+- `FavoriteMusicButton.vue` - Heart toggle with auth gating
+- `AddToPlaylistMenu.vue` - Dropdown for adding tracks to playlists
+- `OffcanvasPlayer.vue` - Unified player with:
+  - Music attribution row (license badge + "via Jamendo" link)
+  - Speed control hidden for music
+  - Prev/Next track buttons for both music AND podcasts when queue active
+  - Autoplay next track on `onEnded`
+
+### Frontend Views
+- `MusicHomeView.vue` - Trending tracks with genre pills, pagination ("Show more"), continue listening rail, responsive mobile layout
+- `MusicFavoritesView.vue` - Liked songs list with responsive mobile layout
+- `MusicPlaylistsView.vue` - Playlist hub with create/delete
+- `MusicPlaylistDetailView.vue` - Single playlist with drag-to-reorder (vuedraggable), responsive mobile layout
+- `SearchResultView.vue` - Unified search with podcast/music toggle, music results with LicenseBadge and play overlay
+
+### Navigation & UX
+- `NavigationView.vue` - Sidebar with Music in Discover, Music favorites/playlists in Library
+- Search bar with working podcast/music type toggle
+- Responsive mobile fixes (overflow, search bar, profile dropdown)
+- Footer: Jamendo attribution disclosure
+
+### Queue & Autoplay
+- Queue created automatically when playing from:
+  - Music playlists (`MusicPlaylistDetailView`)
+  - Podcast episodes (`FeedEpisodesView`)
+- Autoplay next track when current ends
+- Prev/Next buttons in player work for both music and podcasts
 
 **Done so far:** Phase 1 (browse + play) shipped first — `musicService`, `playerStore` discriminator, `LicenseBadge`, player adaptations with CC attribution, `MusicHomeView`, navigation entry, SEO. Phase 2 (library) shipped right after — `musicLibraryStore` as single source of truth, `FavoriteMusicButton` and `AddToPlaylistMenu` as drop-in components, `MusicFavoritesView`, `MusicPlaylistsView`, `MusicPlaylistDetailView`, three new auth-gated routes, sidebar entries, SEO entries (`noIndex` for the private pages).
 
