@@ -244,27 +244,64 @@ class MusicController extends Controller
 }
 ```
 
-### 4. New routes in `routes/api.php`
+### 4. Routes in `routes/api.php` — LIVE ✅
+
+All routes are live on `api.unlistened.me`. Tested and working as of 2026-04-09.
 
 ```php
-// Music (Jamendo) — public
+// Music (Jamendo) — public, no auth required
 Route::prefix('music')->group(function () {
-    Route::get('/trending',          [MusicController::class, 'trending']);
-    Route::get('/search',            [MusicController::class, 'search']);
-    Route::get('/track/{id}',        [MusicController::class, 'track']);
-    Route::get('/album/{id}',        [MusicController::class, 'album']);
-    Route::get('/artist/{id}',       [MusicController::class, 'artist']);
-    Route::get('/radios',            [MusicController::class, 'radios']);
-    Route::get('/track/{id}/similar', [MusicController::class, 'similar']);
+    Route::get('/trending',            [MusicController::class, 'trending']);   // ?limit=20&genre=
+    Route::get('/search',              [MusicController::class, 'search']);     // ?q=&genre=&offset=
+    Route::get('/radios',              [MusicController::class, 'radios']);
+    Route::get('/track/{id}',          [MusicController::class, 'track']);
+    Route::get('/track/{id}/similar',  [MusicController::class, 'similar']);
+    Route::get('/album/{id}',          [MusicController::class, 'album']);
+    Route::get('/artist/{id}',         [MusicController::class, 'artist']);
 });
 
-// Music user data — auth required
+// Music — auth required (Laravel Sanctum Bearer token)
 Route::middleware('auth:sanctum')->prefix('music')->group(function () {
-    Route::post('/favorites/add',        [MusicFavoriteController::class, 'store']);
-    Route::delete('/favorites/{id}',     [MusicFavoriteController::class, 'destroy']);
-    Route::get('/favorites',             [MusicFavoriteController::class, 'index']);
+    // Favorites
+    Route::get('/favorites',                          [MusicFavoriteController::class, 'index']);
+    Route::post('/favorites',                         [MusicFavoriteController::class, 'store']);
+    Route::delete('/favorites/{trackId}',             [MusicFavoriteController::class, 'destroy']);
+    Route::get('/favorites/{trackId}/check',          [MusicFavoriteController::class, 'check']);
+    // Playlists
+    Route::get('/playlists',                          [MusicPlaylistController::class, 'index']);
+    Route::post('/playlists',                         [MusicPlaylistController::class, 'store']);
+    Route::get('/playlists/{id}',                     [MusicPlaylistController::class, 'show']);
+    Route::put('/playlists/{id}',                     [MusicPlaylistController::class, 'update']);
+    Route::delete('/playlists/{id}',                  [MusicPlaylistController::class, 'destroy']);
+    Route::post('/playlists/{id}/tracks',             [MusicPlaylistController::class, 'addTrack']);
+    Route::delete('/playlists/{id}/tracks/{trackId}', [MusicPlaylistController::class, 'removeTrack']);
+    Route::put('/playlists/{id}/reorder',             [MusicPlaylistController::class, 'reorder']);
 });
 ```
+
+#### Riferimento rapido — tutte le route live
+
+| Method | Path | Auth | Descrizione |
+|---|---|---|---|
+| GET | `/api/music/trending` | No | Trending tracks (param: `limit`, `genre`) |
+| GET | `/api/music/search` | No | Ricerca (param: `q`, `genre`, `offset`) |
+| GET | `/api/music/radios` | No | Radio editoriali Jamendo |
+| GET | `/api/music/track/{id}` | No | Dettaglio singola traccia |
+| GET | `/api/music/track/{id}/similar` | No | Tracce simili |
+| GET | `/api/music/album/{id}` | No | Dettaglio album con tracklist |
+| GET | `/api/music/artist/{id}` | No | Dettaglio artista |
+| GET | `/api/music/favorites` | Sanctum | Lista preferiti musicali utente |
+| POST | `/api/music/favorites` | Sanctum | Aggiungi traccia ai preferiti |
+| DELETE | `/api/music/favorites/{trackId}` | Sanctum | Rimuovi dai preferiti |
+| GET | `/api/music/favorites/{trackId}/check` | Sanctum | Controlla se traccia è nei preferiti |
+| GET | `/api/music/playlists` | Sanctum | Lista playlist utente |
+| POST | `/api/music/playlists` | Sanctum | Crea playlist (body: `name`, `description`) |
+| GET | `/api/music/playlists/{id}` | Sanctum | Dettaglio playlist con tracce |
+| PUT | `/api/music/playlists/{id}` | Sanctum | Rinomina/modifica playlist |
+| DELETE | `/api/music/playlists/{id}` | Sanctum | Elimina playlist |
+| POST | `/api/music/playlists/{id}/tracks` | Sanctum | Aggiungi traccia a playlist |
+| DELETE | `/api/music/playlists/{id}/tracks/{trackId}` | Sanctum | Rimuovi traccia da playlist |
+| PUT | `/api/music/playlists/{id}/reorder` | Sanctum | Riordina tracce (body: `tracks[]`) |
 
 ### 5. New database models
 
@@ -300,22 +337,36 @@ This mirrors the existing `favorites` table pattern used for podcast favourites.
 
 ## Frontend Changes Required (Vue 3)
 
-### 1. New service: `src/services/musicService.js`
+### 1. Service: `src/services/musicService.js` — DONE ✅
 
 ```js
 import api from './api.js'
 
 export const musicService = {
-  getTrending: ()             => api.get('/music/trending'),
-  search: (q, genre, offset)  => api.get('/music/search', { params: { q, genre, offset } }),
-  getTrack: (id)              => api.get(`/music/track/${id}`),
-  getAlbum: (id)              => api.get(`/music/album/${id}`),
-  getArtist: (id)             => api.get(`/music/artist/${id}`),
-  getRadios: ()               => api.get('/music/radios'),
-  getSimilar: (id)            => api.get(`/music/track/${id}/similar`),
-  addFavorite: (track)        => api.post('/music/favorites/add', track),
-  removeFavorite: (id)        => api.delete(`/music/favorites/${id}`),
-  getFavorites: ()            => api.get('/music/favorites'),
+  // Public — no auth
+  getTrending: (limit = 20, genre = '')  => api.get('/music/trending', { params: { limit, genre } }),
+  search: (q, genre = '', offset = 0)    => api.get('/music/search',   { params: { q, genre, offset } }),
+  getTrack: (id)                          => api.get(`/music/track/${id}`),
+  getSimilar: (id)                        => api.get(`/music/track/${id}/similar`),
+  getAlbum: (id)                          => api.get(`/music/album/${id}`),
+  getArtist: (id)                         => api.get(`/music/artist/${id}`),
+  getRadios: ()                           => api.get('/music/radios'),
+
+  // Favorites — auth required
+  getFavorites: ()                        => api.get('/music/favorites'),
+  addFavorite: (track)                    => api.post('/music/favorites', track),
+  removeFavorite: (trackId)              => api.delete(`/music/favorites/${trackId}`),
+  checkFavorite: (trackId)               => api.get(`/music/favorites/${trackId}/check`),
+
+  // Playlists — auth required
+  getPlaylists: ()                        => api.get('/music/playlists'),
+  createPlaylist: (data)                  => api.post('/music/playlists', data),
+  getPlaylist: (id)                       => api.get(`/music/playlists/${id}`),
+  updatePlaylist: (id, data)              => api.put(`/music/playlists/${id}`, data),
+  deletePlaylist: (id)                    => api.delete(`/music/playlists/${id}`),
+  addTrackToPlaylist: (id, track)         => api.post(`/music/playlists/${id}/tracks`, track),
+  removeTrackFromPlaylist: (id, trackId)  => api.delete(`/music/playlists/${id}/tracks/${trackId}`),
+  reorderPlaylist: (id, tracks)           => api.put(`/music/playlists/${id}/reorder`, { tracks }),
 }
 ```
 
