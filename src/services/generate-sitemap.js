@@ -61,6 +61,7 @@ async function generateSitemap() {
     });
 
     const sitemapEntries = [];
+    const lastModDate = new Date().toISOString(); // Current timestamp for lastmod
 
     for (const route of routes) {
       // Exclude routes that require authentication, are redirects, or are dynamic
@@ -75,7 +76,45 @@ async function generateSitemap() {
           routePath = routePath.slice(0, -1);
         }
         const fullUrl = `${baseUrl}${routePath.startsWith('/') ? routePath.substring(1) : routePath}`;
-        sitemapEntries.push(`<url><loc>${fullUrl}</loc></url>`);
+
+        let changefreq = 'monthly';
+        let priority = '0.5';
+
+        switch (routePath) {
+          case '/':
+            changefreq = 'daily';
+            priority = '1.0';
+            break;
+          case '/search-results':
+          case '/categories':
+          case '/music':
+            changefreq = 'weekly';
+            priority = '0.8';
+            break;
+          case '/about':
+          case '/terms':
+          case '/privacy':
+          case '/documentation':
+            changefreq = 'monthly';
+            priority = '0.7';
+            break;
+          case '/login':
+          case '/signup':
+          case '/forgot_password':
+          case '/forbidden':
+            changefreq = 'yearly';
+            priority = '0.3';
+            break;
+        }
+
+        sitemapEntries.push(
+          `<url>
+    <loc>${fullUrl}</loc>
+    <lastmod>${lastModDate}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`
+        );
       }
     }
 
