@@ -1,9 +1,11 @@
 <template>
   <audio
     ref="audioEl"
+    preload="auto"
+    playsinline
     @loadedmetadata="onLoadedMetadata"
     @timeupdate="onTimeUpdate"
-    @play="isPlaying = true"
+    @play="onPlay"
     @pause="onPause"
     @ended="onEnded"
   />
@@ -172,14 +174,32 @@ function updateMediaSession(episode) {
   })
 }
 
+function safeSetActionHandler(action, handler) {
+  try {
+    navigator.mediaSession.setActionHandler(action, handler)
+  } catch (e) {
+    // Action not supported by this browser, ignore.
+  }
+}
+
 function setupMediaSessionHandlers() {
   if (!('mediaSession' in navigator)) return
-  navigator.mediaSession.setActionHandler('play', () => audioEl.value?.play())
-  navigator.mediaSession.setActionHandler('pause', () => audioEl.value?.pause())
-  navigator.mediaSession.setActionHandler('seekbackward', () => skip(-15))
-  navigator.mediaSession.setActionHandler('seekforward', () => skip(30))
-  navigator.mediaSession.setActionHandler('seekto', (details) => {
-    if (audioEl.value && details.seekTime != null) {
+  safeSetActionHandler('play', async () => {
+    try {
+      await audioEl.value?.play()
+    } catch (e) {
+      // ignore
+    }
+  })
+  safeSetActionHandler('pause', () => audioEl.value?.pause())
+  safeSetActionHandler('stop', () => handleClose())
+  safeSetActionHandler('seekbackward', (details) => skip(-(details?.seekOffset || 15)))
+  safeSetActionHandler('seekforward', (details) => skip(details?.seekOffset || 30))
+  safeSetActionHandler('seekto', (details) => {
+    if (!audioEl.value || details.seekTime == null) return
+    if (details.fastSeek && 'fastSeek' in audioEl.value) {
+      audioEl.value.fastSeek(details.seekTime)
+    } else {
       audioEl.value.currentTime = details.seekTime
     }
   })
@@ -187,7 +207,17 @@ function setupMediaSessionHandlers() {
 
 onMounted(() => {
   setupMediaSessionHandlers()
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
+
+// Some mobile browsers throttle JS in background tabs and the audio element can
+// drop out of sync with the OS lock screen. When the page becomes visible again,
+// re-sync the MediaSession state so play/pause buttons keep working.
+function onVisibilityChange() {
+  if (document.visibilityState !== 'visible') return
+  if (!('mediaSession' in navigator) || !audioEl.value) return
+  navigator.mediaSession.playbackState = audioEl.value.paused ? 'paused' : 'playing'
+}
 
 // React to episode changes
 watch(() => playerStore.currentEpisode, (episode) => {
@@ -196,8 +226,13 @@ watch(() => playerStore.currentEpisode, (episode) => {
   saveHistoryNow()
   if (!episode) {
     audioEl.value.pause()
-    audioEl.value.src = ''
+    audioEl.value.removeAttribute('src')
+    audioEl.value.load()
     isPlaying.value = false
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = null
+      navigator.mediaSession.playbackState = 'none'
+    }
     pendingResumeTime = 0
     return
   }
@@ -213,9 +248,12 @@ watch(() => playerStore.currentEpisode, (episode) => {
     savedProgress.currentTime > RESUME_MIN_SECONDS
       ? savedProgress.currentTime
       : 0
+  // Push metadata BEFORE play() so the OS lock screen sees the new track
+  // immediately. Without this iOS may kill audio shortly after the screen
+  // turns off because it thinks no media is active.
+  updateMediaSession(episode)
   audioEl.value.src = episode.enclosureUrl
   audioEl.value.load()
-  updateMediaSession(episode)
   audioEl.value.play().catch(() => {})
   trackPlay(episode)
   historyStore.recordPlay(episode)
@@ -266,9 +304,19 @@ function saveHistoryNow() {
   lastHistorySaveAt = ct
 }
 
+function onPlay() {
+  isPlaying.value = true
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'playing'
+  }
+}
+
 function onEnded() {
   isPlaying.value = false
   progress.value = 100
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'none'
+  }
   const episode = playerStore.currentEpisode
   if (episode?.id) {
     historyStore.markCompleted(episode.id)
@@ -277,6 +325,9 @@ function onEnded() {
 
 function onPause() {
   isPlaying.value = false
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'paused'
+  }
   saveHistoryNow()
 }
 
@@ -357,5 +408,6 @@ function formatTime(seconds) {
 onBeforeUnmount(() => {
   saveHistoryNow()
   audioEl.value?.pause()
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>
