@@ -44,8 +44,7 @@ async function generateSitemap() {
 
     const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapEntries.join('
-')}
+${sitemapEntries.join('\n')}
 </urlset>`;
 
     fs.mkdirSync(path.dirname(sitemapOutputPath), { recursive: true });
