@@ -27,6 +27,7 @@ import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Footer from '@/components/Footer.vue'
+import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -72,19 +73,7 @@ onMounted(fetchPlaylist)
 watch(playlistId, fetchPlaylist)
 
 function playTrack(t, index) {
-  const allTracks = tracks.value.map(tr => ({
-    contentType: 'music',
-    id: tr.jamendo_track_id,
-    title: tr.title,
-    enclosureUrl: tr.audio_url,
-    image: tr.album_image,
-    feedTitle: tr.artist_name,
-    artistId: tr.artist_id,
-    albumName: tr.album_name,
-    licenseUrl: tr.license_ccurl,
-    shareUrl: tr.shareurl,
-    duration: tr.duration,
-  }))
+  const allTracks = tracks.value.map(backendRowToPlayerPayload)
   queueStore.setQueue(allTracks, index)
   playerStore.play(allTracks[index])
 }
@@ -95,21 +84,7 @@ function isCurrentTrack(t) {
 
 function playAll() {
   if (!tracks.value.length) return
-  const allTracks = tracks.value.map(tr => ({
-    contentType: 'music',
-    id: tr.jamendo_track_id,
-    title: tr.title,
-    enclosureUrl: tr.audio_url,
-    image: tr.album_image,
-    feedTitle: tr.artist_name,
-    artistId: tr.artist_id,
-    albumName: tr.album_name,
-    licenseUrl: tr.license_ccurl,
-    shareUrl: tr.shareurl,
-    duration: tr.duration,
-  }))
-  queueStore.setQueue(allTracks, 0)
-  playerStore.play(allTracks[0])
+  playTrack(tracks.value[0], 0)
 }
 
 async function removeTrack(t) {

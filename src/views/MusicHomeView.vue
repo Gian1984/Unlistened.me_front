@@ -14,6 +14,7 @@ import SkeletonRow from '@/components/SkeletonRow.vue'
 import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicSeo } from '@/seo/registry/index.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 
 useSeo(musicSeo)
 
@@ -87,37 +88,14 @@ function loadMore() {
 }
 
 function playTrack(track) {
-  const trackItem = {
-    contentType: 'music',
-    id: track.id,
-    title: track.name,
-    enclosureUrl: track.audio,
-    image: track.album_image,
-    feedTitle: track.artist_name,
-    artistId: track.artist_id,
-    albumName: track.album_name,
-    licenseUrl: track.license_ccurl,
-    shareUrl: track.shareurl,
-    duration: track.duration,
+  const allTracks = tracks.value.map(jamendoToPlayerPayload)
+  const index = allTracks.findIndex(t => String(t.id) === String(track.id))
+  if (index === -1) {
+    playerStore.play(jamendoToPlayerPayload(track))
+    return
   }
-  const allTracks = tracks.value.map(tr => ({
-    contentType: 'music',
-    id: tr.id,
-    title: tr.name,
-    enclosureUrl: tr.audio,
-    image: tr.album_image,
-    feedTitle: tr.artist_name,
-    artistId: tr.artist_id,
-    albumName: tr.album_name,
-    licenseUrl: tr.license_ccurl,
-    shareUrl: tr.shareurl,
-    duration: tr.duration,
-  }))
-  const index = allTracks.findIndex(t => t.id === track.id)
-  if (index !== -1) {
-    queueStore.setQueue(allTracks, index)
-  }
-  playerStore.play(trackItem)
+  queueStore.setQueue(allTracks, index)
+  playerStore.play(allTracks[index])
 }
 
 function isCurrentTrack(track) {

@@ -17,6 +17,7 @@ import EmptyState from '@/components/EmptyState.vue'
 import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicFavoritesSeo } from '@/seo/registry/index.js'
+import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
 
 useSeo(musicFavoritesSeo)
 
@@ -28,36 +29,16 @@ const messageStore = useMessageStore()
 onMounted(() => library.loadFavorites())
 
 function playFavorite(fav) {
-  const allFavorites = library.favorites.map(f => ({
-    contentType: 'music',
-    id: f.jamendo_track_id,
-    title: f.title,
-    enclosureUrl: f.audio_url,
-    image: f.album_image,
-    feedTitle: f.artist_name,
-    artistId: f.artist_id,
-    albumName: f.album_name,
-    licenseUrl: f.license_ccurl,
-    shareUrl: f.shareurl,
-    duration: f.duration,
-  }))
-  const index = allFavorites.findIndex(t => t.id === fav.jamendo_track_id)
-  if (index !== -1) {
-    queueStore.setQueue(allFavorites, index)
+  const allFavorites = library.favorites.map(backendRowToPlayerPayload)
+  const index = allFavorites.findIndex(
+    t => String(t.id) === String(fav.jamendo_track_id)
+  )
+  if (index === -1) {
+    playerStore.play(backendRowToPlayerPayload(fav))
+    return
   }
-  playerStore.play({
-    contentType: 'music',
-    id: fav.jamendo_track_id,
-    title: fav.title,
-    enclosureUrl: fav.audio_url,
-    image: fav.album_image,
-    feedTitle: fav.artist_name,
-    artistId: fav.artist_id,
-    albumName: fav.album_name,
-    licenseUrl: fav.license_ccurl,
-    shareUrl: fav.shareurl,
-    duration: fav.duration,
-  })
+  queueStore.setQueue(allFavorites, index)
+  playerStore.play(allFavorites[index])
 }
 
 function isCurrentTrack(fav) {

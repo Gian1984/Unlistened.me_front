@@ -123,24 +123,27 @@
           {{ playbackSpeed }}x
         </button>
 
-        <!-- Previous track (|<<) -->
+        <!-- Previous track -->
         <button
           @click="playPrevious"
           class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasPrevious }"
           :disabled="!queueStore.hasPrevious"
           aria-label="Previous track"
-        >
-          <ChevronDoubleLeftIcon class="h-5 w-5" />
-        </button>
-
-        <!-- Skip back 15s (<<) -->
-        <button
-          @click="skip(-15)"
-          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          aria-label="Skip back 15 seconds"
+          title="Previous track"
         >
           <BackwardIcon class="h-4 w-4" />
+        </button>
+
+        <!-- Skip back 15s -->
+        <button
+          @click="skip(-15)"
+          class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          aria-label="Skip back 15 seconds"
+          title="Skip back 15 seconds"
+        >
+          <ArrowUturnLeftIcon class="h-5 w-5" stroke-width="2" />
+          <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">15</span>
         </button>
 
         <!-- Play / Pause -->
@@ -153,24 +156,27 @@
           <PlayIcon v-else class="h-4 w-4 text-white ml-0.5" />
         </button>
 
-        <!-- Skip forward 30s (>>) -->
+        <!-- Skip forward 30s -->
         <button
           @click="skip(30)"
-          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+          class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           aria-label="Skip forward 30 seconds"
+          title="Skip forward 30 seconds"
         >
-          <ArrowUturnRightIcon class="h-4 w-4" />
+          <ArrowUturnRightIcon class="h-5 w-5" stroke-width="2" />
+          <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">30</span>
         </button>
 
-        <!-- Next track (>>|) -->
+        <!-- Next track -->
         <button
           @click="playNext"
           class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
           :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasNext }"
           :disabled="!queueStore.hasNext"
           aria-label="Next track"
+          title="Next track"
         >
-          <ChevronDoubleRightIcon class="h-5 w-5" />
+          <ForwardIcon class="h-4 w-4" />
         </button>
 
         <!-- Close -->
@@ -188,20 +194,33 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
-import { XMarkIcon, MusicalNoteIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon, BackwardIcon, ArrowUturnRightIcon } from '@heroicons/vue/24/outline'
+import {
+  PlayIcon,
+  PauseIcon,
+  BackwardIcon,
+  ForwardIcon,
+} from '@heroicons/vue/24/solid'
+import {
+  XMarkIcon,
+  MusicalNoteIcon,
+  ArrowUturnLeftIcon,
+  ArrowUturnRightIcon,
+} from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useQueueStore } from '@/stores/queueStore'
 import { useHistoryStore } from '@/stores/historyStore.js'
+import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService'
 import { musicService } from '@/services/musicService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
+const messageStore = useMessageStore()
 const { isDesktopCollapsed } = useSidebarState()
 
 // When the player is showing a Jamendo track, expose it in the raw
@@ -293,6 +312,11 @@ function setupMediaSessionHandlers() {
       audioEl.value.currentTime = details.seekTime
     }
   })
+  // Lock screen / Bluetooth headset prev/next.
+  // These delegate to the same playPrevious / playNext used by the
+  // on-screen buttons, so behavior stays consistent across surfaces.
+  safeSetActionHandler('previoustrack', () => playPrevious())
+  safeSetActionHandler('nexttrack', () => playNext())
 }
 
 onMounted(() => {
@@ -359,9 +383,19 @@ watch(() => playerStore.currentEpisode, (episode) => {
   userInitiatedPause = false
   audioEl.value.src = episode.enclosureUrl
   audioEl.value.load()
-  audioEl.value.play().catch(() => {
+  audioEl.value.play().catch((err) => {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'paused'
+    }
+    // AbortError fires when a new src is set before play() resolves
+    // (very common when the user clicks a different track quickly).
+    // NotAllowedError is browser autoplay policy — the user just needs
+    // to tap once. Both are non-actionable so we stay silent.
+    // Anything else (CDN 404, decoder failure, etc.) deserves a notice
+    // so the user understands why the play button isn't moving.
+    const name = err?.name
+    if (name && name !== 'AbortError' && name !== 'NotAllowedError') {
+      messageStore.setMessage('Could not play this track. The audio source may be unavailable.')
     }
   })
   // Track all plays (podcast + music) in history for "Continue listening"
@@ -423,7 +457,7 @@ function onPlay() {
   }
 }
 
-function onEnded() {
+async function onEnded() {
   isPlaying.value = false
   progress.value = 100
   if ('mediaSession' in navigator) {
@@ -436,6 +470,34 @@ function onEnded() {
   const next = queueStore.consumeNext()
   if (next) {
     playerStore.play(next)
+    return
+  }
+  // Music: when the explicit queue runs dry, fall back to Jamendo's
+  // "similar tracks" so listening sessions don't dead-end. Spotify-style
+  // endless autoplay. Podcasts intentionally don't get this behavior —
+  // letting an episode end is the natural stop signal there.
+  if (episode?.id && episode.contentType === 'music') {
+    try {
+      const response = await musicService.getSimilar(episode.id)
+      const raw =
+        response?.data?.results ??
+        response?.data?.data ??
+        response?.data ??
+        []
+      const similar = Array.isArray(raw) ? raw : []
+      if (similar.length) {
+        const payloads = similar
+          .filter(t => t && t.audio)
+          .map(jamendoToPlayerPayload)
+        if (payloads.length) {
+          queueStore.setQueue(payloads, 0)
+          playerStore.play(payloads[0])
+        }
+      }
+    } catch (err) {
+      // Network/CDN hiccup — silent. The session just stops, which is
+      // the same as the previous behavior.
+    }
   }
 }
 
