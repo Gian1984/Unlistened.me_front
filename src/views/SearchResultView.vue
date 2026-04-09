@@ -5,6 +5,7 @@ import SkeletonCard from '../components/SkeletonCard.vue'
 import EmptyState from '../components/EmptyState.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import {
   ArrowRightIcon,
   StarIcon,
@@ -348,7 +349,10 @@ watch(
                 <p class="text-sm font-semibold truncate text-white group-hover:text-indigo-300">
                   {{ track.name }}
                 </p>
-                <p class="text-xs text-gray-400 truncate">{{ track.artist_name }}</p>
+                <div class="flex items-center gap-1 text-xs text-gray-400">
+                  <span class="truncate">{{ track.artist_name }}</span>
+                  <LicenseBadge :url="track.license_ccurl" size="xs" />
+                </div>
               </div>
 
               <div class="flex shrink-0 items-center gap-0.5">
