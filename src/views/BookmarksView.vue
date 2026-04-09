@@ -31,13 +31,13 @@ const messageStore = useMessageStore()
 
 const bookmarks = ref([])
 const isLoading = ref(true)
-const newSection = ref('')
-const availableSections = ref([
-  'Current Bookmarks',
-  'To Listen Next',
-  'All-Time Favorites',
-  'Archived Episodes'
-])
+const newSectionName = ref('')
+const sectionPresets = [
+  'Listen next',
+  'Saved for later',
+  'Best episodes',
+  'Archive',
+]
 const sections = ref([])
 const mainAreaItems = ref([])
 const show = ref(false)
@@ -52,11 +52,10 @@ async function fetchBookmarks() {
     sections.value = []
     mainAreaItems.value = response.data.filter(item => !item.section)
 
-    availableSections.value.forEach(sectionName => {
+    const sectionNames = [...new Set(response.data.filter(i => i.section).map(i => i.section))]
+    sectionNames.forEach(sectionName => {
       const items = response.data.filter(item => item.section === sectionName)
-      if (items.length > 0) {
-        sections.value.push({ name: sectionName, items })
-      }
+      sections.value.push({ name: sectionName, items })
     })
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -71,13 +70,20 @@ async function fetchBookmarks() {
   }
 }
 
-function addSection() {
-  if (!newSection.value) return
-
-  const alreadyExists = sections.value.find(section => section.name === newSection.value)
-  if (!alreadyExists) {
-    sections.value.push({ name: newSection.value, items: [] })
+function addSection(name) {
+  const candidate = (name ?? newSectionName.value).trim()
+  if (!candidate) return
+  const exists = sections.value.find(section => section.name === candidate)
+  if (!exists) {
+    sections.value.push({ name: candidate, items: [] })
   }
+  newSectionName.value = ''
+}
+
+function removeSection(name) {
+  const section = sections.value.find(s => s.name === name)
+  if (!section || section.items.length > 0) return
+  sections.value = sections.value.filter(s => s.name !== name)
 }
 
 function onDragEnd(evt) {
@@ -213,7 +219,7 @@ onMounted(() => {
           Bookmarks
         </h1>
         <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          All your saved episodes in one place. Create sections and drag episodes to keep your listening queue tidy.
+          Every episode you bookmark lands here. Group them into sections, drag them around, and keep your listening queue exactly the way you want.
         </p>
       </div>
 
@@ -237,38 +243,75 @@ onMounted(() => {
 
       <!-- Content -->
       <div v-else class="mx-auto">
-        <!-- Section creator -->
+        <!-- Section creator + how it works -->
         <div class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-5 sm:p-6">
-          <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div class="max-w-2xl">
-              <h2 class="text-xl font-semibold text-white">Organize your bookmarks</h2>
-              <p class="mt-2 text-sm leading-7 text-gray-400">
-                Add a section and drag episodes into it. A simple way to separate what you want to hear next, what you want to keep, and what you want to archive.
-              </p>
-            </div>
+          <div class="max-w-2xl">
+            <h2 class="text-xl font-semibold text-white">Organize your bookmarks</h2>
+            <p class="mt-2 text-sm leading-7 text-gray-400">
+              Want a tidy listening queue? Create a section, then drag any episode into it. Make as many sections as you want, and drag things back to the inbox whenever you change your mind.
+            </p>
+          </div>
 
-            <div class="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-              <div class="min-w-[240px]">
-                <label for="bookmark-section" class="sr-only">Select section</label>
-                <select
-                    v-model="newSection"
-                    id="bookmark-section"
-                    class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option disabled value="">Choose a section</option>
-                  <option
-                      v-for="section in availableSections"
-                      :key="section"
-                      :value="section"
-                  >
-                    {{ section }}
-                  </option>
-                </select>
+          <!-- Steps -->
+          <ol class="mt-5 grid gap-3 sm:grid-cols-3">
+            <li class="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-950/50 p-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30">1</span>
+              <div>
+                <p class="text-sm font-semibold text-white">Create a section</p>
+                <p class="mt-0.5 text-xs leading-5 text-gray-400">Pick a quick name below or type your own.</p>
               </div>
+            </li>
+            <li class="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-950/50 p-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30">2</span>
+              <div>
+                <p class="text-sm font-semibold text-white">Drag and drop</p>
+                <p class="mt-0.5 text-xs leading-5 text-gray-400">Move episodes from the inbox into any section.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-950/50 p-3">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30">3</span>
+              <div>
+                <p class="text-sm font-semibold text-white">Reorder anytime</p>
+                <p class="mt-0.5 text-xs leading-5 text-gray-400">Drag rows up or down to change the order.</p>
+              </div>
+            </li>
+          </ol>
 
+          <!-- Quick presets -->
+          <div class="mt-6">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Quick add</p>
+            <div class="mt-2 flex flex-wrap gap-2">
               <button
-                  @click="addSection"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                  v-for="preset in sectionPresets"
+                  :key="preset"
+                  type="button"
+                  @click="addSection(preset)"
+                  :disabled="sections.some(s => s.name === preset)"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-700 disabled:hover:bg-gray-800 disabled:hover:text-gray-300"
+              >
+                <FolderPlusIcon class="h-3.5 w-3.5" />
+                {{ preset }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom name -->
+          <div class="mt-5">
+            <label for="bookmark-section" class="text-xs font-semibold uppercase tracking-wide text-gray-500">Or pick your own name</label>
+            <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+              <input
+                  v-model="newSectionName"
+                  id="bookmark-section"
+                  type="text"
+                  placeholder="e.g. Morning commute, Deep dives, Sleep stories..."
+                  @keyup.enter="addSection()"
+                  class="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+              />
+              <button
+                  type="button"
+                  @click="addSection()"
+                  :disabled="!newSectionName.trim()"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-600/40"
               >
                 <FolderPlusIcon class="h-4 w-4" />
                 Add section
@@ -277,12 +320,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Main area -->
+        <!-- Inbox -->
         <section class="mb-10">
           <div class="mb-4 flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-semibold text-white">Main area</h2>
-              <p class="text-sm text-gray-500">Unsorted bookmarked episodes</p>
+              <h2 class="text-lg font-semibold text-white">Inbox</h2>
+              <p class="text-sm text-gray-500">Every episode you bookmark lands here. Drag any of them into a section below.</p>
             </div>
             <p class="text-sm text-gray-500">{{ mainAreaItems.length }} items</p>
           </div>
@@ -297,7 +340,7 @@ onMounted(() => {
             >
               <template #item="{ element }">
                 <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-300">
+                  <div class="flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-300 active:cursor-grabbing" title="Drag to a section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
 
@@ -334,6 +377,13 @@ onMounted(() => {
                 </div>
               </template>
             </draggable>
+
+            <div
+                v-if="!mainAreaItems.length"
+                class="flex items-center justify-center rounded-lg border border-dashed border-gray-700 bg-gray-800/40 px-4 py-8 text-center text-sm text-gray-500"
+            >
+              Your inbox is empty. Drag an episode here to move it back from a section.
+            </div>
           </div>
         </section>
 
@@ -343,12 +393,23 @@ onMounted(() => {
             :key="section.name"
             class="mb-8"
         >
-          <div class="mb-4 flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-semibold text-white">{{ section.name }}</h2>
-              <p class="text-sm text-gray-500">Drag episodes here to keep them grouped</p>
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <h2 class="truncate text-lg font-semibold text-white">{{ section.name }}</h2>
+              <p class="text-sm text-gray-500">Drag episodes in or out to keep them grouped.</p>
             </div>
-            <p class="text-sm text-gray-500">{{ section.items.length }} items</p>
+            <div class="flex items-center gap-3">
+              <p class="text-sm text-gray-500">{{ section.items.length }} items</p>
+              <button
+                  v-if="!section.items.length"
+                  type="button"
+                  @click="removeSection(section.name)"
+                  class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-800 hover:text-red-400"
+                  title="Remove this empty section"
+              >
+                <TrashIcon class="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-3 sm:p-4">
@@ -361,7 +422,7 @@ onMounted(() => {
             >
               <template #item="{ element }">
                 <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-700 text-gray-300">
+                  <div class="flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-300 active:cursor-grabbing" title="Drag to another section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
 
@@ -398,6 +459,13 @@ onMounted(() => {
                 </div>
               </template>
             </draggable>
+
+            <div
+                v-if="!section.items.length"
+                class="flex items-center justify-center rounded-lg border border-dashed border-gray-700 bg-gray-800/40 px-4 py-8 text-center text-sm text-gray-500"
+            >
+              This section is empty. Drag an episode from your inbox into here.
+            </div>
           </div>
         </section>
       </div>
