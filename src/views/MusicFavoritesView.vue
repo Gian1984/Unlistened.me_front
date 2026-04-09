@@ -8,6 +8,7 @@ import {
 import { TrashIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useQueueStore } from '@/stores/queueStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
@@ -21,6 +22,7 @@ useSeo(musicFavoritesSeo)
 
 const library = useMusicLibraryStore()
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
 const messageStore = useMessageStore()
 
 onMounted(() => library.loadFavorites())
