@@ -2,7 +2,7 @@ import { api } from './api'
 
 export const musicService = {
   // Public — no auth required
-  getTrending: (limit = 20, genre = '')   => api.get('api/music/trending', { params: { limit, genre } }),
+  getTrending: (limit = 20, genre = '', offset = 0) => api.get('api/music/trending', { params: { limit, genre, offset } }),
   search: (q, genre = '', offset = 0)     => api.get('api/music/search',   { params: { q, genre, offset } }),
   getTrack: (id)                          => api.get(`api/music/track/${id}`),
   getSimilar: (id)                        => api.get(`api/music/similar/${id}`),

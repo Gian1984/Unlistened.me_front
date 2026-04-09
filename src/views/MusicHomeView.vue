@@ -25,7 +25,11 @@ const library = useMusicLibraryStore()
 
 const tracks = ref([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const activeGenre = ref('')
+const offset = ref(0)
+const hasMore = ref(true)
+const PAGE_SIZE = 30
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
 
@@ -43,23 +47,43 @@ const GENRES = [
   { label: 'Cinematic',  tag: 'soundtrack' },
 ]
 
-async function fetchTrending(genre = '') {
-  loading.value = true
+async function fetchTrending(genre = '', reset = true) {
+  if (reset) {
+    loading.value = true
+    offset.value = 0
+    hasMore.value = true
+    tracks.value = []
+  } else {
+    loadingMore.value = true
+  }
   try {
-    const response = await musicService.getTrending(30, genre)
-    tracks.value = response.data?.results || []
+    const response = await musicService.getTrending(PAGE_SIZE, genre, offset.value)
+    const newTracks = response.data?.results || []
+    if (reset) {
+      tracks.value = newTracks
+    } else {
+      tracks.value = [...tracks.value, ...newTracks]
+    }
+    hasMore.value = newTracks.length === PAGE_SIZE
+    offset.value += newTracks.length
   } catch (err) {
     console.error('Error fetching music:', err)
     tracks.value = []
   } finally {
     loading.value = false
+    loadingMore.value = false
   }
 }
 
 function selectGenre(tag) {
   if (activeGenre.value === tag) return
   activeGenre.value = tag
-  fetchTrending(tag)
+  fetchTrending(tag, true)
+}
+
+function loadMore() {
+  if (loadingMore.value || !hasMore.value) return
+  fetchTrending(activeGenre.value, false)
 }
 
 function playTrack(track) {
@@ -260,6 +284,18 @@ onMounted(() => {
             </div>
           </li>
         </ul>
+
+        <!-- Show more button -->
+        <div v-if="hasMore && tracks.length > 0" class="mt-6 flex justify-center">
+          <button
+            @click="loadMore"
+            :disabled="loadingMore"
+            class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span v-if="loadingMore" class="animate-spin h-4 w-4 border-2 border-gray-300 border-t-indigo-400 rounded-full"></span>
+            {{ loadingMore ? 'Loading...' : 'Show more' }}
+          </button>
+        </div>
       </div>
 
       <!-- Jamendo platform attribution -->
