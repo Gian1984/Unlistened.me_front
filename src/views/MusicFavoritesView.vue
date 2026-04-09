@@ -42,9 +42,7 @@ function playFavorite(fav) {
 }
 
 function isCurrentTrack(fav) {
-  return playerStore.isVisible
-    && playerStore.currentEpisode
-    && String(playerStore.currentEpisode.id) === String(fav.jamendo_track_id)
+  return playerStore.isCurrent(fav.jamendo_track_id)
 }
 
 async function removeOne(fav) {

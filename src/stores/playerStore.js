@@ -18,8 +18,14 @@ export const usePlayerStore = defineStore('player', () => {
     currentEpisode.value = null
   }
 
+  function isCurrent(episodeId) {
+    return isVisible.value
+      && currentEpisode.value
+      && String(currentEpisode.value.id) === String(episodeId)
+  }
+
   const isMusic = computed(() => currentEpisode.value?.contentType === 'music')
   const isPodcast = computed(() => currentEpisode.value?.contentType !== 'music')
 
-  return { currentEpisode, isVisible, play, close, isMusic, isPodcast }
+  return { currentEpisode, isVisible, play, close, isCurrent, isMusic, isPodcast }
 })

@@ -103,9 +103,7 @@ function playTrack(track) {
 }
 
 function isCurrentTrack(track) {
-  return playerStore.isVisible
-    && playerStore.currentEpisode
-    && String(playerStore.currentEpisode.id) === String(track.id)
+  return playerStore.isCurrent(track.id)
 }
 
 function formatDuration(seconds) {

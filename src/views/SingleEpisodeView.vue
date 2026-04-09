@@ -62,7 +62,7 @@ const seoConfig = computed(() => {
 useSeo(seoConfig)
 
 const isCurrentEpisode = computed(() => {
-  return playerStore.currentEpisode?.id === episode.value?.id
+  return playerStore.isCurrent(episode.value?.id)
 })
 
 function playEpisode(ep) {

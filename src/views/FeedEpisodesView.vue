@@ -228,7 +228,7 @@ onMounted(() => {
             :key="episode.id"
             :class="[
               'relative flex items-center gap-3 p-3 rounded-lg border transition-colors group overflow-hidden',
-              playerStore.currentEpisode?.id === episode.id
+              playerStore.isCurrent(episode.id)
                 ? 'bg-indigo-500/10 border-indigo-500/40'
                 : 'bg-gray-800 border-gray-700 hover:border-gray-600'
             ]"
@@ -238,7 +238,7 @@ onMounted(() => {
               @click="playEpisode(episode)"
               :class="[
                 'shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none',
-                playerStore.currentEpisode?.id === episode.id
+                playerStore.isCurrent(episode.id)
                   ? 'bg-indigo-500 hover:bg-indigo-400'
                   : 'bg-gray-700 hover:bg-indigo-600 group-hover:bg-indigo-600'
               ]"

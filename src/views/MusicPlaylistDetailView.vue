@@ -90,9 +90,7 @@ function playTrack(t, index) {
 }
 
 function isCurrentTrack(t) {
-  return playerStore.isVisible
-    && playerStore.currentEpisode
-    && String(playerStore.currentEpisode.id) === String(t.jamendo_track_id)
+  return playerStore.isCurrent(t.jamendo_track_id)
 }
 
 function playAll() {
