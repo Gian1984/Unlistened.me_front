@@ -38,6 +38,10 @@ export const useHistoryStore = defineStore('history', () => {
     )
   )
 
+  const continueListeningMusic = computed(() =>
+    continueListening.value.filter((e) => e.type === 'music')
+  )
+
   function getEntry(episodeId) {
     if (episodeId == null) return null
     return entries.value.find((e) => e.episodeId === episodeId) || null
@@ -68,6 +72,7 @@ export const useHistoryStore = defineStore('history', () => {
         feedId: episode.feedId ?? entries.value[idx].feedId,
         image: episode.image || entries.value[idx].image,
         enclosureUrl: episode.enclosureUrl || entries.value[idx].enclosureUrl,
+        type: episode.contentType || 'podcast',
         lastPlayedAt: now,
       }
     } else {
@@ -81,6 +86,7 @@ export const useHistoryStore = defineStore('history', () => {
         currentTime: 0,
         duration: 0,
         completed: false,
+        type: episode.contentType || 'podcast',
         lastPlayedAt: now,
       })
     }
@@ -136,6 +142,7 @@ export const useHistoryStore = defineStore('history', () => {
     entries,
     recent,
     continueListening,
+    continueListeningMusic,
     getEntry,
     getProgress,
     recordPlay,

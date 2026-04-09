@@ -1,8 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { MusicalNoteIcon, PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { useQueueStore } from '@/stores/queueStore.js'
+import { useHistoryStore } from '@/stores/historyStore.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
@@ -16,12 +18,16 @@ import { musicSeo } from '@/seo/registry/index.js'
 useSeo(musicSeo)
 
 const playerStore = usePlayerStore()
+const queueStore = useQueueStore()
+const historyStore = useHistoryStore()
 const authStore = useAuthStore()
 const library = useMusicLibraryStore()
 
 const tracks = ref([])
 const loading = ref(true)
 const activeGenre = ref('')
+
+const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
 
 const GENRES = [
   { label: 'Trending',   tag: '' },
@@ -85,6 +91,23 @@ function formatDuration(seconds) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+function playHistoryEntry(entry) {
+  const track = {
+    contentType: entry.type === 'music' ? 'music' : 'podcast',
+    id: entry.episodeId,
+    title: entry.title,
+    enclosureUrl: entry.enclosureUrl,
+    image: entry.image,
+    feedTitle: entry.feedTitle,
+    duration: entry.duration,
+  }
+  if (entry.type === 'music') {
+    const saved = historyStore.getProgress(entry.episodeId)
+    if (saved) track.resumeTime = saved.currentTime
+  }
+  playerStore.play(track)
+}
+
 onMounted(() => {
   fetchTrending()
   // Hydrate library state so heart icons render the correct status
@@ -108,6 +131,36 @@ onMounted(() => {
         <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
           Independent artists, Creative Commons licensed, no tracking. Pick a genre, hit play, and fall in love with someone you have never heard before.
         </p>
+      </div>
+
+      <!-- Continue Listening (music) -->
+      <div v-if="continueListeningMusic.length" class="mb-8">
+        <h2 class="mb-4 text-lg font-semibold text-gray-300">Continue listening</h2>
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div
+            v-for="entry in continueListeningMusic"
+            :key="entry.episodeId"
+            @click="playHistoryEntry(entry)"
+            class="group relative shrink-0 w-36 cursor-pointer"
+          >
+            <div class="relative aspect-square w-36 rounded-lg bg-gray-800 overflow-hidden">
+              <img
+                v-if="entry.image"
+                :src="entry.image"
+                :alt="entry.title"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <MusicalNoteIcon class="h-8 w-8 text-gray-600" />
+              </div>
+              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <PlayIcon class="h-8 w-8 text-white" />
+              </div>
+            </div>
+            <p class="mt-2 truncate text-sm font-medium text-white">{{ entry.title }}</p>
+            <p class="truncate text-xs text-gray-400">{{ entry.feedTitle }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- Genre pills -->

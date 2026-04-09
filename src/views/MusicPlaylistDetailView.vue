@@ -13,7 +13,9 @@ import {
   MusicalNoteIcon,
   ArrowLeftIcon,
   ListBulletIcon,
+  Bars3Icon,
 } from '@heroicons/vue/24/outline'
+import draggable from 'vuedraggable'
 import { musicService } from '@/services/musicService.js'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
@@ -119,6 +121,20 @@ async function removeTrack(t) {
     messageStore.setMessage('Track removed')
   } catch {
     messageStore.setMessage('Could not remove the track.')
+  }
+}
+
+async function onDragEnd(evt) {
+  if (evt.moved) {
+    const orderedTracks = tracks.value.map((tr, idx) => ({
+      jamendo_track_id: tr.jamendo_track_id,
+      position: idx,
+    }))
+    try {
+      await musicService.reorderPlaylist(playlistId.value, orderedTracks)
+    } catch {
+      messageStore.setMessage('Could not save order. Please try again.')
+    }
   }
 }
 
@@ -269,65 +285,74 @@ function formatDuration(seconds) {
       </div>
 
       <!-- Tracks -->
-      <ul v-else class="space-y-2">
-        <li
-          v-for="(t, idx) in tracks"
-          :key="t.jamendo_track_id"
-          @click="playTrack(t, idx)"
-          class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
-        >
-          <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
-            {{ idx + 1 }}
-          </span>
-
-          <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
-            <img
-              v-if="t.album_image"
-              :src="t.album_image"
-              :alt="t.title"
-              class="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+      <draggable
+        v-model="tracks"
+        item-key="jamendo_track_id"
+        handle=".drag-handle"
+        @change="onDragEnd"
+        class="space-y-2"
+      >
+        <template #item="{ element: t, index: idx }">
+          <li
+            @click="playTrack(t, idx)"
+            class="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+          >
+            <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to reorder">
+              <Bars3Icon class="h-4 w-4" />
             </div>
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <PauseIcon v-if="isCurrentTrack(t)" class="h-6 w-6 text-white" />
-              <PlayIcon v-else class="h-6 w-6 text-white" />
+            <span class="hidden w-6 shrink-0 text-center text-xs text-gray-500 sm:block sm:w-6 sm:text-center tabular-nums">
+              {{ idx + 1 }}
+            </span>
+
+            <div class="relative shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-700">
+              <img
+                v-if="t.album_image"
+                :src="t.album_image"
+                :alt="t.title"
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+              </div>
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <PauseIcon v-if="isCurrentTrack(t)" class="h-6 w-6 text-white" />
+                <PlayIcon v-else class="h-6 w-6 text-white" />
+              </div>
             </div>
-          </div>
 
-          <div class="flex-1 min-w-0">
-            <p
-              class="text-sm font-semibold truncate transition-colors"
-              :class="isCurrentTrack(t) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
-            >
-              {{ t.title }}
-            </p>
-            <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
-              <span class="truncate">{{ t.artist_name }}</span>
-              <LicenseBadge :url="t.license_ccurl" size="xs" />
+            <div class="flex-1 min-w-0">
+              <p
+                class="text-sm font-semibold truncate transition-colors"
+                :class="isCurrentTrack(t) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
+              >
+                {{ t.title }}
+              </p>
+              <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400">
+                <span class="truncate">{{ t.artist_name }}</span>
+                <LicenseBadge :url="t.license_ccurl" size="xs" />
+              </div>
             </div>
-          </div>
 
-          <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
-            {{ formatDuration(t.duration) }}
-          </span>
+            <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
+              {{ formatDuration(t.duration) }}
+            </span>
 
-          <div class="flex shrink-0 items-center gap-0.5">
-            <FavoriteMusicButton :track="asTrackForLibrary(t)" size="sm" />
-            <button
-              type="button"
-              @click.stop="removeTrack(t)"
-              :title="'Remove from playlist'"
-              :aria-label="'Remove from playlist'"
-              class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
-            >
-              <TrashIcon class="h-4 w-4" />
-            </button>
-          </div>
-        </li>
-      </ul>
+            <div class="flex shrink-0 items-center gap-0.5">
+              <FavoriteMusicButton :track="asTrackForLibrary(t)" size="sm" />
+              <button
+                type="button"
+                @click.stop="removeTrack(t)"
+                :title="'Remove from playlist'"
+                :aria-label="'Remove from playlist'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+              >
+                <TrashIcon class="h-4 w-4" />
+              </button>
+            </div>
+          </li>
+        </template>
+      </draggable>
 
       <p class="mt-10 text-center text-xs text-gray-600">
         Music provided by

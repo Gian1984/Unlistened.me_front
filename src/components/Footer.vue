@@ -97,6 +97,9 @@ const FooterNavigation = {
         <router-link to="/terms" class="text-gray-500 hover:text-pink-400">Terms &amp; conditions</router-link>
         <router-link to="/privacy" class="text-gray-500 hover:text-pink-400">Privacy policy</router-link>
       </div>
+      <p class="mt-4 text-center text-xs text-gray-600">
+        Music provided by <a href="https://www.jamendo.com" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-indigo-400">Jamendo</a> under Creative Commons licenses.
+      </p>
     </div>
     <p class="py-3 text-center text-xs font-bold leading-5 text-gray-500">&copy; {{ currentYear }} Unlistened.me all rights reserved. <a href="https://gianlucatiengo.com/" target="_blank" class="text-pink-500 hover:text-indigo-400 font-bold block">Powered by Gianluca Tiengo</a></p>
   </div>

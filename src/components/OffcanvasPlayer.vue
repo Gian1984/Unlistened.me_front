@@ -362,13 +362,9 @@ watch(() => playerStore.currentEpisode, (episode) => {
       navigator.mediaSession.playbackState = 'paused'
     }
   })
-  // Music in v1 is play-only: no analytics call (podcast endpoint), no
-  // history pollution. Both will come back when the music history/playback
-  // store is wired up.
-  if (episode.contentType !== 'music') {
-    trackPlay(episode)
-    historyStore.recordPlay(episode)
-  }
+  // Track all plays (podcast + music) in history for "Continue listening"
+  trackPlay(episode)
+  historyStore.recordPlay(episode)
 })
 
 function trackPlay(episode) {
