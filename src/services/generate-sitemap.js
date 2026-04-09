@@ -21,11 +21,58 @@ async function generateSitemap() {
       process.exit(1);
     }
 
-    const routesString = `[${routesMatch[1]}]`;
+    const routesStringContent = routesMatch[1];
 
-    // A hacky way to parse JS object literal string into a JS object
-    // This is generally unsafe but acceptable here as we control the source file.
-    const routes = eval(`(${routesString})`);
+    // Split the routes string into individual route objects.
+    // This regex attempts to split by '},' followed by a newline and optional whitespace,
+    // assuming each route object is well-formed.
+    const routeStrings = routesStringContent.split(/},\s*\n\s*{/);
+
+    const routes = routeStrings.map(routeStr => {
+      let cleanedRouteStr = routeStr.trim();
+      if (!cleanedRouteStr.startsWith('{')) {
+        cleanedRouteStr = `{${cleanedRouteStr}`;
+      }
+      if (!cleanedRouteStr.endsWith('}')) {
+        cleanedRouteStr = `${cleanedRouteStr}}`;
+      }
+
+      // Replace property names with quoted keys to make it valid JSON-like
+      cleanedRouteStr = cleanedRouteStr
+        .replace(/(\w+):/g, '"$1":') // Quote keys like path: to "path":
+        .replace(/'/g, '"')         // Replace single quotes with double quotes
+        .replace(/(\/\*[\s\S]*?\*\/)/g, '') // Remove multi-line comments
+        .replace(/\/\/.*$/gm, '')   // Remove single-line comments
+        .replace(/component:\s*\w+,?/g, ''); // Remove component property entirely
+
+      // For `meta: { requiresAuth: true }`
+      cleanedRouteStr = cleanedRouteStr.replace(/"meta":\s*({[\s\S]*?}),?/g, (match, metaContent) => {
+        return `"meta":${metaContent.replace(/(\w+):\s*(true|false)/g, '"$1":$2')}`;
+      });
+
+      try {
+        return JSON.parse(cleanedRouteStr);
+      } catch (parseError) {
+        console.warn('Could not parse route string (ignoring component references):', cleanedRouteStr);
+        // Fallback for more complex meta or unhandled cases
+        // Attempt to extract basic path and name via regex if JSON.parse fails
+        const pathMatch = cleanedRouteStr.match(/"path":"(.*?)"/);
+        const nameMatch = cleanedRouteStr.match(/"name":"(.*?)"/);
+        const redirectMatch = cleanedRouteStr.match(/"redirect":"(.*?)"/);
+        const requiresAuthMatch = cleanedRouteStr.match(/"requiresAuth":true/);
+        const requiresAdminMatch = cleanedRouteStr.match(/"requiresAdmin":true/);
+
+        return {
+          path: pathMatch ? pathMatch[1] : '',
+          name: nameMatch ? nameMatch[1] : '',
+          redirect: redirectMatch ? redirectMatch[1] : undefined,
+          meta: {
+            requiresAuth: !!requiresAuthMatch,
+            requiresAdmin: !!requiresAdminMatch,
+          }
+        };
+      }
+    });
 
     const sitemapEntries = [];
 
