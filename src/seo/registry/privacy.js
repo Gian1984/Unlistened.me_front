@@ -3,4 +3,5 @@ export const privacySeo = {
   description: 'How Unlistened.me collects, uses and protects your data. A non-commercial project that respects your privacy.',
   canonical: 'https://www.unlistened.me/privacy',
   ogType: 'website',
+  ogImage: 'https://www.unlistened.me/images/og/privacy.png',
 }

@@ -1,6 +1,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # ── Crawler proxy ──────────────────────────────────────────────────
+  # Social-media bots get routed to crawler.php which serves
+  # the correct OG / Twitter meta tags without needing JS execution.
+  RewriteCond %{HTTP_USER_AGENT} facebookexternalhit|Facebot|Twitterbot|LinkedInBot|TelegramBot|Slackbot|WhatsApp|Discordbot|Pinterest|Applebot [NC]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ /crawler.php [L,QSA]
+
+  # ── SPA fallback ───────────────────────────────────────────────────
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

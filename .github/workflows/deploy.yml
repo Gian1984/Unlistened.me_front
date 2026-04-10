@@ -25,6 +25,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Generate OG Images
+        run: npm run generate-og-images
+
       - name: Generate Sitemap
         run: npm run generate-sitemap
 

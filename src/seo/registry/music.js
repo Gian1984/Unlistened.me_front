@@ -3,6 +3,7 @@ export const musicSeo = {
   description: 'Stream thousands of Creative Commons licensed tracks from independent artists. Free, no ads, no tracking. Discover ambient, electronic, jazz, classical, rock and more.',
   canonical: 'https://www.unlistened.me/music',
   ogType: 'website',
+  ogImage: 'https://www.unlistened.me/images/og/music.png',
 }
 
 export const musicFavoritesSeo = {

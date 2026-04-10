@@ -30,5 +30,6 @@ export const homeSeo = {
   description: 'Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required. Your private listening experience starts here.',
   canonical: 'https://www.unlistened.me/',
   ogType: 'website',
+  ogImage: 'https://www.unlistened.me/images/og/home.png',
   jsonLd: [websiteSchema, organizationSchema, faq],
 }

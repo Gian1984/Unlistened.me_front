@@ -3,4 +3,5 @@ export const searchSeo = {
   description: 'Find your next favourite podcast on Unlistened.me. Search by title, topic, or category.',
   canonical: 'https://www.unlistened.me/search-results',
   ogType: 'website',
+  ogImage: 'https://www.unlistened.me/images/og/search.png',
 }

@@ -25,5 +25,6 @@ export const aboutSeo = {
   description: 'Learn about Unlistened.me, the podcast player built with privacy at its core. No ads, no tracking. Made for listeners, not algorithms.',
   canonical: 'https://www.unlistened.me/about',
   ogType: 'website',
+  ogImage: 'https://www.unlistened.me/images/og/about.png',
   jsonLd: [organizationSchema, faq],
 }

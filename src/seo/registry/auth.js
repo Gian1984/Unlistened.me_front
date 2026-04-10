@@ -6,6 +6,7 @@ export const loginSeo = {
   description: 'Sign in to Unlistened.me to access your saved podcasts and bookmarks.',
   canonical: 'https://www.unlistened.me/login',
   robots: 'noindex,nofollow',
+  ogImage: 'https://www.unlistened.me/images/og/login.png',
 }
 
 export const signupSeo = {
@@ -13,6 +14,7 @@ export const signupSeo = {
   description: 'Create a free Unlistened.me account to save your favourite podcasts and pick up where you left off.',
   canonical: 'https://www.unlistened.me/signup',
   robots: 'noindex,nofollow',
+  ogImage: 'https://www.unlistened.me/images/og/signup.png',
 }
 
 export const forgotSeo = {
