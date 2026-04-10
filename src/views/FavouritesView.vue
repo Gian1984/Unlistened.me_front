@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { favouritesSeo } from '@/seo/registry/index.js'
@@ -10,6 +10,7 @@ import {
   FolderPlusIcon,
   CheckCircleIcon,
   XCircleIcon,
+  MicrophoneIcon,
 } from '@heroicons/vue/24/outline'
 import { StarIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
@@ -41,6 +42,9 @@ const show = ref(false)
 const message = ref('')
 const notificationType = ref('success')
 
+// Enriched feed data: feed_id → { image, author, description }
+const feedDetails = reactive(new Map())
+
 async function fetchFavorites() {
   isLoading.value = true
   try {
@@ -54,6 +58,26 @@ async function fetchFavorites() {
       const items = response.data.filter(item => item.section === sectionName)
       sections.value.push({ name: sectionName, items })
     })
+
+    // Enrich: fetch feed info for every unique feed_id in parallel
+    const uniqueIds = [...new Set(response.data.map(f => f.feed_id).filter(Boolean))]
+    await Promise.allSettled(
+      uniqueIds.map(async (feedId) => {
+        try {
+          const res = await podcastService.getFeedInfo(feedId)
+          const feed = res.data?.feed
+          if (feed) {
+            feedDetails.set(feedId, {
+              image: feed.image || '',
+              author: feed.author || '',
+              description: feed.description || '',
+            })
+          }
+        } catch {
+          // Enrichment is best-effort; row still shows title.
+        }
+      })
+    )
   } catch (error) {
     if (error.response && error.response.status === 401) {
       authStore.clearUser()
@@ -65,6 +89,15 @@ async function fetchFavorites() {
   } finally {
     isLoading.value = false
   }
+}
+
+function feedInfo(element) {
+  return feedDetails.get(element.feed_id) || null
+}
+
+function stripHtmlTags(str) {
+  if (!str) return ''
+  return str.replace(/<[^>]*>/g, '')
 }
 
 function addSection(name) {
@@ -251,9 +284,8 @@ onMounted(() => {
             <div class="h-3.5 w-10 rounded animate-shimmer" />
           </div>
           <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-3 sm:p-4 space-y-2">
-            <div v-for="i in 4" :key="i" class="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3">
-              <div class="h-9 w-9 shrink-0 rounded-full animate-shimmer" />
-              <div class="h-9 w-9 shrink-0 rounded-full animate-shimmer" />
+            <div v-for="i in 4" :key="i" class="flex items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-3">
+              <div class="h-10 w-10 sm:h-12 sm:w-12 shrink-0 rounded-md animate-shimmer" />
               <div class="flex-1 min-w-0 space-y-1.5">
                 <div class="h-4 w-3/4 rounded animate-shimmer" />
                 <div class="h-3 w-1/3 rounded animate-shimmer" />
@@ -376,40 +408,57 @@ onMounted(() => {
                 class="space-y-2 min-h-[80px]"
             >
               <template #item="{ element }">
-                <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
+                <div class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60">
                   <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to a section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
-                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                  <span class="hidden sm:flex w-5 shrink-0 text-center text-xs text-gray-500 tabular-nums">
                     {{ mainAreaItems.indexOf(element) + 1 }}
                   </span>
 
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-500/10 text-pink-400">
-                    <StarIcon class="h-4 w-4" />
-                  </div>
+                  <!-- Cover image -->
+                  <router-link :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
+                    <img
+                      v-if="feedInfo(element)?.image"
+                      :src="feedInfo(element).image"
+                      :alt="element.title"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                      <MicrophoneIcon class="h-5 w-5 text-gray-500" />
+                    </div>
+                  </router-link>
 
+                  <!-- Info -->
                   <div class="flex-1 min-w-0">
-                    <p class="truncate text-sm font-medium text-white">
-                      {{ element.title }}
+                    <router-link :to="'/feed/' + element.feed_id" class="block">
+                      <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </p>
+                    </router-link>
+                    <p v-if="feedInfo(element)?.author" class="text-xs text-gray-400 truncate mt-0.5">
+                      {{ feedInfo(element).author }}
                     </p>
-                    <p class="mt-0.5 text-xs text-gray-400">
-                      Saved podcast
+                    <p v-if="feedInfo(element)?.description" class="hidden sm:block text-xs text-gray-500 line-clamp-1 mt-0.5 leading-relaxed">
+                      {{ stripHtmlTags(feedInfo(element).description) }}
                     </p>
                   </div>
 
-                  <div class="flex shrink-0 items-center gap-1">
+                  <!-- Actions -->
+                  <div class="flex shrink-0 items-center gap-0.5">
                     <router-link
                         :to="'/feed/' + element.feed_id"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
-                        title="Open podcast"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
+                        title="Episodes"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
                     </router-link>
 
                     <button
                         @click="deleteFavourite(element.feed_id, 'main')"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
-                        title="Delete favourite"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+                        title="Remove favourite"
                     >
                       <TrashIcon class="h-4 w-4" />
                     </button>
@@ -461,40 +510,57 @@ onMounted(() => {
                 class="space-y-2 min-h-[80px]"
             >
               <template #item="{ element }">
-                <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
+                <div class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60">
                   <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to another section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
-                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                  <span class="hidden sm:flex w-5 shrink-0 text-center text-xs text-gray-500 tabular-nums">
                     {{ section.items.indexOf(element) + 1 }}
                   </span>
 
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pink-500/10 text-pink-400">
-                    <StarIcon class="h-4 w-4" />
-                  </div>
+                  <!-- Cover image -->
+                  <router-link :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
+                    <img
+                      v-if="feedInfo(element)?.image"
+                      :src="feedInfo(element).image"
+                      :alt="element.title"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                      <MicrophoneIcon class="h-5 w-5 text-gray-500" />
+                    </div>
+                  </router-link>
 
+                  <!-- Info -->
                   <div class="flex-1 min-w-0">
-                    <p class="truncate text-sm font-medium text-white">
-                      {{ element.title }}
+                    <router-link :to="'/feed/' + element.feed_id" class="block">
+                      <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </p>
+                    </router-link>
+                    <p v-if="feedInfo(element)?.author" class="text-xs text-gray-400 truncate mt-0.5">
+                      {{ feedInfo(element).author }}
                     </p>
-                    <p class="mt-0.5 text-xs text-gray-400">
-                      Saved podcast
+                    <p v-if="feedInfo(element)?.description" class="hidden sm:block text-xs text-gray-500 line-clamp-1 mt-0.5 leading-relaxed">
+                      {{ stripHtmlTags(feedInfo(element).description) }}
                     </p>
                   </div>
 
-                  <div class="flex shrink-0 items-center gap-1">
+                  <!-- Actions -->
+                  <div class="flex shrink-0 items-center gap-0.5">
                     <router-link
                         :to="'/feed/' + element.feed_id"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
-                        title="Open podcast"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
+                        title="Episodes"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
                     </router-link>
 
                     <button
                         @click="deleteFavourite(element.feed_id, section.name)"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
-                        title="Delete favourite"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+                        title="Remove favourite"
                     >
                       <TrashIcon class="h-4 w-4" />
                     </button>

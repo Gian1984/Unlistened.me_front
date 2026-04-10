@@ -14,7 +14,7 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 | UI components | Headless UI, Heroicons | 1.7.19 / 2.1.1 |
 | HTTP | Axios (centralized instance in `src/services/api.js`) | 1.6.7 |
 | Auth | Laravel Sanctum (Bearer token, stored in localStorage) | 4.0 |
-| State | Pinia — authStore, messageStore, playerStore, historyStore | 2.1.7 |
+| State | Pinia — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.7 |
 | Routing | Vue Router 4 (lazy-loaded routes + SEO meta guards) | 4.3.0 |
 | Charts | Chart.js + vue-chartjs (admin dashboard) | 4.4.3 |
 | Drag & Drop | vuedraggable 4 (favourites & bookmarks) | 4.1.0 |
@@ -37,11 +37,12 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   ├── main.js                     # App bootstrap (Pinia, Router)
 │   │
 │   ├── router/
-│   │   └── index.js                # 19 routes, lazy-loaded, with SEO meta guards
+│   │   └── index.js                # 23 routes (incl. 4 music), with SEO meta guards
 │   │
 │   ├── services/                   # API layer (all HTTP calls go here)
 │   │   ├── api.js                  # Axios instance: baseURL, CSRF, 401 interceptor
 │   │   ├── podcastService.js       # Podcast + episode endpoints
+│   │   ├── musicService.js         # Jamendo music endpoints (tracks, favorites, playlists)
 │   │   ├── authService.js          # Login, logout, register, password reset, language
 │   │   ├── userService.js          # Profile, settings, contact form, delete account
 │   │   └── adminService.js         # Dashboard stats, user management
@@ -49,8 +50,10 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   ├── stores/                     # Pinia stores
 │   │   ├── authStore.js            # Authenticated user state (persisted to localStorage)
 │   │   ├── messageStore.js         # Global toast/notification messages
-│   │   ├── playerStore.js          # Global audio player state (current episode)
-│   │   └── historyStore.js         # Listening history + resume progress (localStorage)
+│   │   ├── playerStore.js          # Audio player state (current track, isPlaying, togglePlay)
+│   │   ├── historyStore.js         # Listening history + resume progress (localStorage)
+│   │   ├── queueStore.js           # Playback queue (next/prev track navigation)
+│   │   └── musicLibraryStore.js    # Music favorites + playlists state
 │   │
 │   ├── composables/
 │   │   └── useSidebarState.js      # Shared sidebar collapsed/expanded state
@@ -60,23 +63,31 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   │   └── registry/index.js       # Per-route SEO metadata registry
 │   │
 │   ├── components/
-│   │   ├── OffcanvasPlayer.vue     # Full-width sticky bottom audio player bar
+│   │   ├── OffcanvasPlayer.vue     # Unified sticky bottom player (podcasts + music)
 │   │   ├── CookieConsent.vue       # GDPR cookie consent banner
 │   │   ├── Footer.vue              # App footer
 │   │   ├── EmptyState.vue          # Reusable empty state (icon + title + CTA)
 │   │   ├── SkeletonCard.vue        # Shimmer skeleton for podcast cards
 │   │   ├── SkeletonRow.vue         # Shimmer skeleton for episode rows
-│   │   └── icons/                  # SVG icon components
+│   │   ├── icons/                  # SVG icon components
+│   │   └── music/                  # Music-specific components
+│   │       ├── LicenseBadge.vue    # CC license badge display
+│   │       ├── FavoriteMusicButton.vue  # Heart toggle for music tracks
+│   │       └── AddToPlaylistMenu.vue    # Dropdown to add track to playlist
 │   │
 │   ├── views/
 │   │   ├── NavigationView.vue      # Main layout shell: sidebar, header, <RouterView>
 │   │   ├── HomeView.vue            # Browse podcasts (grid of cards + continue listening)
 │   │   ├── CategoriesView.vue      # Category grid → filters HomeView
-│   │   ├── SearchResultView.vue    # Search results (query or category filter)
-│   │   ├── FeedEpisodesView.vue    # Episode list for a single podcast
+│   │   ├── SearchResultView.vue    # Search results (podcasts + music tracks)
+│   │   ├── FeedEpisodesView.vue    # Episode list for a single podcast (cover+play overlay)
 │   │   ├── SingleEpisodeView.vue   # Single episode detail + play
-│   │   ├── FavouritesView.vue      # Saved podcasts (drag-to-reorder into sections)
+│   │   ├── FavouritesView.vue      # Saved podcasts (enriched cards with cover + author)
 │   │   ├── BookmarksView.vue       # Bookmarked episodes (drag-to-reorder into sections)
+│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo
+│   │   ├── MusicFavoritesView.vue  # Music: liked songs list
+│   │   ├── MusicPlaylistsView.vue  # Music: user playlists grid
+│   │   ├── MusicPlaylistDetailView.vue  # Music: single playlist track list
 │   │   ├── LoginView.vue           # Auth: login
 │   │   ├── SignUpView.vue          # Auth: registration
 │   │   ├── ForgotPasswordView.vue  # Auth: request password reset
@@ -89,6 +100,9 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   │   ├── PrivacyView.vue         # Privacy policy
 │   │   ├── NotFoundView.vue        # 404 error page
 │   │   └── ForbiddenView.vue       # 403 error page
+│   │
+│   ├── utils/
+│   │   └── musicTrackPayload.js    # Shape adapter: normalizes Jamendo data → player format
 │   │
 │   └── assets/
 │       └── base.css                # Global CSS (dark theme base, shimmer animation, Tailwind imports)
@@ -110,14 +124,19 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 
 ### Audio Player
 
-`OffcanvasPlayer.vue` is a **full-width sticky bottom bar** (fixed, sidebar-aware). It uses the HTML5 `<audio>` element directly. Global state (current episode, play/pause) is managed by `playerStore.js`.
+`OffcanvasPlayer.vue` is a **unified sticky bottom bar** for both podcasts and music (fixed, sidebar-aware). It uses the HTML5 `<audio>` element directly. Global state is managed by `playerStore.js` (current track, `isPlaying`, `togglePlay` signal) and `queueStore.js` (next/prev navigation).
 
 Key features:
+- **Unified playback** — plays both podcast episodes and Jamendo music tracks; content type detected via `contentType` field
+- **Play/pause sync** — `isPlaying` state mirrored from audio events; views toggle via `toggleSignal` counter pattern
+- **Queue navigation** — prev/next track via `queueStore`; auto-advance on track end
 - **MediaSession API** — OS-level lockscreen controls (play/pause, seek, skip) on mobile and desktop
-- **Screen-off continuity** — `x-webkit-airplay`, eager `playbackState` update, `visibilitychange` auto-resume distinguish OS-initiated pauses from user pauses and resume automatically
+- **Screen-off continuity** — `x-webkit-airplay`, eager `playbackState` update, `visibilitychange` auto-resume
+- **Responsive mobile layout** — two-row design: controls centered on top, cover + info below (via CSS `flex-col`/`order`)
 - **Draggable seek bar** with touch support
-- **Playback speed** control (0.5x–2x)
+- **Playback speed** control (0.5x–2x, podcasts only)
 - **Skip ±15s / ±30s** buttons
+- **Music metadata** — displays artist name and CC license badge for Jamendo tracks
 - **Listening history** — progress saved to `historyStore` every 5 seconds; resume position restored on next play
 - Sidebar-aware layout: shifts left offset based on desktop sidebar collapsed state
 
@@ -152,7 +171,7 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 
 ### Routing
 
-`src/router/index.js` defines 19 routes, all lazy-loaded. Navigation guards handle auth-required routes and set `document.title` from route meta. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+`src/router/index.js` defines 23 routes (including 4 music routes). Navigation guards handle auth-required routes and set `document.title` from route meta. SEO metadata (title, description, og:*) is managed via `src/seo/`.
 
 ---
 
@@ -195,6 +214,25 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 | POST | `/api/add_download_click` | Sanctum | Track episode download |
 | GET | `/api/get_stats` | Admin | Dashboard statistics |
 | GET | `/api/users` | Admin | User list |
+| GET | `/api/music/trending` | No | Trending Jamendo tracks |
+| GET | `/api/music/search` | No | Search music by query/genre |
+| GET | `/api/music/track/:id` | No | Single track detail |
+| GET | `/api/music/similar/:id` | No | Similar tracks |
+| GET | `/api/music/album/:id` | No | Album detail |
+| GET | `/api/music/artist/:id` | No | Artist detail |
+| GET | `/api/music/radios` | No | Jamendo radio stations |
+| GET | `/api/music/favorites` | Sanctum | User's liked music tracks |
+| POST | `/api/music/favorites` | Sanctum | Like a track |
+| DELETE | `/api/music/favorites/:id` | Sanctum | Unlike a track |
+| GET | `/api/music/favorites/check/:id` | Sanctum | Check if track is liked |
+| GET | `/api/music/playlists` | Sanctum | User's playlists |
+| POST | `/api/music/playlists` | Sanctum | Create playlist |
+| GET | `/api/music/playlists/:id` | Sanctum | Playlist detail + tracks |
+| PUT | `/api/music/playlists/:id` | Sanctum | Update playlist |
+| DELETE | `/api/music/playlists/:id` | Sanctum | Delete playlist |
+| POST | `/api/music/playlists/:id/tracks` | Sanctum | Add track to playlist |
+| DELETE | `/api/music/playlists/:id/tracks/:tid` | Sanctum | Remove track from playlist |
+| PUT | `/api/music/playlists/:id/reorder` | Sanctum | Reorder playlist tracks |
 
 ---
 
@@ -259,7 +297,7 @@ See [`strategy/improvement-strategy.md`](strategy/improvement-strategy.md) for t
 | 2.5 | Page layout harmonization (all 20 views) | **DONE** |
 | 3 | Inline category pills, search autocomplete, card redesign | TODO |
 | 4 | Mobile bottom nav, auth page polish | TODO |
-| 5 | Listening history UI, episode queue | TODO |
+| 5 | Listening history UI, episode queue | **PARTIAL** (queue store + auto-advance done) |
 | 6 | PWA (see [`strategy/pwa-strategy.md`](strategy/pwa-strategy.md)), performance | TODO |
-| 7 | Jamendo music integration (see [`strategy/jamendo-strategy.md`](strategy/jamendo-strategy.md)) | TODO |
+| 7 | Jamendo music integration (see [`strategy/jamendo-strategy.md`](strategy/jamendo-strategy.md)) | **IN PROGRESS** |
 | 8 | Capacitor mobile app (iOS + Android) | TODO |

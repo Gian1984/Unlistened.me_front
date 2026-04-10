@@ -883,8 +883,17 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 | 22 | Frontend | Responsive fixes: overflow-x-hidden on main, mobile-optimized search bar | ✅ |
 | 23 | Frontend | Navigation: fix double X in search input (type="search" → type="text") | ✅ |
 | 24 | Backend (later) | `POST /music/play` analytics endpoint to mirror podcast `add_play_click` | ⬜ |
+| 25 | Frontend | `musicTrackPayload.js` — centralized shape adapters (`jamendoToPlayerPayload`, `backendRowToPlayerPayload`) replacing 8+ inline mappings | ✅ |
+| 26 | Frontend | Player icon overhaul — solid `BackwardIcon`/`ForwardIcon` for prev/next, `ArrowUturnLeftIcon`/`ArrowUturnRightIcon` with "15"/"30" overlays for skip | ✅ |
+| 27 | Frontend | `playerStore`: add `isPlaying`, `isPlayingTrack(id)`, `togglePlay()` via signal counter — views can toggle play/pause instead of restarting tracks | ✅ |
+| 28 | Frontend | `OffcanvasPlayer`: sync `isPlaying` to store, watch `toggleSignal`, mobile two-row layout (controls top, info bottom on `< sm`) | ✅ |
+| 29 | Frontend | All music views (`MusicHomeView`, `MusicFavoritesView`, `MusicPlaylistDetailView`, `SearchResultView`): play/pause toggle on current track, `isPlayingTrack` for accurate icon state | ✅ |
+| 30 | Frontend | `FeedEpisodesView`: unified with music row style — cover with play/pause overlay, toggle behavior, download button removed | ✅ |
+| 31 | Frontend | `SingleEpisodeView`: download button + related code removed | ✅ |
+| 32 | Frontend | `FavouritesView`: enriched with `getFeedInfo` per feed_id (parallel fetch) — shows cover image, author, description | ✅ |
+| 33 | Frontend | `BookmarksView`: restyled rows to match music aesthetic (border/hover/spacing) | ✅ |
 
-**Completed Features (as of 2026-04-09):**
+**Completed Features (as of 2026-04-10):**
 
 ### Backend (Laravel)
 - `JamendoService.php` - API wrapper for Jamendo (search, trending, track, album, artist, radios, similar)
@@ -895,13 +904,16 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 - Routes: Public (`/api/music/*`) + Authenticated (`/api/music/favorites`, `/api/music/playlists/*`)
 
 ### Frontend Stores (Pinia)
-- `playerStore.js` - Single player for both podcasts and music with `contentType` discriminator, `isMusic`, `isPodcast`, `isCurrent(id)` methods
-- `queueStore.js` - Queue management (setQueue, consumeNext, popPrevious, hasNext, hasPrevious)
+- `playerStore.js` - Single player for both podcasts and music with `contentType` discriminator, `isMusic`, `isPodcast`, `isCurrent(id)`, `isPlayingTrack(id)`, `isPlaying` ref, `togglePlay()` via signal counter, `setPlaying()` for component sync
+- `queueStore.js` - Queue management with explicit `currentItem` ref (setQueue, consumeNext, popPrevious, isCurrent, hasNext, hasPrevious) — auto-clear stale queue on cross-content plays
 - `historyStore.js` - Extended with `type` field for both podcast and music plays
 - `musicLibraryStore.js` - Unified favorites and playlists management with optimistic updates
 
 ### Frontend Services
 - `musicService.js` - All API endpoints (trending, search, track, album, artist, radios, favorites, playlists)
+
+### Frontend Utilities
+- `src/utils/musicTrackPayload.js` - Centralized shape adapters: `jamendoToPlayerPayload` (raw Jamendo → player) + `backendRowToPlayerPayload` (DB row → player). Used by all music views and the player's `getSimilar` fallback.
 
 ### Frontend Components
 - `LicenseBadge.vue` - Creative Commons license display component
@@ -910,8 +922,12 @@ Status legend: ✅ done, 🟡 partial, ⬜ todo.
 - `OffcanvasPlayer.vue` - Unified player with:
   - Music attribution row (license badge + "via Jamendo" link)
   - Speed control hidden for music
-  - Prev/Next track buttons for both music AND podcasts when queue active
-  - Autoplay next track on `onEnded`
+  - Prev/Next track buttons (solid `BackwardIcon`/`ForwardIcon`) for both music AND podcasts when queue active
+  - Skip ±15/30s buttons with `ArrowUturnLeftIcon`/`ArrowUturnRightIcon` + seconds overlay
+  - Autoplay next track on `onEnded` + Jamendo `getSimilar` fallback when queue runs dry
+  - `isPlaying` synced to `playerStore` — views can read playback state and request toggle
+  - Mobile two-row layout: controls row (centered, top) + info row (cover + title/artist, bottom) via `flex-col`/`sm:flex-row` + CSS `order`
+  - Error surfacing: non-recoverable play errors shown via `messageStore` (AbortError/NotAllowedError silenced)
 
 ### Frontend Views
 - `MusicHomeView.vue` - Trending tracks with genre pills, pagination ("Show more"), continue listening rail, responsive mobile layout

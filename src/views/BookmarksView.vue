@@ -378,31 +378,33 @@ onMounted(() => {
                 class="space-y-2 min-h-[80px]"
             >
               <template #item="{ element }">
-                <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
+                <div class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60">
                   <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to a section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
-                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                  <span class="hidden sm:flex w-5 shrink-0 text-center text-xs text-gray-500 tabular-nums">
                     {{ mainAreaItems.indexOf(element) + 1 }}
                   </span>
 
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
-                    <BookmarkIcon class="h-4 w-4" />
+                  <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-indigo-500/10 flex items-center justify-center">
+                    <BookmarkIcon class="h-5 w-5 text-indigo-400" />
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <p class="truncate text-sm font-medium text-white">
-                      {{ element.title }}
-                    </p>
+                    <router-link :to="'/episode/' + element.episode_id" class="block">
+                      <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </p>
+                    </router-link>
                     <p class="mt-0.5 text-xs text-gray-400">
                       Saved episode
                     </p>
                   </div>
 
-                  <div class="flex shrink-0 items-center gap-1">
+                  <div class="flex shrink-0 items-center gap-0.5">
                     <router-link
                         :to="'/episode/' + element.episode_id"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Open episode"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
@@ -410,7 +412,7 @@ onMounted(() => {
 
                     <button
                         @click="deleteBookmark(element.episode_id, 'main')"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
                         title="Delete bookmark"
                     >
                       <TrashIcon class="h-4 w-4" />
@@ -463,31 +465,33 @@ onMounted(() => {
                 class="space-y-2 min-h-[80px]"
             >
               <template #item="{ element }">
-                <div class="group flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-gray-600">
+                <div class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60">
                   <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to another section">
                     <Bars3Icon class="h-4 w-4" />
                   </div>
-                  <span class="hidden sm:flex w-6 shrink-0 text-center text-xs text-gray-500 tabular-nums">
+                  <span class="hidden sm:flex w-5 shrink-0 text-center text-xs text-gray-500 tabular-nums">
                     {{ section.items.indexOf(element) + 1 }}
                   </span>
 
-                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
-                    <BookmarkIcon class="h-4 w-4" />
+                  <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-indigo-500/10 flex items-center justify-center">
+                    <BookmarkIcon class="h-5 w-5 text-indigo-400" />
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <p class="truncate text-sm font-medium text-white">
-                      {{ element.title }}
-                    </p>
+                    <router-link :to="'/episode/' + element.episode_id" class="block">
+                      <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                        {{ element.title }}
+                      </p>
+                    </router-link>
                     <p class="mt-0.5 text-xs text-gray-400">
                       Saved episode
                     </p>
                   </div>
 
-                  <div class="flex shrink-0 items-center gap-1">
+                  <div class="flex shrink-0 items-center gap-0.5">
                     <router-link
                         :to="'/episode/' + element.episode_id"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Open episode"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
@@ -495,7 +499,7 @@ onMounted(() => {
 
                     <button
                         @click="deleteBookmark(element.episode_id, section.name)"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-red-400"
                         title="Delete bookmark"
                     >
                       <TrashIcon class="h-4 w-4" />
