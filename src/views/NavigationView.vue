@@ -73,8 +73,8 @@ const navigationSections = [
   {
     label: 'Library',
     items: [
-      { name: 'Favourites', href: '/favourites', icon: StarIcon },
-      { name: 'Bookmarks', href: '/bookmarks', icon: BookmarkIcon },
+      { name: 'Podcasts avourites', href: '/favourites', icon: StarIcon },
+      { name: 'Episode bookmarks', href: '/bookmarks', icon: BookmarkIcon },
       { name: 'Music favorites', href: '/music/favorites', icon: HeartIcon },
       { name: 'Music playlists', href: '/music/playlists', icon: ListBulletIcon },
     ],
@@ -96,27 +96,57 @@ const categories = ref([])
 const categoryFilter = ref('')
 const preferredLanguage = ref('')
 
+const MUSIC_GENRES = [
+  { label: 'Electronic', tag: 'electronic' },
+  { label: 'Ambient',    tag: 'ambient' },
+  { label: 'Jazz',       tag: 'jazz' },
+  { label: 'Classical',  tag: 'classical' },
+  { label: 'Rock',       tag: 'rock' },
+  { label: 'Hip Hop',    tag: 'hiphop' },
+  { label: 'Folk',       tag: 'folk' },
+  { label: 'Lo-fi',      tag: 'lounge' },
+  { label: 'World',      tag: 'world' },
+  { label: 'Cinematic',  tag: 'soundtrack' },
+  { label: 'Pop',        tag: 'pop' },
+  { label: 'Metal',      tag: 'metal' },
+  { label: 'R&B',        tag: 'rnb' },
+  { label: 'Reggae',     tag: 'reggae' },
+  { label: 'Latin',      tag: 'latin' },
+  { label: 'Country',    tag: 'country' },
+]
+
 const filteredCategories = computed(() => {
   const q = categoryFilter.value.trim().toLowerCase()
   if (!q) return categories.value
   return categories.value.filter(c => (c.name || '').toLowerCase().includes(q))
 })
 
+const filteredGenres = computed(() => {
+  const q = categoryFilter.value.trim().toLowerCase()
+  if (!q) return MUSIC_GENRES
+  return MUSIC_GENRES.filter(g => g.label.toLowerCase().includes(q))
+})
+
 // Methods
+function setSearchType(type) {
+  searchType.value = type
+  categoryFilter.value = ''
+}
+
+function submitSearch() {
+  if (searchQuery.value.trim() === '') return
+  router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: searchType.value } })
+  searchQuery.value = ''
+}
+
 function onSearchClick() {
-  searchType.value = 'podcasts'
-  if (searchQuery.value.trim() !== '') {
-    router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'podcasts' } })
-    searchQuery.value = ''
-  }
+  setSearchType('podcasts')
+  submitSearch()
 }
 
 function onMusicSearchClick() {
-  searchType.value = 'music'
-  if (searchQuery.value.trim() !== '') {
-    router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: 'music' } })
-    searchQuery.value = ''
-  }
+  setSearchType('music')
+  submitSearch()
 }
 
 function clearSearch() {
@@ -125,6 +155,10 @@ function clearSearch() {
 
 function onFilterClick(id) {
   router.push({ name: 'SearchResults', query: { s: id } })
+}
+
+function onGenreClick(tag) {
+  router.push({ path: '/music', query: { genre: tag } })
 }
 
 async function logout() {
@@ -356,11 +390,11 @@ onMounted(() => {
                 <XMarkSolid class="h-3.5 w-3.5" />
               </button>
 
-              <!-- Filter by category popover -->
+              <!-- Filter by category / genre popover -->
               <Popover class="relative shrink-0 hidden sm:block">
                 <PopoverButton
                     class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300 focus:outline-none sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30 sm:hover:bg-indigo-500/20 sm:hover:text-white"
-                    title="Filter by category"
+                    :title="searchType === 'music' ? 'Filter by genre' : 'Filter by category'"
                 >
                   <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                   <span class="hidden sm:inline text-xs font-medium">Filters</span>
@@ -369,35 +403,66 @@ onMounted(() => {
                 <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
                   <PopoverPanel v-slot="{ close }" class="absolute right-0 z-50 mt-3 w-[22rem] max-w-[calc(100vw-1.5rem)] origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
                     <div class="border-b border-gray-800 px-4 pt-4 pb-3">
-                      <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Browse by category</p>
+                      <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {{ searchType === 'music' ? 'Browse by genre' : 'Browse by category' }}
+                      </p>
                       <div class="relative mt-2">
                         <MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                         <input
                             v-model="categoryFilter"
                             type="search"
-                            placeholder="Filter categories"
+                            :placeholder="searchType === 'music' ? 'Filter genres' : 'Filter categories'"
                             class="w-full rounded-lg border border-gray-800 bg-gray-950 py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                     </div>
                     <div class="max-h-72 overflow-y-auto p-2">
-                      <p v-if="!categories.length" class="px-2 py-6 text-center text-xs text-gray-500">Loading categories...</p>
-                      <p v-else-if="!filteredCategories.length" class="px-2 py-6 text-center text-xs text-gray-500">No categories match.</p>
-                      <ul v-else class="grid grid-cols-2 gap-1">
-                        <li v-for="cat in filteredCategories" :key="cat.id">
-                          <button
-                              type="button"
-                              @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
-                              class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-                          >
-                            <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
-                            <span class="truncate">{{ cat.name }}</span>
-                          </button>
-                        </li>
-                      </ul>
+                      <!-- Music genres -->
+                      <template v-if="searchType === 'music'">
+                        <p v-if="!filteredGenres.length" class="px-2 py-6 text-center text-xs text-gray-500">No genres match.</p>
+                        <ul v-else class="grid grid-cols-2 gap-1">
+                          <li v-for="g in filteredGenres" :key="g.tag">
+                            <button
+                                type="button"
+                                @click="() => { close(); categoryFilter = ''; onGenreClick(g.tag); }"
+                                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                            >
+                              <MusicalNoteIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                              <span class="truncate">{{ g.label }}</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </template>
+                      <!-- Podcast categories -->
+                      <template v-else>
+                        <p v-if="!categories.length" class="px-2 py-6 text-center text-xs text-gray-500">Loading categories...</p>
+                        <p v-else-if="!filteredCategories.length" class="px-2 py-6 text-center text-xs text-gray-500">No categories match.</p>
+                        <ul v-else class="grid grid-cols-2 gap-1">
+                          <li v-for="cat in filteredCategories" :key="cat.id">
+                            <button
+                                type="button"
+                                @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
+                                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                            >
+                              <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                              <span class="truncate">{{ cat.name }}</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </template>
                     </div>
                     <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
                       <router-link
+                          v-if="searchType === 'music'"
+                          to="/music"
+                          @click="close"
+                          class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
+                      >
+                        Explore all music
+                        <ChevronRightIcon class="h-4 w-4" />
+                      </router-link>
+                      <router-link
+                          v-else
                           to="/categories"
                           @click="close"
                           class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"

@@ -286,10 +286,9 @@ onMounted(() => {
         <div v-if="!loading && visibleCount < feeds.length" class="mt-6 flex justify-center">
           <button
             @click="loadMore"
-            class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-colors"
+            class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300"
           >
-            Load more
-            <ArrowRightIcon class="h-4 w-4" />
+            Show more
           </button>
         </div>
       </div>

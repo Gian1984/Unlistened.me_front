@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { MusicalNoteIcon, PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
@@ -18,6 +19,7 @@ import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 
 useSeo(musicSeo)
 
+const route = useRoute()
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
@@ -133,7 +135,13 @@ function playHistoryEntry(entry) {
 }
 
 onMounted(() => {
-  fetchTrending()
+  const genre = route.query.genre
+  if (genre && GENRES.some(g => g.tag === genre)) {
+    activeGenre.value = genre
+    fetchTrending(genre, true)
+  } else {
+    fetchTrending()
+  }
   // Hydrate library state so heart icons render the correct status
   // immediately (no fetch storm — store is idempotent + cached).
   if (authStore.isAuthenticated) {

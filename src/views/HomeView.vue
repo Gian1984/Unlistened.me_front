@@ -155,7 +155,7 @@ onMounted(() => {
           Podcasts and music, all in one place
         </h1>
         <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          Discover trending podcasts or explore free Creative Commons music from independent artists. No tracking, no ads &mdash; just great audio.
+          Discover trending podcasts or explore free Creative Commons music from independent artists. No tracking, no ads, just great audio.
         </p>
       </div>
 
