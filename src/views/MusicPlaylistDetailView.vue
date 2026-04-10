@@ -264,18 +264,27 @@ function formatDuration(seconds) {
       </div>
 
       <!-- Tracks -->
+      <p v-if="tracks.length > 1" class="mb-3 text-xs text-gray-500">
+        Drag the handle to reorder tracks in your playlist.
+      </p>
       <draggable
         v-model="tracks"
         item-key="jamendo_track_id"
+        handle=".drag-handle"
         @change="onDragEnd"
         class="space-y-2"
       >
         <template #item="{ element: t, index: idx }">
           <li
-            class="group flex items-center gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+            class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
           >
+            <!-- Drag handle (desktop only) -->
+            <div class="drag-handle hidden sm:flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing" title="Drag to reorder">
+              <Bars3Icon class="h-4 w-4" />
+            </div>
+
             <!-- Cover with play overlay -->
-            <div 
+            <div
               class="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
               @click="playTrack(t, idx)"
             >
