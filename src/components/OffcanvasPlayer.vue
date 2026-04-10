@@ -50,143 +50,152 @@
         />
       </div>
 
-      <!-- Controls row -->
-      <div class="flex items-center gap-3 px-4 py-3">
-        <!-- Cover art -->
-        <img
-          v-if="playerStore.currentEpisode.image"
-          :src="playerStore.currentEpisode.image"
-          :alt="playerStore.currentEpisode.title"
-          class="h-10 w-10 rounded object-cover shrink-0 bg-gray-700"
-          @error="($event.target).style.display = 'none'"
-        />
-        <div v-else class="h-10 w-10 rounded bg-gray-700 shrink-0 flex items-center justify-center">
-          <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+      <!-- Player body: mobile = column (controls top, info bottom);
+           desktop = single row (info left, controls right) -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-4 py-2 sm:py-3">
+
+        <!-- Controls — mobile: top row centered; desktop: right side -->
+        <div class="flex items-center justify-center gap-1 sm:justify-end sm:order-2 sm:shrink-0 sm:gap-1">
+
+          <!-- Time display (desktop only) -->
+          <span class="hidden sm:block text-xs text-gray-400 shrink-0 tabular-nums mr-1">
+            {{ formatTime(currentTimeSec) }} / {{ formatTime(durationSec) }}
+          </span>
+
+          <!-- Favorite (music only) -->
+          <FavoriteMusicButton
+            v-if="currentMusicTrack"
+            :track="currentMusicTrack"
+            size="sm"
+          />
+
+          <!-- Speed control (desktop + podcasts only) -->
+          <button
+            v-if="playerStore.isPodcast"
+            @click="cycleSpeed"
+            class="hidden sm:flex shrink-0 items-center justify-center h-7 px-1.5 rounded text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-700 transition-colors tabular-nums"
+            aria-label="Playback speed"
+          >
+            {{ playbackSpeed }}x
+          </button>
+
+          <!-- Previous track -->
+          <button
+            @click="playPrevious"
+            class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasPrevious }"
+            :disabled="!queueStore.hasPrevious"
+            aria-label="Previous track"
+            title="Previous track"
+          >
+            <BackwardIcon class="h-4 w-4" />
+          </button>
+
+          <!-- Skip back 15s -->
+          <button
+            @click="skip(-15)"
+            class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Skip back 15 seconds"
+            title="Skip back 15 seconds"
+          >
+            <ArrowUturnLeftIcon class="h-5 w-5" stroke-width="2" />
+            <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">15</span>
+          </button>
+
+          <!-- Play / Pause -->
+          <button
+            @click="togglePlay"
+            class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            :aria-label="isPlaying ? 'Pause' : 'Play'"
+          >
+            <PauseIcon v-if="isPlaying" class="h-4 w-4 text-white" />
+            <PlayIcon v-else class="h-4 w-4 text-white ml-0.5" />
+          </button>
+
+          <!-- Skip forward 30s -->
+          <button
+            @click="skip(30)"
+            class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Skip forward 30 seconds"
+            title="Skip forward 30 seconds"
+          >
+            <ArrowUturnRightIcon class="h-5 w-5" stroke-width="2" />
+            <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">30</span>
+          </button>
+
+          <!-- Next track -->
+          <button
+            @click="playNext"
+            class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasNext }"
+            :disabled="!queueStore.hasNext"
+            aria-label="Next track"
+            title="Next track"
+          >
+            <ForwardIcon class="h-4 w-4" />
+          </button>
+
+          <!-- Close -->
+          <button
+            @click="handleClose"
+            class="shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Close player"
+          >
+            <XMarkIcon class="h-4 w-4" />
+          </button>
         </div>
 
-        <!-- Episode info -->
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-white truncate leading-tight">
-            {{ playerStore.currentEpisode.title }}
-          </p>
-          <!-- Music: artist + license + via Jamendo (CC attribution required) -->
-          <div
-            v-if="playerStore.isMusic"
-            class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400 leading-tight"
-          >
-            <span class="truncate">{{ playerStore.currentEpisode.feedTitle }}</span>
-            <LicenseBadge
-              v-if="playerStore.currentEpisode.licenseUrl"
-              :url="playerStore.currentEpisode.licenseUrl"
-              size="xs"
-            />
-            <a
-              v-if="playerStore.currentEpisode.shareUrl"
-              :href="playerStore.currentEpisode.shareUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              @click.stop
-              class="hidden sm:inline shrink-0 text-gray-500 hover:text-indigo-400 transition-colors"
-              title="Open on Jamendo"
-            >
-              · via Jamendo
-            </a>
+        <!-- Info — mobile: bottom row; desktop: left side -->
+        <div class="flex items-center gap-3 min-w-0 sm:order-1 sm:flex-1">
+          <!-- Cover art -->
+          <img
+            v-if="playerStore.currentEpisode.image"
+            :src="playerStore.currentEpisode.image"
+            :alt="playerStore.currentEpisode.title"
+            class="h-10 w-10 rounded object-cover shrink-0 bg-gray-700"
+            @error="($event.target).style.display = 'none'"
+          />
+          <div v-else class="h-10 w-10 rounded bg-gray-700 shrink-0 flex items-center justify-center">
+            <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
           </div>
-          <!-- Podcast: feed title -->
-          <p
-            v-else-if="playerStore.currentEpisode.feedTitle"
-            class="text-xs text-gray-400 truncate leading-tight mt-0.5"
-          >
-            {{ playerStore.currentEpisode.feedTitle }}
-          </p>
+
+          <!-- Episode info -->
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-white truncate leading-tight">
+              {{ playerStore.currentEpisode.title }}
+            </p>
+            <!-- Music: artist + license + via Jamendo -->
+            <div
+              v-if="playerStore.isMusic"
+              class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400 leading-tight"
+            >
+              <span class="truncate">{{ playerStore.currentEpisode.feedTitle }}</span>
+              <LicenseBadge
+                v-if="playerStore.currentEpisode.licenseUrl"
+                :url="playerStore.currentEpisode.licenseUrl"
+                size="xs"
+              />
+              <a
+                v-if="playerStore.currentEpisode.shareUrl"
+                :href="playerStore.currentEpisode.shareUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click.stop
+                class="hidden sm:inline shrink-0 text-gray-500 hover:text-indigo-400 transition-colors"
+                title="Open on Jamendo"
+              >
+                · via Jamendo
+              </a>
+            </div>
+            <!-- Podcast: feed title -->
+            <p
+              v-else-if="playerStore.currentEpisode.feedTitle"
+              class="text-xs text-gray-400 truncate leading-tight mt-0.5"
+            >
+              {{ playerStore.currentEpisode.feedTitle }}
+            </p>
+          </div>
         </div>
-
-        <!-- Time display -->
-        <span class="hidden sm:block text-xs text-gray-400 shrink-0 tabular-nums">
-          {{ formatTime(currentTimeSec) }} / {{ formatTime(durationSec) }}
-        </span>
-
-        <!-- Favorite (music only) -->
-        <FavoriteMusicButton
-          v-if="currentMusicTrack"
-          :track="currentMusicTrack"
-          size="sm"
-        />
-
-        <!-- Speed control (podcasts only) -->
-        <button
-          v-if="playerStore.isPodcast"
-          @click="cycleSpeed"
-          class="hidden sm:flex shrink-0 items-center justify-center h-7 px-1.5 rounded text-xs font-medium text-gray-400 hover:text-white hover:bg-gray-700 transition-colors tabular-nums"
-          aria-label="Playback speed"
-        >
-          {{ playbackSpeed }}x
-        </button>
-
-        <!-- Previous track -->
-        <button
-          @click="playPrevious"
-          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasPrevious }"
-          :disabled="!queueStore.hasPrevious"
-          aria-label="Previous track"
-          title="Previous track"
-        >
-          <BackwardIcon class="h-4 w-4" />
-        </button>
-
-        <!-- Skip back 15s -->
-        <button
-          @click="skip(-15)"
-          class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          aria-label="Skip back 15 seconds"
-          title="Skip back 15 seconds"
-        >
-          <ArrowUturnLeftIcon class="h-5 w-5" stroke-width="2" />
-          <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">15</span>
-        </button>
-
-        <!-- Play / Pause -->
-        <button
-          @click="togglePlay"
-          class="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-          :aria-label="isPlaying ? 'Pause' : 'Play'"
-        >
-          <PauseIcon v-if="isPlaying" class="h-4 w-4 text-white" />
-          <PlayIcon v-else class="h-4 w-4 text-white ml-0.5" />
-        </button>
-
-        <!-- Skip forward 30s -->
-        <button
-          @click="skip(30)"
-          class="relative flex shrink-0 items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          aria-label="Skip forward 30 seconds"
-          title="Skip forward 30 seconds"
-        >
-          <ArrowUturnRightIcon class="h-5 w-5" stroke-width="2" />
-          <span class="absolute inset-0 flex items-center justify-center pt-[3px] text-[8px] font-bold tabular-nums leading-none">30</span>
-        </button>
-
-        <!-- Next track -->
-        <button
-          @click="playNext"
-          class="flex shrink-0 items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          :class="{ 'opacity-30 cursor-not-allowed': !queueStore.hasNext }"
-          :disabled="!queueStore.hasNext"
-          aria-label="Next track"
-          title="Next track"
-        >
-          <ForwardIcon class="h-4 w-4" />
-        </button>
-
-        <!-- Close -->
-        <button
-          @click="handleClose"
-          class="shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          aria-label="Close player"
-        >
-          <XMarkIcon class="h-4 w-4" />
-        </button>
       </div>
     </div>
   </transition>
