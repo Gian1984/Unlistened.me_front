@@ -270,7 +270,6 @@ function formatDuration(seconds) {
       <draggable
         v-model="tracks"
         item-key="jamendo_track_id"
-        handle=".drag-handle"
         @change="onDragEnd"
         class="space-y-2"
       >

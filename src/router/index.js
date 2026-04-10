@@ -20,6 +20,7 @@ import ForbiddenView from "@/views/ForbiddenView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import DocumentationView from "@/views/DocumentationView.vue";
 import CategoriesView from "@/views/CategoriesView.vue";
+import PodcastsView from "@/views/PodcastsView.vue";
 import MusicHomeView from "@/views/MusicHomeView.vue";
 import MusicFavoritesView from "@/views/MusicFavoritesView.vue";
 import MusicPlaylistsView from "@/views/MusicPlaylistsView.vue";
@@ -115,6 +116,11 @@ const router = createRouter({
       path: '/categories',
       name: 'Categories',
       component: CategoriesView,
+    },
+    {
+      path: '/podcasts',
+      name: 'Podcasts',
+      component: PodcastsView,
     },
     {
       path: '/music',

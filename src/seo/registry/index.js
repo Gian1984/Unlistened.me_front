@@ -1,4 +1,5 @@
 export { homeSeo } from './home.js'
+export { podcastsSeo } from './podcasts.js'
 export { aboutSeo } from './about.js'
 export { categoriesSeo } from './categories.js'
 export { searchSeo } from './search.js'

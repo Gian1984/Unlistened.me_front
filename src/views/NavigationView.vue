@@ -26,6 +26,7 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
   UserPlusIcon,
+  MicrophoneIcon,
   MusicalNoteIcon,
   HeartIcon,
   ListBulletIcon,
@@ -65,7 +66,7 @@ const navigationSections = [
     label: 'Discover',
     items: [
       { name: 'Home', href: '/', icon: HomeIcon },
-      { name: 'Categories', href: '/categories', icon: TagIcon },
+      { name: 'Podcasts', href: '/podcasts', icon: MicrophoneIcon },
       { name: 'Music', href: '/music', icon: MusicalNoteIcon },
     ],
   },
@@ -82,7 +83,6 @@ const navigationSections = [
     label: 'More',
     items: [
       { name: 'Documentation', href: '/documentation', icon: BookOpenIcon },
-      { name: 'About', href: '/about', icon: UsersIcon },
     ],
   },
 ]

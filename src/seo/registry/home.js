@@ -26,8 +26,8 @@ const faq = buildFaqSchema([
 ])
 
 export const homeSeo = {
-  title: 'Free Podcast Player — No Tracking | Unlistened.me',
-  description: 'Discover and stream thousands of podcasts for free. No cookies, no tracking, no accounts required. Your private podcast experience starts here.',
+  title: 'Free Podcasts & Music — No Tracking | Unlistened.me',
+  description: 'Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required. Your private listening experience starts here.',
   canonical: 'https://www.unlistened.me/',
   ogType: 'website',
   jsonLd: [websiteSchema, organizationSchema, faq],
