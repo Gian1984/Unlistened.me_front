@@ -184,4 +184,18 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+router.afterEach((to, from) => {
+  window.dataLayer = window.dataLayer || []
+
+  window.dataLayer.push({
+    event: 'page_view',
+    page_location: window.location.href,
+    page_path: to.fullPath,
+    page_title: document.title,
+    page_referrer: from.fullPath
+        ? `${window.location.origin}${from.fullPath}`
+        : document.referrer
+  })
+})
+
 export default router
