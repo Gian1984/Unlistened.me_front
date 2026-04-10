@@ -72,36 +72,60 @@ const FooterNavigation = {
 }
 </script>
 <template>
-  <div class="bg-gray-900 border-t border-gray-800">
-    <div class="mx-auto max-w-7xl overflow-hidden px-6 py-14 sm:py-12 lg:px-8">
-      <nav class="-mb-10 columns-2 sm:flex sm:justify-center sm:space-x-12 text-center" aria-label="Footer">
-        <div v-for="item in FooterNavigation.main" :key="item.name" class="pb-6">
-          <router-link :to="item.href" :class="[$route.path === item.href ? 'text-indigo-400 font-bold' : 'text-gray-400 hover:text-pink-400']">
-            {{ item.name }}
-          </router-link>
-        </div>
+  <footer class="bg-gray-900 border-t border-gray-800">
+    <div class="mx-auto max-w-7xl px-6 pt-10 pb-6 lg:px-8">
+      <!-- Navigation links -->
+      <nav class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm" aria-label="Footer">
+        <router-link
+          v-for="item in FooterNavigation.main"
+          :key="item.name"
+          :to="item.href"
+          :class="[$route.path === item.href ? 'text-indigo-400 font-semibold' : 'text-gray-400 hover:text-pink-400']"
+          class="transition-colors"
+        >
+          {{ item.name }}
+        </router-link>
       </nav>
-      <div class="mt-10 flex justify-center space-x-10">
+
+      <!-- Social icons -->
+      <div class="mt-6 flex justify-center gap-6">
         <a
-            v-for="item in FooterNavigation.social"
-            :key="item.name"
-            :href="item.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-indigo-400 hover:text-pink-400"
+          v-for="item in FooterNavigation.social"
+          :key="item.name"
+          :href="item.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-gray-500 transition-colors hover:text-indigo-400"
         >
           <span class="sr-only">{{ item.name }}</span>
-          <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
+          <component :is="item.icon" class="h-5 w-5" aria-hidden="true" />
         </a>
       </div>
-      <div class="mt-8 flex justify-center space-x-6 text-xs">
-        <router-link to="/terms" class="text-gray-500 hover:text-pink-400">Terms &amp; conditions</router-link>
-        <router-link to="/privacy" class="text-gray-500 hover:text-pink-400">Privacy policy</router-link>
+
+      <!-- Divider -->
+      <div class="mt-6 border-t border-gray-800" />
+
+      <!-- Data providers -->
+      <p class="mt-5 text-center text-xs leading-5 text-gray-600">
+        Podcast data by
+        <a href="https://podcastindex.org/" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-indigo-400 transition-colors">Podcast Index</a>
+        &middot;
+        Music by
+        <a href="https://www.jamendo.com" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-indigo-400 transition-colors">Jamendo</a>
+        under Creative Commons licenses.
+      </p>
+
+      <!-- Legal links -->
+      <div class="mt-3 flex justify-center gap-6 text-xs">
+        <router-link to="/terms" class="text-gray-500 transition-colors hover:text-pink-400">Terms &amp; conditions</router-link>
+        <router-link to="/privacy" class="text-gray-500 transition-colors hover:text-pink-400">Privacy policy</router-link>
       </div>
-      <p class="mt-4 text-center text-xs text-gray-600">
-        Music provided by <a href="https://www.jamendo.com" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-indigo-400">Jamendo</a> under Creative Commons licenses.
+
+      <!-- Copyright -->
+      <p class="mt-5 text-center text-xs leading-5 text-gray-600">
+        &copy; {{ currentYear }} Unlistened.me &mdash;
+        <a href="https://gianlucatiengo.com/" target="_blank" rel="noopener noreferrer" class="text-pink-500 hover:text-indigo-400 font-semibold transition-colors">Powered by Gianluca Tiengo</a>
       </p>
     </div>
-    <p class="py-3 text-center text-xs font-bold leading-5 text-gray-500">&copy; {{ currentYear }} Unlistened.me all rights reserved. <a href="https://gianlucatiengo.com/" target="_blank" class="text-pink-500 hover:text-indigo-400 font-bold block">Powered by Gianluca Tiengo</a></p>
-  </div>
+  </footer>
 </template>
