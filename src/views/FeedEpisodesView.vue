@@ -2,7 +2,8 @@
 import Footer from '../components/Footer.vue'
 import SkeletonRow from '../components/SkeletonRow.vue'
 import EmptyState from '../components/EmptyState.vue'
-import { BookmarkIcon, PlayIcon, ArrowDownTrayIcon, StarIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
+import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
+import { BookmarkIcon, StarIcon, CheckCircleIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
@@ -67,6 +68,11 @@ function loadMore() {
 }
 
 function playEpisode(episode, index = null) {
+  // Toggle pause/resume when clicking the already-active episode
+  if (playerStore.isCurrent(episode.id)) {
+    playerStore.togglePlay()
+    return
+  }
   const episodeList = visibleEpisodes.value.map(ep => ({
     contentType: 'podcast',
     id: ep.id,
@@ -90,16 +96,13 @@ function playEpisode(episode, index = null) {
   })
 }
 
+function isPlayingEpisode(episode) {
+  return playerStore.isPlayingTrack(episode.id)
+}
+
 function stripHtmlTags(str) {
   if (!str) return ''
   return str.replace(/<[^>]*>/g, '')
-}
-
-function sanitizeFilename(title) {
-  let clean = title.replace(/<\/?[^>]+(>|$)/g, '')
-  clean = clean.replace(/[?*/\\|:"<>]+/g, '')
-  clean = clean.trim().replace(/\s+/g, '_')
-  return clean
 }
 
 async function fetchFeedInfo(feedId) {
@@ -147,17 +150,6 @@ async function addBookmarks(episodeId, episodeTitle) {
     messageStore.setMessage('To access this functionality you have to be logged in')
     router.push({ name: 'Login' })
   }
-}
-
-async function downloadPodcast(title, url, id) {
-  const sanitized = sanitizeFilename(title)
-  const link = document.createElement('a')
-  link.href = url
-  link.setAttribute('download', sanitized + '.mp3')
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  podcastService.trackDownload(id, sanitized).catch(() => {})
 }
 
 onMounted(() => {
@@ -237,39 +229,45 @@ onMounted(() => {
         </h2>
 
         <!-- Episode list -->
-        <div class="space-y-2">
-          <div
+        <ul class="space-y-2">
+          <li
             v-for="(episode, idx) in visibleEpisodes"
             :key="episode.id"
-            :class="[
-              'relative flex items-center gap-3 p-3 rounded-lg border transition-colors group overflow-hidden',
-              playerStore.isCurrent(episode.id)
-                ? 'bg-indigo-500/10 border-indigo-500/40'
-                : 'bg-gray-800 border-gray-700 hover:border-gray-600'
-            ]"
+            class="relative group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60 overflow-hidden"
           >
-            <!-- Play button -->
-            <button
-              @click="playEpisode(episode, idx)"
-              :class="[
-                'shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-colors focus:outline-none',
-                playerStore.isCurrent(episode.id)
-                  ? 'bg-indigo-500 hover:bg-indigo-400'
-                  : 'bg-gray-700 hover:bg-indigo-600 group-hover:bg-indigo-600'
-              ]"
-              :aria-label="'Play ' + episode.title"
-            >
-              <PlayIcon class="h-4 w-4 text-white ml-0.5" />
-            </button>
+            <!-- Index (desktop) -->
+            <span class="hidden w-5 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
+              {{ idx + 1 }}
+            </span>
 
-            <!-- Episode info -->
+            <!-- Cover with play/pause overlay -->
+            <div
+              class="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
+              @click="playEpisode(episode, idx)"
+            >
+              <img
+                v-if="feedInfo.image"
+                :src="feedInfo.image"
+                :alt="episode.title"
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+              </div>
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
+                <PauseIcon v-if="isPlayingEpisode(episode)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Title + info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <p
-                  :class="[
-                    'text-sm font-medium truncate',
-                    episodeProgress(episode.id)?.completed ? 'text-gray-400' : 'text-white'
-                  ]"
+                  class="text-sm font-semibold truncate transition-colors cursor-pointer"
+                  :class="isPlayingEpisode(episode) ? 'text-indigo-300' : (episodeProgress(episode.id)?.completed ? 'text-gray-400' : 'text-white group-hover:text-indigo-300')"
+                  @click="playEpisode(episode, idx)"
                 >
                   {{ episode.title }}
                 </p>
@@ -279,7 +277,7 @@ onMounted(() => {
                   title="Played"
                 />
               </div>
-              <p class="text-xs text-gray-400 mt-0.5 truncate">
+              <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
                 <span v-if="episode.datePublishedPretty">{{ episode.datePublishedPretty }}</span>
                 <span v-if="episode.duration"> &middot; {{ Math.round(episode.duration / 60) }} min</span>
                 <span
@@ -288,24 +286,17 @@ onMounted(() => {
                 >
                   &middot; {{ Math.round(episodeProgress(episode.id).percent) }}% played
                 </span>
-              </p>
+              </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-1 shrink-0">
+            <div class="flex shrink-0 items-center gap-0.5">
               <button
                 @click="addBookmarks(episode.id, episode.title)"
-                class="flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:text-indigo-400 hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                 title="Bookmark"
               >
                 <BookmarkIcon class="h-4 w-4" />
-              </button>
-              <button
-                @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)"
-                class="flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:text-indigo-400 hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
-                title="Download"
-              >
-                <ArrowDownTrayIcon class="h-4 w-4" />
               </button>
             </div>
 
@@ -319,8 +310,8 @@ onMounted(() => {
                 :style="{ width: episodeProgress(episode.id).percent + '%' }"
               />
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
 
         <!-- Load more -->
         <div v-if="visibleCount < episodes.length" class="mt-6 flex justify-center">

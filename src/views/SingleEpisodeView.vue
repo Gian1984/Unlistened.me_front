@@ -2,7 +2,6 @@
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
 import {
-  ArrowDownTrayIcon,
   CheckCircleIcon,
   PlayIcon,
   TrashIcon,
@@ -81,13 +80,6 @@ function stripHtmlTags(str) {
   return str.replace(/<[^>]*>/g, '')
 }
 
-function sanitizeFilename(title) {
-  let clean = title.replace(/<\/?[^>]+(>|$)/g, '')
-  clean = clean.replace(/[?*/\\|:"<>]+/g, '')
-  clean = clean.trim().replace(/\s+/g, '_')
-  return clean
-}
-
 async function fetchEpisode(podcastId) {
   try {
     const response = await podcastService.getEpisode(podcastId)
@@ -101,17 +93,6 @@ async function fetchEpisode(podcastId) {
   } finally {
     loading.value = false
   }
-}
-
-async function downloadPodcast(title, url, id) {
-  const sanitized = sanitizeFilename(title)
-  const link = document.createElement('a')
-  link.href = url
-  link.setAttribute('download', sanitized + '.mp3')
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  podcastService.trackDownload(id, sanitized).catch(() => {})
 }
 
 async function deleteBookmark(episodeId) {
@@ -255,14 +236,6 @@ onMounted(() => {
                   </button>
 
                   <button
-                      @click="downloadPodcast(episode.title, episode.enclosureUrl, episode.id)"
-                      class="inline-flex items-center gap-2 rounded-full bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
-                  >
-                    <ArrowDownTrayIcon class="h-4 w-4" />
-                    <span>Download</span>
-                  </button>
-
-                  <button
                       @click="deleteBookmark(episode.id)"
                       class="inline-flex items-center gap-2 rounded-full bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-red-500 hover:text-red-400"
                   >
@@ -299,7 +272,7 @@ onMounted(() => {
 
           <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-5">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Actions</p>
-            <p class="mt-2 text-sm font-semibold text-white">Play, download, or remove</p>
+            <p class="mt-2 text-sm font-semibold text-white">Play or remove</p>
           </div>
         </section>
       </div>
