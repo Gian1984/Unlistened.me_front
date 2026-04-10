@@ -1,136 +1,101 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const routesFilePath = path.resolve(__dirname, '../router/index.js')
+const sitemapOutputPath = path.resolve(__dirname, '../../dist/sitemap.xml')
+const baseUrl = 'https://www.unlistened.me'
 
-const routesFilePath = path.resolve(__dirname, '../router/index.js');
-const sitemapOutputPath = path.resolve(__dirname, '../../dist/sitemap.xml');
-const baseUrl = 'https://www.unlistened.me/';
+// ── Blocklist ────────────────────────────────────────────────────────
+// Paths that pass auto-detection but should still be excluded.
+// Add any new path here to keep it out of the sitemap.
+const EXCLUDE = new Set([
+  '/search-results',   // needs query param, no standalone content
+  '/login',
+  '/signup',
+  '/forgot_password',
+  '/forbidden',        // error page
+])
 
-async function generateSitemap() {
-  try {
-    const routerContent = fs.readFileSync(routesFilePath, 'utf8');
-
-    // Extract the routes array string
-    const routesMatch = routerContent.match(/routes: \[([\s\S]*?)\]/);
-
-    if (!routesMatch || !routesMatch[1]) {
-      console.error('Could not find routes array in src/router/index.js');
-      process.exit(1);
-    }
-
-    const routesStringContent = routesMatch[1];
-
-    // Split the routes string into individual route objects.
-    // This regex attempts to split by '},' followed by a newline and optional whitespace,
-    // assuming each route object is well-formed.
-    const routeStrings = routesStringContent.split(/},\s*\n\s*{/);
-
-    const routes = routeStrings.map(routeStr => {
-      // Extract properties directly from the route string using regex
-      const pathMatch = routeStr.match(/path:\s*['"`](.*?)['"`],?/);
-      const nameMatch = routeStr.match(/name:\s*['"`](.*?)['"`],?/);
-      const redirectMatch = routeStr.match(/redirect:\s*['"`](.*?)['"`],?/);
-      const metaMatch = routeStr.match(/meta:\s*({[\s\S]*?}),?/);
-
-      let meta = {};
-      if (metaMatch && metaMatch[1]) {
-        // Attempt to parse meta content, handling boolean values
-        let metaContent = metaMatch[1].replace(/(\w+):\s*(true|false)/g, '"$1":$2');
-        try {
-          meta = JSON.parse(metaContent);
-        } catch (e) {
-          // Fallback for meta if JSON.parse fails, try to extract specific meta properties
-          const requiresAuthMatch = metaContent.match(/requiresAuth:\s*true/);
-          const requiresAdminMatch = metaContent.match(/requiresAdmin:\s*true/);
-          meta = {
-            requiresAuth: !!requiresAuthMatch,
-            requiresAdmin: !!requiresAdminMatch,
-          };
-        }
-      }
-
-      return {
-        path: pathMatch ? pathMatch[1] : '',
-        name: nameMatch ? nameMatch[1] : '',
-        redirect: redirectMatch ? redirectMatch[1] : undefined,
-        meta: meta,
-      };
-    });
-
-    const sitemapEntries = [];
-    const lastModDate = new Date().toISOString(); // Current timestamp for lastmod
-
-    for (const route of routes) {
-      // Exclude routes that require authentication, are redirects, or are dynamic
-      const isAuthProtected = route.meta && (route.meta.requiresAuth || route.meta.requiresAdmin);
-      const isRedirect = route.redirect;
-      const isDynamic = route.path.includes(':') || route.path.includes('*');
-
-      if (!isAuthProtected && !isRedirect && !isDynamic) {
-        let routePath = route.path;
-        // Remove trailing slash if not root
-        if (routePath.length > 1 && routePath.endsWith('/')) {
-          routePath = routePath.slice(0, -1);
-        }
-        const fullUrl = `${baseUrl}${routePath.startsWith('/') ? routePath.substring(1) : routePath}`;
-
-        let changefreq = 'monthly';
-        let priority = '0.5';
-
-        switch (routePath) {
-          case '/':
-            changefreq = 'daily';
-            priority = '1.0';
-            break;
-          case '/search-results':
-          case '/categories':
-          case '/music':
-            changefreq = 'weekly';
-            priority = '0.8';
-            break;
-          case '/about':
-          case '/terms':
-          case '/privacy':
-          case '/documentation':
-            changefreq = 'monthly';
-            priority = '0.7';
-            break;
-          case '/login':
-          case '/signup':
-          case '/forgot_password':
-          case '/forbidden':
-            changefreq = 'yearly';
-            priority = '0.3';
-            break;
-        }
-
-        sitemapEntries.push(
-          `<url>
-    <loc>${fullUrl}</loc>
-    <lastmod>${lastModDate}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`
-        );
-      }
-    }
-
-    const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapEntries.join('\n')}
-</urlset>`;
-
-    fs.mkdirSync(path.dirname(sitemapOutputPath), { recursive: true });
-    fs.writeFileSync(sitemapOutputPath, sitemapXml, 'utf8');
-
-    console.log(`Sitemap generated successfully at ${sitemapOutputPath}`);
-  } catch (error) {
-    console.error('Error generating sitemap:', error);
-    process.exit(1);
-  }
+// ── Priority overrides ───────────────────────────────────────────────
+// Any path not listed here gets priority 0.5 / changefreq monthly.
+const PRIORITY = {
+  '/':              { changefreq: 'daily',   priority: '1.0' },
+  '/podcasts':      { changefreq: 'daily',   priority: '0.9' },
+  '/music':         { changefreq: 'daily',   priority: '0.9' },
+  '/categories':    { changefreq: 'weekly',  priority: '0.8' },
+  '/about':         { changefreq: 'monthly', priority: '0.6' },
+  '/documentation': { changefreq: 'monthly', priority: '0.5' },
+  '/terms':         { changefreq: 'yearly',  priority: '0.3' },
+  '/privacy':       { changefreq: 'yearly',  priority: '0.3' },
 }
 
-generateSitemap();
+// ── Route extraction ─────────────────────────────────────────────────
+function extractRoutes() {
+  const src = fs.readFileSync(routesFilePath, 'utf8')
+
+  // Match every { path: '...', ... } block inside the routes array.
+  // We look for path + optional redirect / meta fields.
+  const routeBlocks = [...src.matchAll(/\{\s*path:\s*['"]([^'"]+)['"]/g)]
+
+  const routes = []
+  for (const match of routeBlocks) {
+    const routePath = match[1]
+
+    // Grab the full block starting from this match to determine meta/redirect
+    const start = match.index
+    const blockEnd = src.indexOf('},', start)
+    const block = src.slice(start, blockEnd !== -1 ? blockEnd : undefined)
+
+    const hasRedirect = /redirect\s*:/.test(block)
+    const requiresAuth = /requiresAuth\s*:\s*true/.test(block)
+    const requiresAdmin = /requiresAdmin\s*:\s*true/.test(block)
+
+    routes.push({ path: routePath, hasRedirect, requiresAuth, requiresAdmin })
+  }
+  return routes
+}
+
+// ── Sitemap generation ───────────────────────────────────────────────
+function generateSitemap() {
+  const routes = extractRoutes()
+  const lastmod = new Date().toISOString()
+
+  const included = routes.filter((r) => {
+    // Dynamic segments (:id, :token, catch-all *)
+    if (r.path.includes(':') || r.path.includes('*')) return false
+    // Redirects
+    if (r.hasRedirect) return false
+    // Auth-protected
+    if (r.requiresAuth || r.requiresAdmin) return false
+    // Manual blocklist
+    if (EXCLUDE.has(r.path)) return false
+    return true
+  })
+
+  const entries = included.map((r) => {
+    const p = PRIORITY[r.path] || { changefreq: 'monthly', priority: '0.5' }
+    return `  <url>
+    <loc>${baseUrl}${r.path}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`
+  })
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries.join('\n')}
+</urlset>
+`
+
+  fs.mkdirSync(path.dirname(sitemapOutputPath), { recursive: true })
+  fs.writeFileSync(sitemapOutputPath, xml, 'utf8')
+
+  console.log(`Sitemap generated: ${sitemapOutputPath}`)
+  console.log(`  ${included.length} URLs included, ${routes.length - included.length} excluded`)
+  console.log(`  Included: ${included.map((r) => r.path).join(', ')}`)
+}
+
+generateSitemap()
