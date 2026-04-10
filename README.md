@@ -1,6 +1,6 @@
 # Unlistened.me — Frontend
 
-Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.me`). Deployed automatically to shared hosting via FTPS on every push to `main`.
+Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unlistened.me`). Podcasts via PodcastIndex, music via Jamendo (Creative Commons). Deployed automatically to shared hosting via FTPS on every push to `main`.
 
 ---
 
@@ -37,7 +37,7 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   ├── main.js                     # App bootstrap (Pinia, Router)
 │   │
 │   ├── router/
-│   │   └── index.js                # 23 routes (incl. 4 music), with SEO meta guards
+│   │   └── index.js                # 25 routes (incl. /podcasts + 4 music), with SEO meta guards
 │   │
 │   ├── services/                   # API layer (all HTTP calls go here)
 │   │   ├── api.js                  # Axios instance: baseURL, CSRF, 401 interceptor
@@ -60,7 +60,8 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   │
 │   ├── seo/
 │   │   ├── composables/useSeo.js   # SEO composable (sets document.title + meta)
-│   │   └── registry/index.js       # Per-route SEO metadata registry
+│   │   ├── schemas/                # JSON-LD structured data builders
+│   │   └── registry/               # Per-route SEO metadata (home, podcasts, music, auth, etc.)
 │   │
 │   ├── components/
 │   │   ├── OffcanvasPlayer.vue     # Unified sticky bottom player (podcasts + music)
@@ -76,18 +77,19 @@ Vue 3 podcast streaming web app backed by a **Laravel 11 API** (`api.unlistened.
 │   │       └── AddToPlaylistMenu.vue    # Dropdown to add track to playlist
 │   │
 │   ├── views/
-│   │   ├── NavigationView.vue      # Main layout shell: sidebar, header, <RouterView>
-│   │   ├── HomeView.vue            # Browse podcasts (grid of cards + continue listening)
-│   │   ├── CategoriesView.vue      # Category grid → filters HomeView
+│   │   ├── NavigationView.vue      # Layout shell: sidebar, dual-mode search bar, <RouterView>
+│   │   ├── HomeView.vue            # Combined landing: trending podcasts + music preview
+│   │   ├── PodcastsView.vue        # Podcasts hub: trending, categories, continue listening
+│   │   ├── CategoriesView.vue      # Podcasts/Music category browser (tabbed)
 │   │   ├── SearchResultView.vue    # Search results (podcasts + music tracks)
 │   │   ├── FeedEpisodesView.vue    # Episode list for a single podcast (cover+play overlay)
 │   │   ├── SingleEpisodeView.vue   # Single episode detail + play
 │   │   ├── FavouritesView.vue      # Saved podcasts (enriched cards with cover + author)
 │   │   ├── BookmarksView.vue       # Bookmarked episodes (drag-to-reorder into sections)
-│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo
+│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo (genre filter)
 │   │   ├── MusicFavoritesView.vue  # Music: liked songs list
 │   │   ├── MusicPlaylistsView.vue  # Music: user playlists grid
-│   │   ├── MusicPlaylistDetailView.vue  # Music: single playlist track list
+│   │   ├── MusicPlaylistDetailView.vue  # Music: single playlist track list (drag reorder)
 │   │   ├── LoginView.vue           # Auth: login
 │   │   ├── SignUpView.vue          # Auth: registration
 │   │   ├── ForgotPasswordView.vue  # Auth: request password reset
@@ -147,7 +149,8 @@ Key features:
 - `updateProgress(episodeId, currentTime, duration)` — called every 5 seconds during playback
 - `getProgress(episodeId)` — returns saved `currentTime` for resume
 - `markCompleted(episodeId)` — marks episode as fully listened
-- `continueListening` computed — episodes with progress > 5s and not completed (used on HomeView)
+- `continueListening` computed — episodes with progress > 5s and not completed (used on HomeView + PodcastsView)
+- `continueListeningMusic` computed — music-only subset (used on MusicHomeView)
 
 ### API / Auth
 
@@ -171,7 +174,16 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 
 ### Routing
 
-`src/router/index.js` defines 23 routes (including 4 music routes). Navigation guards handle auth-required routes and set `document.title` from route meta. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+`src/router/index.js` defines 25 routes (including `/podcasts` and 4 music routes). Navigation guards handle auth-required routes and set `document.title` from route meta. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+
+### Navigation
+
+The sidebar (`NavigationView.vue`) is organized into three sections:
+- **Discover** — Home, Podcasts, Music
+- **Library** — Podcasts favourites, Episode bookmarks, Music favorites, Music playlists
+- **More** — Documentation
+
+The search bar features a podcast/music toggle that switches both the search target and the filter popover (podcast categories vs. music genres). The footer links to Home, Podcasts, Music, Favourites, Bookmarks, Documentation, and About.
 
 ---
 
@@ -294,7 +306,7 @@ See [`strategy/improvement-strategy.md`](strategy/improvement-strategy.md) for t
 |---|---|---|
 | 1 | Audio player rewrite, API service layer, script setup migration | **DONE** |
 | 2 | Full dark mode, skeleton loading, empty states | **DONE** |
-| 2.5 | Page layout harmonization (all 20 views) | **DONE** |
+| 2.5 | Page layout harmonization (all views) | **DONE** |
 | 3 | Inline category pills, search autocomplete, card redesign | TODO |
 | 4 | Mobile bottom nav, auth page polish | TODO |
 | 5 | Listening history UI, episode queue | **PARTIAL** (queue store + auto-advance done) |
