@@ -73,7 +73,7 @@ const navigationSections = [
   {
     label: 'Library',
     items: [
-      { name: 'Podcasts avourites', href: '/favourites', icon: StarIcon },
+      { name: 'Podcasts favourites', href: '/favourites', icon: StarIcon },
       { name: 'Episode bookmarks', href: '/bookmarks', icon: BookmarkIcon },
       { name: 'Music favorites', href: '/music/favorites', icon: HeartIcon },
       { name: 'Music playlists', href: '/music/playlists', icon: ListBulletIcon },
@@ -453,21 +453,11 @@ onMounted(() => {
                     </div>
                     <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
                       <router-link
-                          v-if="searchType === 'music'"
-                          to="/music"
+                          :to="searchType === 'music' ? '/categories?tab=music' : '/categories'"
                           @click="close"
                           class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
                       >
-                        Explore all music
-                        <ChevronRightIcon class="h-4 w-4" />
-                      </router-link>
-                      <router-link
-                          v-else
-                          to="/categories"
-                          @click="close"
-                          class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
-                      >
-                        See all categories
+                        {{ searchType === 'music' ? 'See all genres' : 'See all categories' }}
                         <ChevronRightIcon class="h-4 w-4" />
                       </router-link>
                     </div>

@@ -4,14 +4,15 @@ import Footer from '../components/Footer.vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { podcastService } from '@/services/podcastService.js'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { categoriesSeo } from '@/seo/registry/index.js'
 
 useSeo(categoriesSeo)
 
 const router = useRouter()
-const activeTab = ref('podcasts')
+const route = useRoute()
+const activeTab = ref(route.query.tab === 'music' ? 'music' : 'podcasts')
 const categories = ref([])
 const loading = ref(true)
 const searchFilter = ref('')
