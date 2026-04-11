@@ -5,23 +5,20 @@ import router from './router'
 
 import draggable from 'vuedraggable';
 
-
-import { useAuthStore } from './stores/authStore';
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { useAuthStore } from './stores/authStore'
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
-
 const app = createApp(App)
-app.component('draggable', draggable);
-app.use(router);
-app.use(pinia);
+app.use(pinia)
+app.use(router)
+app.component('draggable', draggable)
 
+const authStore = useAuthStore()
+authStore.initializeAuth()
 
-const authStore = useAuthStore();
-authStore.initializeAuth();
-
-app.mount('#app');
+app.mount('#app')
 
