@@ -125,15 +125,6 @@ function formatDuration(seconds) {
       >
         <FavoriteMusicButton :track="musicTrack" size="md" />
         <AddToPlaylistMenu :track="musicTrack" size="md" />
-        <a
-          v-if="ep.shareUrl"
-          :href="ep.shareUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
-        >
-          Open on Jamendo
-        </a>
       </div>
 
       <!-- Podcast actions: episode page + bookmark -->

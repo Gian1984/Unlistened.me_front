@@ -2,36 +2,22 @@
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
 import {
-  CheckCircleIcon,
-  PlayIcon,
-  TrashIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline'
-import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { useAuthStore } from '@/stores/authStore.js'
-import { useMessageStore } from '@/stores/messageStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { buildEpisodeSchema } from '@/seo/schemas/episode.js'
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
-const authStore = useAuthStore()
-authStore.initializeAuth()
-
-const messageStore = useMessageStore()
-messageStore.initializeMessage()
-
 const playerStore = usePlayerStore()
 const route = useRoute()
-const router = useRouter()
 
 const episode = ref(null)
 const error = ref(null)
 const loading = ref(true)
-const show = ref(false)
 
 const seoConfig = computed(() => {
   if (!episode.value) {
@@ -60,20 +46,7 @@ const seoConfig = computed(() => {
 
 useSeo(seoConfig)
 
-const isCurrentEpisode = computed(() => {
-  return playerStore.isCurrent(episode.value?.id)
-})
-
-function playEpisode(ep) {
-  playerStore.play({
-    id: ep.id,
-    title: ep.title,
-    enclosureUrl: ep.enclosureUrl,
-    image: ep.image || '',
-    feedTitle: ep.feedTitle || '',
-    feedId: ep.feedId || null,
-  })
-}
+const isPlaying = computed(() => playerStore.isVisible && playerStore.currentEpisode)
 
 function stripHtmlTags(str) {
   if (!str) return ''
@@ -95,60 +68,12 @@ async function fetchEpisode(podcastId) {
   }
 }
 
-async function deleteBookmark(episodeId) {
-  try {
-    await podcastService.deleteBookmark(episodeId)
-    show.value = true
-    setTimeout(() => {
-      show.value = false
-    }, 3000)
-  } catch (err) {
-    authStore.clearUser()
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
-  }
-}
-
 onMounted(() => {
   fetchEpisode(route.params.id)
 })
 </script>
 
 <template>
-  <!-- Notification -->
-  <div aria-live="assertive" class="pointer-events-none fixed inset-0 z-10 flex items-end px-4 py-6">
-    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <transition
-          enter-active-class="transform ease-out duration-300 transition"
-          enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-          enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-          leave-active-class="transition ease-in duration-100"
-          leave-from-class="opacity-100"
-          leave-to-class="opacity-0"
-      >
-        <div
-            v-if="show"
-            class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border-2 border-green-500 bg-gray-800 shadow-lg ring-1 ring-gray-700"
-        >
-          <div class="p-4">
-            <div class="flex items-start">
-              <CheckCircleIcon class="h-6 w-6 flex-shrink-0 text-green-400" aria-hidden="true" />
-              <p class="ml-3 text-sm font-medium text-white">Bookmark removed successfully.</p>
-              <button
-                  type="button"
-                  @click="show = false"
-                  class="ml-auto inline-flex rounded-md bg-gray-800 text-gray-400 hover:text-gray-300"
-              >
-                <span class="sr-only">Close</span>
-                <XMarkIcon class="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
-  </div>
-
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Loading -->
@@ -162,12 +87,6 @@ onMounted(() => {
             <div class="h-4 w-full rounded animate-shimmer"></div>
             <div class="h-4 w-full rounded animate-shimmer"></div>
             <div class="h-4 w-4/5 rounded animate-shimmer"></div>
-
-            <div class="pt-4 border-t border-gray-800 flex gap-3">
-              <div class="h-10 w-10 rounded-full animate-shimmer"></div>
-              <div class="h-10 w-10 rounded-full animate-shimmer"></div>
-              <div class="h-10 w-10 rounded-full animate-shimmer"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -222,26 +141,13 @@ onMounted(() => {
               <!-- Actions -->
               <div class="mt-8 border-t border-gray-800 pt-6">
                 <div class="flex flex-wrap items-center gap-3">
-                  <button
-                      @click="playEpisode(episode)"
-                      :class="[
-                      'inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors',
-                      isCurrentEpisode
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-500'
-                        : 'bg-pink-500 text-white hover:bg-indigo-600'
-                    ]"
+                  <router-link
+                      v-if="isPlaying"
+                      to="/now-playing"
+                      class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
                   >
-                    <PlayIcon class="h-4 w-4" />
-                    <span>{{ isCurrentEpisode ? 'Playing now' : 'Play episode' }}</span>
-                  </button>
-
-                  <button
-                      @click="deleteBookmark(episode.id)"
-                      class="inline-flex items-center gap-2 rounded-full bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-red-500 hover:text-red-400"
-                  >
-                    <TrashIcon class="h-4 w-4" />
-                    <span>Remove bookmark</span>
-                  </button>
+                    <span>Back to Now Playing</span>
+                  </router-link>
 
                   <router-link
                       v-if="episode.feedId"
@@ -253,26 +159,6 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- Extra details -->
-        <section class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-5">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Type</p>
-            <p class="mt-2 text-sm font-semibold text-white">Saved episode</p>
-          </div>
-
-          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-5">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Status</p>
-            <p class="mt-2 text-sm font-semibold text-white">
-              {{ isCurrentEpisode ? 'Currently playing' : 'Ready to play' }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl border border-gray-800 bg-gray-900/40 p-5">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Actions</p>
-            <p class="mt-2 text-sm font-semibold text-white">Play or remove</p>
           </div>
         </section>
       </div>
