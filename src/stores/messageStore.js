@@ -19,6 +19,9 @@ export const useMessageStore = defineStore('message', {
                 this.timer = setTimeout(() => this.clearMessage(), duration)
             }
         },
+        setMessage(message, type = 'info', duration = 3000) {
+            this.notify(message, type, duration)
+        },
         clear() {
             if (this.timer) {
                 clearTimeout(this.timer)

@@ -16,8 +16,9 @@ api.interceptors.response.use(
       authStore.clearUser()
       const messageStore = useMessageStore()
       messageStore.setMessage('Session expired. Please login again.')
-      const { default: router } = await import('@/router')
-      router.push('/login')
+      if (router.currentRoute.value.name !== 'Login') {
+        router.push('/login')
+      }
     }
     return Promise.reject(error)
   }

@@ -179,10 +179,10 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
 
-  if (requiresAuth && !authStore.isAuthenticated) {
+  if (requiresAuth && !authStore.isAuthenticated.value) {
     messageStore.setMessage('To access this page you have to be logged in.')
     next({ name: 'Login' })
-  } else if (requiresAdmin && !authStore.isAdmin) {
+  } else if (requiresAdmin && !authStore.isAdmin.value) {
     messageStore.setMessage('You must be an admin to access this page.')
     next({ name: 'Login' })
   } else {
