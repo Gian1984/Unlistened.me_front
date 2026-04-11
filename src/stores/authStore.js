@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = ref(false)
@@ -10,10 +10,14 @@ export const useAuthStore = defineStore('auth', () => {
     function initializeAuth() {
         const savedState = localStorage.getItem('auth')
         if (savedState) {
-            const { isAuthenticated: isAuth, user: savedUser } = JSON.parse(savedState)
-            isAuthenticated.value = isAuth
-            user.value = savedUser
-            isAdmin.value = savedUser?.is_admin === 1
+            try {
+                const { isAuthenticated: isAuth, user: savedUser } = JSON.parse(savedState)
+                isAuthenticated.value = isAuth
+                user.value = savedUser
+                isAdmin.value = savedUser?.is_admin === 1
+            } catch (e) {
+                localStorage.removeItem('auth')
+            }
         }
     }
 
@@ -47,10 +51,5 @@ export const useAuthStore = defineStore('auth', () => {
         setUser,
         updateUser,
         clearUser,
-    }
-}, {
-    persist: {
-        key: 'auth',
-        paths: ['isAuthenticated'],
     }
 })
