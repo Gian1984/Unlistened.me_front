@@ -179,6 +179,8 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
 
+  console.log('[Router] to:', to.name, 'requiresAuth:', requiresAuth, 'isAuthenticated:', authStore.isAuthenticated.value, 'user:', authStore.user.value)
+
   if (requiresAuth && !authStore.isAuthenticated.value) {
     messageStore.setMessage('To access this page you have to be logged in.')
     next({ name: 'Login' })
