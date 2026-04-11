@@ -146,7 +146,10 @@
         </div>
 
         <!-- Info — mobile: bottom row; desktop: left side -->
-        <div class="flex items-center gap-3 min-w-0 sm:order-1 sm:flex-1">
+        <router-link
+          to="/now-playing"
+          class="flex items-center gap-3 min-w-0 sm:order-1 sm:flex-1 cursor-pointer"
+        >
           <!-- Cover art -->
           <img
             v-if="playerStore.currentEpisode.image"
@@ -195,7 +198,7 @@
               {{ playerStore.currentEpisode.feedTitle }}
             </p>
           </div>
-        </div>
+        </router-link>
       </div>
     </div>
   </transition>

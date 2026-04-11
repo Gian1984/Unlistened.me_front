@@ -25,6 +25,7 @@ import MusicHomeView from "@/views/MusicHomeView.vue";
 import MusicFavoritesView from "@/views/MusicFavoritesView.vue";
 import MusicPlaylistsView from "@/views/MusicPlaylistsView.vue";
 import MusicPlaylistDetailView from "@/views/MusicPlaylistDetailView.vue";
+import NowPlayingView from "@/views/NowPlayingView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -144,6 +145,11 @@ const router = createRouter({
       name: 'MusicPlaylistDetail',
       component: MusicPlaylistDetailView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/now-playing',
+      name: 'NowPlaying',
+      component: NowPlayingView,
     },
     {
       path: '/documentation',
