@@ -336,7 +336,7 @@ watch(preferencesOpen, (open) => {
       title="Cookie preferences"
       :class="[
         'fixed right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-gray-700 bg-gray-900/90 text-indigo-400 shadow-lg backdrop-blur-md transition-all hover:border-indigo-500/50 hover:bg-gray-800 hover:text-indigo-300',
-        playerStore.isVisible ? 'bottom-24' : 'bottom-6'
+        playerStore.isVisible ? 'bottom-36 sm:bottom-24' : 'bottom-6'
       ]"
   >
     <span class="sr-only">Manage cookie preferences</span>
