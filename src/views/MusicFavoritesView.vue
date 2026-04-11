@@ -18,6 +18,7 @@ import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicFavoritesSeo } from '@/seo/registry/index.js'
 import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { formatDuration } from '@/utils/formatTime.js'
 
 useSeo(musicFavoritesSeo)
 
@@ -58,13 +59,6 @@ async function removeOne(fav) {
   } catch {
     messageStore.setMessage('Could not remove. Please try again.')
   }
-}
-
-function formatDuration(seconds) {
-  if (!seconds) return '--:--'
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 // Convert backend favorite row -> raw Jamendo shape for AddToPlaylistMenu

@@ -239,4 +239,9 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
     // misc
     reset,
   }
+}, {
+  persist: {
+    key: 'musicLibrary',
+    pick: ['favoriteIds'],
+  }
 })

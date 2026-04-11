@@ -12,6 +12,7 @@ import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
@@ -98,11 +99,6 @@ function playEpisode(episode, index = null) {
 
 function isPlayingEpisode(episode) {
   return playerStore.isPlayingTrack(episode.id)
-}
-
-function stripHtmlTags(str) {
-  if (!str) return ''
-  return str.replace(/<[^>]*>/g, '')
 }
 
 async function fetchFeedInfo(feedId) {

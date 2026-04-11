@@ -24,6 +24,7 @@ import { musicService } from '@/services/musicService.js'
 import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { stripHtmlTags } from '@/utils/text.js'
 
 const authStore = useAuthStore()
 authStore.initializeAuth()
@@ -146,11 +147,6 @@ async function addFavourite(feedId, feedTitle) {
     messageStore.setMessage('To access this functionality you have to be logged in')
     router.push({ name: 'Login' })
   }
-}
-
-function stripHtmlTags(str) {
-  if (!str) return ''
-  return str.replace(/<[^>]*>/g, '')
 }
 
 function playTrack(track) {

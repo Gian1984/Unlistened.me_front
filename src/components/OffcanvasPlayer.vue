@@ -228,6 +228,7 @@ import { useSidebarState } from '@/composables/useSidebarState.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import { formatTime } from '@/utils/formatTime.js'
 
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()
@@ -612,15 +613,6 @@ function handleClose() {
   saveHistoryNow()
   audioEl.value?.pause()
   playerStore.close()
-}
-
-function formatTime(seconds) {
-  if (!seconds || isNaN(seconds)) return '0:00'
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 onBeforeUnmount(() => {

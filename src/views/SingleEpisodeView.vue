@@ -6,6 +6,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
@@ -47,11 +48,6 @@ const seoConfig = computed(() => {
 useSeo(seoConfig)
 
 const isPlaying = computed(() => playerStore.isVisible && playerStore.currentEpisode)
-
-function stripHtmlTags(str) {
-  if (!str) return ''
-  return str.replace(/<[^>]*>/g, '')
-}
 
 async function fetchEpisode(podcastId) {
   try {

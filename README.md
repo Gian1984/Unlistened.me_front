@@ -15,6 +15,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 | HTTP | Axios (centralized instance in `src/services/api.js`) | 1.6.7 |
 | Auth | Laravel Sanctum (Bearer token, stored in localStorage) | 4.0 |
 | State | Pinia — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.7 |
+| State persistence | pinia-plugin-persistedstate (localStorage/sessionStorage) | 3.2.1 |
 | Routing | Vue Router 4 (lazy-loaded routes + SEO meta guards) | 4.3.0 |
 | Charts | Chart.js + vue-chartjs (admin dashboard) | 4.4.3 |
 | Drag & Drop | vuedraggable 4 (favourites & bookmarks) | 4.1.0 |
@@ -47,16 +48,23 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── userService.js          # Profile, settings, contact form, delete account
 │   │   └── adminService.js         # Dashboard stats, user management
 │   │
-│   ├── stores/                     # Pinia stores
-│   │   ├── authStore.js            # Authenticated user state (persisted to localStorage)
-│   │   ├── messageStore.js         # Global toast/notification messages
-│   │   ├── playerStore.js          # Audio player state (current track, isPlaying, togglePlay)
+│   ├── stores/                     # Pinia stores (all persisted via pinia-plugin-persistedstate)
+│   │   ├── authStore.js            # Authenticated user state (localStorage)
+│   │   ├── messageStore.js         # Global toast/notification messages (auto-clear)
+│   │   ├── playerStore.js          # Audio player state (sessionStorage)
 │   │   ├── historyStore.js         # Listening history + resume progress (localStorage)
-│   │   ├── queueStore.js           # Playback queue (next/prev track navigation)
-│   │   └── musicLibraryStore.js    # Music favorites + playlists state
+│   │   ├── queueStore.js           # Playback queue (sessionStorage)
+│   │   └── musicLibraryStore.js    # Music favorites + playlists (localStorage)
 │   │
 │   ├── composables/
-│   │   └── useSidebarState.js      # Shared sidebar collapsed/expanded state
+│   │   ├── useSidebarState.js      # Shared sidebar collapsed/expanded state
+│   │   ├── usePagination.js        # Reusable pagination (visible items + load more)
+│   │   └── useMusicPlayback.js    # Reusable music play/pause/queue logic
+│   │
+│   ├── utils/
+│   │   ├── formatTime.js         # formatDuration() + formatTime() utilities
+│   │   ├── text.js             # stripHtmlTags() utility
+│   │   └── musicTrackPayload.js  # Shape adapter: normalizes Jamendo data → player format
 │   │
 │   ├── seo/
 │   │   ├── composables/useSeo.js   # SEO composable (sets document.title + meta)
@@ -71,11 +79,13 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── SkeletonCard.vue        # Shimmer skeleton for podcast cards
 │   │   ├── SkeletonRow.vue         # Shimmer skeleton for episode rows
 │   │   ├── icons/                  # SVG icon components
-│   │   └── music/                  # Music-specific components
-│   │       ├── LicenseBadge.vue    # CC license badge display
-│   │       ├── FavoriteMusicButton.vue  # Heart toggle for music tracks
-│   │       └── AddToPlaylistMenu.vue    # Dropdown to add track to playlist
-│   │
+│   │   ├── music/                  # Music-specific components
+│   │   │   ├── LicenseBadge.vue    # CC license badge display
+│   │   │   ├── FavoriteMusicButton.vue  # Heart toggle for music tracks
+│   │   │   ├── AddToPlaylistMenu.vue    # Dropdown to add track to playlist
+│   │   │   └── MusicTrackRow.vue   # Reusable track row (used in MusicHomeView, etc.)
+│   │   └── podcast/
+│   │       └── PodcastCardItem.vue # Reusable podcast card (used in PodcastsView, etc.)
 │   ├── views/
 │   │   ├── NavigationView.vue      # Layout shell: sidebar, dual-mode search bar, <RouterView>
 │   │   ├── HomeView.vue            # Combined landing: trending podcasts + music preview
@@ -102,9 +112,6 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── PrivacyView.vue         # Privacy policy
 │   │   ├── NotFoundView.vue        # 404 error page
 │   │   └── ForbiddenView.vue       # 403 error page
-│   │
-│   ├── utils/
-│   │   └── musicTrackPayload.js    # Shape adapter: normalizes Jamendo data → player format
 │   │
 │   └── assets/
 │       └── base.css                # Global CSS (dark theme base, shimmer animation, Tailwind imports)
@@ -142,6 +149,16 @@ Key features:
 - **Listening history** — progress saved to `historyStore` every 5 seconds; resume position restored on next play
 - Sidebar-aware layout: shifts left offset based on desktop sidebar collapsed state
 
+### Refactor (2025)
+
+Three-phase code consolidation:
+
+| Phase | Changes |
+|-------|---------|
+| 1 — Utilities | Extracted `formatDuration()`, `formatTime()` → `src/utils/formatTime.js`; `stripHtmlTags()` → `src/utils/text.js`; created `usePagination(items, pageSize)` and `useMusicPlayback(tracks, payloadFn)` composables; enhanced `messageStore.notify(msg, type, duration)` with auto-clear |
+| 2 — Components | Created reusable `MusicTrackRow.vue` (`src/components/music/`) and `PodcastCardItem.vue` (`src/components/podcast/`); refactored PodcastsView, MusicHomeView to use them |
+| 3 — Persistence | Installed `pinia-plugin-persistedstate`; all stores now persist across refreshes: `playerStore` → sessionStorage (currentEpisode + isVisible), `queueStore` → sessionStorage (queue state), `musicLibraryStore` → localStorage (favoriteIds), `historyStore` �� localStorage (all progress), `authStore` → localStorage |
+
 ### Listening History
 
 `historyStore.js` tracks all played episodes in `localStorage`:
@@ -151,6 +168,12 @@ Key features:
 - `markCompleted(episodeId)` — marks episode as fully listened
 - `continueListening` computed — episodes with progress > 5s and not completed (used on HomeView + PodcastsView)
 - `continueListeningMusic` computed — music-only subset (used on MusicHomeView)
+
+### Notifications / Messages
+
+`messageStore.js` provides global toast/notification display with auto-clear:
+- `notify(message, type, duration)` — shows message for `duration` ms, then auto-clears; type = 'info' | 'success' | 'error'
+- `clearMessage()` — manually clear the current message
 
 ### API / Auth
 
@@ -184,6 +207,14 @@ The sidebar (`NavigationView.vue`) is organized into three sections:
 - **More** — Documentation
 
 The search bar features a podcast/music toggle that switches both the search target and the filter popover (podcast categories vs. music genres). The footer links to Home, Podcasts, Music, Favourites, Bookmarks, Documentation, and About.
+
+### Reusable Composables
+
+| Composable | Purpose |
+|---|---|
+| `usePagination(itemsRef, initialPageSize)` | Pagination state for list views: returns `visibleItems`, `hasMore`, `loadMore()`, `reset()` |
+| `useMusicPlayback(tracksRef, toPlayerPayload)` | Music play/pause/queue logic: `playTrack()`, `togglePlay()`, `isPlaying()`, `playAll()` |
+| `useSidebarState()` | Sidebar collapsed/expanded state for responsive layout |
 
 ---
 
@@ -313,3 +344,13 @@ See [`strategy/improvement-strategy.md`](strategy/improvement-strategy.md) for t
 | 6 | PWA (see [`strategy/pwa-strategy.md`](strategy/pwa-strategy.md)), performance | TODO |
 | 7 | Jamendo music integration (see [`strategy/jamendo-strategy.md`](strategy/jamendo-strategy.md)) | **IN PROGRESS** |
 | 8 | Capacitor mobile app (iOS + Android) | TODO |
+
+### Refactor Progress (2025)
+
+Code consolidation completed in three phases:
+
+| Phase | Status |
+|---|---|
+| 1 — Utilities & Composables | **DONE** |
+| 2 — Reusable Components | **DONE** |
+| 3 — Pinia Persistence | **DONE** |

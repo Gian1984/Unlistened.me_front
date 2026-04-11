@@ -88,4 +88,9 @@ export const useQueueStore = defineStore('queue', () => {
     hasPrevious,
     isEmpty,
   }
+}, {
+  persist: {
+    key: 'queue',
+    storage: sessionStorage,
+  }
 })

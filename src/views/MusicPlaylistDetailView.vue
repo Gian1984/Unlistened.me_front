@@ -28,6 +28,7 @@ import SkeletonRow from '@/components/SkeletonRow.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Footer from '@/components/Footer.vue'
 import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { formatDuration } from '@/utils/formatTime.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -155,12 +156,6 @@ function asTrackForLibrary(t) {
   }
 }
 
-function formatDuration(seconds) {
-  if (!seconds) return '--:--'
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
 </script>
 
 <template>

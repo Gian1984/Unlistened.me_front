@@ -77,4 +77,10 @@ export const usePlayerStore = defineStore('player', () => {
     isMusic,
     isPodcast,
   }
+}, {
+  persist: {
+    key: 'player',
+    pick: ['currentEpisode', 'isVisible'],
+    storage: sessionStorage,
+  }
 })

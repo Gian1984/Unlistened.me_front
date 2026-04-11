@@ -1,16 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { MusicalNoteIcon, PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
-import LicenseBadge from '@/components/music/LicenseBadge.vue'
-import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
-import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
+import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
@@ -110,12 +107,6 @@ function isCurrentTrack(track) {
   return playerStore.isPlayingTrack(track.id)
 }
 
-function formatDuration(seconds) {
-  if (!seconds) return '--:--'
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
 
 function playHistoryEntry(entry) {
   const track = {
@@ -237,63 +228,14 @@ onMounted(() => {
 
         <!-- Track rows -->
         <ul v-else class="space-y-2">
-          <li
+          <MusicTrackRow
             v-for="(track, idx) in tracks"
             :key="track.id"
-            class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
-          >
-            <!-- Index -->
-            <span class="hidden w-5 shrink-0 text-center text-xs text-gray-500 sm:block tabular-nums">
-              {{ idx + 1 }}
-            </span>
-
-            <!-- Cover with hover play overlay -->
-            <div 
-              class="relative shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
-              @click="playTrack(track)"
-            >
-              <img
-                v-if="track.album_image"
-                :src="track.album_image"
-                :alt="track.album_name || track.name"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
-              </div>
-              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center">
-                <PauseIcon v-if="isCurrentTrack(track)" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              </div>
-            </div>
-
-            <!-- Title + artist + license badge -->
-            <div class="flex-1 min-w-0 min-w-0">
-              <p
-                class="text-sm font-semibold truncate transition-colors cursor-pointer"
-                :class="isCurrentTrack(track) ? 'text-indigo-300' : 'text-white group-hover:text-indigo-300'"
-                @click="playTrack(track)"
-              >
-                {{ track.name }}
-              </p>
-              <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
-                <span class="truncate">{{ track.artist_name }}</span>
-                <LicenseBadge :url="track.license_ccurl" size="xs" />
-              </div>
-            </div>
-
-            <!-- Duration -->
-            <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
-              {{ formatDuration(track.duration) }}
-            </span>
-
-            <!-- Library actions: favorite + add to playlist -->
-            <div class="flex shrink-0 items-center gap-0.5">
-              <FavoriteMusicButton :track="track" size="sm" />
-              <AddToPlaylistMenu :track="track" size="sm" />
-            </div>
-          </li>
+            :track="track"
+            :index="idx"
+            :is-playing="isCurrentTrack(track)"
+            @play="playTrack"
+          />
         </ul>
 
         <!-- Show more button -->

@@ -3,13 +3,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
-import { StarIcon, ArrowRightIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
+import { StarIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
+import { usePagination } from '@/composables/usePagination.js'
+import PodcastCardItem from '@/components/podcast/PodcastCardItem.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { podcastsSeo } from '@/seo/registry/index.js'
 
@@ -29,15 +32,7 @@ const loading = ref(true)
 const loadingCategories = ref(true)
 const show = ref(false)
 
-const visibleCount = ref(12)
-
-const displayedFeeds = computed(() => {
-  return feeds.value.slice(0, visibleCount.value)
-})
-
-function loadMore() {
-  visibleCount.value = Math.min(visibleCount.value + 12, feeds.value.length)
-}
+const { visibleItems, hasMore, loadMore } = usePagination(feeds, 12)
 
 function selectCategory(catId, catName) {
   router.push({ name: 'SearchResults', query: { s: catId, name: catName } })
@@ -91,11 +86,6 @@ async function addFavourite(feedId, feedTitle) {
     messageStore.setMessage('To access this functionality you have to be logged in')
     router.push({ name: 'Login' })
   }
-}
-
-function stripHtmlTags(str) {
-  if (!str) return ''
-  return str.replace(/<[^>]*>/g, '')
 }
 
 onMounted(() => {
@@ -223,67 +213,16 @@ onMounted(() => {
 
         <!-- Podcast grid -->
         <ul v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          <li
-            v-for="feed in displayedFeeds"
+          <PodcastCardItem
+            v-for="feed in visibleItems"
             :key="feed.id"
-            class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
-          >
-            <router-link :to="'/feed/' + feed.id" class="block">
-              <div class="flex items-center gap-3 p-4">
-                <!-- Cover -->
-                <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
-                  <img
-                    :src="feed.image || '/images/image_not_available_500.webp'"
-                    :alt="feed.title"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
-                    {{ feed.title }}
-                  </h3>
-                  <p class="text-xs text-gray-400 truncate mt-0.5">{{ feed.author }}</p>
-                  <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
-                    {{ stripHtmlTags(feed.description) }}
-                  </p>
-                </div>
-              </div>
-              <!-- Category badges -->
-              <div v-if="feed.categories && Object.keys(feed.categories).length" class="px-4 pb-3 flex flex-wrap gap-1">
-                <span
-                  v-for="(catName, catId) in Object.fromEntries(Object.entries(feed.categories || {}).slice(0, 3))"
-                  :key="catId"
-                  class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300"
-                >
-                  {{ catName }}
-                </span>
-              </div>
-            </router-link>
-            <!-- Action buttons -->
-            <div class="flex items-center gap-2 px-4 pb-3">
-              <button
-                @click.prevent="addFavourite(feed.id, feed.title)"
-                class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-pink-400 transition-colors"
-                title="Add to favourites"
-              >
-                <StarIcon class="h-4 w-4" />
-                <span class="hidden sm:inline">Save</span>
-              </button>
-              <router-link
-                :to="'/feed/' + feed.id"
-                class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
-              >
-                <span>Episodes</span>
-                <ArrowRightIcon class="h-3.5 w-3.5" />
-              </router-link>
-            </div>
-          </li>
+            :feed="feed"
+            @favorite="addFavourite"
+          />
         </ul>
 
         <!-- Load more -->
-        <div v-if="!loading && visibleCount < feeds.length" class="mt-6 flex justify-center">
+        <div v-if="!loading && hasMore" class="mt-6 flex justify-center">
           <button
             @click="loadMore"
             class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300"

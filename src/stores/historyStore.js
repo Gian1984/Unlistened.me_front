@@ -151,4 +151,6 @@ export const useHistoryStore = defineStore('history', () => {
     removeEntry,
     clearAll,
   }
+}, {
+  persist: true,
 })

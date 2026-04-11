@@ -19,6 +19,8 @@ import { useSeo } from '@/seo/composables/useSeo.js'
 import { homeSeo } from '@/seo/registry/index.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { formatDuration } from '@/utils/formatTime.js'
+import { stripHtmlTags } from '@/utils/text.js'
 
 useSeo(homeSeo)
 
@@ -74,13 +76,6 @@ function isCurrentTrack(track) {
   return playerStore.isPlayingTrack(track.id)
 }
 
-function formatDuration(seconds) {
-  if (!seconds) return '--:--'
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
 async function fetchTrending() {
   try {
     const response = await podcastService.getTrending()
@@ -113,11 +108,6 @@ async function addFavourite(feedId, feedTitle) {
     messageStore.setMessage('To access this functionality you have to be logged in')
     router.push({ name: 'Login' })
   }
-}
-
-function stripHtmlTags(str) {
-  if (!str) return ''
-  return str.replace(/<[^>]*>/g, '')
 }
 
 onMounted(() => {
