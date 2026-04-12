@@ -37,6 +37,8 @@ const musicTracks = ref([])
 const loadingPodcasts = ref(true)
 const loadingMusic = ref(true)
 const show = ref(false)
+const HOME_MUSIC_POOL_SIZE = 30
+const HOME_MUSIC_VISIBLE_COUNT = 10
 
 function resumeEntry(entry) {
   playerStore.play({
@@ -75,6 +77,28 @@ function isCurrentTrack(track) {
   return playerStore.isPlayingTrack(track.id)
 }
 
+function getDailySeed() {
+  const now = new Date()
+  return Number(`${now.getUTCFullYear()}${now.getUTCMonth() + 1}${now.getUTCDate()}`)
+}
+
+function seededShuffle(items, seed) {
+  const result = [...items]
+  let state = seed || 1
+
+  function nextRandom() {
+    state = (state * 1664525 + 1013904223) % 4294967296
+    return state / 4294967296
+  }
+
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(nextRandom() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+
+  return result
+}
+
 async function fetchTrending() {
   try {
     const response = await podcastService.getTrending()
@@ -88,8 +112,9 @@ async function fetchTrending() {
 
 async function fetchMusic() {
   try {
-    const response = await musicService.getTrending(10)
-    musicTracks.value = response.data?.results || []
+    const response = await musicService.getTrending(HOME_MUSIC_POOL_SIZE)
+    const tracks = response.data?.results || []
+    musicTracks.value = seededShuffle(tracks, getDailySeed()).slice(0, HOME_MUSIC_VISIBLE_COUNT)
   } catch (err) {
     console.error('Error fetching music:', err)
   } finally {

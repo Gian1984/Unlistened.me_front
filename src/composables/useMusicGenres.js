@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { musicService } from '@/services/musicService.js'
 const FALLBACK_GENRES = [
   { label: 'Electronic', tag: 'electronic' },
   { label: 'Ambient', tag: 'ambient' },
@@ -19,14 +20,42 @@ const FALLBACK_GENRES = [
 ]
 
 let cachedGenres = null
+let pendingRequest = null
+
+const GENRE_LABEL_MAP = {
+  afrobeat: 'Afrobeat',
+  chillhop: 'Chillhop',
+  cinematic: 'Cinematic',
+  classical: 'Classical',
+  electronic: 'Electronic',
+  folk: 'Folk',
+  hiphop: 'Hip Hop',
+  jazz: 'Jazz',
+  latin: 'Latin',
+  lofi: 'Lo-fi',
+  lounge: 'Lo-fi',
+  metal: 'Metal',
+  newage: 'New Age',
+  pop: 'Pop',
+  rnb: 'R&B',
+  reggae: 'Reggae',
+  rock: 'Rock',
+  soundtrack: 'Cinematic',
+  world: 'World',
+}
 
 function titleizeGenre(tag) {
-  return String(tag)
+  const normalized = String(tag).trim().toLowerCase()
+  if (GENRE_LABEL_MAP[normalized]) return GENRE_LABEL_MAP[normalized]
+
+  return normalized
     .split(/[-_\s]+/)
     .filter(Boolean)
     .map((part) => {
       if (part.toLowerCase() === 'rnb') return 'R&B'
       if (part.toLowerCase() === 'lofi') return 'Lo-fi'
+      if (part.toLowerCase() === 'hiphop') return 'Hip Hop'
+      if (part.toLowerCase() === 'newage') return 'New Age'
       return part.charAt(0).toUpperCase() + part.slice(1)
     })
     .join(' ')
@@ -58,37 +87,24 @@ export function seedMusicGenresFromTracks(tracks) {
   return cachedGenres
 }
 
-function normalizeMusicGenres(payload) {
-  const rows = Array.isArray(payload)
-    ? payload
-    : payload?.results ?? payload?.data ?? []
-
-  if (!Array.isArray(rows)) return []
-
-  const seen = new Set()
-
-  return rows
-    .map((row) => {
-      const tag = String(row?.name ?? row?.tag ?? '').trim().toLowerCase()
-      if (!tag || tag === 'bestof') return null
-
-      const rawLabel = String(row?.dispname ?? row?.label ?? row?.name ?? '').trim()
-      const label = rawLabel.replace(/\s+radio$/i, '').trim()
-      if (!label) return null
-
-      if (seen.has(tag)) return null
-      seen.add(tag)
-
-      return { tag, label }
-    })
-    .filter(Boolean)
-}
-
 async function fetchMusicGenres() {
   if (cachedGenres) return cachedGenres
+  if (pendingRequest) return pendingRequest
 
-  cachedGenres = normalizeMusicGenres([])
-  return cachedGenres
+  pendingRequest = musicService.getTrending(30)
+    .then((response) => {
+      cachedGenres = extractGenresFromTracks(response?.data?.results ?? [])
+      return cachedGenres
+    })
+    .catch(() => {
+      cachedGenres = FALLBACK_GENRES
+      return cachedGenres
+    })
+    .finally(() => {
+      pendingRequest = null
+    })
+
+  return pendingRequest
 }
 
 export function useMusicGenres(options = {}) {
