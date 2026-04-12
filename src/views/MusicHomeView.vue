@@ -31,7 +31,8 @@ const loadingMore = ref(false)
 const activeGenre = ref('')
 const offset = ref(0)
 const hasMore = ref(true)
-const PAGE_SIZE = 30
+const TRENDING_PAGE_SIZE = 30
+const GENRE_PAGE_SIZE = 20
 const { genres, loadGenres } = useMusicGenres({ includeTrending: true })
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
@@ -69,6 +70,14 @@ function shuffleTrendingBatch(tracks, genre, batchOffset) {
   return seededShuffle(tracks, seed)
 }
 
+async function fetchMusicBatch(genre, batchOffset) {
+  if (genre) {
+    return musicService.search('', genre, batchOffset)
+  }
+
+  return musicService.getTrending(TRENDING_PAGE_SIZE, '', batchOffset)
+}
+
 async function fetchTrending(genre = '', reset = true) {
   if (reset) {
     loading.value = true
@@ -79,18 +88,23 @@ async function fetchTrending(genre = '', reset = true) {
     loadingMore.value = true
   }
   try {
-    const response = await musicService.getTrending(PAGE_SIZE, genre, offset.value)
+    const response = await fetchMusicBatch(genre, offset.value)
     const rawTracks = response.data?.results || []
-    const newTracks = shuffleTrendingBatch(rawTracks, genre, offset.value)
+    const pageSize = genre ? GENRE_PAGE_SIZE : TRENDING_PAGE_SIZE
+    const newTracks = genre
+      ? rawTracks
+      : shuffleTrendingBatch(rawTracks, genre, offset.value)
     if (reset) {
-      genres.value = [{ label: 'Trending', tag: '' }, ...seedMusicGenresFromTracks(newTracks)]
+      if (!genre) {
+        genres.value = [{ label: 'Trending', tag: '' }, ...seedMusicGenresFromTracks(newTracks)]
+      }
     }
     if (reset) {
       tracks.value = newTracks
     } else {
       tracks.value = [...tracks.value, ...newTracks]
     }
-    hasMore.value = newTracks.length === PAGE_SIZE
+    hasMore.value = newTracks.length === pageSize
     offset.value += newTracks.length
   } catch (err) {
     console.error('Error fetching music:', err)
