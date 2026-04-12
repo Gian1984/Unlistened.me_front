@@ -36,6 +36,39 @@ const { genres, loadGenres } = useMusicGenres({ includeTrending: true })
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
 
+function getDailySeed() {
+  const now = new Date()
+  return Number(`${now.getUTCFullYear()}${now.getUTCMonth() + 1}${now.getUTCDate()}`)
+}
+
+function stringToSeed(value) {
+  return String(value)
+    .split('')
+    .reduce((acc, char) => ((acc * 31) + char.charCodeAt(0)) >>> 0, 0)
+}
+
+function seededShuffle(items, seed) {
+  const result = [...items]
+  let state = seed || 1
+
+  function nextRandom() {
+    state = (state * 1664525 + 1013904223) % 4294967296
+    return state / 4294967296
+  }
+
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(nextRandom() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+
+  return result
+}
+
+function shuffleTrendingBatch(tracks, genre, batchOffset) {
+  const seed = getDailySeed() ^ stringToSeed(`${genre}:${batchOffset}`)
+  return seededShuffle(tracks, seed)
+}
+
 async function fetchTrending(genre = '', reset = true) {
   if (reset) {
     loading.value = true
@@ -47,7 +80,8 @@ async function fetchTrending(genre = '', reset = true) {
   }
   try {
     const response = await musicService.getTrending(PAGE_SIZE, genre, offset.value)
-    const newTracks = response.data?.results || []
+    const rawTracks = response.data?.results || []
+    const newTracks = shuffleTrendingBatch(rawTracks, genre, offset.value)
     if (reset) {
       genres.value = [{ label: 'Trending', tag: '' }, ...seedMusicGenresFromTracks(newTracks)]
     }

@@ -42,6 +42,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │
 │   ├── services/                   # API layer (all HTTP calls go here)
 │   │   ├── api.js                  # Axios instance: baseURL, CSRF, 401 interceptor
+│   │   ├── sessionHandler.js       # Centralized unauthorized-session handler registration
 │   │   ├── podcastService.js       # Podcast + episode endpoints
 │   │   ├── musicService.js         # Jamendo music endpoints (tracks, favorites, playlists)
 │   │   ├── authService.js          # Login, logout, register, password reset, language
@@ -59,7 +60,8 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   ├── composables/
 │   │   ├── useSidebarState.js      # Shared sidebar collapsed/expanded state
 │   │   ├── usePagination.js        # Reusable pagination (visible items + load more)
-│   │   └── useMusicPlayback.js    # Reusable music play/pause/queue logic
+│   │   ├── useMusicPlayback.js     # Reusable music play/pause/queue logic
+│   │   └── useMusicGenres.js       # Derives music genres from Jamendo trending track tags
 │   │
 │   ├── utils/
 │   │   ├── formatTime.js         # formatDuration() + formatTime() utilities
@@ -88,15 +90,15 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │       └── PodcastCardItem.vue # Reusable podcast card (used in PodcastsView, etc.)
 │   ├── views/
 │   │   ├── NavigationView.vue      # Layout shell: sidebar, dual-mode search bar, <RouterView>
-│   │   ├── HomeView.vue            # Combined landing: trending podcasts + music preview
+│   │   ├── HomeView.vue            # Combined landing: trending podcasts + rotated music preview
 │   │   ├── PodcastsView.vue        # Podcasts hub: trending, categories, continue listening
-│   │   ├── CategoriesView.vue      # Podcasts/Music category browser (tabbed)
+│   │   ├── CategoriesView.vue      # Podcasts/Music category browser (tabbed, shared dynamic music genres)
 │   │   ├── SearchResultView.vue    # Search results (podcasts + music tracks)
 │   │   ├── FeedEpisodesView.vue    # Episode list for a single podcast (cover+play overlay)
 │   │   ├── SingleEpisodeView.vue   # Single episode detail + play
 │   │   ├── FavouritesView.vue      # Saved podcasts (enriched cards with cover + author)
 │   │   ├── BookmarksView.vue       # Bookmarked episodes (drag-to-reorder into sections)
-│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo (genre filter)
+│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo (dynamic tag-derived genre filter)
 │   │   ├── MusicFavoritesView.vue  # Music: liked songs list
 │   │   ├── MusicPlaylistsView.vue  # Music: user playlists grid
 │   │   ├── MusicPlaylistDetailView.vue  # Music: single playlist track list (drag reorder)
@@ -177,7 +179,24 @@ Three-phase code consolidation:
 
 ### API / Auth
 
-All HTTP calls go through `src/services/api.js` (centralized Axios instance with `withCredentials: true` + `withXSRFToken: true`). Auth uses Laravel Sanctum session cookies. On app boot, `authStore` validates the current user against the backend before protected routes are allowed through. A 401 response clears auth-derived state and redirects to `/login`.
+All HTTP calls go through `src/services/api.js` (centralized Axios instance with `withCredentials: true` + `withXSRFToken: true`). Auth uses Laravel Sanctum session cookies. On app boot, `authStore` validates the current user against the backend before protected routes are allowed through. Unauthorized handling is registered once at bootstrap via `sessionHandler.js`, so a 401 response clears auth-derived state, resets protected user caches, and redirects to `/login` without duplicating that logic across views.
+
+### Music Discovery / Genres
+
+Jamendo music genres are currently derived on the frontend from `musicinfo.tags.genres` inside the `/api/music/trending` payload. The shared `useMusicGenres.js` composable:
+- loads a small trending pool
+- extracts and deduplicates genre tags
+- normalizes raw Jamendo labels for UI display (`hiphop` → `Hip Hop`, `newage` → `New Age`, `soundtrack` → `Cinematic`, etc.)
+- prepends a `Trending` pseudo-filter where needed
+- falls back to a static safe list if Jamendo returns no usable tags
+
+This approach replaced the earlier plan of relying on `/api/music/radios`, because the current Jamendo/backend setup does not provide a stable enough radios payload for the UI. As a result, `MusicHomeView.vue`, `NavigationView.vue`, and `CategoriesView.vue` all consume the same shared dynamic genre source.
+
+### Music Rotation
+
+The music surfaces no longer render the first Jamendo ranking items unchanged:
+- `HomeView.vue` fetches a larger trending pool, applies a deterministic day-based shuffle, and shows a rotated subset so the home music preview is stable within a day but not identical every day
+- `MusicHomeView.vue` applies a deterministic shuffle per day, active genre, and batch offset so `Trending now` feels fresher while remaining compatible with the `Show more` pagination flow
 
 ### Design System
 
@@ -206,7 +225,7 @@ The sidebar (`NavigationView.vue`) is organized into three sections:
 - **Library** — Podcasts favourites, Episode bookmarks, Music favorites, Music playlists
 - **More** — Documentation
 
-The search bar features a podcast/music toggle that switches both the search target and the filter popover (podcast categories vs. music genres). The footer links to Home, Podcasts, Music, Favourites, Bookmarks, Documentation, and About.
+The search bar features a podcast/music toggle that switches both the search target and the filter popover (podcast categories vs. music genres). Podcast categories come from the API; music genres are derived from shared Jamendo trending tags via `useMusicGenres.js`, so the music filter popover, `/music`, and `/categories` stay aligned. The footer links to Home, Podcasts, Music, Favourites, Bookmarks, Documentation, and About.
 
 ### Reusable Composables
 
@@ -214,6 +233,7 @@ The search bar features a podcast/music toggle that switches both the search tar
 |---|---|
 | `usePagination(itemsRef, initialPageSize)` | Pagination state for list views: returns `visibleItems`, `hasMore`, `loadMore()`, `reset()` |
 | `useMusicPlayback(tracksRef, toPlayerPayload)` | Music play/pause/queue logic: `playTrack()`, `togglePlay()`, `isPlaying()`, `playAll()` |
+| `useMusicGenres(options)` | Shared music genre source: derive genres from Jamendo trending tags, normalize labels, cache results, fallback safely |
 | `useSidebarState()` | Sidebar collapsed/expanded state for responsive layout |
 
 ---
@@ -225,7 +245,7 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 | Aspect | Detail |
 |---|---|
 | Framework | Laravel 11 / PHP 8.2+ |
-| Auth | Laravel Sanctum (API tokens) |
+| Auth | Laravel Sanctum (cookie-backed session auth) |
 | External data | PodcastIndex.org API (proxied — all podcast data) |
 | Database | MySQL — users, favorites, bookmarks, plays, downloads, faqs |
 | Models | User, Favorite, Bookmark, Play, Download, Faq, Podcast |
@@ -235,9 +255,10 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/api/login` | No | Login → returns token + user |
+| POST | `/api/login` | No | Login → starts Sanctum session |
 | POST | `/api/register` | No | Registration |
 | POST | `/api/logout` | No | Logout |
+| GET | `/api/user` | Sanctum | Current authenticated user |
 | GET | `/api/index` | No | Trending podcasts (PodcastIndex) |
 | GET | `/api/feed_info/:id` | No | Podcast metadata |
 | GET | `/api/search_feed/:id` | No | Episodes for a podcast |
@@ -263,7 +284,7 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 | GET | `/api/music/similar/:id` | No | Similar tracks |
 | GET | `/api/music/album/:id` | No | Album detail |
 | GET | `/api/music/artist/:id` | No | Artist detail |
-| GET | `/api/music/radios` | No | Jamendo radio stations |
+| GET | `/api/music/radios` | No | Jamendo radio stations (currently not used by the frontend for genre discovery) |
 | GET | `/api/music/favorites` | Sanctum | User's liked music tracks |
 | POST | `/api/music/favorites` | Sanctum | Like a track |
 | DELETE | `/api/music/favorites/:id` | Sanctum | Unlike a track |
