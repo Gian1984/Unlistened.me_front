@@ -94,7 +94,7 @@ const searchType = ref('podcasts')
 const categories = ref([])
 const categoryFilter = ref('')
 const preferredLanguage = ref('')
-const { genres: musicGenres, loadGenres } = useMusicGenres()
+const { genres: musicGenres, loadGenres, loading: musicGenresLoading } = useMusicGenres()
 
 const filteredCategories = computed(() => {
   const q = categoryFilter.value.trim().toLowerCase()
@@ -401,7 +401,10 @@ onMounted(() => {
                     <div class="max-h-72 overflow-y-auto p-2">
                       <!-- Music genres -->
                       <template v-if="searchType === 'music'">
-                        <p v-if="!filteredGenres.length" class="px-2 py-6 text-center text-xs text-gray-500">No genres match.</p>
+                        <div v-if="musicGenresLoading" class="grid grid-cols-2 gap-2 p-1">
+                          <div v-for="n in 8" :key="n" class="h-8 rounded-md animate-shimmer bg-gray-800/70" />
+                        </div>
+                        <p v-else-if="!filteredGenres.length" class="px-2 py-6 text-center text-xs text-gray-500">No genres match.</p>
                         <ul v-else class="grid grid-cols-2 gap-1">
                           <li v-for="g in filteredGenres" :key="g.tag">
                             <button

@@ -17,7 +17,7 @@ const activeTab = ref(route.query.tab === 'music' ? 'music' : 'podcasts')
 const categories = ref([])
 const loading = ref(true)
 const searchFilter = ref('')
-const { genres: musicGenres, loadGenres } = useMusicGenres()
+const { genres: musicGenres, loadGenres, loading: musicGenresLoading } = useMusicGenres()
 
 const filteredCategories = computed(() => {
   if (!searchFilter.value) return categories.value
@@ -137,7 +137,11 @@ onMounted(() => {
 
       <!-- Music genres -->
       <template v-else>
-        <div class="flex flex-wrap gap-2">
+        <div v-if="musicGenresLoading" class="flex flex-wrap gap-2">
+          <div v-for="n in 12" :key="n" class="h-10 rounded-full animate-shimmer bg-gray-800/70" :style="{ width: (88 + Math.random() * 42) + 'px' }" />
+        </div>
+
+        <div v-else class="flex flex-wrap gap-2">
           <button
             v-for="g in filteredGenres"
             :key="g.tag"

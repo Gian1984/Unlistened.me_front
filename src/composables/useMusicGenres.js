@@ -4,15 +4,19 @@ import { musicService } from '@/services/musicService.js'
 const FALLBACK_GENRES = [
   { label: 'Electronic', tag: 'electronic' },
   { label: 'Ambient', tag: 'ambient' },
+  { label: 'New Age', tag: 'newage' },
   { label: 'Jazz', tag: 'jazz' },
   { label: 'Classical', tag: 'classical' },
   { label: 'Rock', tag: 'rock' },
   { label: 'Hip Hop', tag: 'hiphop' },
+  { label: 'Chillhop', tag: 'chillhop' },
   { label: 'Folk', tag: 'folk' },
   { label: 'Lo-fi', tag: 'lounge' },
   { label: 'World', tag: 'world' },
+  { label: 'Afrobeat', tag: 'afrobeat' },
   { label: 'Cinematic', tag: 'soundtrack' },
   { label: 'Pop', tag: 'pop' },
+  { label: 'Disco', tag: 'disco' },
   { label: 'Metal', tag: 'metal' },
   { label: 'R&B', tag: 'rnb' },
   { label: 'Reggae', tag: 'reggae' },
@@ -133,8 +137,8 @@ export function useMusicGenres(options = {}) {
   const loading = ref(false)
   const genres = ref(
     includeTrending
-      ? [{ label: 'Trending', tag: '' }, ...(cachedGenres || FALLBACK_GENRES)]
-      : (cachedGenres || FALLBACK_GENRES)
+      ? (cachedGenres ? [{ label: 'Trending', tag: '' }, ...cachedGenres] : [])
+      : (cachedGenres || [])
   )
 
   async function loadGenres() {
