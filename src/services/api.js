@@ -1,5 +1,5 @@
 import axios from 'axios'
-import router from '@/router'
+import { handleUnauthorized } from '@/services/sessionHandler'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -9,17 +9,9 @@ const api = axios.create({
 
 api.interceptors.response.use(
   response => response,
-  async error => {
+  error => {
     if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
-      const { useAuthStore } = await import('@/stores/authStore')
-      const { useMessageStore } = await import('@/stores/messageStore')
-      const authStore = useAuthStore()
-      authStore.clearUser()
-      const messageStore = useMessageStore()
-      messageStore.setMessage('Session expired. Please login again.')
-      if (router.currentRoute.value.name !== 'Login') {
-        router.push('/login')
-      }
+      handleUnauthorized(error)
     }
     return Promise.reject(error)
   }

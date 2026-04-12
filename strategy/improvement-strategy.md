@@ -39,12 +39,12 @@ Do not persist:
 ### 1.2 Refactor auth bootstrap around Sanctum
 
 Checklist:
-- [ ] document the exact auth flow: app boot, login, refresh, logout, 401 handling
-- [ ] replace local `auth` restoration assumptions with a bootstrap check against the API
-- [ ] ensure protected routes wait for auth bootstrap before redirecting
-- [ ] make logout clear all auth-derived local state consistently
-- [ ] clear favorites/playlists caches when auth is lost or user changes
-- [ ] make route guards depend on confirmed auth state, not optimistic frontend flags
+- [x] document the exact auth flow: app boot, login, refresh, logout, 401 handling
+- [x] replace local `auth` restoration assumptions with a bootstrap check against the API
+- [x] ensure protected routes wait for auth bootstrap before redirecting
+- [x] make logout clear all auth-derived local state consistently
+- [x] clear favorites/playlists caches when auth is lost or user changes
+- [x] make route guards depend on confirmed auth state, not optimistic frontend flags
 
 Suggested target behavior:
 - app starts in `auth unknown`
@@ -77,10 +77,10 @@ Checklist:
 ### 2.2 Add minimum real test coverage
 
 Priority targets:
-- [ ] `authStore` bootstrapping and logout reset
-- [ ] `queueStore` next/previous behavior
+- [x] `authStore` bootstrapping and logout reset
+- [x] `queueStore` next/previous behavior
 - [ ] `playerStore` current item and play state logic
-- [ ] `historyStore` progress/completion logic
+- [x] `historyStore` progress/completion logic
 - [ ] route guard behavior for guest, user, admin
 
 Rules:
@@ -90,7 +90,7 @@ Rules:
 ### 2.3 Add basic regression gates
 
 Checklist:
-- [ ] make `npm run test:unit -- --run` green and keep it green
+- [x] make `npm run test:unit -- --run` green and keep it green
 - [ ] add a lightweight CI check for build + tests
 - [ ] fail fast when imports reference deleted files
 
@@ -106,11 +106,11 @@ Current drift to fix:
 - some architecture notes describe intended behavior, not current behavior
 
 Checklist:
-- [ ] update stack versions only when verified from `package.json`
-- [ ] document real auth behavior and Sanctum constraints
-- [ ] describe persistence store by store, including exclusions
-- [ ] remove claims that are not true today
-- [ ] include `NowPlayingView` if it is part of the app
+- [x] update stack versions only when verified from `package.json`
+- [x] document real auth behavior and Sanctum constraints
+- [x] describe persistence store by store, including exclusions
+- [x] remove claims that are not true today
+- [x] include `NowPlayingView` if it is part of the app
 - [ ] add a short “known constraints” section
 
 ### 3.2 Keep strategy files current or remove stale ones
@@ -129,7 +129,7 @@ Checklist:
 Checklist:
 - [ ] decide explicitly whether routes should be lazy-loaded
 - [ ] if yes, convert non-critical views to dynamic imports
-- [ ] if no, remove lazy-loading claims from docs/scripts
+- [x] if no, remove lazy-loading claims from docs/scripts
 - [ ] review route naming consistency and URL naming style
 
 ### 4.2 Store responsibilities
@@ -142,8 +142,8 @@ Checklist:
 ### 4.3 API client behavior
 
 Checklist:
-- [ ] verify `401` handling does not create redirect loops
-- [ ] make sure auth failure clears stale UI caches
+- [x] verify `401` handling does not create redirect loops
+- [x] make sure auth failure clears stale UI caches
 - [ ] standardize service return shapes where possible
 
 ---

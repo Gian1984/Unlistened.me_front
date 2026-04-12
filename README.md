@@ -9,17 +9,17 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 | Layer | Technology | Version |
 |---|---|---|
 | Framework | Vue 3 (`<script setup>` Composition API) | 3.4.21 |
-| Build | Vite | 5.1.5 |
+| Build | Vite | 5.4.21 |
 | Styling | Tailwind CSS 3 + `@tailwindcss/forms` | 3.4.1 |
 | UI components | Headless UI, Heroicons | 1.7.19 / 2.1.1 |
-| HTTP | Axios (centralized instance in `src/services/api.js`) | 1.6.7 |
-| Auth | Laravel Sanctum (Bearer token, stored in localStorage) | 4.0 |
+| HTTP | Axios (centralized instance in `src/services/api.js`) | 1.15.0 |
+| Auth | Laravel Sanctum (cookie-backed session, backend-validated bootstrap) | 4.0 |
 | State | Pinia — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.7 |
-| State persistence | pinia-plugin-persistedstate (localStorage/sessionStorage) | 3.2.1 |
-| Routing | Vue Router 4 (lazy-loaded routes + SEO meta guards) | 4.3.0 |
+| State persistence | Mixed strategy: selected Pinia store persistence + manual localStorage for listening history | 3.2.1 |
+| Routing | Vue Router 4 (static route imports + auth guards + SEO hooks) | 4.3.0 |
 | Charts | Chart.js + vue-chartjs (admin dashboard) | 4.4.3 |
 | Drag & Drop | vuedraggable 4 (favourites & bookmarks) | 4.1.0 |
-| Testing | Vitest + @vue/test-utils | — |
+| Testing | Vitest + @vue/test-utils (basic store-level unit tests active) | 1.6.1 / 2.4.4 |
 
 ---
 
@@ -48,13 +48,13 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── userService.js          # Profile, settings, contact form, delete account
 │   │   └── adminService.js         # Dashboard stats, user management
 │   │
-│   ├── stores/                     # Pinia stores (all persisted via pinia-plugin-persistedstate)
-│   │   ├── authStore.js            # Authenticated user state (localStorage)
+│   ├── stores/                     # Pinia stores
+│   │   ├── authStore.js            # Auth state bootstrapped from Sanctum/current-user endpoint
 │   │   ├── messageStore.js         # Global toast/notification messages (auto-clear)
 │   │   ├── playerStore.js          # Audio player state (sessionStorage)
 │   │   ├── historyStore.js         # Listening history + resume progress (localStorage)
 │   │   ├── queueStore.js           # Playback queue (sessionStorage)
-│   │   └── musicLibraryStore.js    # Music favorites + playlists (localStorage)
+│   │   └── musicLibraryStore.js    # Music favorites/playlists cache
 │   │
 │   ├── composables/
 │   │   ├── useSidebarState.js      # Shared sidebar collapsed/expanded state
@@ -157,7 +157,7 @@ Three-phase code consolidation:
 |-------|---------|
 | 1 — Utilities | Extracted `formatDuration()`, `formatTime()` → `src/utils/formatTime.js`; `stripHtmlTags()` → `src/utils/text.js`; created `usePagination(items, pageSize)` and `useMusicPlayback(tracks, payloadFn)` composables; enhanced `messageStore.notify(msg, type, duration)` with auto-clear |
 | 2 — Components | Created reusable `MusicTrackRow.vue` (`src/components/music/`) and `PodcastCardItem.vue` (`src/components/podcast/`); refactored PodcastsView, MusicHomeView to use them |
-| 3 — Persistence | Installed `pinia-plugin-persistedstate`; all stores now persist across refreshes: `playerStore` → sessionStorage (currentEpisode + isVisible), `queueStore` → sessionStorage (queue state), `musicLibraryStore` → localStorage (favoriteIds), `historyStore` �� localStorage (all progress), `authStore` → localStorage |
+| 3 — Persistence | Persist only UX-safe state: `playerStore` → sessionStorage, `queueStore` → sessionStorage, `musicLibraryStore` → cached favorite IDs, `historyStore` → manual localStorage. `authStore` is intentionally not restored from localStorage because Sanctum is the source of truth |
 
 ### Listening History
 
@@ -167,7 +167,7 @@ Three-phase code consolidation:
 - `getProgress(episodeId)` — returns saved `currentTime` for resume
 - `markCompleted(episodeId)` — marks episode as fully listened
 - `continueListening` computed — episodes with progress > 5s and not completed (used on HomeView + PodcastsView)
-- `continueListeningMusic` computed — music-only subset (used on MusicHomeView)
+- `continueListeningMusic` computed — music-only subset is available in the store, but the player currently saves resume history only for podcasts
 
 ### Notifications / Messages
 
@@ -177,7 +177,7 @@ Three-phase code consolidation:
 
 ### API / Auth
 
-All HTTP calls go through `src/services/api.js` (centralized Axios instance with `withCredentials: true` + `withXSRFToken: true`). Auth is token-based (Laravel Sanctum): token stored in `localStorage`, sent as Bearer header. A 401 response anywhere clears auth state and redirects to `/login`.
+All HTTP calls go through `src/services/api.js` (centralized Axios instance with `withCredentials: true` + `withXSRFToken: true`). Auth uses Laravel Sanctum session cookies. On app boot, `authStore` validates the current user against the backend before protected routes are allowed through. A 401 response clears auth-derived state and redirects to `/login`.
 
 ### Design System
 
@@ -197,7 +197,7 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 
 ### Routing
 
-`src/router/index.js` defines 25 routes (including `/podcasts` and 4 music routes). Navigation guards handle auth-required routes and set `document.title` from route meta. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+`src/router/index.js` defines 25 routes (including `/podcasts`, `/music`, and `NowPlayingView`). Views are currently imported statically. Navigation guards wait for auth bootstrap before evaluating protected/admin routes. SEO metadata (title, description, og:*) is managed via `src/seo/`.
 
 ### Navigation
 
@@ -353,4 +353,4 @@ Code consolidation completed in three phases:
 |---|---|
 | 1 — Utilities & Composables | **DONE** |
 | 2 — Reusable Components | **DONE** |
-| 3 — Pinia Persistence | **DONE** |
+| 3 — Pinia Persistence | **DONE** (with auth excluded from local restoration) |
