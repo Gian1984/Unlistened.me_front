@@ -27,7 +27,6 @@ import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import { stripHtmlTags } from '@/utils/text.js'
 
 const authStore = useAuthStore()
-authStore.initializeAuth()
 
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
@@ -136,6 +135,12 @@ async function fetchSearchResults(param, value) {
 }
 
 async function addFavourite(feedId, feedTitle) {
+  if (!authStore.isAuthenticated) {
+    messageStore.setMessage('To access this functionality you have to be logged in')
+    router.push({ name: 'Login' })
+    return
+  }
+
   try {
     await podcastService.addFavorite(feedId, feedTitle)
     show.value = true
@@ -143,9 +148,9 @@ async function addFavourite(feedId, feedTitle) {
       show.value = false
     }, 3000)
   } catch (error) {
-    authStore.clearUser()
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    if (error.response?.status !== 401) {
+      messageStore.setMessage('There was an error while saving the favorite. Please try again.')
+    }
   }
 }
 

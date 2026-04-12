@@ -56,13 +56,10 @@ async function fetchPlaylist() {
     tracks.value = payload?.tracks ?? []
     editName.value = payload?.name ?? ''
   } catch (err) {
-    if (err?.response?.status === 401) {
-      authStore.clearUser()
-      router.push({ name: 'Login' })
-    } else if (err?.response?.status === 404) {
+    if (err?.response?.status === 404) {
       messageStore.setMessage('Playlist not found.')
       router.push({ name: 'MusicPlaylists' })
-    } else {
+    } else if (err?.response?.status !== 401) {
       messageStore.setMessage('Could not load the playlist.')
     }
   } finally {

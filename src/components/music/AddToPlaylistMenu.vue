@@ -44,10 +44,7 @@ async function onAddTo(playlist, close) {
     messageStore.setMessage(`Added to "${playlist.name}"`)
     close?.()
   } catch (err) {
-    if (err?.response?.status === 401) {
-      authStore.clearUser()
-      router.push({ name: 'Login' })
-    } else {
+    if (err?.response?.status !== 401) {
       messageStore.setMessage('Could not add the track. Please try again.')
     }
   } finally {
@@ -67,10 +64,7 @@ async function onCreateAndAdd(close) {
     showCreate.value = false
     close?.()
   } catch (err) {
-    if (err?.response?.status === 401) {
-      authStore.clearUser()
-      router.push({ name: 'Login' })
-    } else {
+    if (err?.response?.status !== 401) {
       messageStore.setMessage('Could not create the playlist. Please try again.')
     }
   } finally {

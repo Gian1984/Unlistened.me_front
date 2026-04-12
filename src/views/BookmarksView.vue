@@ -57,11 +57,7 @@ async function fetchBookmarks() {
       sections.value.push({ name: sectionName, items })
     })
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired due to lack of activity.')
-      router.push({ name: 'Login' })
-    } else {
+    if (error.response?.status !== 401) {
       console.error('Error fetching bookmarks')
     }
   } finally {
@@ -147,11 +143,7 @@ async function deleteBookmark(episodeId, sectionName) {
       message.value = null
     }, 3000)
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired due to lack of activity.')
-      router.push({ name: 'Login' })
-    } else {
+    if (error.response?.status !== 401) {
       message.value = 'There was an error while deleting. Please try later.'
       notificationType.value = 'error'
       show.value = true

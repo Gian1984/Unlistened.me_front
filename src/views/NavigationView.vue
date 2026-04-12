@@ -44,7 +44,6 @@ const { isDesktopCollapsed, toggleDesktopCollapse } = useSidebarState()
 
 const router = useRouter()
 const authStore = useAuthStore()
-authStore.initializeAuth()
 
 // Auth computed properties
 const isAuthenticated = computed(() => authStore.isAuthenticated)

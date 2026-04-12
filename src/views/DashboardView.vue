@@ -246,14 +246,8 @@ async function fetchStats() {
       '#ec4899'
     )
   } catch (error) {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired due to lack of activity.')
-      router.push({ name: 'Login' })
-    } else {
-      authStore.clearUser()
+    if (!error.response || (error.response.status !== 401 && error.response.status !== 403)) {
       messageStore.setMessage('Something went wrong, please try again.')
-      router.push({ name: 'Login' })
     }
   }
 }

@@ -20,7 +20,6 @@ import { buildPodcastSchema } from '@/seo/schemas/podcast.js'
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
 const authStore = useAuthStore()
-authStore.initializeAuth()
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
 const playerStore = usePlayerStore()
@@ -125,26 +124,38 @@ async function fetchEpisodes(feedId) {
 }
 
 async function addFavourite(feedId, feedTitle) {
+  if (!authStore.isAuthenticated) {
+    messageStore.setMessage('To access this functionality you have to be logged in')
+    router.push({ name: 'Login' })
+    return
+  }
+
   try {
     await podcastService.addFavorite(feedId, feedTitle)
     show.value = true
     setTimeout(() => { show.value = false }, 3000)
   } catch (err) {
-    authStore.clearUser()
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    if (err.response?.status !== 401) {
+      messageStore.setMessage('There was an error while saving the favorite. Please try again.')
+    }
   }
 }
 
 async function addBookmarks(episodeId, episodeTitle) {
+  if (!authStore.isAuthenticated) {
+    messageStore.setMessage('To access this functionality you have to be logged in')
+    router.push({ name: 'Login' })
+    return
+  }
+
   try {
     await podcastService.addBookmark(episodeId, episodeTitle)
     show.value = true
     setTimeout(() => { show.value = false }, 3000)
   } catch (err) {
-    authStore.clearUser()
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    if (err.response?.status !== 401) {
+      messageStore.setMessage('There was an error while saving the bookmark. Please try again.')
+    }
   }
 }
 

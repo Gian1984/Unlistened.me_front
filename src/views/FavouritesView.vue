@@ -79,11 +79,7 @@ async function fetchFavorites() {
       })
     )
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired due to lack of activity.')
-      router.push({ name: 'Login' })
-    } else {
+    if (error.response?.status !== 401) {
       console.error('Error fetching favorites')
     }
   } finally {
@@ -178,11 +174,7 @@ async function deleteFavourite(feedId, sectionName) {
       message.value = null
     }, 3000)
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired due to lack of activity.')
-      router.push({ name: 'Login' })
-    } else {
+    if (error.response?.status !== 401) {
       message.value = 'There was an error while deleting. Please try later.'
       notificationType.value = 'error'
       show.value = true

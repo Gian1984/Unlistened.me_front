@@ -49,11 +49,7 @@ async function onClick(e) {
     const wasAdded = await library.toggleFavorite(props.track)
     messageStore.setMessage(wasAdded ? 'Added to favorites' : 'Removed from favorites')
   } catch (err) {
-    if (err?.response?.status === 401) {
-      authStore.clearUser()
-      messageStore.setMessage('Your session has expired. Please sign in again.')
-      router.push({ name: 'Login' })
-    } else {
+    if (err?.response?.status !== 401) {
       messageStore.setMessage('Could not update favorites. Please try again.')
     }
   } finally {
