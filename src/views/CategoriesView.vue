@@ -7,6 +7,7 @@ import { podcastService } from '@/services/podcastService.js'
 import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { categoriesSeo } from '@/seo/registry/index.js'
+import { useMusicGenres } from '@/composables/useMusicGenres.js'
 
 useSeo(categoriesSeo)
 
@@ -16,25 +17,7 @@ const activeTab = ref(route.query.tab === 'music' ? 'music' : 'podcasts')
 const categories = ref([])
 const loading = ref(true)
 const searchFilter = ref('')
-
-const MUSIC_GENRES = [
-  { label: 'Electronic', tag: 'electronic' },
-  { label: 'Ambient',    tag: 'ambient' },
-  { label: 'Jazz',       tag: 'jazz' },
-  { label: 'Classical',  tag: 'classical' },
-  { label: 'Rock',       tag: 'rock' },
-  { label: 'Hip Hop',    tag: 'hiphop' },
-  { label: 'Folk',       tag: 'folk' },
-  { label: 'Lo-fi',      tag: 'lounge' },
-  { label: 'World',      tag: 'world' },
-  { label: 'Cinematic',  tag: 'soundtrack' },
-  { label: 'Pop',        tag: 'pop' },
-  { label: 'Metal',      tag: 'metal' },
-  { label: 'R&B',        tag: 'rnb' },
-  { label: 'Reggae',     tag: 'reggae' },
-  { label: 'Latin',      tag: 'latin' },
-  { label: 'Country',    tag: 'country' },
-]
+const { genres: musicGenres, loadGenres } = useMusicGenres()
 
 const filteredCategories = computed(() => {
   if (!searchFilter.value) return categories.value
@@ -43,9 +26,9 @@ const filteredCategories = computed(() => {
 })
 
 const filteredGenres = computed(() => {
-  if (!searchFilter.value) return MUSIC_GENRES
+  if (!searchFilter.value) return musicGenres.value
   const q = searchFilter.value.toLowerCase()
-  return MUSIC_GENRES.filter(g => g.label.toLowerCase().includes(q))
+  return musicGenres.value.filter(g => g.label.toLowerCase().includes(q))
 })
 
 async function fetchSearchCat() {
@@ -74,6 +57,7 @@ function switchTab(tab) {
 
 onMounted(() => {
   fetchSearchCat()
+  loadGenres()
 })
 </script>
 

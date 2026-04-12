@@ -36,9 +36,9 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
-import { musicService } from '@/services/musicService.js'
 import { authService } from '@/services/authService.js'
 import { useSidebarState } from '@/composables/useSidebarState.js'
+import { useMusicGenres } from '@/composables/useMusicGenres.js'
 
 const { isDesktopCollapsed, toggleDesktopCollapse } = useSidebarState()
 
@@ -94,25 +94,7 @@ const searchType = ref('podcasts')
 const categories = ref([])
 const categoryFilter = ref('')
 const preferredLanguage = ref('')
-
-const MUSIC_GENRES = [
-  { label: 'Electronic', tag: 'electronic' },
-  { label: 'Ambient',    tag: 'ambient' },
-  { label: 'Jazz',       tag: 'jazz' },
-  { label: 'Classical',  tag: 'classical' },
-  { label: 'Rock',       tag: 'rock' },
-  { label: 'Hip Hop',    tag: 'hiphop' },
-  { label: 'Folk',       tag: 'folk' },
-  { label: 'Lo-fi',      tag: 'lounge' },
-  { label: 'World',      tag: 'world' },
-  { label: 'Cinematic',  tag: 'soundtrack' },
-  { label: 'Pop',        tag: 'pop' },
-  { label: 'Metal',      tag: 'metal' },
-  { label: 'R&B',        tag: 'rnb' },
-  { label: 'Reggae',     tag: 'reggae' },
-  { label: 'Latin',      tag: 'latin' },
-  { label: 'Country',    tag: 'country' },
-]
+const { genres: musicGenres, loadGenres } = useMusicGenres()
 
 const filteredCategories = computed(() => {
   const q = categoryFilter.value.trim().toLowerCase()
@@ -122,8 +104,8 @@ const filteredCategories = computed(() => {
 
 const filteredGenres = computed(() => {
   const q = categoryFilter.value.trim().toLowerCase()
-  if (!q) return MUSIC_GENRES
-  return MUSIC_GENRES.filter(g => g.label.toLowerCase().includes(q))
+  if (!q) return musicGenres.value
+  return musicGenres.value.filter(g => g.label.toLowerCase().includes(q))
 })
 
 // Methods
@@ -198,6 +180,7 @@ fetchSearchCat()
 // Lifecycle: mounted()
 onMounted(() => {
   detectBrowserLanguage()
+  loadGenres()
 })
 </script>
 <template>

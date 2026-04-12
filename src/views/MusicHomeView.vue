@@ -13,6 +13,7 @@ import Footer from '@/components/Footer.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicSeo } from '@/seo/registry/index.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { useMusicGenres } from '@/composables/useMusicGenres.js'
 
 useSeo(musicSeo)
 
@@ -30,22 +31,9 @@ const activeGenre = ref('')
 const offset = ref(0)
 const hasMore = ref(true)
 const PAGE_SIZE = 30
+const { genres, loadGenres } = useMusicGenres({ includeTrending: true })
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
-
-const GENRES = [
-  { label: 'Trending',   tag: '' },
-  { label: 'Electronic', tag: 'electronic' },
-  { label: 'Ambient',    tag: 'ambient' },
-  { label: 'Jazz',       tag: 'jazz' },
-  { label: 'Classical',  tag: 'classical' },
-  { label: 'Rock',       tag: 'rock' },
-  { label: 'Hip Hop',    tag: 'hiphop' },
-  { label: 'Folk',       tag: 'folk' },
-  { label: 'Lo-fi',      tag: 'lounge' },
-  { label: 'World',      tag: 'world' },
-  { label: 'Cinematic',  tag: 'soundtrack' },
-]
 
 async function fetchTrending(genre = '', reset = true) {
   if (reset) {
@@ -126,8 +114,9 @@ function playHistoryEntry(entry) {
 }
 
 onMounted(() => {
+  loadGenres()
   const genre = route.query.genre
-  if (genre && GENRES.some(g => g.tag === genre)) {
+  if (genre && genres.value.some(g => g.tag === genre)) {
     activeGenre.value = genre
     fetchTrending(genre, true)
   } else {
@@ -189,7 +178,7 @@ onMounted(() => {
       <!-- Genre pills -->
       <div class="mb-8 flex flex-wrap gap-2">
         <button
-          v-for="g in GENRES"
+          v-for="g in genres"
           :key="g.label"
           type="button"
           @click="selectGenre(g.tag)"
@@ -208,7 +197,7 @@ onMounted(() => {
       <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">
-            {{ activeGenre ? GENRES.find(g => g.tag === activeGenre)?.label : 'Trending now' }}
+            {{ activeGenre ? genres.find(g => g.tag === activeGenre)?.label : 'Trending now' }}
           </h2>
         </div>
 
