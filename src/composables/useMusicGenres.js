@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { musicService } from '@/services/musicService.js'
+
 const FALLBACK_GENRES = [
   { label: 'Electronic', tag: 'electronic' },
   { label: 'Ambient', tag: 'ambient' },
@@ -21,6 +22,14 @@ const FALLBACK_GENRES = [
 
 let cachedGenres = null
 let pendingRequest = null
+
+const SUPPORTED_GENRE_ORDER = FALLBACK_GENRES.map((genre) => genre.tag)
+const FALLBACK_GENRE_MAP = new Map(FALLBACK_GENRES.map((genre) => [genre.tag, genre]))
+
+const GENRE_TAG_MAP = {
+  lofi: 'lounge',
+  soundtrack: 'soundtrack',
+}
 
 const GENRE_LABEL_MAP = {
   afrobeat: 'Afrobeat',
@@ -44,8 +53,13 @@ const GENRE_LABEL_MAP = {
   world: 'World',
 }
 
-function titleizeGenre(tag) {
+function normalizeGenreTag(tag) {
   const normalized = String(tag).trim().toLowerCase()
+  return GENRE_TAG_MAP[normalized] || normalized
+}
+
+function titleizeGenre(tag) {
+  const normalized = normalizeGenreTag(tag)
   if (GENRE_LABEL_MAP[normalized]) return GENRE_LABEL_MAP[normalized]
 
   return normalized
@@ -63,16 +77,23 @@ function titleizeGenre(tag) {
 
 export function extractGenresFromTracks(tracks) {
   const rows = Array.isArray(tracks) ? tracks : []
-  const seen = new Set()
+  const counts = new Map()
 
-  const extracted = rows
+  rows
     .flatMap((track) => track?.musicinfo?.tags?.genres ?? [])
-    .map((genre) => String(genre || '').trim().toLowerCase())
+    .map((genre) => normalizeGenreTag(genre))
     .filter(Boolean)
-    .filter((genre) => {
-      if (seen.has(genre)) return false
-      seen.add(genre)
-      return true
+    .forEach((genre) => {
+      if (!FALLBACK_GENRE_MAP.has(genre)) return
+      counts.set(genre, (counts.get(genre) || 0) + 1)
+    })
+
+  const extracted = SUPPORTED_GENRE_ORDER
+    .filter((genre) => counts.has(genre))
+    .sort((left, right) => {
+      const countDiff = (counts.get(right) || 0) - (counts.get(left) || 0)
+      if (countDiff !== 0) return countDiff
+      return SUPPORTED_GENRE_ORDER.indexOf(left) - SUPPORTED_GENRE_ORDER.indexOf(right)
     })
     .map((genre) => ({
       tag: genre,
