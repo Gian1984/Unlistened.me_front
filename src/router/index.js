@@ -173,11 +173,15 @@ const router = createRouter({
   },
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const messageStore = useMessageStore()
   const authStore = useAuthStore()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+
+  if (!authStore.isInitialized || requiresAuth || requiresAdmin) {
+    await authStore.initializeAuth()
+  }
 
   if (requiresAuth && !authStore.isAuthenticated) {
     messageStore.setMessage('To access this page you have to be logged in.')

@@ -1,263 +1,218 @@
 # Unlistened.me - Improvement Strategy
 
-## Project Overview
+## Goal
 
-Vue 3 + Vite podcast streaming app with Tailwind CSS, Headless UI, Laravel Sanctum backend.
-17 routes, 14 views, 2 components (Footer, OffcanvasPlayer), 3 Pinia stores (auth, message, player).
-5 service modules: `api.js`, `podcastService.js`, `authService.js`, `userService.js`, `adminService.js`.
+Stabilize the current Vue 3 frontend before adding more features. The main issue is not missing functionality, but drift between code, documentation, auth behavior, and test coverage.
 
-Colors: Indigo primary (`bg-indigo-600`), Pink accent (`bg-pink-500`), Gray-900 sidebar, White content.
-
----
-
-## Priority 1: Critical Fixes
-
-### 1.1 Audio Player Redesign
-
-**Current state:** `OffcanvasPlayer.vue` is a small floating box (bottom-right) with basic play/pause, a clickable progress bar, and a close button. No volume control, no skip, no speed, no queue. Closing the player stops playback and loses the episode.
-
-**Reference:** CodeHelper's `PodcastPlayer.vue` has a full-width bottom bar with:
-- Draggable progress bar with thumb indicator
-- Time display (`currentTime / duration`)
-- Cover art click to navigate back to episode list
-- Heart (favorite) + Bookmark buttons directly in player
-- MediaSession API (lockscreen controls on mobile/desktop)
-- Smooth slide-up/down transition
-- Responsive: adapts to sidebar width
-
-**Improvements:**
-- [x] Replace floating box with **full-width sticky bottom bar** (like CodeHelper)
-- [x] Add **draggable progress bar** with thumb, not just click-to-seek
-- [x] Add **time display** (current / total)
-- [x] Add **playback speed** control (0.5x, 1x, 1.25x, 1.5x, 2x)
-- [x] Add **skip forward/back** buttons (15s back, 30s forward)
-- [x] Implement **MediaSession API** for lockscreen/notification controls
-- [x] Cover art and episode info display in player bar
-- [ ] Add **volume slider** (desktop only, hidden on mobile)
-- [ ] Add **favorite/bookmark** buttons directly in the player bar
-- [ ] Cover art in player should **navigate to podcast episodes** on click
-- [ ] Closing player should **minimize**, not destroy (keep episode in memory for resume)
-- [ ] Add **queue** support: next/previous episode navigation
-
-**Files:** `src/components/OffcanvasPlayer.vue` (full rewrite - DONE), `src/stores/playerStore.js` (NEW)
+This checklist is ordered by impact:
+1. remove sources of broken state
+2. make auth/session handling predictable with Sanctum
+3. align documentation and code
+4. improve UX only after the base is reliable
 
 ---
 
-### 1.2 Fix API Layer (No Service Abstraction)
+## Phase 1 - Session And Persistence
 
-**Current state:** Every view has `const base_Url = import.meta.env.VITE_BASE_URL` at the top and inline axios calls with `withCredentials: true, withXSRFToken: true` repeated everywhere. No centralized error handling.
+### 1.1 Define a strict persistence policy
 
-**Improvements:**
-- [x] Create `src/services/api.js` with a configured axios instance
-- [x] Centralize base URL, credentials, CSRF token, error interceptors
-- [x] Create domain-specific services: `podcastService.js`, `authService.js`, `userService.js`, `adminService.js`
-- [x] Add global error interceptor (401 → redirect to login)
-- [x] Remove `base_Url` declarations from all 15+ views
-- [x] Remove `vue-axios` plugin dependency (no longer needed)
+Problem:
+- `Laravel Sanctum` is the source of truth for authentication/session state
+- persisting auth-related state in Pinia or localStorage can make protected pages behave incorrectly after refresh, logout, token expiry, or backend session invalidation
 
-**Files:** `src/services/api.js`, `src/services/podcastService.js`, `src/services/authService.js`, `src/services/userService.js`, `src/services/adminService.js` (ALL DONE)
+Decision:
+- `authStore` must not use `pinia-plugin-persistedstate`
+- login/logout/session validity must be derived from backend-confirmed state, not from stale frontend storage
+- only UX-safe state should be persisted locally
 
----
+Keep persisted:
+- `playerStore`: current media shell and visibility
+- `queueStore`: active queue
+- `musicLibraryStore`: non-auth UI cache only if it cannot grant access by itself
+- `historyStore`: listening progress
 
-### 1.3 Fix Mixed Composition/Options API
+Do not persist:
+- `authStore`
+- admin flags
+- anything that unlocks protected routes by itself
 
-**Current state:** `NavigationView.vue` uses both `<script setup>` (lines 1-52, reactive refs) AND `<script>` (lines 283-430, Options API). Confusing, error-prone.
+### 1.2 Refactor auth bootstrap around Sanctum
 
-**Improvements:**
-- [x] Convert `NavigationView.vue` to pure Composition API (`<script setup>`)
-- [x] Convert all remaining Options API views to `<script setup>`:
-  - [x] LoginView, SignUpView, ForgotPasswordView, ResetPasswordView
-  - [x] FeedsView, CategoriesView, SearchResultView
-  - [x] FavouritesView, BookmarksView
-  - [x] SettingsView, DashboardView
-  - [x] FeedEpisodesView, SingleEpisodeView
+Checklist:
+- [ ] document the exact auth flow: app boot, login, refresh, logout, 401 handling
+- [ ] replace local `auth` restoration assumptions with a bootstrap check against the API
+- [ ] ensure protected routes wait for auth bootstrap before redirecting
+- [ ] make logout clear all auth-derived local state consistently
+- [ ] clear favorites/playlists caches when auth is lost or user changes
+- [ ] make route guards depend on confirmed auth state, not optimistic frontend flags
 
-**Files:** All 12 views migrated. `src/main.js` cleaned up (removed vue-axios).
+Suggested target behavior:
+- app starts in `auth unknown`
+- frontend performs session/token validation
+- only after validation it decides `authenticated` or `guest`
+- protected pages should not flicker into wrong states during bootstrap
 
----
+### 1.3 Remove persistence duplication
 
-## Priority 2: UX Improvements
+Problem:
+- some stores already write manually to localStorage while also declaring `persist`
+- this increases drift and makes debugging harder
 
-### 2.1 Loading States & Skeleton Screens
-
-**Current state:** Full-page spinner with "loading..." text. Content appears all at once with no visual preview.
-
-**Reference:** CodeHelper uses skeleton shimmer placeholders that match the content layout.
-
-**Improvements:**
-- [x] Replace spinner with **skeleton cards** (gray shimmer blocks matching podcast card layout)
-- [x] Skeleton for episode list (3-5 placeholder rows)
-- [x] Skeleton for categories grid
-- [x] Keep spinner only for small inline actions (button loading, etc.)
-
-**Files:** `src/components/SkeletonCard.vue` (NEW), `src/components/SkeletonRow.vue` (NEW)
-
----
-
-### 2.2 Podcast Card Redesign
-
-**Current state:** Cards show image, title, truncated description, author, categories as badges, and a favorite star. Layout is functional but dense. Description is hard to read.
-
-**Reference:** CodeHelper podcast cards have cleaner typography, subtle borders, hover effects with color accent, and action buttons that appear on hover.
-
-**Improvements:**
-- [ ] Increase card image size and make it **square with rounded corners**
-- [ ] Show **category** as a subtle pill badge below the image
-- [ ] Truncate description to 2 lines with CSS `line-clamp-2`
-- [ ] Add **hover state**: subtle border color change, slight scale
-- [ ] Move favorite button to **top-right overlay** on the card image
-- [ ] Add **play button overlay** on card image hover (play latest episode directly)
-- [ ] Show **episode count** on the card
-
-**Files:** `src/views/FeedsView.vue`, `src/views/SearchResultView.vue`
+Checklist:
+- [ ] choose one persistence mechanism per store
+- [ ] keep `historyStore` manual or plugin-based, but not both conceptually
+- [ ] verify `musicLibraryStore` persistence is safe when the user logs out
+- [ ] write down storage keys in one place
 
 ---
 
-### 2.3 Navigation & Search
+## Phase 2 - Testing And Reliability
 
-**Current state:** Category filter is in a Headless UI Popover that overlaps content. Search is in the header but doesn't show suggestions. No breadcrumbs for deep pages.
+### 2.1 Remove dead template code
 
-**Reference:** CodeHelper has category pills directly visible (not hidden in a popover), search with instant results, and breadcrumb navigation.
+Checklist:
+- [x] remove `HelloWorld` test residue
+- [ ] search for any other Vite/Vue starter leftovers and delete them
 
-**Improvements:**
-- [ ] Move category filter from popover to **inline horizontal pills** below the header (like CodeHelper)
-- [ ] Add **search suggestions/autocomplete** dropdown as user types
-- [ ] Add **breadcrumb navigation** for episode detail pages: Podcasts > Show Name > Episode
-- [ ] Add **back button** visible on episode/detail pages (not just browser back)
-- [ ] On mobile, make category pills **horizontally scrollable** with fade edges
-- [ ] Add **"Recently played"** section at the top of the podcast browse page
+### 2.2 Add minimum real test coverage
 
-**Files:** `src/views/NavigationView.vue`, `src/views/FeedEpisodesView.vue`, `src/views/SingleEpisodeView.vue`
+Priority targets:
+- [ ] `authStore` bootstrapping and logout reset
+- [ ] `queueStore` next/previous behavior
+- [ ] `playerStore` current item and play state logic
+- [ ] `historyStore` progress/completion logic
+- [ ] route guard behavior for guest, user, admin
 
----
+Rules:
+- prefer small unit tests around stores/composables
+- do not add snapshot-heavy or brittle component tests first
 
-### 2.4 Pagination to Infinite Scroll
+### 2.3 Add basic regression gates
 
-**Current state:** "Load More" buttons require manual clicks. Categories in the popover have confusing "..." pagination with max 3 visible pages.
-
-**Improvements:**
-- [ ] Replace "Load More" with **infinite scroll** (IntersectionObserver) on feeds and search results
-- [ ] Keep a "Load More" fallback button visible in case IntersectionObserver fails
-- [ ] Show loading indicator at bottom of list while fetching
-- [ ] Remove the complex category pagination; show all categories in scrollable pills
-
-**Files:** `src/views/FeedsView.vue`, `src/views/SearchResultView.vue`, `src/views/NavigationView.vue`
+Checklist:
+- [ ] make `npm run test:unit -- --run` green and keep it green
+- [ ] add a lightweight CI check for build + tests
+- [ ] fail fast when imports reference deleted files
 
 ---
 
-### 2.5 Empty States
+## Phase 3 - Documentation Alignment
 
-**Current state:** Inconsistent empty states across views. Different SVG icons, different copy, different tone.
+### 3.1 Bring `README.md` back in sync with the codebase
 
-**Improvements:**
-- [x] Create a **shared EmptyState component** with icon, title, description, CTA button
-- [x] Consistent style: gray icon (48px), descriptive text, action button
-- [x] Custom messages per context:
-  - Favorites: "No saved podcasts yet. Browse and tap the heart to save."
-  - Bookmarks: "No bookmarked episodes. Bookmark episodes to listen later."
-  - Search: "No results for 'query'. Try a different search term."
-  - 404 pages: "Not Found" with back to listing CTA
+Current drift to fix:
+- router is documented as lazy-loaded, but views are statically imported
+- persistence is documented too broadly
+- some architecture notes describe intended behavior, not current behavior
 
-**Files:** `src/components/EmptyState.vue` (NEW), updated FavouritesView, BookmarksView, SearchResultView, FeedEpisodesView, SingleEpisodeView
+Checklist:
+- [ ] update stack versions only when verified from `package.json`
+- [ ] document real auth behavior and Sanctum constraints
+- [ ] describe persistence store by store, including exclusions
+- [ ] remove claims that are not true today
+- [ ] include `NowPlayingView` if it is part of the app
+- [ ] add a short “known constraints” section
 
----
+### 3.2 Keep strategy files current or remove stale ones
 
-### 2.6 Favorites & Bookmarks Drag-and-Drop
-
-**Current state:** Custom sections with vuedraggable, but no visual drag handle, no instruction, no cursor change. Users don't know items are draggable.
-
-**Improvements:**
-- [ ] Add **drag handle icon** (6-dot grip) on the left of each item
-- [ ] Change cursor to `grab`/`grabbing` on draggable items
-- [ ] Add subtle **tooltip or onboarding** text: "Drag to reorder"
-- [ ] Add **swipe-to-delete** on mobile (alternative to delete button)
-- [ ] Animate drag placeholder with indigo border
-
-**Files:** `src/views/FavouritesView.vue`, `src/views/BookmarksView.vue`
+Checklist:
+- [ ] review all files in `strategy/`
+- [ ] archive or delete plans that no longer reflect the app
+- [ ] use one primary strategy file for active work
 
 ---
 
-## Priority 3: Visual & Design Polish
+## Phase 4 - Architecture Cleanup
 
-### 3.1 Color System Consistency
+### 4.1 Router and code-splitting
 
-**Current state:** Mix of button styles, border-radius values, hover states. Some buttons are pink, some indigo, transitions vary.
+Checklist:
+- [ ] decide explicitly whether routes should be lazy-loaded
+- [ ] if yes, convert non-critical views to dynamic imports
+- [ ] if no, remove lazy-loading claims from docs/scripts
+- [ ] review route naming consistency and URL naming style
 
-**Improvements:**
-- [ ] Define design tokens in `tailwind.config.js`:
-  - Primary action: `indigo-600` (hover `indigo-500`)
-  - Accent/favorite: `pink-500` (hover `pink-400`)
-  - Danger: `red-500`
-  - Success: `green-500`
-  - Surface: `gray-800` (cards), `gray-900` (sidebar), `black` (auth pages)
-- [ ] Standardize **border-radius**: cards `rounded-xl`, buttons `rounded-lg`, pills `rounded-full`, inputs `rounded-lg`
-- [ ] Standardize **button sizes**: sm (`py-1.5 px-3`), md (`py-2 px-4`), lg (`py-2.5 px-5`)
-- [ ] Create **reusable button component** or Tailwind `@apply` classes
+### 4.2 Store responsibilities
 
-**Files:** `tailwind.config.js`, potentially create `src/components/ui/Button.vue`
+Checklist:
+- [ ] keep stores focused on state and transitions, not API orchestration where avoidable
+- [ ] centralize auth-loss cleanup so it happens in one path only
+- [ ] review whether `messageStore` should be event-like rather than long-lived state
 
----
+### 4.3 API client behavior
 
-### 3.2 Typography Hierarchy
-
-**Current state:** Font sizes vary without clear hierarchy. Headings range from `text-2xl` to `text-6xl` inconsistently.
-
-**Improvements:**
-- [ ] Define heading scale:
-  - Page title: `text-2xl sm:text-3xl font-bold`
-  - Section title: `text-xl font-semibold`
-  - Card title: `text-base font-semibold`
-  - Body: `text-sm leading-relaxed`
-  - Caption/meta: `text-xs text-gray-400`
-- [ ] Use consistent line height and letter spacing
+Checklist:
+- [ ] verify `401` handling does not create redirect loops
+- [ ] make sure auth failure clears stale UI caches
+- [ ] standardize service return shapes where possible
 
 ---
 
-### 3.3 Auth Pages (Login/Register/Reset)
+## Phase 5 - UX Improvements With High Value
 
-**Current state:** Harmonized dark theme with centered `rounded-2xl` card layout. Eyebrow text, dark inputs, red-500/40 error alerts. Still missing visual branding/illustration.
+### 5.1 Player polish
 
-**Improvements:**
-- [x] Harmonize to **dark theme** with `rounded-2xl border border-gray-800 bg-gray-900/50` card layout
-- [x] Standardize inputs to dark theme (`bg-gray-800` + `border-gray-700`)
-- [x] Standardize error alerts (`border-red-500/40 bg-red-500/10`)
-- [x] Add eyebrow text and consistent header structure across all auth pages
-- [ ] Add **split layout**: left side with branding/illustration, right side with form (desktop)
-- [ ] Add **podcast waveform animation** or subtle background pattern
-- [ ] Show **social proof**: "Join X listeners" or similar
-- [ ] Add **password strength indicator** on registration
-- [ ] Show/hide password toggle icon
-- [ ] Improve error messages: inline below each field, not just a top alert
+Checklist:
+- [ ] decide whether music should have history persistence or not
+- [ ] align implementation and README on that choice
+- [ ] add volume control on desktop
+- [ ] add direct contextual actions only if they do not overload the player UI
 
-**Files:** `src/views/LoginView.vue`, `src/views/SignUpView.vue`, `src/views/ForgotPasswordView.vue`, `src/views/ResetPasswordView.vue`
+### 5.2 Navigation and discovery
 
----
+Checklist:
+- [ ] improve search suggestions/autocomplete
+- [ ] improve category browsing on mobile
+- [ ] add clearer back-navigation and breadcrumbs on deep content pages
 
-### 3.4 Mobile Experience
+### 5.3 Favorites and playlists reliability
 
-**Current state:** Responsive but not mobile-optimized. Sidebar drawer works but requires reopening for each nav click. No bottom tab bar. Player takes space.
-
-**Improvements:**
-- [ ] Add **bottom tab navigation** on mobile (Home, Search, Favorites, Bookmarks, Profile)
-- [ ] Hide sidebar on mobile entirely, use bottom tabs instead
-- [ ] Player bar should be **above** the bottom tabs on mobile
-- [ ] Optimize touch targets: minimum 44x44px for all interactive elements
-- [ ] Add **pull-to-refresh** on podcast list
-- [ ] Add **swipe gestures**: swipe left on podcast card to favorite, swipe right to play
-
-**Files:** `src/views/NavigationView.vue`, `src/components/BottomNav.vue` (new)
+Checklist:
+- [ ] verify protected library pages recover correctly after refresh
+- [ ] verify optimistic updates rollback cleanly on API failure
+- [ ] ensure logout does not leave stale favorite/playlist UI behind
 
 ---
 
-### 3.5 Dark Mode Refinement
+## Phase 6 - Design System Consolidation
 
-**Current state:** Mix of dark (auth, settings, dashboard) and light (browse, search) pages. Inconsistent.
+Checklist:
+- [ ] define a small set of reusable surface/button/input tokens
+- [ ] standardize heading and body typography
+- [ ] remove inconsistent spacing/radius patterns
+- [ ] only after token cleanup, consider bigger visual redesigns
 
-**Improvements:**
-- [x] Go **full dark mode** consistently across all pages (matches podcast app conventions - Spotify, Apple Podcasts, Pocket Casts all dark)
-- [x] Use `gray-950` for main background, `gray-900` for cards/footer, `gray-800` for elevated elements (dropdowns, notifications)
-- [x] Ensure text contrast meets WCAG AA (min 4.5:1 ratio)
-- [x] Remove remaining white backgrounds from browse/search views
+---
+
+## Suggested Execution Order
+
+### Immediate
+- [x] remove `HelloWorld` test residue
+- [ ] stop persisting auth-derived access state
+- [ ] make auth bootstrap explicit and backend-validated
+- [ ] fix tests so the suite is green
+- [ ] update README to reflect reality
+
+### Next
+- [ ] clean persistence duplication
+- [ ] add store-level tests
+- [ ] review router loading strategy
+- [ ] verify protected pages after refresh/logout/session expiry
+
+### Later
+- [ ] player polish
+- [ ] search/navigation upgrades
+- [ ] design-system consolidation
+
+---
+
+## Non-Negotiable Rules
+
+- Sanctum is the authority for auth, not localStorage
+- no persisted state may grant access to protected views by itself
+- every persisted store must have a documented reason to exist
+- README must describe current behavior, not planned behavior
+- no template leftovers in tests or source tree
 - [x] Updated notification toasts to dark theme across all views
 - [x] Fixed Footer mixed Options/Composition API pattern
 - [x] Updated all 20 views to consistent dark theme

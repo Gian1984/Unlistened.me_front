@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { authService } from '@/services/authService'
+import { useMusicLibraryStore } from '@/stores/musicLibraryStore'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -6,38 +8,51 @@ export const useAuthStore = defineStore('auth', {
         isAdmin: false,
         user: null,
         loginMessage: '',
+        isInitialized: false,
+        isInitializing: false,
     }),
     actions: {
-        initializeAuth() {
-            const savedState = localStorage.getItem('auth')
-            if (savedState) {
-                try {
-                    const parsed = JSON.parse(savedState)
-                    this.isAuthenticated = !!parsed.isAuthenticated
-                    this.user = parsed.user || null
-                    this.isAdmin = parsed.user?.is_admin === 1
-                } catch (e) {
-                    localStorage.removeItem('auth')
+        async initializeAuth(force = false) {
+            if (this.isInitialized && !force) return this.isAuthenticated
+            if (this.isInitializing && !force) return this.isAuthenticated
+
+            this.isInitializing = true
+            try {
+                const response = await authService.currentUser()
+                this.setUser(response.data?.user ?? response.data)
+                return true
+            } catch (error) {
+                if (error.response?.status === 401 || error.response?.status === 419) {
+                    this.clearUser()
+                    return false
                 }
+
+                this.clearUser()
+                return false
+            } finally {
+                this.isInitializing = false
+                this.isInitialized = true
             }
         },
         setUser(userData) {
             this.isAuthenticated = true
             this.user = userData
             this.isAdmin = userData?.is_admin === 1
-            localStorage.setItem('auth', JSON.stringify({ isAuthenticated: true, user: userData }))
+            this.isInitialized = true
         },
         updateUser(updatedData) {
             if (this.user) {
                 this.user = { ...this.user, ...updatedData }
-                localStorage.setItem('auth', JSON.stringify({ isAuthenticated: this.isAuthenticated, user: this.user }))
             }
         },
         clearUser() {
             this.isAuthenticated = false
             this.isAdmin = false
             this.user = null
-            localStorage.removeItem('auth')
+            this.isInitialized = true
+
+            const musicLibraryStore = useMusicLibraryStore()
+            musicLibraryStore.reset()
         },
     },
 })

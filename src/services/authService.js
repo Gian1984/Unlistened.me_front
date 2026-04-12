@@ -1,6 +1,16 @@
 import { api, csrf } from './api'
 
 export const authService = {
+  async currentUser() {
+    try {
+      return await api.get('api/user', { skipAuthRedirect: true })
+    } catch (error) {
+      if (error.response?.status !== 404) throw error
+    }
+
+    return api.get('user', { skipAuthRedirect: true })
+  },
+
   async login(email, password) {
     await csrf()
     return api.post('api/login', { email, password })
