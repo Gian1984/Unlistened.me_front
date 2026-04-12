@@ -10,10 +10,11 @@ import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import Footer from '@/components/Footer.vue'
+import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicSeo } from '@/seo/registry/index.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
-import { useMusicGenres } from '@/composables/useMusicGenres.js'
+import { seedMusicGenresFromTracks, useMusicGenres } from '@/composables/useMusicGenres.js'
 
 useSeo(musicSeo)
 
@@ -47,6 +48,9 @@ async function fetchTrending(genre = '', reset = true) {
   try {
     const response = await musicService.getTrending(PAGE_SIZE, genre, offset.value)
     const newTracks = response.data?.results || []
+    if (reset) {
+      genres.value = [{ label: 'Trending', tag: '' }, ...seedMusicGenresFromTracks(newTracks)]
+    }
     if (reset) {
       tracks.value = newTracks
     } else {
@@ -113,14 +117,14 @@ function playHistoryEntry(entry) {
   playerStore.play(track)
 }
 
-onMounted(() => {
-  loadGenres()
+onMounted(async () => {
+  await loadGenres()
   const genre = route.query.genre
   if (genre && genres.value.some(g => g.tag === genre)) {
     activeGenre.value = genre
-    fetchTrending(genre, true)
+    await fetchTrending(genre, true)
   } else {
-    fetchTrending()
+    await fetchTrending()
   }
   // Hydrate library state so heart icons render the correct status
   // immediately (no fetch storm — store is idempotent + cached).

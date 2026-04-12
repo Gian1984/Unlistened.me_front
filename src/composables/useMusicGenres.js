@@ -1,6 +1,4 @@
 import { ref } from 'vue'
-import { musicService } from '@/services/musicService.js'
-
 const FALLBACK_GENRES = [
   { label: 'Electronic', tag: 'electronic' },
   { label: 'Ambient', tag: 'ambient' },
@@ -21,7 +19,44 @@ const FALLBACK_GENRES = [
 ]
 
 let cachedGenres = null
-let pendingRequest = null
+
+function titleizeGenre(tag) {
+  return String(tag)
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => {
+      if (part.toLowerCase() === 'rnb') return 'R&B'
+      if (part.toLowerCase() === 'lofi') return 'Lo-fi'
+      return part.charAt(0).toUpperCase() + part.slice(1)
+    })
+    .join(' ')
+}
+
+export function extractGenresFromTracks(tracks) {
+  const rows = Array.isArray(tracks) ? tracks : []
+  const seen = new Set()
+
+  const extracted = rows
+    .flatMap((track) => track?.musicinfo?.tags?.genres ?? [])
+    .map((genre) => String(genre || '').trim().toLowerCase())
+    .filter(Boolean)
+    .filter((genre) => {
+      if (seen.has(genre)) return false
+      seen.add(genre)
+      return true
+    })
+    .map((genre) => ({
+      tag: genre,
+      label: titleizeGenre(genre),
+    }))
+
+  return extracted.length ? extracted : FALLBACK_GENRES
+}
+
+export function seedMusicGenresFromTracks(tracks) {
+  cachedGenres = extractGenresFromTracks(tracks)
+  return cachedGenres
+}
 
 function normalizeMusicGenres(payload) {
   const rows = Array.isArray(payload)
@@ -51,23 +86,9 @@ function normalizeMusicGenres(payload) {
 
 async function fetchMusicGenres() {
   if (cachedGenres) return cachedGenres
-  if (pendingRequest) return pendingRequest
 
-  pendingRequest = musicService.getRadios()
-    .then((response) => {
-      const normalized = normalizeMusicGenres(response?.data)
-      cachedGenres = normalized.length ? normalized : FALLBACK_GENRES
-      return cachedGenres
-    })
-    .catch(() => {
-      cachedGenres = FALLBACK_GENRES
-      return cachedGenres
-    })
-    .finally(() => {
-      pendingRequest = null
-    })
-
-  return pendingRequest
+  cachedGenres = normalizeMusicGenres([])
+  return cachedGenres
 }
 
 export function useMusicGenres(options = {}) {
