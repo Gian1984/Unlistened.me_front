@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   Dialog,
   DialogPanel,
@@ -43,6 +43,7 @@ import { useMusicGenres } from '@/composables/useMusicGenres.js'
 const { isDesktopCollapsed, toggleDesktopCollapse } = useSidebarState()
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // Auth computed properties
@@ -90,7 +91,7 @@ const sidebarOpen = ref(false)
 
 // Reactive data
 const searchQuery = ref('')
-const searchType = ref('podcasts')
+const searchType = ref(route.path.startsWith('/music') ? 'music' : 'podcasts')
 const categories = ref([])
 const categoryFilter = ref('')
 const preferredLanguage = ref('')
@@ -182,6 +183,14 @@ onMounted(() => {
   detectBrowserLanguage()
   loadGenres()
 })
+
+watch(
+  () => route.path,
+  (path) => {
+    searchType.value = path.startsWith('/music') ? 'music' : 'podcasts'
+    categoryFilter.value = ''
+  }
+)
 </script>
 <template>
   <div>

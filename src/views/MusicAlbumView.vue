@@ -89,6 +89,20 @@ function dedupeTracks(rows) {
   })
 }
 
+function decorateAlbumTracks(rows, albumData) {
+  const albumImage = albumData?.image || albumData?.album_image || ''
+  const albumName = albumData?.name || ''
+  const albumTrackId = albumData?.id || ''
+
+  return rows.map((track) => ({
+    ...track,
+    album_id: track?.album_id || albumTrackId,
+    album_name: track?.album_name || albumName,
+    album_image: track?.album_image || track?.image || albumImage,
+    image: track?.image || track?.album_image || albumImage,
+  }))
+}
+
 async function fetchAlbumTracksFallback(albumData) {
   const albumName = String(albumData?.name || '').trim()
   if (!albumName) return []
@@ -119,10 +133,10 @@ async function fetchAlbum() {
     const { data } = await musicService.getAlbum(albumId.value)
     const normalized = normalizeAlbumResponse(data)
     album.value = normalized.album
-    tracks.value = dedupeTracks(normalized.tracks)
+    tracks.value = decorateAlbumTracks(dedupeTracks(normalized.tracks), album.value)
 
     if (album.value && tracks.value.length === 0) {
-      tracks.value = await fetchAlbumTracksFallback(album.value)
+      tracks.value = decorateAlbumTracks(await fetchAlbumTracksFallback(album.value), album.value)
     }
 
     if (!album.value) {

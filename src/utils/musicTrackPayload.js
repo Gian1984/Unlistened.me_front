@@ -20,7 +20,7 @@ export function jamendoToPlayerPayload(track) {
     id: track.id,
     title: track.name,
     enclosureUrl: track.audio,
-    image: track.album_image,
+    image: track.album_image || track.image,
     feedTitle: track.artist_name,
     artistId: track.artist_id,
     albumId: track.album_id,
