@@ -109,6 +109,11 @@ const router = createRouter({
       component: () => import('@/views/MusicAlbumsView.vue'),
     },
     {
+      path: '/music/singles',
+      name: 'MusicSingles',
+      component: () => import('@/views/MusicSinglesView.vue'),
+    },
+    {
       path: '/music/album/:id',
       name: 'MusicAlbum',
       component: () => import('@/views/MusicAlbumView.vue'),

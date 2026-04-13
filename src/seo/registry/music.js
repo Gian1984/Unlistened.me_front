@@ -37,3 +37,10 @@ export const musicAlbumsSeo = {
   canonical: 'https://www.unlistened.me/music/albums',
   ogType: 'website',
 }
+
+export const musicSinglesSeo = {
+  title: 'Trending songs | Unlistened.me',
+  description: 'Browse trending Creative Commons songs on Unlistened.me. Filter by genre, load more tracks, and discover independent music.',
+  canonical: 'https://www.unlistened.me/music/singles',
+  ogType: 'website',
+}

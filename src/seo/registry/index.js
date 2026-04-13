@@ -6,7 +6,7 @@ export { searchSeo } from './search.js'
 export { termsSeo } from './terms.js'
 export { privacySeo } from './privacy.js'
 export { documentationSeo } from './documentation.js'
-export { musicSeo, musicFavoritesSeo, musicPlaylistsSeo, musicAlbumsSeo } from './music.js'
+export { musicSeo, musicFavoritesSeo, musicPlaylistsSeo, musicAlbumsSeo, musicSinglesSeo } from './music.js'
 export {
   loginSeo,
   signupSeo,

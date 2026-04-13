@@ -1,52 +1,43 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { ArrowRightIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
+import Footer from '@/components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
 import { useHistoryStore } from '@/stores/historyStore.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
-import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
-import SkeletonRow from '@/components/SkeletonRow.vue'
-import Footer from '@/components/Footer.vue'
-import PageHero from '@/components/PageHero.vue'
-import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicSeo } from '@/seo/registry/index.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
-import { seedMusicGenresFromTracks, useMusicGenres } from '@/composables/useMusicGenres.js'
 
 useSeo(musicSeo)
 
-const route = useRoute()
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
 const authStore = useAuthStore()
 const library = useMusicLibraryStore()
 
-const tracks = ref([])
-const loading = ref(true)
-const loadingMore = ref(false)
-const activeGenre = ref('')
-const offset = ref(0)
-const hasMore = ref(true)
-const TRENDING_PAGE_SIZE = 30
-const GENRE_PAGE_SIZE = 20
-const { genres, loadGenres } = useMusicGenres({ includeTrending: true })
+const albums = ref([])
+const songs = ref([])
+const loadingAlbums = ref(true)
+const loadingSongs = ref(true)
+
+const ALBUMS_PREVIEW_COUNT = 6
+const SONGS_POOL_SIZE = 30
+const SONGS_PREVIEW_COUNT = 20
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
 
 function getDailySeed() {
   const now = new Date()
   return Number(`${now.getUTCFullYear()}${now.getUTCMonth() + 1}${now.getUTCDate()}`)
-}
-
-function stringToSeed(value) {
-  return String(value)
-    .split('')
-    .reduce((acc, char) => ((acc * 31) + char.charCodeAt(0)) >>> 0, 0)
 }
 
 function seededShuffle(items, seed) {
@@ -66,76 +57,39 @@ function seededShuffle(items, seed) {
   return result
 }
 
-function shuffleTrendingBatch(tracks, genre, batchOffset) {
-  const seed = getDailySeed() ^ stringToSeed(`${genre}:${batchOffset}`)
-  return seededShuffle(tracks, seed)
-}
-
-async function fetchMusicBatch(genre, batchOffset) {
-  if (genre) {
-    return musicService.search('', genre, batchOffset)
-  }
-
-  return musicService.getTrending(TRENDING_PAGE_SIZE, '', batchOffset)
-}
-
-async function fetchTrending(genre = '', reset = true) {
-  if (reset) {
-    loading.value = true
-    offset.value = 0
-    hasMore.value = true
-    tracks.value = []
-  } else {
-    loadingMore.value = true
-  }
+async function fetchAlbums() {
   try {
-    const response = await fetchMusicBatch(genre, offset.value)
-    const rawTracks = response.data?.results || []
-    const pageSize = genre ? GENRE_PAGE_SIZE : TRENDING_PAGE_SIZE
-    const newTracks = genre
-      ? rawTracks
-      : shuffleTrendingBatch(rawTracks, genre, offset.value)
-    if (reset) {
-      if (!genre) {
-        genres.value = [{ label: 'Trending', tag: '' }, ...seedMusicGenresFromTracks(newTracks)]
-      }
-    }
-    if (reset) {
-      tracks.value = newTracks
-    } else {
-      tracks.value = [...tracks.value, ...newTracks]
-    }
-    hasMore.value = newTracks.length === pageSize
-    offset.value += newTracks.length
+    const response = await musicService.getAlbums({ limit: ALBUMS_PREVIEW_COUNT })
+    albums.value = response.data?.results || []
   } catch (err) {
-    console.error('Error fetching music:', err)
-    tracks.value = []
+    console.error('Error fetching albums:', err)
+    albums.value = []
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    loadingAlbums.value = false
   }
 }
 
-function selectGenre(tag) {
-  if (activeGenre.value === tag) return
-  activeGenre.value = tag
-  fetchTrending(tag, true)
-}
-
-function loadMore() {
-  if (loadingMore.value || !hasMore.value) return
-  fetchTrending(activeGenre.value, false)
+async function fetchSongs() {
+  try {
+    const response = await musicService.getTrending(SONGS_POOL_SIZE)
+    const tracks = response.data?.results || []
+    songs.value = seededShuffle(tracks, getDailySeed()).slice(0, SONGS_PREVIEW_COUNT)
+  } catch (err) {
+    console.error('Error fetching songs:', err)
+    songs.value = []
+  } finally {
+    loadingSongs.value = false
+  }
 }
 
 function playTrack(track) {
-  // Track is already loaded in the player → toggle pause/resume so the
-  // pause icon in the row actually pauses instead of restarting from 0.
   if (playerStore.isCurrent(track.id)) {
     playerStore.togglePlay()
     return
   }
-  const allTracks = tracks.value.map(jamendoToPlayerPayload)
-  const index = allTracks.findIndex(t => String(t.id) === String(track.id))
+
+  const allTracks = songs.value.map(jamendoToPlayerPayload)
+  const index = allTracks.findIndex((t) => String(t.id) === String(track.id))
   if (index === -1) {
     playerStore.play(jamendoToPlayerPayload(track))
     return
@@ -147,7 +101,6 @@ function playTrack(track) {
 function isCurrentTrack(track) {
   return playerStore.isPlayingTrack(track.id)
 }
-
 
 function playHistoryEntry(entry) {
   const track = {
@@ -166,17 +119,9 @@ function playHistoryEntry(entry) {
   playerStore.play(track)
 }
 
-onMounted(async () => {
-  await loadGenres()
-  const genre = route.query.genre
-  if (genre && genres.value.some(g => g.tag === genre)) {
-    activeGenre.value = genre
-    await fetchTrending(genre, true)
-  } else {
-    await fetchTrending()
-  }
-  // Hydrate library state so heart icons render the correct status
-  // immediately (no fetch storm — store is idempotent + cached).
+onMounted(() => {
+  fetchAlbums()
+  fetchSongs()
   if (authStore.isAuthenticated) {
     library.loadFavorites()
     library.loadPlaylists()
@@ -187,19 +132,17 @@ onMounted(async () => {
 <template>
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
-      <!-- Header -->
       <PageHero
         eyebrow="Listen freely"
         title="Free music to keep you company"
-        description="Independent artists, Creative Commons licensed, no tracking. Pick a genre, hit play, and fall in love with someone you have never heard before."
+        description="Independent artists, Creative Commons licensed, no tracking. Pick an album or jump into trending songs."
         :breadcrumbs="[
           { label: 'Home', to: '/' },
           { label: 'Music' },
         ]"
       />
 
-      <!-- Continue Listening (music) -->
-      <div v-if="continueListeningMusic.length" class="mb-8">
+      <div v-if="continueListeningMusic.length" class="mb-10">
         <h2 class="mb-4 text-lg font-semibold text-gray-300">Continue listening</h2>
         <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           <div
@@ -219,9 +162,6 @@ onMounted(async () => {
               <div v-else class="w-full h-full flex items-center justify-center">
                 <MusicalNoteIcon class="h-8 w-8 text-gray-600" />
               </div>
-              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <PlayIcon class="h-8 w-8 text-white" />
-              </div>
             </div>
             <p class="mt-2 truncate text-sm font-medium text-white">{{ entry.title }}</p>
             <p class="truncate text-xs text-gray-400">{{ entry.feedTitle }}</p>
@@ -229,50 +169,102 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Genre pills -->
-      <div class="mb-8 flex flex-wrap gap-2">
-        <button
-          v-for="g in genres"
-          :key="g.label"
-          type="button"
-          @click="selectGenre(g.tag)"
-          :class="[
-            'px-3 py-1.5 rounded-full text-xs font-medium transition-colors border',
-            activeGenre === g.tag
-              ? 'bg-indigo-600 text-white border-indigo-500'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border-gray-700'
-          ]"
-        >
-          {{ g.label }}
-        </button>
-      </div>
-
-      <!-- Tracks list -->
-      <div class="mb-6">
+      <section class="mb-12">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-300">
-            {{ activeGenre ? genres.find(g => g.tag === activeGenre)?.label : 'Trending now' }}
-          </h2>
+          <h2 class="text-lg font-semibold text-gray-300">Trending albums</h2>
+          <router-link
+            :to="{ name: 'MusicAlbums' }"
+            class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            See all
+            <ArrowRightIcon class="h-4 w-4" />
+          </router-link>
         </div>
 
-        <!-- Loading skeleton -->
-        <div v-if="loading" class="space-y-2">
-          <SkeletonRow v-for="n in 8" :key="n" />
+        <div v-if="loadingAlbums" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <SkeletonCard v-for="n in 6" :key="n" />
         </div>
 
-        <!-- Empty state -->
         <div
-          v-else-if="!tracks.length"
+          v-else-if="!albums.length"
           class="rounded-2xl border border-dashed border-gray-800 bg-gray-900/40 p-10 text-center"
         >
           <MusicalNoteIcon class="mx-auto h-10 w-10 text-gray-600" />
-          <p class="mt-3 text-sm text-gray-400">No tracks for this genre right now. Try another one.</p>
+          <p class="mt-3 text-sm text-gray-400">No albums available right now.</p>
         </div>
 
-        <!-- Track rows -->
+        <ul v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <li
+            v-for="album in albums"
+            :key="album.id"
+            class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+          >
+            <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+              <div class="flex items-center gap-3 p-4">
+                <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                  <img
+                    v-if="album.image"
+                    :src="album.image"
+                    :alt="album.name"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                    {{ album.name }}
+                  </h3>
+                  <p class="text-xs text-gray-400 truncate mt-0.5">{{ album.artist_name }}</p>
+                  <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                    Released {{ album.releasedate || 'recently' }}<span v-if="album.zip_allowed"> • Download available</span>
+                  </p>
+                </div>
+              </div>
+            </router-link>
+            <div class="flex items-center gap-2 px-4 pb-3">
+              <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
+              <router-link
+                :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+                class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+              >
+                <span>Album</span>
+                <ArrowRightIcon class="h-3.5 w-3.5" />
+              </router-link>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-300">Trending songs</h2>
+          <router-link
+            :to="{ name: 'MusicSingles' }"
+            class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            See all
+            <ArrowRightIcon class="h-4 w-4" />
+          </router-link>
+        </div>
+
+        <div v-if="loadingSongs" class="space-y-2">
+          <SkeletonRow v-for="n in 8" :key="n" />
+        </div>
+
+        <div
+          v-else-if="!songs.length"
+          class="rounded-2xl border border-dashed border-gray-800 bg-gray-900/40 p-10 text-center"
+        >
+          <MusicalNoteIcon class="mx-auto h-10 w-10 text-gray-600" />
+          <p class="mt-3 text-sm text-gray-400">No songs available right now.</p>
+        </div>
+
         <ul v-else class="space-y-2">
           <MusicTrackRow
-            v-for="(track, idx) in tracks"
+            v-for="(track, idx) in songs"
             :key="track.id"
             :track="track"
             :index="idx"
@@ -280,26 +272,7 @@ onMounted(async () => {
             @play="playTrack"
           />
         </ul>
-
-        <!-- Show more button -->
-        <div v-if="hasMore && tracks.length > 0" class="mt-6 flex justify-center">
-          <button
-            @click="loadMore"
-            :disabled="loadingMore"
-            class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span v-if="loadingMore" class="animate-spin h-4 w-4 border-2 border-gray-300 border-t-indigo-400 rounded-full"></span>
-            {{ loadingMore ? 'Loading...' : 'Show more' }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Jamendo platform attribution -->
-      <p class="mt-10 text-center text-xs text-gray-600">
-        Music provided by
-        <a href="https://www.jamendo.com" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-indigo-400 transition-colors">Jamendo</a>
-        under Creative Commons licenses.
-      </p>
+      </section>
     </div>
   </div>
   <Footer />
