@@ -1,17 +1,17 @@
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
+import { staticPageSeo } from './staticPages.shared.js'
+
+const musicBase = staticPageSeo.music
 
 export const musicSeo = {
-  title: 'Free Creative Commons music on Unlistened.me',
-  description: 'Stream free Creative Commons music from independent artists on Unlistened.me. Explore genres, save tracks, and build playlists without tracking.',
-  canonical: 'https://www.unlistened.me/music',
-  ogType: 'website',
-  ogImage: 'https://www.unlistened.me/images/og/music.png',
-  ogImageAlt: 'Free music on Unlistened.me',
+  title: musicBase.title,
+  description: musicBase.description,
+  canonical: `https://www.unlistened.me${musicBase.path}`,
+  ogType: musicBase.ogType,
+  ogImage: musicBase.ogImage,
+  ogImageAlt: musicBase.ogImageAlt,
   jsonLd: [
-    buildBreadcrumbSchema([
-      { name: 'Home', url: 'https://www.unlistened.me/' },
-      { name: 'Music', url: 'https://www.unlistened.me/music' },
-    ]),
+    buildBreadcrumbSchema(musicBase.breadcrumbs),
   ],
 }
 

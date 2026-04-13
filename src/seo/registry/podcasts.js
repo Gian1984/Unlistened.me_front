@@ -1,16 +1,16 @@
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
+import { staticPageSeo } from './staticPages.shared.js'
+
+const base = staticPageSeo.podcasts
 
 export const podcastsSeo = {
-  title: 'Trending podcasts on Unlistened.me',
-  description: 'Browse and stream trending podcasts for free on Unlistened.me. Explore categories, discover new voices, and listen without tracking.',
-  canonical: 'https://www.unlistened.me/podcasts',
-  ogType: 'website',
-  ogImage: 'https://www.unlistened.me/images/og/podcasts.png',
-  ogImageAlt: 'Trending podcasts on Unlistened.me',
+  title: base.title,
+  description: base.description,
+  canonical: `https://www.unlistened.me${base.path}`,
+  ogType: base.ogType,
+  ogImage: base.ogImage,
+  ogImageAlt: base.ogImageAlt,
   jsonLd: [
-    buildBreadcrumbSchema([
-      { name: 'Home', url: 'https://www.unlistened.me/' },
-      { name: 'Podcasts', url: 'https://www.unlistened.me/podcasts' },
-    ]),
+    buildBreadcrumbSchema(base.breadcrumbs),
   ],
 }

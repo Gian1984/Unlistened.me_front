@@ -1,20 +1,27 @@
+import { staticPageSeo } from './staticPages.shared.js'
+
 // Tutte le pagine auth sono noindex: non utili su Google,
 // evitano crawl budget sprecato e indicizzazione di pagine senza contenuto.
 
+const loginBase = staticPageSeo.login
+const signupBase = staticPageSeo.signup
+
 export const loginSeo = {
-  title: 'Sign In | Unlistened.me',
-  description: 'Sign in to Unlistened.me to access your saved podcasts and bookmarks.',
-  canonical: 'https://www.unlistened.me/login',
-  robots: 'noindex,nofollow',
-  ogImage: 'https://www.unlistened.me/images/og/login.png',
+  title: loginBase.title,
+  description: loginBase.description,
+  canonical: `https://www.unlistened.me${loginBase.path}`,
+  robots: loginBase.robots,
+  ogImage: loginBase.ogImage,
+  ogImageAlt: loginBase.ogImageAlt,
 }
 
 export const signupSeo = {
-  title: 'Create Account | Unlistened.me',
-  description: 'Create a free Unlistened.me account to save your favourite podcasts and pick up where you left off.',
-  canonical: 'https://www.unlistened.me/signup',
-  robots: 'noindex,nofollow',
-  ogImage: 'https://www.unlistened.me/images/og/signup.png',
+  title: signupBase.title,
+  description: signupBase.description,
+  canonical: `https://www.unlistened.me${signupBase.path}`,
+  robots: signupBase.robots,
+  ogImage: signupBase.ogImage,
+  ogImageAlt: signupBase.ogImageAlt,
 }
 
 export const forgotSeo = {

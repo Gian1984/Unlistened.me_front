@@ -1,9 +1,13 @@
+import { staticPageSeo } from './staticPages.shared.js'
+
+const base = staticPageSeo.search
+
 export const searchSeo = {
-  title: 'Search results on Unlistened.me',
-  description: 'Search results on Unlistened.me for podcasts and music.',
-  canonical: 'https://www.unlistened.me/search-results',
-  ogType: 'website',
-  ogImage: 'https://www.unlistened.me/images/og/search.png',
-  ogImageAlt: 'Search results on Unlistened.me',
-  robots: 'noindex,nofollow',
+  title: base.title,
+  description: base.description,
+  canonical: `https://www.unlistened.me${base.path}`,
+  ogType: base.ogType,
+  ogImage: base.ogImage,
+  ogImageAlt: base.ogImageAlt,
+  robots: base.robots,
 }

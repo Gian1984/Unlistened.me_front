@@ -15,65 +15,6 @@ define('SITE_NAME', 'Unlistened.me');
 define('DEFAULT_IMAGE', SITE_URL . '/images/og/home.png');
 define('FALLBACK_IMAGE', SITE_URL . '/images/ogimage-min.png');
 
-// ── Static page meta registry ───────────────────────────────────────────
-$staticMeta = [
-    '/' => [
-        'title'       => 'Free Podcasts & Music — No Tracking | Unlistened.me',
-        'description' => 'Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required.',
-        'image'       => SITE_URL . '/images/og/home.png',
-    ],
-    '/podcasts' => [
-        'title'       => 'Trending Podcasts — Free Streaming | Unlistened.me',
-        'description' => 'Browse and stream thousands of trending podcasts for free. No cookies, no tracking, no accounts required.',
-        'image'       => SITE_URL . '/images/og/podcasts.png',
-    ],
-    '/music' => [
-        'title'       => 'Free Creative Commons Music — No Tracking | Unlistened.me',
-        'description' => 'Stream thousands of Creative Commons licensed tracks from independent artists. Free, no ads, no tracking.',
-        'image'       => SITE_URL . '/images/og/music.png',
-    ],
-    '/categories' => [
-        'title'       => 'Browse Podcast Categories | Unlistened.me',
-        'description' => 'Explore podcasts by category on Unlistened.me. From technology and science to arts, comedy, true crime, and personal development.',
-        'image'       => SITE_URL . '/images/og/categories.png',
-    ],
-    '/about' => [
-        'title'       => 'About Unlistened.me — Privacy-first Podcast Player',
-        'description' => 'Learn about Unlistened.me, the podcast player built with privacy at its core. No ads, no tracking. Made for listeners, not algorithms.',
-        'image'       => SITE_URL . '/images/og/about.png',
-    ],
-    '/documentation' => [
-        'title'       => 'User guide | Unlistened.me',
-        'description' => 'Learn how to use Unlistened.me — creating an account, discovering podcasts, listening, saving favourites, bookmarking episodes, and more.',
-        'image'       => SITE_URL . '/images/og/documentation.png',
-    ],
-    '/terms' => [
-        'title'       => 'Terms and Conditions | Unlistened.me',
-        'description' => 'Read the Unlistened.me terms and conditions.',
-        'image'       => SITE_URL . '/images/og/terms.png',
-    ],
-    '/privacy' => [
-        'title'       => 'Privacy policy | Unlistened.me',
-        'description' => 'How Unlistened.me collects, uses and protects your data. A non-commercial project that respects your privacy.',
-        'image'       => SITE_URL . '/images/og/privacy.png',
-    ],
-    '/login' => [
-        'title'       => 'Sign In | Unlistened.me',
-        'description' => 'Sign in to Unlistened.me to access your saved podcasts and bookmarks.',
-        'image'       => SITE_URL . '/images/og/login.png',
-    ],
-    '/signup' => [
-        'title'       => 'Create Account | Unlistened.me',
-        'description' => 'Create a free Unlistened.me account to save your favourite podcasts and pick up where you left off.',
-        'image'       => SITE_URL . '/images/og/signup.png',
-    ],
-    '/search-results' => [
-        'title'       => 'Search Results | Unlistened.me',
-        'description' => 'Find your next favourite podcast on Unlistened.me.',
-        'image'       => SITE_URL . '/images/og/search.png',
-    ],
-];
-
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 function fetchJson(string $url): ?array
@@ -102,6 +43,15 @@ function truncate(string $str, int $max = 155): string
 function e(string $str): string
 {
     return htmlspecialchars($str, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+function loadStaticSeo(): array
+{
+    $file = __DIR__ . '/seo-static.json';
+    if (!is_file($file)) return [];
+
+    $data = json_decode((string) file_get_contents($file), true);
+    return is_array($data) ? $data : [];
 }
 
 function renderTagList(array $items): string
@@ -138,7 +88,9 @@ function renderHtml(
     string $type = 'website',
     string $robots = 'index,follow',
     int $status = 200,
-    string $bodyHtml = ''
+    string $bodyHtml = '',
+    array $jsonLd = [],
+    ?string $imageAlt = null
 ): void
 {
     $t = e($title);
@@ -147,6 +99,13 @@ function renderHtml(
     $u = e($url);
     $s = e(SITE_NAME);
     $r = e($robots);
+    $imageAltTag = $imageAlt ? e($imageAlt) : 'Unlistened.me preview image';
+    $jsonLdHtml = '';
+    foreach ($jsonLd as $schema) {
+        if (!is_array($schema)) continue;
+        $json = json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $jsonLdHtml .= "\n    <script type=\"application/ld+json\">" . str_replace('</script', '<\/script', (string) $json) . "</script>";
+    }
 
     http_response_code($status);
     header('Content-Type: text/html; charset=UTF-8');
@@ -168,6 +127,7 @@ function renderHtml(
     <meta property="og:title" content="{$t}">
     <meta property="og:description" content="{$d}">
     <meta property="og:image" content="{$i}">
+    <meta property="og:image:alt" content="{$imageAltTag}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="{$u}">
@@ -178,6 +138,7 @@ function renderHtml(
     <meta name="twitter:title" content="{$t}">
     <meta name="twitter:description" content="{$d}">
     <meta name="twitter:image" content="{$i}">
+    <meta name="twitter:image:alt" content="{$imageAltTag}">{$jsonLdHtml}
     <style>
         body { font-family: system-ui, sans-serif; margin: 0; padding: 32px 20px; color: #111827; line-height: 1.5; background: #fff; }
         main { max-width: 760px; margin: 0 auto; }
@@ -208,14 +169,23 @@ HTML;
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $path = rtrim($path, '/') ?: '/';
 $canonicalUrl = SITE_URL . $path;
+$staticMeta = loadStaticSeo();
 
 // 1. Static routes
 if (isset($staticMeta[$path])) {
     $meta = $staticMeta[$path];
-    $robots = in_array($path, ['/login', '/signup', '/search-results'], true)
-        ? 'noindex,nofollow'
-        : 'index,follow';
-    renderHtml($meta['title'], $meta['description'], $meta['image'], $canonicalUrl, 'website', $robots);
+    renderHtml(
+        $meta['title'] ?? ('Page | ' . SITE_NAME),
+        $meta['description'] ?? '',
+        $meta['image'] ?? FALLBACK_IMAGE,
+        $canonicalUrl,
+        $meta['type'] ?? 'website',
+        $meta['robots'] ?? 'index,follow',
+        200,
+        '',
+        $meta['jsonLd'] ?? [],
+        $meta['imageAlt'] ?? null
+    );
     exit;
 }
 

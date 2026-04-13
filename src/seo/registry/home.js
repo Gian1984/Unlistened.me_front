@@ -2,43 +2,22 @@ import { websiteSchema } from '@/seo/schemas/website.js'
 import { organizationSchema } from '@/seo/schemas/organization.js'
 import { buildFaqSchema } from '@/seo/schemas/faq.js'
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
+import { staticPageSeo } from './staticPages.shared.js'
 
-const faq = buildFaqSchema([
-  {
-    question: 'Is Unlistened.me free?',
-    answer: 'Yes, Unlistened.me is completely free. No subscription, no ads, no hidden costs.',
-  },
-  {
-    question: 'Do you track my listening activity?',
-    answer: 'No. Unlistened.me does not use cookies to track your listening habits or personal behavior.',
-  },
-  {
-    question: 'Do I need an account to listen to podcasts?',
-    answer: 'No account is required to browse and listen. You can create a free account to save favourites and bookmarks across sessions.',
-  },
-  {
-    question: 'How many podcasts are available on Unlistened.me?',
-    answer: 'Unlistened.me indexes thousands of podcasts across dozens of categories, from technology and science to arts, culture, and personal development.',
-  },
-  {
-    question: 'Can I listen to podcasts on mobile?',
-    answer: 'Yes. Unlistened.me is fully responsive and works on any modern smartphone or tablet browser.',
-  },
-])
+const base = staticPageSeo.home
+const faq = buildFaqSchema(base.faqItems)
 
 export const homeSeo = {
-  title: 'Free podcasts and music, no tracking, Unlistened.me',
-  description: 'Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no account required for listening.',
-  canonical: 'https://www.unlistened.me/',
-  ogType: 'website',
-  ogImage: 'https://www.unlistened.me/images/og/home.png',
-  ogImageAlt: 'Unlistened.me home page',
+  title: base.title,
+  description: base.description,
+  canonical: `https://www.unlistened.me${base.path}`,
+  ogType: base.ogType,
+  ogImage: base.ogImage,
+  ogImageAlt: base.ogImageAlt,
   jsonLd: [
     websiteSchema,
     organizationSchema,
     faq,
-    buildBreadcrumbSchema([
-      { name: 'Home', url: 'https://www.unlistened.me/' },
-    ]),
+    buildBreadcrumbSchema(base.breadcrumbs),
   ],
 }
