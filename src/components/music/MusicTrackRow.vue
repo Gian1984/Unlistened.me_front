@@ -14,6 +14,8 @@ const props = defineProps({
   showIndex: { type: Boolean, default: true },
   showDuration: { type: Boolean, default: true },
   showActions: { type: Boolean, default: true },
+  showCover: { type: Boolean, default: true },
+  showAlbumLink: { type: Boolean, default: true },
   compact: { type: Boolean, default: false }
 })
 
@@ -44,6 +46,7 @@ function handlePlay() {
       :class="compact ? 'w-10 h-10 sm:w-10 sm:h-10' : 'w-10 h-10 sm:w-12 sm:h-12'"
       @click="handlePlay"
     >
+      <template v-if="showCover">
       <img
         v-if="track.album_image"
         :src="track.album_image"
@@ -54,7 +57,13 @@ function handlePlay() {
       <div v-else class="w-full h-full flex items-center justify-center">
         <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
       </div>
+      </template>
+      <div v-else class="w-full h-full flex items-center justify-center">
+        <PauseIcon v-if="isCurrent" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+        <PlayIcon v-else class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+      </div>
       <div
+        v-if="showCover"
         class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity flex items-center justify-center"
       >
         <PauseIcon v-if="isCurrent" class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -76,7 +85,7 @@ function handlePlay() {
         <LicenseBadge :url="track.license_ccurl" size="xs" />
       </div>
       <router-link
-        v-if="track.album_id && track.album_name"
+        v-if="showAlbumLink && track.album_id && track.album_name"
         :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
         class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
         @click.stop

@@ -8,6 +8,7 @@ import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Footer from '@/components/Footer.vue'
@@ -26,6 +27,12 @@ const album = ref(null)
 const tracks = ref([])
 
 const albumId = computed(() => route.params.id)
+const primaryLicenseUrl = computed(() => {
+  return tracks.value.find((track) => track?.license_ccurl)?.license_ccurl || ''
+})
+const albumDownloadUrl = computed(() => {
+  return album.value?.zip || ''
+})
 
 const seoConfig = computed(() => {
   const albumValue = album.value
@@ -208,6 +215,8 @@ watch(albumId, fetchAlbum)
               <span>{{ trackCountLabel }}</span>
               <span v-if="album.releasedate" class="text-gray-700">&middot;</span>
               <span v-if="album.releasedate">{{ album.releasedate }}</span>
+              <span v-if="primaryLicenseUrl" class="text-gray-700">&middot;</span>
+              <LicenseBadge v-if="primaryLicenseUrl" :url="primaryLicenseUrl" size="sm" />
             </div>
             <p v-if="album.zip || album.shareurl" class="mt-2 text-xs text-gray-500">
               Creative Commons music via Jamendo.
@@ -223,6 +232,15 @@ watch(albumId, fetchAlbum)
                 <PlayIcon class="h-4 w-4" />
                 Play album
               </button>
+              <a
+                v-if="albumDownloadUrl"
+                :href="albumDownloadUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-900 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:text-indigo-300"
+              >
+                Download album
+              </a>
               <a
                 v-if="album.shareurl"
                 :href="album.shareurl"
@@ -243,6 +261,8 @@ watch(albumId, fetchAlbum)
             :track="track"
             :index="idx"
             :is-playing="isCurrentTrack(track)"
+            :show-cover="false"
+            :show-album-link="false"
             @play="playTrack(track, idx)"
           />
         </div>
