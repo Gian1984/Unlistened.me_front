@@ -32,8 +32,9 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │       └── deploy.yml              # CI/CD: build → FTPS deploy on push to main
 ├── public/
 │   ├── .htaccess                   # Search/social bot proxy → crawler.php, then SPA fallback
-│   ├── crawler.php                 # Bot-only HTML responder with canonical, robots, route-aware 404, feed/episode metadata
+│   ├── crawler.php                 # Bot-only HTML responder that reads generated static SEO JSON, plus dynamic feed/episode metadata
 │   ├── robots.txt                  # Crawl rules for private/internal routes + sitemap declaration
+│   ├── seo-static.json             # Generated static SEO payload consumed by crawler.php
 │   └── images/                     # Static assets (logo)
 ├── src/
 │   ├── App.vue                     # Root: <NavigationView> + <OffcanvasPlayer> + <CookieConsent>
@@ -73,7 +74,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   ├── seo/
 │   │   ├── composables/useSeo.js   # SEO composable (sets document.title + meta)
 │   │   ├── schemas/                # JSON-LD structured data builders
-│   │   └── registry/               # Per-route SEO metadata (home, podcasts, music, auth, etc.)
+│   │   └── registry/               # Per-route SEO metadata plus shared static page SEO source
 │   │
 │   ├── components/
 │   │   ├── OffcanvasPlayer.vue     # Unified sticky bottom player (podcasts + music)
@@ -120,6 +121,9 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │
 │   └── assets/
 │       └── base.css                # Global CSS (dark theme base, shimmer animation, Tailwind imports)
+├── scripts/
+│   ├── generate-static-seo.js      # Builds public/seo-static.json from shared frontend SEO definitions
+│   └── generate-og-images.js       # Generates OG assets used by static pages
 │
 ├── strategy/
 │   ├── improvement-strategy.md     # Phased improvement plan (phases 1–7, with status)
@@ -226,7 +230,9 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 The app uses a mixed SEO strategy designed for a client rendered SPA:
 
 - `useSeo()` manages reactive title, description, canonical, robots, Open Graph, Twitter Card, and JSON-LD tags on the client
-- `public/crawler.php` serves stable HTML metadata to social bots and search engine bots for static routes and dynamic `/feed/:id` and `/episode/:id` pages
+- `src/seo/registry/staticPages.shared.js` is the single source of truth for static page titles, descriptions, images, breadcrumbs, and FAQ content
+- `scripts/generate-static-seo.js` turns that shared SEO source into `public/seo-static.json`
+- `public/crawler.php` reads `seo-static.json` for static routes and serves stable HTML metadata to social bots and search engine bots, while keeping separate dynamic handling for `/feed/:id` and `/episode/:id`
 - the crawler returns real `404` responses with `noindex,nofollow` for invalid feed, episode, and unknown routes instead of falling back to a generic `200` page
 - `public/robots.txt` disallows crawl on auth pages, private library pages, admin routes, and internal search results
 - `/search-results` is intentionally `noindex,nofollow`
@@ -328,7 +334,7 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 1. Checkout code
 2. Set up Node 20
 3. `npm ci`
-4. `npm run build` which now runs `vite build && cp public/.htaccess dist/.htaccess`
+4. `npm run build` which now runs `node scripts/generate-static-seo.js && vite build && cp public/.htaccess dist/.htaccess`
 5. `npm run generate-og-images`
 6. `npm run generate-sitemap`
 7. Verify `dist/.htaccess` is present
