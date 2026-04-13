@@ -77,6 +77,21 @@ const loading = ref(true)
 const show = ref(false)
 
 const visibleEpisodes = computed(() => episodes.value.slice(0, visibleCount.value))
+const cleanDescription = computed(() => stripHtmlTags(feedInfo.value?.description || ''))
+const categoryEntries = computed(() => {
+  if (!feedInfo.value?.categories || typeof feedInfo.value.categories !== 'object') return []
+  return Object.entries(feedInfo.value.categories).slice(0, 6)
+})
+const headerMeta = computed(() => {
+  if (!feedInfo.value) return []
+
+  const items = []
+  if (feedInfo.value.author) items.push(feedInfo.value.author)
+  if (feedInfo.value.language) items.push(String(feedInfo.value.language).toUpperCase())
+  if (episodes.value.length) items.push(`${episodes.value.length} episodes`)
+
+  return items
+})
 
 function loadMore() {
   visibleCount.value = Math.min(visibleCount.value + 10, episodes.value.length)
@@ -224,17 +239,40 @@ onMounted(() => {
 
       <!-- Content -->
       <div v-else-if="feedInfo && !error">
+        <nav aria-label="Breadcrumb" class="mb-4">
+          <ol class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <li>
+              <router-link to="/" class="transition-colors hover:text-gray-300">Home</router-link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <router-link to="/podcasts" class="transition-colors hover:text-gray-300">Podcasts</router-link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li class="truncate text-gray-400">{{ feedInfo.title }}</li>
+          </ol>
+        </nav>
+
         <!-- Podcast header card -->
-        <div class="flex items-start gap-4 mb-8 p-4 rounded-lg bg-gray-800 border border-gray-700">
+        <section class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/60 p-5 sm:p-6">
+          <div class="flex items-start gap-4">
           <img
             :src="feedInfo.image || '/images/image_not_available_500.webp'"
             :alt="feedInfo.title"
-            class="w-20 h-20 rounded-lg object-cover shrink-0 bg-gray-700"
+            class="h-20 w-20 shrink-0 rounded-xl object-cover bg-gray-700 sm:h-24 sm:w-24"
           />
           <div class="flex-1 min-w-0">
-            <h1 class="text-xl font-semibold text-white sm:text-2xl">{{ feedInfo.title }}</h1>
-            <p v-if="feedInfo.author" class="text-sm text-gray-400 mt-0.5">{{ feedInfo.author }}</p>
-            <p class="text-sm text-gray-500 mt-2 line-clamp-3 leading-relaxed">{{ stripHtmlTags(feedInfo.description) }}</p>
+            <p class="text-sm font-semibold text-indigo-400">Podcast</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ feedInfo.title }}</h1>
+            <div v-if="headerMeta.length" class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-400">
+              <template v-for="(item, index) in headerMeta" :key="item">
+                <span>{{ item }}</span>
+                <span v-if="index < headerMeta.length - 1" class="text-gray-600">&middot;</span>
+              </template>
+            </div>
+            <p class="mt-4 max-w-4xl text-sm leading-7 text-gray-400 sm:text-base">
+              {{ cleanDescription || 'Listen to the latest episodes from this podcast on Unlistened.me.' }}
+            </p>
           </div>
           <button
             @click="addFavourite(feedInfo.id, feedInfo.title)"
@@ -243,7 +281,18 @@ onMounted(() => {
           >
             <StarIcon class="h-5 w-5" />
           </button>
-        </div>
+          </div>
+
+          <div v-if="categoryEntries.length" class="mt-5 flex flex-wrap gap-2">
+            <span
+              v-for="([catId, catName]) in categoryEntries"
+              :key="catId"
+              class="rounded-full border border-gray-700 bg-gray-800/80 px-3 py-1 text-xs font-medium text-gray-300"
+            >
+              {{ catName }}
+            </span>
+          </div>
+        </section>
 
         <!-- Episode count -->
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
@@ -286,13 +335,13 @@ onMounted(() => {
             <!-- Title + info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <p
-                  class="text-sm font-semibold truncate transition-colors cursor-pointer"
+                <router-link
+                  :to="`/episode/${episode.id}`"
+                  class="truncate text-sm font-semibold transition-colors"
                   :class="isPlayingEpisode(episode) ? 'text-indigo-300' : (episodeProgress(episode.id)?.completed ? 'text-gray-400' : 'text-white group-hover:text-indigo-300')"
-                  @click="playEpisode(episode, idx)"
                 >
                   {{ episode.title }}
-                </p>
+                </router-link>
                 <CheckCircleIcon
                   v-if="episodeProgress(episode.id)?.completed"
                   class="h-4 w-4 shrink-0 text-green-500"

@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot_password
+Disallow: /reset_password
+Disallow: /settings
+Disallow: /dashboard
+Disallow: /favourites
+Disallow: /bookmarks
+Disallow: /music/favorites
+Disallow: /music/playlists
+Disallow: /forbidden
+Disallow: /search-results
+
+Sitemap: https://www.unlistened.me/sitemap.xml

@@ -3,9 +3,9 @@
   RewriteBase /
 
   # ── Crawler proxy ──────────────────────────────────────────────────
-  # Social-media bots get routed to crawler.php which serves
-  # the correct OG / Twitter meta tags without needing JS execution.
-  RewriteCond %{HTTP_USER_AGENT} facebookexternalhit|Facebot|Twitterbot|LinkedInBot|TelegramBot|Slackbot|WhatsApp|Discordbot|Pinterest|Applebot [NC]
+  # Social-media and search-engine bots get routed to crawler.php which serves
+  # stable HTML metadata for dynamic routes without relying on JS execution.
+  RewriteCond %{HTTP_USER_AGENT} facebookexternalhit|Facebot|Twitterbot|LinkedInBot|TelegramBot|Slackbot|WhatsApp|Discordbot|Pinterest|Applebot|Googlebot|Google-InspectionTool|bingbot|BingPreview [NC]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ /crawler.php [L,QSA]
 

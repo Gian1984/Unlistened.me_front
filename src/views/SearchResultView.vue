@@ -85,6 +85,7 @@ const seoConfig = computed(() => ({
       : 'Find your next favourite podcast on Unlistened.me.',
   canonical: 'https://www.unlistened.me/search-results',
   ogType: 'website',
+  robots: 'noindex,nofollow',
 }))
 
 useSeo(seoConfig)

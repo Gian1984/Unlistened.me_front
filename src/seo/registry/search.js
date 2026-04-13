@@ -4,4 +4,5 @@ export const searchSeo = {
   canonical: 'https://www.unlistened.me/search-results',
   ogType: 'website',
   ogImage: 'https://www.unlistened.me/images/og/search.png',
+  robots: 'noindex,nofollow',
 }

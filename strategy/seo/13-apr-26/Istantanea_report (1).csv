@@ -1,0 +1,106 @@
+# ----------------------------------------
+# Istantanea report
+# Account: Codehelper
+# Proprietà: Unlistened
+# ----------------------------------------
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Utenti attivi,Nuovi utenti,Durata media del coinvolgimento per utente attivo,Conteggio eventi
+7,7,357.14285714285717,613
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Titolo pagina e classe schermata,Visualizzazioni,Utenti attivi,Conteggio eventi,Frequenza di rimbalzo
+Free Podcasts & Music — No Tracking | Unlistened.me,183,7,226,0
+Sign In | Unlistened.me,63,4,87,0
+Free Creative Commons Music — No Tracking | Unlistened.me,58,4,69,0.09090909090909091
+Trending Podcasts — Free Streaming | Unlistened.me,36,5,43,0
+"CHARLES LECLERC | Nella testa del pilota, nel cuore dell'uomo! 🏎️ | Unlistened.me",22,1,23,0
+Your Favourites | Unlistened.me,20,2,23,0
+"CHARLES LECLERC | Nella testa del pilota, nel cuore dell'uomo! 🏎️ — Passa dal BSMT | Unlistened.me",18,1,20,0
+Your music playlists | Unlistened.me,18,3,20,0.25
+Browse Podcast Categories | Unlistened.me,15,2,15,0.5
+Your favorite music | Unlistened.me,15,1,19,0
+Your Bookmarks | Unlistened.me,12,2,16,0
+Passa dal BSMT — Episodes | Unlistened.me,11,1,11,0
+Now Playing | Unlistened.me,7,2,7,0
+Lofi Chillout Hip Hop Beat | Unlistened.me,4,2,6,0
+"""bsmt"" — Podcast Search | Unlistened.me",3,1,3,0
+About Unlistened.me — Privacy-first Podcast Player,3,1,4,0
+Comedy Podcasts | Unlistened.me,3,1,3,0
+Radio Romance — Episodes | Unlistened.me,3,1,3,0
+User guide | Unlistened.me,3,1,5,0
+Abstract Ideas | Unlistened.me,2,1,2,0
+Music Soothe - Meditation Music | Unlistened.me,2,1,2,0
+RED LIGHT | Unlistened.me,2,1,4,0
+Fallen Star | Unlistened.me,1,1,1,0
+Loading... | Unlistened.me,1,1,1,0
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Sorgente/Mezzo della prima interazione dell'utente,Utenti attivi
+(direct) / (none),6
+tagassistant.google.com / referral,1
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Sorgente/mezzo sessione,Sessioni
+(direct) / (none),16
+tagassistant.google.com / referral,4
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+N° giorno,new,returning
+0000,0,0
+0001,0,0
+0002,0,0
+0003,0,0
+0004,0,0
+0005,0,0
+0006,0,0
+0007,0,0
+0008,0,0
+0009,0,0
+0010,0,0
+0011,0,0
+0012,0,0
+0013,0,0
+0014,0,0
+0015,0,0
+0016,0,0
+0017,0,0
+0018,0,0
+0019,0,0
+0020,0,0
+0021,0,0
+0022,0,0
+0023,0,0
+0024,0,0
+0025,0,0
+0026,6,3
+0027,3,0
+
+# Quali sono i dati delle attività per le diverse piattaforme?
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Piattaforma,Eventi chiave
+
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Città,Utenti attivi
+Antwerp,6
+Auderghem,2
+Brussels,1
+
+#  
+# Data di inizio: 20260316
+# Data di fine: 20260412
+Nome segmento di pubblico,Utenti attivi
+All Users,7

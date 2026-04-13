@@ -21,9 +21,9 @@ useSeo(aboutSeo)
 const highlights = [
   {
     id: 1,
-    title: 'A diverse podcast library',
+    title: 'Podcasts and music together',
     description:
-        'Explore podcasts from many categories, topics, and creators. From education and technology to arts, culture, and personal growth, there is always something new to discover.',
+        'Unlistened.me brings together trending podcasts and free Creative Commons music in one calm listening space. You can move between spoken audio and music without changing apps or losing context.',
     icon: BookOpenIcon,
     accent: 'indigo',
   },
@@ -39,7 +39,7 @@ const highlights = [
     id: 3,
     title: 'Built with purpose',
     description:
-        'This project was created to make podcast discovery simpler, calmer, and more meaningful. The goal is to support access to culture, learning, and independent voices.',
+        'This project was created to make audio discovery simpler, calmer, and more meaningful. The goal is to support access to culture, learning, independent voices, and artists who share their work openly.',
     icon: SparklesIcon,
     accent: 'pink',
   },
@@ -71,7 +71,7 @@ const technologies = [
     id: 4,
     title: 'MySQL',
     description:
-        'MySQL stores and manages the application data in a reliable and structured way, making it suitable for user accounts, saved content, and platform operations.',
+        'MySQL stores and manages the application data in a reliable and structured way, making it suitable for user accounts, saved podcasts, playlists, bookmarks, and platform operations.',
     icon: CpuChipIcon,
   },
 ]
@@ -85,21 +85,21 @@ const features = [
   },
   {
     id: 2,
-    title: 'Podcast discovery and management',
+    title: 'Podcast discovery and listening',
     description:
-        'The platform makes it easy to browse, search, open podcast pages, and explore episodes.',
+        'The platform makes it easy to browse, search, open podcast pages, explore episodes, and continue listening where you left off.',
   },
   {
     id: 3,
-    title: 'Bookmarks and favourites',
+    title: 'Free music discovery',
     description:
-        'Listeners can save podcasts and keep track of content they want to revisit later.',
+        'Users can explore Jamendo powered tracks, filter by genre, like songs, and build their own music playlists.',
   },
   {
     id: 4,
-    title: 'Responsive experience',
+    title: 'Saved library and responsive playback',
     description:
-        'The interface is designed to work smoothly across desktop and mobile devices.',
+        'Listeners can save favourites, bookmark episodes, organize playlists, and keep playback smooth across desktop and mobile devices.',
   },
 ]
 
@@ -126,11 +126,11 @@ const accentClasses = {
                 Unlistened.me
               </h1>
               <p class="mt-4 max-w-2xl text-base leading-7 text-gray-400">
-                Unlistened.me is a podcast player designed to make discovery simple, pleasant, and focused.
-                Whether you listen every day or only from time to time, the platform helps you find shows worth your attention in a clean and private environment.
+                Unlistened.me is a listening platform designed to make discovery simple, pleasant, and focused.
+                It combines podcasts and free Creative Commons music in one interface, so you can move from learning, conversation, and storytelling to independent tracks without friction.
               </p>
               <p class="mt-4 max-w-2xl text-base leading-7 text-gray-500">
-                The idea behind the project is straightforward. Give people a better way to explore podcasts, save what matters to them, and enjoy listening without noise, clutter, or unnecessary friction.
+                The idea behind the project is straightforward. Give people a better way to explore audio, save what matters to them, and enjoy listening without noise, clutter, or unnecessary friction.
               </p>
             </div>
 
@@ -160,7 +160,10 @@ const accentClasses = {
 
           <div class="mt-5 max-w-4xl space-y-4 text-base leading-7 text-gray-400">
             <p>
-              Unlistened.me is a podcast player application created to provide a modern and enjoyable listening experience. The platform focuses on podcast discovery, saved content, and an interface that feels simple and comfortable to use.
+              Unlistened.me is an audio discovery application created to provide a modern and enjoyable listening experience. The platform focuses on podcast discovery, free music exploration, saved content, and an interface that feels simple and comfortable to use.
+            </p>
+            <p>
+              Podcasts are sourced through PodcastIndex, while music discovery is powered by Jamendo and centered on Creative Commons licensed tracks from independent artists. The result is a mixed listening experience that supports both long form content and lightweight music discovery.
             </p>
             <p>
               The application combines a modern frontend stack with a structured backend architecture. This makes it possible to deliver a responsive user experience while keeping the codebase organized and scalable.
@@ -209,7 +212,7 @@ const accentClasses = {
             <div>
               <h2 class="text-xl font-semibold text-white sm:text-2xl">Technologies used</h2>
               <p class="mt-1 text-sm text-gray-400">
-                The project relies on a modern web stack chosen for clarity, maintainability, and performance.
+                The project relies on a modern web stack chosen for clarity, maintainability, performance, and reliable audio delivery.
               </p>
             </div>
           </div>

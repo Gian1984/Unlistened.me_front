@@ -9,7 +9,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 | Layer | Technology | Version |
 |---|---|---|
 | Framework | Vue 3 (`<script setup>` Composition API) | 3.4.21 |
-| Build | Vite | 5.4.21 |
+| Build | Vite + post-build `.htaccess` copy | 5.4.21 |
 | Styling | Tailwind CSS 3 + `@tailwindcss/forms` | 3.4.1 |
 | UI components | Headless UI, Heroicons | 1.7.19 / 2.1.1 |
 | HTTP | Axios (centralized instance in `src/services/api.js`) | 1.15.0 |
@@ -31,7 +31,9 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   └── workflows/
 │       └── deploy.yml              # CI/CD: build → FTPS deploy on push to main
 ├── public/
-│   ├── .htaccess                   # SPA fallback (all routes → index.html)
+│   ├── .htaccess                   # Search/social bot proxy → crawler.php, then SPA fallback
+│   ├── crawler.php                 # Bot-only HTML responder with canonical, robots, route-aware 404, feed/episode metadata
+│   ├── robots.txt                  # Crawl rules for private/internal routes + sitemap declaration
 │   └── images/                     # Static assets (logo)
 ├── src/
 │   ├── App.vue                     # Root: <NavigationView> + <OffcanvasPlayer> + <CookieConsent>
@@ -218,6 +220,20 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 
 `src/router/index.js` defines 25 routes (including `/podcasts`, `/music`, and `NowPlayingView`). Views are currently imported statically. Navigation guards wait for auth bootstrap before evaluating protected/admin routes. SEO metadata (title, description, og:*) is managed via `src/seo/`.
 
+### SEO and Crawl Control
+
+The app uses a mixed SEO strategy designed for a client rendered SPA:
+
+- `useSeo()` manages reactive title, description, canonical, robots, Open Graph, Twitter Card, and JSON-LD tags on the client
+- `public/crawler.php` serves stable HTML metadata to social bots and search engine bots for static routes and dynamic `/feed/:id` and `/episode/:id` pages
+- the crawler returns real `404` responses with `noindex,nofollow` for invalid feed, episode, and unknown routes instead of falling back to a generic `200` page
+- `public/robots.txt` disallows crawl on auth pages, private library pages, admin routes, and internal search results
+- `/search-results` is intentionally `noindex,nofollow`
+- public feed and episode pages no longer emit temporary `noindex` during loading
+- `FeedEpisodesView.vue` exposes crawlable episode links and stronger visible context with breadcrumb, podcast metadata, cleaned description, and categories
+
+This setup reduces soft 404 ambiguity, avoids indexing internal or private surfaces, and gives crawlers a stable HTML fallback for dynamic content.
+
 ### Navigation
 
 The sidebar (`NavigationView.vue`) is organized into three sections:
@@ -308,9 +324,11 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 1. Checkout code
 2. Set up Node 20
 3. `npm ci`
-4. `npm run build` (outputs to `dist/`)
-5. Verify `dist/.htaccess` is present (SPA fallback for Apache)
-6. Deploy `dist/` via FTPS to production server
+4. `npm run build` which now runs `vite build && cp public/.htaccess dist/.htaccess`
+5. `npm run generate-og-images`
+6. `npm run generate-sitemap`
+7. Verify `dist/.htaccess` is present
+8. Deploy `dist/` via FTPS to production server
 
 **Required GitHub Secrets:**
 
