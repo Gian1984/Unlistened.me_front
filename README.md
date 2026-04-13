@@ -41,13 +41,13 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   ├── main.js                     # App bootstrap (Pinia, Router)
 │   │
 │   ├── router/
-│   │   └── index.js                # 25 routes (incl. /podcasts + 4 music), with SEO meta guards
+│   │   └── index.js                # App routes incl. podcasts, music overview, albums, singles, library, auth
 │   │
 │   ├── services/                   # API layer (all HTTP calls go here)
 │   │   ├── api.js                  # Axios instance: baseURL, CSRF, 401 interceptor
 │   │   ├── sessionHandler.js       # Centralized unauthorized-session handler registration
 │   │   ├── podcastService.js       # Podcast + episode endpoints
-│   │   ├── musicService.js         # Jamendo music endpoints (tracks, favorites, playlists)
+│   │   ├── musicService.js         # Jamendo music endpoints (tracks, albums, favorites, playlists)
 │   │   ├── authService.js          # Login, logout, register, password reset, language
 │   │   ├── userService.js          # Profile, settings, contact form, delete account
 │   │   └── adminService.js         # Dashboard stats, user management
@@ -89,12 +89,12 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   │   ├── LicenseBadge.vue    # CC license badge display
 │   │   │   ├── FavoriteMusicButton.vue  # Heart toggle for music tracks
 │   │   │   ├── AddToPlaylistMenu.vue    # Dropdown to add track to playlist
-│   │   │   └── MusicTrackRow.vue   # Reusable track row (used in MusicHomeView, etc.)
+│   │   │   └── MusicTrackRow.vue   # Reusable track row (supports album mode without repeated cover)
 │   │   └── podcast/
 │   │       └── PodcastCardItem.vue # Reusable podcast card (used in PodcastsView, etc.)
 │   ├── views/
 │   │   ├── NavigationView.vue      # Layout shell: sidebar, dual-mode search bar, <RouterView>
-│   │   ├── HomeView.vue            # Combined landing: trending podcasts + rotated music preview
+│   │   ├── HomeView.vue            # Combined landing: trending podcasts + rotated music + trending albums preview
 │   │   ├── PodcastsView.vue        # Podcasts hub: trending, categories, continue listening
 │   │   ├── CategoriesView.vue      # Podcasts/Music category browser (tabbed, shared dynamic music genres)
 │   │   ├── SearchResultView.vue    # Search results (podcasts + music tracks)
@@ -102,7 +102,10 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── SingleEpisodeView.vue   # Single episode detail + play
 │   │   ├── FavouritesView.vue      # Saved podcasts (enriched cards with cover + author)
 │   │   ├── BookmarksView.vue       # Bookmarked episodes (drag-to-reorder into sections)
-│   │   ├── MusicHomeView.vue       # Music: trending tracks from Jamendo (dynamic tag-derived genre filter)
+│   │   ├── MusicHomeView.vue       # Music overview: trending albums preview + trending songs preview
+│   │   ├── MusicAlbumsView.vue     # Music albums listing/search with pagination
+│   │   ├── MusicSinglesView.vue    # Full songs listing with genre filters + show more
+│   │   ├── MusicAlbumView.vue      # Single album detail, actions, and track list
 │   │   ├── MusicFavoritesView.vue  # Music: liked songs list
 │   │   ├── MusicPlaylistsView.vue  # Music: user playlists grid
 │   │   ├── MusicPlaylistDetailView.vue  # Music: single playlist track list (drag reorder)
@@ -199,11 +202,20 @@ Jamendo music genres are currently derived on the frontend from `musicinfo.tags.
 
 This approach replaced the earlier plan of relying on `/api/music/radios`, because the current Jamendo/backend setup does not provide a stable enough radios payload for the UI. As a result, `MusicHomeView.vue`, `NavigationView.vue`, and `CategoriesView.vue` all consume the same shared dynamic genre source.
 
+### Music Information Architecture
+
+The music area is now split into three clear surfaces:
+- `MusicHomeView.vue` is the overview page at `/music`, with preview sections for `Trending albums` and `Trending songs`
+- `MusicAlbumsView.vue` is the full album browser at `/music/albums`, backed by the dedicated backend album endpoint
+- `MusicSinglesView.vue` is the full track browser at `/music/singles`, with genre filters and paginated Jamendo track discovery
+
+Album detail lives in `MusicAlbumView.vue` (`/music/album/:id`). It loads album metadata first, then resolves tracks either from the backend album payload or from a fallback search match if Jamendo does not return the track list directly. The album page also exposes actions such as `Play album`, `Download album` when available, `Open on Jamendo`, and the primary Creative Commons license badge.
+
 ### Music Rotation
 
 The music surfaces no longer render the first Jamendo ranking items unchanged:
 - `HomeView.vue` fetches a larger trending pool, applies a deterministic day-based shuffle, and shows a rotated subset so the home music preview is stable within a day but not identical every day
-- `MusicHomeView.vue` applies a deterministic shuffle per day, active genre, and batch offset so `Trending now` feels fresher while remaining compatible with the `Show more` pagination flow
+- `MusicHomeView.vue` uses rotated previews for `Trending songs`, while the full paginated behavior now lives in `MusicSinglesView.vue`
 
 ### Design System
 
@@ -223,7 +235,7 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 
 ### Routing
 
-`src/router/index.js` defines 25 routes (including `/podcasts`, `/music`, and `NowPlayingView`). Views are currently imported statically. Navigation guards wait for auth bootstrap before evaluating protected/admin routes. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+`src/router/index.js` defines the public discovery routes (`/`, `/podcasts`, `/music`, `/music/albums`, `/music/singles`, `/music/album/:id`), private library routes, auth routes, and admin routes. Views are currently imported statically. Navigation guards wait for auth bootstrap before evaluating protected/admin routes. SEO metadata (title, description, og:*) is managed via `src/seo/`.
 
 ### SEO and Crawl Control
 
@@ -306,9 +318,10 @@ Repo: `/Users/gianlucainsideweb/Projects/Unlistened.me_rest` (local clone may be
 | GET | `/api/users` | Admin | User list |
 | GET | `/api/music/trending` | No | Trending Jamendo tracks |
 | GET | `/api/music/search` | No | Search music by query/genre |
+| GET | `/api/music/albums` | No | Album listing/search |
 | GET | `/api/music/track/:id` | No | Single track detail |
 | GET | `/api/music/similar/:id` | No | Similar tracks |
-| GET | `/api/music/album/:id` | No | Album detail |
+| GET | `/api/music/album/:id` | No | Album detail with tracklist fallback on backend |
 | GET | `/api/music/artist/:id` | No | Artist detail |
 | GET | `/api/music/radios` | No | Jamendo radio stations (currently not used by the frontend for genre discovery) |
 | GET | `/api/music/favorites` | Sanctum | User's liked music tracks |
