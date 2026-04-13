@@ -30,3 +30,10 @@ export const musicPlaylistsSeo = {
   ogType: 'website',
   robots: 'noindex,nofollow',
 }
+
+export const musicAlbumsSeo = {
+  title: 'Music albums | Unlistened.me',
+  description: 'Browse full Creative Commons music albums on Unlistened.me. Discover independent releases and open album pages with track lists.',
+  canonical: 'https://www.unlistened.me/music/albums',
+  ogType: 'website',
+}
