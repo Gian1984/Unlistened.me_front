@@ -29,6 +29,7 @@ const musicTrack = computed(() => {
     name: ep.value.title,
     artist_name: ep.value.feedTitle,
     artist_id: ep.value.artistId,
+    album_id: ep.value.albumId,
     album_name: ep.value.albumName,
     album_image: ep.value.image,
     audio: ep.value.enclosureUrl,
@@ -99,7 +100,14 @@ function formatDuration(seconds) {
           v-if="isMusic"
           class="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500"
         >
-          <span v-if="ep.albumName">{{ ep.albumName }}</span>
+          <router-link
+            v-if="ep.albumId && ep.albumName"
+            :to="{ name: 'MusicAlbum', params: { id: ep.albumId } }"
+            class="transition-colors hover:text-indigo-300"
+          >
+            {{ ep.albumName }}
+          </router-link>
+          <span v-else-if="ep.albumName">{{ ep.albumName }}</span>
           <span v-if="ep.albumName && ep.duration" class="text-gray-700">&middot;</span>
           <span v-if="ep.duration">{{ formatDuration(ep.duration) }}</span>
           <LicenseBadge v-if="ep.licenseUrl" :url="ep.licenseUrl" size="sm" />
