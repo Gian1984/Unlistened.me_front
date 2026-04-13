@@ -21,8 +21,23 @@ const error = ref(null)
 const loading = ref(true)
 
 const seoConfig = computed(() => {
+  const fallbackCanonical = `https://www.unlistened.me/episode/${route.params.id}`
+
+  if (error.value) {
+    return {
+      title: 'Episode Not Found | Unlistened.me',
+      description: 'The episode you are looking for could not be found.',
+      canonical: fallbackCanonical,
+      robots: 'noindex,nofollow',
+    }
+  }
+
   if (!episode.value) {
-    return { title: 'Loading... | Unlistened.me', robots: 'noindex' }
+    return {
+      title: 'Episode | Unlistened.me',
+      description: 'Listen to podcast episodes on Unlistened.me.',
+      canonical: fallbackCanonical,
+    }
   }
   const breadcrumbs = [{ name: 'Home', url: 'https://www.unlistened.me/' }]
   if (episode.value.feedId && episode.value.feedTitle) {
