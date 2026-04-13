@@ -146,50 +146,60 @@ watch(
         />
       </div>
 
-      <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <router-link
+      <ul v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <li
           v-for="album in albums"
           :key="album.id"
-          :to="{ name: 'MusicAlbum', params: { id: album.id } }"
-          class="group overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50 p-4 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+          class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
         >
-          <div class="relative aspect-square overflow-hidden rounded-xl bg-gray-800">
-            <img
-              v-if="album.image"
-              :src="album.image"
-              :alt="album.name"
-              class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-              loading="lazy"
-            />
-            <div v-else class="flex h-full w-full items-center justify-center">
-              <MusicalNoteIcon class="h-12 w-12 text-gray-600" />
+          <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+            <div class="flex items-center gap-3 p-4">
+              <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                <img
+                  v-if="album.image"
+                  :src="album.image"
+                  :alt="album.name"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                  {{ album.name }}
+                </h3>
+                <p class="text-xs text-gray-400 truncate mt-0.5">{{ album.artist_name }}</p>
+                <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                  Released {{ album.releasedate || 'recently' }}<span v-if="album.zip_allowed"> • Download available</span>
+                </p>
+              </div>
             </div>
+          </router-link>
+          <div class="flex items-center gap-2 px-4 pb-3">
+            <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
+            <router-link
+              :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+              class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+            >
+              <span>Album</span>
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.75L21 12m0 0l-3.75 3.25M21 12H3" />
+              </svg>
+            </router-link>
           </div>
-
-          <div class="mt-4">
-            <h3 class="line-clamp-2 text-base font-semibold text-white transition-colors group-hover:text-indigo-300">
-              {{ album.name }}
-            </h3>
-            <p class="mt-1 truncate text-sm text-gray-400">
-              {{ album.artist_name }}
-            </p>
-            <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-              <span v-if="album.releasedate">{{ album.releasedate }}</span>
-              <span v-if="album.releasedate && album.zip_allowed" class="text-gray-700">&middot;</span>
-              <span v-if="album.zip_allowed">Downloadable</span>
-            </div>
-          </div>
-        </router-link>
-      </div>
+        </li>
+      </ul>
 
       <div v-if="hasMore && albums.length" class="mt-8 flex justify-center">
         <button
           type="button"
-          class="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-600/40"
+          class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="loadingMore"
           @click="loadMore"
         >
-          {{ loadingMore ? 'Loading…' : 'Load more albums' }}
+          {{ loadingMore ? 'Loading…' : 'Show more' }}
         </button>
       </div>
     </div>

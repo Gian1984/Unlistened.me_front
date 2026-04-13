@@ -35,11 +35,14 @@ const router = useRouter()
 
 const feeds = ref([])
 const musicTracks = ref([])
+const albums = ref([])
 const loadingPodcasts = ref(true)
 const loadingMusic = ref(true)
+const loadingAlbums = ref(true)
 const show = ref(false)
 const HOME_MUSIC_POOL_SIZE = 30
 const HOME_MUSIC_VISIBLE_COUNT = 10
+const HOME_ALBUMS_VISIBLE_COUNT = 6
 
 function resumeEntry(entry) {
   playerStore.play({
@@ -123,6 +126,17 @@ async function fetchMusic() {
   }
 }
 
+async function fetchAlbums() {
+  try {
+    const response = await musicService.getAlbums({ limit: HOME_ALBUMS_VISIBLE_COUNT })
+    albums.value = response.data?.results || []
+  } catch (err) {
+    console.error('Error fetching albums:', err)
+  } finally {
+    loadingAlbums.value = false
+  }
+}
+
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
@@ -144,6 +158,7 @@ async function addFavourite(feedId, feedTitle) {
 onMounted(() => {
   fetchTrending()
   fetchMusic()
+  fetchAlbums()
 })
 </script>
 
@@ -377,6 +392,76 @@ onMounted(() => {
             <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
               {{ formatDuration(track.duration) }}
             </span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Trending Albums -->
+      <section class="mb-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-300">Trending albums</h2>
+          <router-link
+            :to="{ name: 'MusicAlbums' }"
+            class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            See all
+            <ArrowRightIcon class="h-4 w-4" />
+          </router-link>
+        </div>
+
+        <div v-if="loadingAlbums" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <SkeletonCard v-for="n in 6" :key="n" />
+        </div>
+
+        <div
+          v-else-if="!albums.length"
+          class="rounded-2xl border border-dashed border-gray-800 bg-gray-900/40 p-10 text-center"
+        >
+          <MusicalNoteIcon class="mx-auto h-10 w-10 text-gray-600" />
+          <p class="mt-3 text-sm text-gray-400">No albums available right now.</p>
+        </div>
+
+        <ul v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <li
+            v-for="album in albums"
+            :key="album.id"
+            class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+          >
+            <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+              <div class="flex items-center gap-3 p-4">
+                <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
+                  <img
+                    v-if="album.image"
+                    :src="album.image"
+                    :alt="album.name"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <MusicalNoteIcon class="h-5 w-5 text-gray-500" />
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
+                    {{ album.name }}
+                  </h3>
+                  <p class="text-xs text-gray-400 truncate mt-0.5">{{ album.artist_name }}</p>
+                  <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                    Released {{ album.releasedate || 'recently' }}<span v-if="album.zip_allowed"> • Download available</span>
+                  </p>
+                </div>
+              </div>
+            </router-link>
+            <div class="flex items-center gap-2 px-4 pb-3">
+              <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
+              <router-link
+                :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+                class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+              >
+                <span>Album</span>
+                <ArrowRightIcon class="h-3.5 w-3.5" />
+              </router-link>
+            </div>
           </li>
         </ul>
       </section>
