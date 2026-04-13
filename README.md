@@ -94,7 +94,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │       └── PodcastCardItem.vue # Reusable podcast card (used in PodcastsView, etc.)
 │   ├── views/
 │   │   ├── NavigationView.vue      # Layout shell: sidebar, dual-mode search bar, <RouterView>
-│   │   ├── HomeView.vue            # Combined landing: trending podcasts + rotated music + trending albums preview
+│   │   ├── HomeView.vue            # Combined landing: rotated trending podcasts + rotated music + rotated albums preview
 │   │   ├── PodcastsView.vue        # Podcasts hub: trending, categories, continue listening
 │   │   ├── CategoriesView.vue      # Podcasts/Music category browser (tabbed, shared dynamic music genres)
 │   │   ├── SearchResultView.vue    # Search results (podcasts + music tracks)
@@ -211,11 +211,12 @@ The music area is now split into three clear surfaces:
 
 Album detail lives in `MusicAlbumView.vue` (`/music/album/:id`). It loads album metadata first, then resolves tracks either from the backend album payload or from a fallback search match if Jamendo does not return the track list directly. The album page also exposes actions such as `Play album`, `Download album` when available, `Open on Jamendo`, and the primary Creative Commons license badge.
 
-### Music Rotation
+### Rotated Home Previews
 
-The music surfaces no longer render the first Jamendo ranking items unchanged:
-- `HomeView.vue` fetches a larger trending pool, applies a deterministic day-based shuffle, and shows a rotated subset so the home music preview is stable within a day but not identical every day
-- `MusicHomeView.vue` uses rotated previews for `Trending songs`, while the full paginated behavior now lives in `MusicSinglesView.vue`
+The discovery previews no longer render the first ranking items unchanged:
+- `HomeView.vue` fetches larger pools for podcasts, songs, and albums, applies a deterministic day-based shuffle, and shows rotated subsets so the home screen stays stable within a day but changes across days
+- `MusicHomeView.vue` applies the same deterministic rotation to its `Trending albums` preview instead of always showing the same first Jamendo results
+- `MusicSinglesView.vue` owns the full paginated song browsing experience; `MusicHomeView.vue` remains an overview surface with curated previews and links deeper into albums/singles browsing
 
 ### Design System
 

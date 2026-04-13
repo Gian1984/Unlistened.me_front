@@ -30,7 +30,8 @@ function handlePlay() {
 
 <template>
   <li
-    class="group flex items-center gap-2 sm:gap-3 rounded-lg border border-gray-800 bg-gray-900/40 p-2 sm:p-3 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+    class="group flex items-center rounded-lg border border-gray-800 bg-gray-900/40 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60"
+    :class="compact ? 'gap-2 p-2' : 'gap-2 p-2 sm:gap-3 sm:p-3'"
   >
     <!-- Index -->
     <span
@@ -43,7 +44,7 @@ function handlePlay() {
     <!-- Cover with hover play overlay -->
     <div
       class="relative shrink-0 rounded-md overflow-hidden bg-gray-700 cursor-pointer"
-      :class="compact ? 'w-10 h-10 sm:w-10 sm:h-10' : 'w-10 h-10 sm:w-12 sm:h-12'"
+      :class="compact ? 'h-10 w-10' : 'h-10 w-10 sm:h-12 sm:w-12'"
       @click="handlePlay"
     >
       <template v-if="showCover">

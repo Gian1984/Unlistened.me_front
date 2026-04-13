@@ -40,8 +40,11 @@ const loadingPodcasts = ref(true)
 const loadingMusic = ref(true)
 const loadingAlbums = ref(true)
 const show = ref(false)
+const HOME_PODCAST_POOL_SIZE = 18
+const HOME_PODCAST_VISIBLE_COUNT = 6
 const HOME_MUSIC_POOL_SIZE = 30
 const HOME_MUSIC_VISIBLE_COUNT = 10
+const HOME_ALBUMS_POOL_SIZE = 18
 const HOME_ALBUMS_VISIBLE_COUNT = 6
 
 function resumeEntry(entry) {
@@ -106,7 +109,8 @@ function seededShuffle(items, seed) {
 async function fetchTrending() {
   try {
     const response = await podcastService.getTrending()
-    feeds.value = response.data.feeds
+    const podcastFeeds = response.data?.feeds || []
+    feeds.value = seededShuffle(podcastFeeds, getDailySeed() ^ 101).slice(0, HOME_PODCAST_VISIBLE_COUNT)
   } catch (err) {
     console.error('Error fetching feeds:', err)
   } finally {
@@ -128,8 +132,9 @@ async function fetchMusic() {
 
 async function fetchAlbums() {
   try {
-    const response = await musicService.getAlbums({ limit: HOME_ALBUMS_VISIBLE_COUNT })
-    albums.value = response.data?.results || []
+    const response = await musicService.getAlbums({ limit: HOME_ALBUMS_POOL_SIZE })
+    const albumRows = response.data?.results || []
+    albums.value = seededShuffle(albumRows, getDailySeed() ^ 202).slice(0, HOME_ALBUMS_VISIBLE_COUNT)
   } catch (err) {
     console.error('Error fetching albums:', err)
   } finally {

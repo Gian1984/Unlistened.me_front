@@ -261,8 +261,9 @@ watch(albumId, fetchAlbum)
             :track="track"
             :index="idx"
             :is-playing="isCurrentTrack(track)"
-            :show-cover="false"
+            :show-cover="true"
             :show-album-link="false"
+            compact
             @play="playTrack(track, idx)"
           />
         </div>

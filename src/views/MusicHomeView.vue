@@ -29,6 +29,7 @@ const songs = ref([])
 const loadingAlbums = ref(true)
 const loadingSongs = ref(true)
 
+const ALBUMS_POOL_SIZE = 18
 const ALBUMS_PREVIEW_COUNT = 6
 const SONGS_POOL_SIZE = 30
 const SONGS_PREVIEW_COUNT = 20
@@ -59,8 +60,9 @@ function seededShuffle(items, seed) {
 
 async function fetchAlbums() {
   try {
-    const response = await musicService.getAlbums({ limit: ALBUMS_PREVIEW_COUNT })
-    albums.value = response.data?.results || []
+    const response = await musicService.getAlbums({ limit: ALBUMS_POOL_SIZE })
+    const albumRows = response.data?.results || []
+    albums.value = seededShuffle(albumRows, getDailySeed() ^ 303).slice(0, ALBUMS_PREVIEW_COUNT)
   } catch (err) {
     console.error('Error fetching albums:', err)
     albums.value = []
