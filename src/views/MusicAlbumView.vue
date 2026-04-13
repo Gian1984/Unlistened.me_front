@@ -72,13 +72,51 @@ function normalizeAlbumResponse(data) {
   }
 }
 
+function dedupeTracks(rows) {
+  const seen = new Set()
+  return rows.filter((track) => {
+    const key = String(track?.id || '')
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+async function fetchAlbumTracksFallback(albumData) {
+  const albumName = String(albumData?.name || '').trim()
+  if (!albumName) return []
+
+  try {
+    const { data } = await musicService.search(albumName, '', 0)
+    const searchResults = Array.isArray(data?.results) ? data.results : []
+
+    const sameAlbum = searchResults.filter((track) => {
+      if (albumData?.id && String(track?.album_id) === String(albumData.id)) return true
+
+      const sameName = String(track?.album_name || '').trim().toLowerCase() === albumName.toLowerCase()
+      if (!sameName) return false
+
+      if (!albumData?.artist_name) return true
+      return String(track?.artist_name || '').trim().toLowerCase() === String(albumData.artist_name).trim().toLowerCase()
+    })
+
+    return dedupeTracks(sameAlbum)
+  } catch {
+    return []
+  }
+}
+
 async function fetchAlbum() {
   loading.value = true
   try {
     const { data } = await musicService.getAlbum(albumId.value)
     const normalized = normalizeAlbumResponse(data)
     album.value = normalized.album
-    tracks.value = normalized.tracks
+    tracks.value = dedupeTracks(normalized.tracks)
+
+    if (album.value && tracks.value.length === 0) {
+      tracks.value = await fetchAlbumTracksFallback(album.value)
+    }
 
     if (!album.value) {
       messageStore.setMessage('Album not found.')

@@ -68,6 +68,7 @@ function asTrack(fav) {
     name: fav.title,
     artist_name: fav.artist_name,
     artist_id: fav.artist_id,
+    album_id: fav.album_id,
     album_name: fav.album_name,
     album_image: fav.album_image,
     audio: fav.audio_url,
@@ -153,6 +154,13 @@ function asTrack(fav) {
               <span class="truncate">{{ fav.artist_name }}</span>
               <LicenseBadge :url="fav.license_ccurl" size="xs" />
             </div>
+            <router-link
+              v-if="fav.album_id && fav.album_name"
+              :to="{ name: 'MusicAlbum', params: { id: fav.album_id } }"
+              class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
+            >
+              <span class="truncate">{{ fav.album_name }}</span>
+            </router-link>
           </div>
 
           <!-- Duration -->

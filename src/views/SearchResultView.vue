@@ -395,6 +395,13 @@ watch(
                   <span class="truncate">{{ track.artist_name }}</span>
                   <LicenseBadge :url="track.license_ccurl" size="xs" />
                 </div>
+                <router-link
+                  v-if="track.album_id && track.album_name"
+                  :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
+                  class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
+                >
+                  <span class="truncate">{{ track.album_name }}</span>
+                </router-link>
               </div>
 
               <div class="flex shrink-0 items-center gap-0.5">
