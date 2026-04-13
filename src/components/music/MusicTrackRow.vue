@@ -22,6 +22,7 @@ const props = defineProps({
 const emit = defineEmits(['play'])
 
 const isCurrent = computed(() => props.isPlaying)
+const coverImage = computed(() => props.track?.album_image || props.track?.image || '')
 
 function handlePlay() {
   emit('play', props.track)
@@ -49,8 +50,8 @@ function handlePlay() {
     >
       <template v-if="showCover">
       <img
-        v-if="track.album_image"
-        :src="track.album_image"
+        v-if="coverImage"
+        :src="coverImage"
         :alt="track.album_name || track.name"
         class="w-full h-full object-cover"
         loading="lazy"
