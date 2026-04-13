@@ -47,12 +47,13 @@ function onPodcastCatClick(id, name) {
 }
 
 function onGenreClick(tag) {
-  router.push({ path: '/music', query: { genre: tag } })
+  router.push({ name: 'MusicSingles', query: { genre: tag } })
 }
 
 function switchTab(tab) {
   activeTab.value = tab
   searchFilter.value = ''
+  router.replace({ query: tab === 'music' ? { tab: 'music' } : {} })
 }
 
 onMounted(() => {

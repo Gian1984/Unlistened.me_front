@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
@@ -20,6 +20,7 @@ import { seedMusicGenresFromTracks, useMusicGenres } from '@/composables/useMusi
 useSeo(musicSinglesSeo)
 
 const route = useRoute()
+const router = useRouter()
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
@@ -113,6 +114,7 @@ async function fetchTrending(genre = '', reset = true) {
 function selectGenre(tag) {
   if (activeGenre.value === tag) return
   activeGenre.value = tag
+  router.replace({ query: tag ? { genre: tag } : {} })
   fetchTrending(tag, true)
 }
 
@@ -172,6 +174,25 @@ onMounted(async () => {
     library.loadPlaylists()
   }
 })
+
+watch(
+  () => route.query.genre,
+  async (genre) => {
+    const nextGenre = typeof genre === 'string' ? genre : ''
+    if (nextGenre === activeGenre.value) return
+
+    if (!nextGenre) {
+      activeGenre.value = ''
+      await fetchTrending('', true)
+      return
+    }
+
+    if (genres.value.some((g) => g.tag === nextGenre)) {
+      activeGenre.value = nextGenre
+      await fetchTrending(nextGenre, true)
+    }
+  }
+)
 </script>
 
 <template>

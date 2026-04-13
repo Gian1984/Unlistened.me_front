@@ -139,7 +139,7 @@ function onFilterClick(id) {
 }
 
 function onGenreClick(tag) {
-  router.push({ path: '/music', query: { genre: tag } })
+  router.push({ name: 'MusicSingles', query: { genre: tag } })
 }
 
 async function logout() {
