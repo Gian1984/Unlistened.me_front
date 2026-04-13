@@ -1,5 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { aboutSeo } from '@/seo/registry/index.js'
 import {
@@ -118,17 +119,17 @@ const accentClasses = {
         <section class="mb-12">
           <div class="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:items-center">
             <div class="lg:col-span-3">
-              <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
-                <SparklesIcon class="h-3.5 w-3.5" />
-                About the project
-              </div>
-              <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Unlistened.me
-              </h1>
-              <p class="mt-4 max-w-2xl text-base leading-7 text-gray-400">
-                Unlistened.me is a listening platform designed to make discovery simple, pleasant, and focused.
-                It combines podcasts and free Creative Commons music in one interface, so you can move from learning, conversation, and storytelling to independent tracks without friction.
-              </p>
+              <PageHero
+                eyebrow="About the project"
+                :eyebrow-icon="SparklesIcon"
+                title="Unlistened.me"
+                description="Unlistened.me is a listening platform designed to make discovery simple, pleasant, and focused. It combines podcasts and free Creative Commons music in one interface, so you can move from learning, conversation, and storytelling to independent tracks without friction."
+                :breadcrumbs="[
+                  { label: 'Home', to: '/' },
+                  { label: 'About' },
+                ]"
+                max-width-class="max-w-2xl"
+              />
               <p class="mt-4 max-w-2xl text-base leading-7 text-gray-500">
                 The idea behind the project is straightforward. Give people a better way to explore audio, save what matters to them, and enjoy listening without noise, clutter, or unnecessary friction.
               </p>

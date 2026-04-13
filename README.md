@@ -79,6 +79,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 │   │   ├── OffcanvasPlayer.vue     # Unified sticky bottom player (podcasts + music)
 │   │   ├── CookieConsent.vue       # GDPR cookie consent banner
 │   │   ├── Footer.vue              # App footer
+│   │   ├── PageHero.vue            # Shared page header with eyebrow, H1, description, breadcrumb
 │   │   ├── EmptyState.vue          # Reusable empty state (icon + title + CTA)
 │   │   ├── SkeletonCard.vue        # Shimmer skeleton for podcast cards
 │   │   ├── SkeletonRow.vue         # Shimmer skeleton for episode rows
@@ -230,6 +231,9 @@ The app uses a mixed SEO strategy designed for a client rendered SPA:
 - `public/robots.txt` disallows crawl on auth pages, private library pages, admin routes, and internal search results
 - `/search-results` is intentionally `noindex,nofollow`
 - public feed and episode pages no longer emit temporary `noindex` during loading
+- `PageHero.vue` standardizes visible breadcrumb, eyebrow, page title, and description across the main public and library views
+- static page registries now include `BreadcrumbList` JSON LD where appropriate
+- `DocumentationView.vue`, `PrivacyView.vue`, and `TermsView.vue` expose visible FAQ sections that are mirrored in structured `FAQPage` schema
 - `FeedEpisodesView.vue` exposes crawlable episode links and stronger visible context with breadcrumb, podcast metadata, cleaned description, and categories
 
 This setup reduces soft 404 ambiguity, avoids indexing internal or private surfaces, and gives crawlers a stable HTML fallback for dynamic content.

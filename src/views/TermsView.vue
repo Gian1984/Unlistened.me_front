@@ -1,5 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { termsSeo } from '@/seo/registry/index.js'
 import {
@@ -73,6 +74,25 @@ const termsSections = [
         'Unlistened.me does not operate as a revenue generating service. The project exists to support public access to culture, knowledge, and useful audio content in a simple and respectful environment.',
   },
 ]
+
+const faqItems = [
+  {
+    question: 'Who is responsible for podcast and music content on Unlistened.me?',
+    answer: 'Creators and rights holders remain responsible for the podcast and music content made available through the platform. Unlistened.me does not claim ownership of that content.',
+  },
+  {
+    question: 'Does Unlistened.me provide warranties about the service?',
+    answer: 'No. The service is provided as is and as available. Unlistened.me does not guarantee uninterrupted availability, error free operation, or fitness for a particular purpose.',
+  },
+  {
+    question: 'Can the terms change over time?',
+    answer: 'Yes. The terms may be updated when necessary. Continued use of the service after changes become active means you accept the revised terms.',
+  },
+  {
+    question: 'Is Unlistened.me a commercial service?',
+    answer: 'No. Unlistened.me is presented as a non profit project created to support access to useful audio content in a simple and respectful environment.',
+  },
+]
 </script>
 
 <template>
@@ -83,13 +103,16 @@ const termsSections = [
         <section class="mb-12">
           <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
             <div>
-              <p class="text-sm font-semibold text-indigo-400">Terms and conditions</p>
-              <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Please read these terms carefully
-              </h1>
-              <p class="mt-4 max-w-2xl text-base leading-7 text-gray-400">
-                By using Unlistened.me, you agree to the terms that govern access to the platform and the way the service is provided.
-              </p>
+              <PageHero
+                eyebrow="Terms and conditions"
+                title="Please read these terms carefully"
+                description="By using Unlistened.me, you agree to the terms that govern access to the platform and the way the service is provided."
+                :breadcrumbs="[
+                  { label: 'Home', to: '/' },
+                  { label: 'Terms' },
+                ]"
+                max-width-class="max-w-2xl"
+              />
               <p class="mt-4 max-w-2xl text-base leading-7 text-gray-500">
                 This page explains the main conditions related to content, responsibility, user information, external links, and the general use of the service.
               </p>
@@ -170,6 +193,32 @@ const termsSections = [
                   </p>
                 </div>
               </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="mb-14 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              Frequently asked questions
+            </h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-400 sm:text-base">
+              A few direct answers about responsibility, warranties, updates, and the nature of the service.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <article
+              v-for="item in faqItems"
+              :key="item.question"
+              class="rounded-xl border border-gray-800 bg-gray-950/60 p-5"
+            >
+              <h3 class="text-base font-semibold text-white">
+                {{ item.question }}
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-gray-400 sm:text-base">
+                {{ item.answer }}
+              </p>
             </article>
           </div>
         </section>

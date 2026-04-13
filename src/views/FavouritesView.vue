@@ -17,6 +17,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
 import Footer from '../components/Footer.vue'
 import EmptyState from '../components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore'
 import { podcastService } from '@/services/podcastService.js'
@@ -235,15 +236,16 @@ onMounted(() => {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mx-auto mb-10">
-        <p class="text-sm font-semibold text-pink-400">Your library</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Favourite podcasts
-        </h1>
-        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          All your saved podcasts live here. Group them into sections, drag them around, and shape your library exactly the way you like.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Your library"
+        title="Favorite podcasts"
+        description="All your saved podcasts live here. Group them into sections, drag them around, and shape your library exactly the way you like."
+        :breadcrumbs="[
+          { label: 'Home', to: '/' },
+          { label: 'Library' },
+          { label: 'Favorite podcasts' },
+        ]"
+      />
 
       <!-- Loading state -->
       <div v-if="isLoading">

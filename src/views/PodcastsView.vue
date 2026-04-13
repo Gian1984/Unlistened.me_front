@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
 import { StarIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
@@ -122,15 +123,15 @@ onMounted(() => {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mb-8">
-        <p class="text-sm font-semibold text-pink-400">Hello, listener</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Your next favourite show is one tap away
-        </h1>
-        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          Grab a coffee, plug in your headphones and let your ears wander. Trending picks, fresh categories and brand new gems are all waiting below.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Hello, listener"
+        title="Your next favorite show is one tap away"
+        description="Grab a coffee, plug in your headphones and let your ears wander. Trending picks, fresh categories and brand new gems are all waiting below."
+        :breadcrumbs="[
+          { label: 'Home', to: '/' },
+          { label: 'Podcasts' },
+        ]"
+      />
 
       <!-- Categories -->
       <div class="mb-8 space-y-4">

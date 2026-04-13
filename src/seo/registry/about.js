@@ -1,5 +1,6 @@
 import { organizationSchema } from '@/seo/schemas/organization.js'
 import { buildFaqSchema } from '@/seo/schemas/faq.js'
+import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
 const faq = buildFaqSchema([
   {
@@ -21,10 +22,18 @@ const faq = buildFaqSchema([
 ])
 
 export const aboutSeo = {
-  title: 'About Unlistened.me — Privacy-first Podcast Player',
-  description: 'Learn about Unlistened.me, the podcast player built with privacy at its core. No ads, no tracking. Made for listeners, not algorithms.',
+  title: 'About Unlistened.me, private listening for podcasts and music',
+  description: 'Learn about Unlistened.me, the listening platform for podcasts and free Creative Commons music. No ads, no tracking, built for listeners.',
   canonical: 'https://www.unlistened.me/about',
   ogType: 'website',
   ogImage: 'https://www.unlistened.me/images/og/about.png',
-  jsonLd: [organizationSchema, faq],
+  ogImageAlt: 'About Unlistened.me',
+  jsonLd: [
+    organizationSchema,
+    faq,
+    buildBreadcrumbSchema([
+      { name: 'Home', url: 'https://www.unlistened.me/' },
+      { name: 'About', url: 'https://www.unlistened.me/about' },
+    ]),
+  ],
 }

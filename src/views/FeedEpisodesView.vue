@@ -2,6 +2,7 @@
 import Footer from '../components/Footer.vue'
 import SkeletonRow from '../components/SkeletonRow.vue'
 import EmptyState from '../components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { BookmarkIcon, StarIcon, CheckCircleIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
@@ -239,19 +240,17 @@ onMounted(() => {
 
       <!-- Content -->
       <div v-else-if="feedInfo && !error">
-        <nav aria-label="Breadcrumb" class="mb-4">
-          <ol class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-            <li>
-              <router-link to="/" class="transition-colors hover:text-gray-300">Home</router-link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li>
-              <router-link to="/podcasts" class="transition-colors hover:text-gray-300">Podcasts</router-link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li class="truncate text-gray-400">{{ feedInfo.title }}</li>
-          </ol>
-        </nav>
+        <PageHero
+          eyebrow="Podcast"
+          :title="feedInfo.title"
+          :description="cleanDescription || 'Listen to the latest episodes from this podcast on Unlistened.me.'"
+          :breadcrumbs="[
+            { label: 'Home', to: '/' },
+            { label: 'Podcasts', to: '/podcasts' },
+            { label: feedInfo.title },
+          ]"
+          max-width-class="max-w-4xl"
+        />
 
         <!-- Podcast header card -->
         <section class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/60 p-5 sm:p-6">
@@ -262,17 +261,12 @@ onMounted(() => {
             class="h-20 w-20 shrink-0 rounded-xl object-cover bg-gray-700 sm:h-24 sm:w-24"
           />
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-indigo-400">Podcast</p>
-            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{{ feedInfo.title }}</h1>
             <div v-if="headerMeta.length" class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-400">
               <template v-for="(item, index) in headerMeta" :key="item">
                 <span>{{ item }}</span>
                 <span v-if="index < headerMeta.length - 1" class="text-gray-600">&middot;</span>
               </template>
             </div>
-            <p class="mt-4 max-w-4xl text-sm leading-7 text-gray-400 sm:text-base">
-              {{ cleanDescription || 'Listen to the latest episodes from this podcast on Unlistened.me.' }}
-            </p>
           </div>
           <button
             @click="addFavourite(feedInfo.id, feedInfo.title)"

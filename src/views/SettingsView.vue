@@ -13,6 +13,7 @@ import {
   ChatBubbleLeftRightIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline/index.js'
+import PageHero from '@/components/PageHero.vue'
 
 useSeo(settingsSeo)
 import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
@@ -254,15 +255,15 @@ async function confirmDeleteAccount() {
     <div class="p-6 sm:p-8">
       <div class="mx-auto max-w-4xl">
         <!-- Header -->
-        <div class="mb-8">
-          <p class="text-sm font-semibold text-indigo-400">Your account</p>
-          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Settings
-          </h1>
-          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-            Update your personal information, reach out for support, or manage your account.
-          </p>
-        </div>
+        <PageHero
+          eyebrow="Your account"
+          title="Settings"
+          description="Update your personal information, reach out for support, or manage your account."
+          :breadcrumbs="[
+            { label: 'Home', to: '/' },
+            { label: 'Settings' },
+          ]"
+        />
 
         <!-- Profile hero -->
         <section class="mb-8 overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-indigo-500/10 via-gray-900/50 to-gray-900/50 p-6 sm:p-8">

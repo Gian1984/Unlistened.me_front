@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
 import SkeletonRow from '../components/SkeletonRow.vue'
 import { StarIcon, ArrowRightIcon, PlayIcon } from '@heroicons/vue/24/outline'
@@ -169,15 +170,12 @@ onMounted(() => {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mb-10">
-        <p class="text-sm font-semibold text-pink-400">Hello, listener</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Podcasts and music, all in one place
-        </h1>
-        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          Discover trending podcasts or explore free Creative Commons music from independent artists. No tracking, no ads, just great audio.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Hello, listener"
+        title="Podcasts and music, all in one place"
+        description="Discover trending podcasts or explore free Creative Commons music from independent artists. No tracking, no ads, just great audio."
+        :breadcrumbs="[{ label: 'Home' }]"
+      />
 
       <!-- Continue listening -->
       <div v-if="historyStore.continueListening.length" class="mb-10">

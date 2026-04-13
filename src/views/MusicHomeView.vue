@@ -10,6 +10,7 @@ import { useMusicLibraryStore } from '@/stores/musicLibraryStore.js'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import Footer from '@/components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { musicSeo } from '@/seo/registry/index.js'
@@ -187,15 +188,15 @@ onMounted(async () => {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mb-8">
-        <p class="text-sm font-semibold text-pink-400">Listen freely</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Free music to keep you company
-        </h1>
-        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          Independent artists, Creative Commons licensed, no tracking. Pick a genre, hit play, and fall in love with someone you have never heard before.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Listen freely"
+        title="Free music to keep you company"
+        description="Independent artists, Creative Commons licensed, no tracking. Pick a genre, hit play, and fall in love with someone you have never heard before."
+        :breadcrumbs="[
+          { label: 'Home', to: '/' },
+          { label: 'Music' },
+        ]"
+      />
 
       <!-- Continue Listening (music) -->
       <div v-if="continueListeningMusic.length" class="mb-8">

@@ -3,7 +3,7 @@ export const websiteSchema = {
   '@type': 'WebSite',
   name: 'Unlistened.me',
   url: 'https://www.unlistened.me',
-  description: 'Free podcast player. No cookies, no tracking, no accounts required.',
+  description: 'Free listening platform for podcasts and Creative Commons music. No cookies, no tracking, no account required for listening.',
   potentialAction: {
     '@type': 'SearchAction',
     target: {

@@ -3,6 +3,8 @@ import { watchEffect, isRef } from 'vue'
 const SITE_NAME = 'Unlistened.me'
 const BASE_URL = 'https://www.unlistened.me'
 const DEFAULT_IMAGE = `${BASE_URL}/images/ogimage-min.png`
+const DEFAULT_OG_IMAGE_ALT = 'Unlistened.me preview image'
+const DEFAULT_THEME_COLOR = '#030712'
 
 function truncate(str, max) {
   if (!str) return ''
@@ -46,6 +48,8 @@ export function useSeo(config) {
     const image = cfg.ogImage ?? DEFAULT_IMAGE
     const robots = cfg.robots ?? 'index,follow'
     const ogType = cfg.ogType ?? 'website'
+    const ogImageAlt = cfg.ogImageAlt ?? DEFAULT_OG_IMAGE_ALT
+    const themeColor = cfg.themeColor ?? DEFAULT_THEME_COLOR
 
     // <title>
     document.title = title
@@ -53,6 +57,8 @@ export function useSeo(config) {
     // Standard meta
     upsertMeta('name', 'description', description)
     upsertMeta('name', 'robots', robots)
+    upsertMeta('name', 'theme-color', themeColor)
+    upsertMeta('name', 'apple-mobile-web-app-title', SITE_NAME)
 
     // Canonical
     let canonicalEl = document.querySelector('link[rel="canonical"]')
@@ -69,6 +75,7 @@ export function useSeo(config) {
     upsertMeta('property', 'og:url', canonical)
     upsertMeta('property', 'og:type', ogType)
     upsertMeta('property', 'og:image', image)
+    upsertMeta('property', 'og:image:alt', ogImageAlt)
     upsertMeta('property', 'og:image:width', '1200')
     upsertMeta('property', 'og:image:height', '630')
     upsertMeta('property', 'og:site_name', SITE_NAME)
@@ -79,6 +86,7 @@ export function useSeo(config) {
     upsertMeta('name', 'twitter:title', title)
     upsertMeta('name', 'twitter:description', description)
     upsertMeta('name', 'twitter:image', image)
+    upsertMeta('name', 'twitter:image:alt', ogImageAlt)
 
     // JSON-LD — rimuovi i precedenti e inietta i nuovi
     document.querySelectorAll('script[data-seo-ld]').forEach(el => el.remove())

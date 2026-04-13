@@ -1,5 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { documentationSeo } from '@/seo/registry/index.js'
 import {
@@ -141,6 +142,25 @@ const sections = [
   },
 ]
 
+const faqItems = [
+  {
+    question: 'Do I need an account to start listening?',
+    answer: 'No. You can browse and listen without an account. An account is only needed for saved features such as favorites, bookmarks, and playlists.',
+  },
+  {
+    question: 'Where can I save podcasts and episodes?',
+    answer: 'Podcasts can be saved to favorites and episodes can be saved to bookmarks. Both areas are available from the library section once you are signed in.',
+  },
+  {
+    question: 'Does Unlistened.me remember where I stopped listening?',
+    answer: 'Yes. Listening progress is stored so you can resume from where you left off. For podcasts this history is kept locally on your device.',
+  },
+  {
+    question: 'Can I create playlists for music?',
+    answer: 'Yes. Signed in users can like tracks, create playlists, and organize Creative Commons music into personal collections.',
+  },
+]
+
 const accentClasses = {
   indigo: 'bg-indigo-500/10 text-indigo-400 ring-indigo-500/20',
   emerald: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20',
@@ -163,18 +183,16 @@ function scrollToSection(id) {
     <div class="p-6 sm:p-8">
       <div class="mx-auto">
         <!-- Header -->
-        <section class="mb-10">
-          <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
-            <BookOpenIcon class="h-3.5 w-3.5" />
-            User guide
-          </div>
-          <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            How to use Unlistened.me
-          </h1>
-          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-            A practical walkthrough of every feature you will find in the app — from creating your account to organizing favourites, using the player, and getting help when you need it.
-          </p>
-        </section>
+        <PageHero
+          eyebrow="User guide"
+          :eyebrow-icon="BookOpenIcon"
+          title="How to use Unlistened.me"
+          description="A practical walkthrough of every feature you will find in the app, from creating your account to organizing favorites, using the player, and getting help when you need it."
+          :breadcrumbs="[
+            { label: 'Home', to: '/' },
+            { label: 'Documentation' },
+          ]"
+        />
 
         <!-- Table of contents -->
         <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
@@ -246,6 +264,32 @@ function scrollToSection(id) {
               <p class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Tip</p>
               <p class="mt-1 text-sm leading-6 text-gray-300">{{ section.tip }}</p>
             </div>
+          </div>
+        </section>
+
+        <section class="mb-10 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              Frequently asked questions
+            </h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-400 sm:text-base">
+              Quick answers to the most common questions about accounts, saved items, history, and music playlists.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <article
+              v-for="item in faqItems"
+              :key="item.question"
+              class="rounded-xl border border-gray-800 bg-gray-950/60 p-5"
+            >
+              <h3 class="text-base font-semibold text-white">
+                {{ item.question }}
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-gray-400 sm:text-base">
+                {{ item.answer }}
+              </p>
+            </article>
           </div>
         </section>
 

@@ -1,5 +1,6 @@
 <script setup>
 import Footer from '../components/Footer.vue'
+import PageHero from '@/components/PageHero.vue'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { privacySeo } from '@/seo/registry/index.js'
 import {
@@ -115,6 +116,25 @@ const sections = [
   },
 ]
 
+const faqItems = [
+  {
+    question: 'Does Unlistened.me track my listening activity?',
+    answer: 'No. Unlistened.me does not use tracking cookies to profile your listening habits. Optional analytics remain disabled until you explicitly accept them.',
+  },
+  {
+    question: 'What personal data is stored if I create an account?',
+    answer: 'If you create an account, Unlistened.me stores your name, email address, hashed password, preferences, and the items you choose to save in your library.',
+  },
+  {
+    question: 'Can I delete my account and saved data?',
+    answer: 'Yes. You can delete your account from the Settings page. Your profile, favorites, bookmarks, and related preferences are then permanently removed.',
+  },
+  {
+    question: 'Are podcast audio files hosted by Unlistened.me?',
+    answer: 'Not always. Some podcast covers and audio files are hosted by the podcasts themselves, which means your browser may connect directly to those servers when you play or display an episode.',
+  },
+]
+
 const accentClasses = {
   indigo: 'bg-indigo-500/10 text-indigo-400 ring-indigo-500/20',
   emerald: 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20',
@@ -130,17 +150,17 @@ const accentClasses = {
     <div class="p-6 sm:p-8">
       <div class="mx-auto max-w-4xl">
         <!-- Header -->
+        <PageHero
+          eyebrow="Privacy"
+          :eyebrow-icon="ShieldCheckIcon"
+          title="Privacy policy"
+          description="Unlistened.me is a non-commercial project built with respect for your privacy. This page explains what information is collected, how it is used, and how you can stay in control of your data."
+          :breadcrumbs="[
+            { label: 'Home', to: '/' },
+            { label: 'Privacy' },
+          ]"
+        />
         <section class="mb-10">
-          <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
-            <ShieldCheckIcon class="h-3.5 w-3.5" />
-            Privacy
-          </div>
-          <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Privacy policy
-          </h1>
-          <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-            Unlistened.me is a non-commercial project built with respect for your privacy. This page explains what information is collected, how it is used, and how you can stay in control of your data.
-          </p>
           <p class="mt-3 text-sm text-gray-500">Last updated: {{ lastUpdated }}</p>
         </section>
 
@@ -194,6 +214,32 @@ const accentClasses = {
             </ul>
 
             <p v-if="section.footer" class="text-gray-300">{{ section.footer }}</p>
+          </div>
+        </section>
+
+        <section class="mb-8 rounded-2xl border border-gray-800 bg-gray-900/50 p-6 sm:p-8">
+          <div class="mb-5">
+            <h2 class="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              Frequently asked questions
+            </h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-400 sm:text-base">
+              Short answers to the privacy questions people usually ask first.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <article
+              v-for="item in faqItems"
+              :key="item.question"
+              class="rounded-xl border border-gray-800 bg-gray-950/60 p-5"
+            >
+              <h3 class="text-base font-semibold text-white">
+                {{ item.question }}
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-gray-400 sm:text-base">
+                {{ item.answer }}
+              </p>
+            </article>
           </div>
         </section>
 

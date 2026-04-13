@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import Footer from '../components/Footer.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
 import EmptyState from '../components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
@@ -223,15 +224,15 @@ watch(
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Header -->
-      <div class="mx-auto mb-10">
-        <p class="text-sm font-semibold text-indigo-400">{{ pageEyebrow }}</p>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          {{ pageTitle }}
-        </h1>
-        <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
-          {{ pageDescription }}
-        </p>
-      </div>
+      <PageHero
+        :eyebrow="pageEyebrow"
+        :title="pageTitle"
+        :description="pageDescription"
+        :breadcrumbs="[
+          { label: 'Home', to: '/' },
+          { label: 'Search' },
+        ]"
+      />
 
       <!-- Loading -->
       <div v-if="loading" class="mx-auto max-w-6xl">
