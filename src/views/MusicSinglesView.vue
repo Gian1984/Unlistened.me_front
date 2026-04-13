@@ -36,8 +36,47 @@ const hasMore = ref(true)
 const TRENDING_PAGE_SIZE = 30
 const GENRE_PAGE_SIZE = 20
 const { genres, loadGenres } = useMusicGenres({ includeTrending: true })
+const STORAGE_KEY = 'unlistened:music-singles-view'
 
 const continueListeningMusic = computed(() => historyStore.continueListeningMusic)
+
+function restoreState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) return false
+
+    const saved = JSON.parse(raw)
+    const currentGenre = typeof route.query.genre === 'string' ? route.query.genre : ''
+
+    if (String(saved?.activeGenre || '') !== currentGenre) return false
+    if (!Array.isArray(saved?.tracks) || !Array.isArray(saved?.genres)) return false
+
+    tracks.value = saved.tracks
+    genres.value = saved.genres
+    activeGenre.value = currentGenre
+    offset.value = Number(saved.offset || saved.tracks.length || 0)
+    hasMore.value = Boolean(saved.hasMore)
+    loading.value = false
+    loadingMore.value = false
+    return true
+  } catch {
+    return false
+  }
+}
+
+function persistState() {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      activeGenre: activeGenre.value,
+      tracks: tracks.value,
+      genres: genres.value,
+      offset: offset.value,
+      hasMore: hasMore.value,
+    }))
+  } catch {
+    // Ignore storage failures.
+  }
+}
 
 function getDailySeed() {
   const now = new Date()
@@ -102,6 +141,7 @@ async function fetchTrending(genre = '', reset = true) {
     tracks.value = reset ? newTracks : [...tracks.value, ...newTracks]
     hasMore.value = newTracks.length === pageSize
     offset.value += newTracks.length
+    persistState()
   } catch (err) {
     console.error('Error fetching music:', err)
     tracks.value = []
@@ -160,13 +200,17 @@ function playHistoryEntry(entry) {
 }
 
 onMounted(async () => {
-  await loadGenres()
-  const genre = route.query.genre
-  if (genre && genres.value.some((g) => g.tag === genre)) {
-    activeGenre.value = genre
-    await fetchTrending(genre, true)
-  } else {
-    await fetchTrending()
+  const restored = restoreState()
+
+  if (!restored) {
+    await loadGenres()
+    const genre = route.query.genre
+    if (genre && genres.value.some((g) => g.tag === genre)) {
+      activeGenre.value = genre
+      await fetchTrending(genre, true)
+    } else {
+      await fetchTrending()
+    }
   }
 
   if (authStore.isAuthenticated) {
@@ -193,6 +237,8 @@ watch(
     }
   }
 )
+
+watch([tracks, genres, activeGenre, offset, hasMore], persistState, { deep: true })
 </script>
 
 <template>

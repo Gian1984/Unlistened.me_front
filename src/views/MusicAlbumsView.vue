@@ -22,6 +22,7 @@ const offset = ref(0)
 const hasMore = ref(true)
 
 const PAGE_SIZE = 20
+const STORAGE_KEY = 'unlistened:music-albums-view'
 
 const pageTitle = computed(() => (
   query.value.trim()
@@ -31,6 +32,42 @@ const pageTitle = computed(() => (
 
 function normalizeAlbums(payload) {
   return Array.isArray(payload?.results) ? payload.results : []
+}
+
+function restoreState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) return false
+
+    const saved = JSON.parse(raw)
+    const currentQuery = String(route.query.q || '')
+
+    if (String(saved?.query || '') !== currentQuery) return false
+    if (!Array.isArray(saved?.albums)) return false
+
+    query.value = currentQuery
+    albums.value = saved.albums
+    offset.value = Number(saved.offset || saved.albums.length || 0)
+    hasMore.value = Boolean(saved.hasMore)
+    loading.value = false
+    loadingMore.value = false
+    return true
+  } catch {
+    return false
+  }
+}
+
+function persistState() {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      query: query.value.trim(),
+      albums: albums.value,
+      offset: offset.value,
+      hasMore: hasMore.value,
+    }))
+  } catch {
+    // Ignore storage failures.
+  }
 }
 
 async function fetchAlbums(reset = true) {
@@ -54,6 +91,7 @@ async function fetchAlbums(reset = true) {
     albums.value = reset ? batch : [...albums.value, ...batch]
     hasMore.value = batch.length === PAGE_SIZE
     offset.value += batch.length
+    persistState()
   } catch (error) {
     console.error('Error loading albums:', error)
     if (reset) albums.value = []
@@ -74,6 +112,7 @@ function loadMore() {
 }
 
 onMounted(() => {
+  if (restoreState()) return
   fetchAlbums(true)
 })
 
@@ -86,6 +125,8 @@ watch(
     fetchAlbums(true)
   }
 )
+
+watch([albums, offset, hasMore], persistState, { deep: true })
 </script>
 
 <template>

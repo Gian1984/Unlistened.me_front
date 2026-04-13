@@ -15,7 +15,7 @@ Vue 3 podcast & music streaming web app backed by a **Laravel 11 API** (`api.unl
 | HTTP | Axios (centralized instance in `src/services/api.js`) | 1.15.0 |
 | Auth | Laravel Sanctum (cookie-backed session, backend-validated bootstrap) | 4.0 |
 | State | Pinia — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.7 |
-| State persistence | Mixed strategy: selected Pinia store persistence + manual localStorage for listening history | 3.2.1 |
+| State persistence | Mixed strategy: Pinia/session state + view-level sessionStorage + manual localStorage for listening history | 3.2.1 |
 | Routing | Vue Router 4 (static route imports + auth guards + SEO hooks) | 4.3.0 |
 | Charts | Chart.js + vue-chartjs (admin dashboard) | 4.4.3 |
 | Drag & Drop | vuedraggable 4 (favourites & bookmarks) | 4.1.0 |
@@ -211,6 +211,8 @@ The music area is now split into three clear surfaces:
 
 Album detail lives in `MusicAlbumView.vue` (`/music/album/:id`). It loads album metadata first, then resolves tracks either from the backend album payload or from a fallback search match if Jamendo does not return the track list directly. The album page also exposes actions such as `Play album`, `Download album` when available, `Open on Jamendo`, and the primary Creative Commons license badge.
 
+The album and singles listing pages now persist their loaded UI state in `sessionStorage`, so navigating into an album and then going back restores the active filter/search plus the already loaded `Show more` batches instead of rebuilding the list from scratch.
+
 ### Rotated Home Previews
 
 The discovery previews no longer render the first ranking items unchanged:
@@ -237,6 +239,8 @@ Full dark theme. Key tokens applied via Tailwind throughout:
 ### Routing
 
 `src/router/index.js` defines the public discovery routes (`/`, `/podcasts`, `/music`, `/music/albums`, `/music/singles`, `/music/album/:id`), private library routes, auth routes, and admin routes. Views are currently imported statically. Navigation guards wait for auth bootstrap before evaluating protected/admin routes. SEO metadata (title, description, og:*) is managed via `src/seo/`.
+
+The router also restores `savedPosition` on browser back/forward navigation. Combined with the album page's history-aware back action, this means returning from `MusicAlbumView.vue` usually brings the user back to the correct listing route and scroll position instead of always dropping them on `/music`.
 
 ### SEO and Crawl Control
 

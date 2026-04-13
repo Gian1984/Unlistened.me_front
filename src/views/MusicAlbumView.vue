@@ -178,6 +178,16 @@ function playAlbum() {
   playTrack(tracks.value[0], 0)
 }
 
+function goBack() {
+  const previousPath = window.history.state?.back
+  if (typeof previousPath === 'string' && previousPath.startsWith('/')) {
+    router.back()
+    return
+  }
+
+  router.push({ name: 'Music' })
+}
+
 const trackCountLabel = computed(() => {
   const count = tracks.value.length
   return `${count} ${count === 1 ? 'track' : 'tracks'}`
@@ -190,13 +200,14 @@ watch(albumId, fetchAlbum)
 <template>
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
-      <router-link
-        :to="{ name: 'Music' }"
+      <button
+        type="button"
+        @click="goBack"
         class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-indigo-300"
       >
         <ArrowLeftIcon class="h-3.5 w-3.5" />
         Back to music
-      </router-link>
+      </button>
 
       <div v-if="loading" class="mt-6 space-y-2">
         <SkeletonRow v-for="n in 6" :key="n" />
