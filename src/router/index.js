@@ -1,31 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
 import { useMessageStore } from '@/stores/messageStore'
-import HomeView from '@/views/HomeView.vue'
-import AboutView from "@/views/AboutView.vue";
-import FeedEpisodesView from '@/views/FeedEpisodesView.vue'
-import SearchResultView from "@/views/SearchResultView.vue";
-import LoginView from "@/views/LoginView.vue";
-import SignUpView from "@/views/SignUpView.vue";
-import FavouritesView from "@/views/FavouritesView.vue"
-import BookmarksView from "@/views/BookmarksView.vue"
-import ForgotPasswordView from "@/views/ForgotPasswordView.vue"
-import ResetPasswordView from "@/views/ResetPasswordView.vue";
-import SettingsView from "@/views/SettingsView.vue";
-import TermsView from "@/views/TermsView.vue";
-import PrivacyView from "@/views/PrivacyView.vue";
-import SingleEpisodeView from "@/views/SingleEpisodeView.vue";
-import DashboardView from "@/views/DashboardView.vue";
-import ForbiddenView from "@/views/ForbiddenView.vue";
-import NotFoundView from "@/views/NotFoundView.vue";
-import DocumentationView from "@/views/DocumentationView.vue";
-import CategoriesView from "@/views/CategoriesView.vue";
-import PodcastsView from "@/views/PodcastsView.vue";
-import MusicHomeView from "@/views/MusicHomeView.vue";
-import MusicFavoritesView from "@/views/MusicFavoritesView.vue";
-import MusicPlaylistsView from "@/views/MusicPlaylistsView.vue";
-import MusicPlaylistDetailView from "@/views/MusicPlaylistDetailView.vue";
-import NowPlayingView from "@/views/NowPlayingView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/HomeView.vue'),
     },
     {
       path: '/feed_listing',
@@ -42,129 +17,129 @@ const router = createRouter({
     {
       path: '/feed/:id',
       name: 'episodes',
-      component: FeedEpisodesView,
+      component: () => import('@/views/FeedEpisodesView.vue'),
     },
     {
       path: '/episode/:id',
       name: 'episode',
-      component: SingleEpisodeView,
+      component: () => import('@/views/SingleEpisodeView.vue'),
     },
     {
       path: '/search-results',
       name: 'SearchResults',
-      component: SearchResultView,
+      component: () => import('@/views/SearchResultView.vue'),
     },
     {
       path: '/login',
       name: 'Login',
-      component: LoginView,
+      component: () => import('@/views/LoginView.vue'),
     },
     {
       path: '/signup',
       name: 'Signup',
-      component: SignUpView,
+      component: () => import('@/views/SignUpView.vue'),
     },
     {
       path: '/favourites',
       name: 'Favourites',
-      component: FavouritesView,
+      component: () => import('@/views/FavouritesView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/bookmarks',
       name: 'Bookmarks',
-      component: BookmarksView,
+      component: () => import('@/views/BookmarksView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/about',
       name: 'About',
-      component: AboutView,
+      component: () => import('@/views/AboutView.vue'),
     },
     {
       path: '/forgot_password',
       name: 'Forgot',
-      component: ForgotPasswordView,
+      component: () => import('@/views/ForgotPasswordView.vue'),
     },
     {
       path: '/reset_password/:token',
       name: 'Reset',
-      component: ResetPasswordView,
+      component: () => import('@/views/ResetPasswordView.vue'),
     },
     {
       path: '/settings',
       name: 'Settings',
-      component: SettingsView,
+      component: () => import('@/views/SettingsView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/terms',
       name: 'TermsAndConditions',
-      component: TermsView,
+      component: () => import('@/views/TermsView.vue'),
     },
     {
       path: '/privacy',
       name: 'Privacy',
-      component: PrivacyView,
+      component: () => import('@/views/PrivacyView.vue'),
     },
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: DashboardView,
+      component: () => import('@/views/DashboardView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/categories',
       name: 'Categories',
-      component: CategoriesView,
+      component: () => import('@/views/CategoriesView.vue'),
     },
     {
       path: '/podcasts',
       name: 'Podcasts',
-      component: PodcastsView,
+      component: () => import('@/views/PodcastsView.vue'),
     },
     {
       path: '/music',
       name: 'Music',
-      component: MusicHomeView,
+      component: () => import('@/views/MusicHomeView.vue'),
     },
     {
       path: '/music/favorites',
       name: 'MusicFavorites',
-      component: MusicFavoritesView,
+      component: () => import('@/views/MusicFavoritesView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/music/playlists',
       name: 'MusicPlaylists',
-      component: MusicPlaylistsView,
+      component: () => import('@/views/MusicPlaylistsView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/music/playlists/:id',
       name: 'MusicPlaylistDetail',
-      component: MusicPlaylistDetailView,
+      component: () => import('@/views/MusicPlaylistDetailView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/now-playing',
       name: 'NowPlaying',
-      component: NowPlayingView,
+      component: () => import('@/views/NowPlayingView.vue'),
     },
     {
       path: '/documentation',
       name: 'Documentation',
-      component: DocumentationView,
+      component: () => import('@/views/DocumentationView.vue'),
     },
     {
       path: '/forbidden',
       name: 'Forbidden',
-      component: ForbiddenView,
+      component: () => import('@/views/ForbiddenView.vue'),
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: NotFoundView,
+      component: () => import('@/views/NotFoundView.vue'),
     },
   ],
 

@@ -113,6 +113,7 @@ onMounted(() => {
                 <img
                     :src="episode.image || '/images/image_not_available_500.webp'"
                     :alt="episode.title"
+                    loading="lazy"
                     class="aspect-square w-full object-cover"
                 />
               </div>

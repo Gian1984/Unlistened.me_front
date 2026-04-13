@@ -213,6 +213,7 @@ onMounted(async () => {
                 v-if="entry.image"
                 :src="entry.image"
                 :alt="entry.title"
+                loading="lazy"
                 class="w-full h-full object-cover"
               />
               <div v-else class="w-full h-full flex items-center justify-center">

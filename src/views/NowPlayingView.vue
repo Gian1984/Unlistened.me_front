@@ -71,6 +71,7 @@ function formatDuration(seconds) {
             v-if="ep.image"
             :src="ep.image"
             :alt="ep.title"
+            loading="lazy"
             class="aspect-square w-full object-cover"
             @error="($event.target).style.display = 'none'"
           />
