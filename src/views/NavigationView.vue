@@ -50,6 +50,17 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
+// User initials computed
+const userInitials = computed(() => {
+  const source = authStore.user?.name || authStore.user?.email || ''
+  return source
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() || '')
+    .join('')
+})
+
 // Navigation sections - lazily computed to avoid SSR issues
 const navigationSections = computed(() => [
   {
