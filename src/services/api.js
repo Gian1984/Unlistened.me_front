@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { handleUnauthorized } from '~/src/services/sessionHandler'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
@@ -13,7 +14,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     response => response,
     error => {
       if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
-        const { handleUnauthorized } = await import('~/src/services/sessionHandler')
         handleUnauthorized(error)
       }
       return Promise.reject(error)
