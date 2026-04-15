@@ -25,6 +25,7 @@ Relevant commits already completed:
 - `4afb579 refactor: inline auth and library pages into nuxt pages`
 - `819b4ad refactor: inline music playlists pages into nuxt pages`
 - `117cd48 refactor: inline admin dashboard page into nuxt page`
+- `<pending> refactor: inline settings page into nuxt page`
 
 What is already done and verified:
 - Nuxt static-first scaffolding is in place
@@ -60,6 +61,7 @@ Pages already migrated from thin wrappers to real Nuxt pages:
 - `/music/playlists`
 - `/music/playlists/[id]`
 - `/dashboard`
+- `/settings`
 
 Pages still using `src/views/*` wrappers right now:
 - `/about`
@@ -67,14 +69,13 @@ Pages still using `src/views/*` wrappers right now:
 - `/privacy`
 - `/terms`
 - `/search-results`
-- `/settings`
 - `/now-playing`
 - `/forbidden`
 - catch-all `404`
 
 Important clarification:
 - several public pages were already router-cleaned and Nuxt-compatible before this status update, even if some of them are still temporarily wrapped from `src/views`
-- the biggest remaining authenticated page is `settings`, and it should be treated as its own migration pass because it is materially larger than the average page
+- the largest authenticated pages (`settings`, `dashboard`) have been migrated; the remaining wrappers are informational pages plus `search-results` and `now-playing`
 
 ---
 
@@ -543,23 +544,22 @@ Reasoning:
 ## Remaining Work
 
 Recommended next steps from the current branch state:
-1. Migrate `pages/settings.vue` out of the wrapper and into a real Nuxt page
-2. Decide whether to inline or leave wrapped the lower-risk informational pages:
+1. Decide whether to inline or leave wrapped the lower-risk informational pages:
    - `about`
    - `documentation`
    - `privacy`
    - `terms`
    - `forbidden`
    - `404`
-3. Migrate `pages/search-results.vue`
-4. Review whether `pages/now-playing.vue` should remain wrapper-based or be absorbed
-5. Reassess whether the legacy files should remain as reference only or be retired:
+2. Migrate `pages/search-results.vue`
+3. Review whether `pages/now-playing.vue` should remain wrapper-based or be absorbed
+4. Reassess whether the legacy files should remain as reference only or be retired:
    - `src/main.js`
    - `src/App.vue`
    - `src/router/index.js`
    - corresponding `src/views/*` already replaced by Nuxt pages
-6. Do a dedicated SEO cleanup pass after page migration is complete
-7. Do a final deploy/hardening pass around Apache/static hosting assumptions
+5. Do a dedicated SEO cleanup pass after page migration is complete
+6. Do a final deploy/hardening pass around Apache/static hosting assumptions
 
 What is intentionally not done yet:
 - removing the old `src/views/*` layer completely
