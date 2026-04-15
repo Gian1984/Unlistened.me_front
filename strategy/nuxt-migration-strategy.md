@@ -23,6 +23,8 @@ Relevant commits already completed:
 - `0040189 refactor: move core public pages into nuxt pages`
 - `2f0d308 refactor: inline music catalog pages into nuxt pages`
 - `4afb579 refactor: inline auth and library pages into nuxt pages`
+- `819b4ad refactor: inline music playlists pages into nuxt pages`
+- `<pending> refactor: inline admin dashboard page into nuxt page`
 
 What is already done and verified:
 - Nuxt static-first scaffolding is in place
@@ -57,6 +59,7 @@ Pages already migrated from thin wrappers to real Nuxt pages:
 - `/music/favorites`
 - `/music/playlists`
 - `/music/playlists/[id]`
+- `/dashboard`
 
 Pages still using `src/views/*` wrappers right now:
 - `/about`
@@ -65,7 +68,6 @@ Pages still using `src/views/*` wrappers right now:
 - `/terms`
 - `/search-results`
 - `/settings`
-- `/dashboard`
 - `/now-playing`
 - `/forbidden`
 - catch-all `404`
@@ -542,23 +544,22 @@ Reasoning:
 
 Recommended next steps from the current branch state:
 1. Migrate `pages/settings.vue` out of the wrapper and into a real Nuxt page
-2. Migrate `pages/dashboard.vue`
-3. Decide whether to inline or leave wrapped the lower-risk informational pages:
+2. Decide whether to inline or leave wrapped the lower-risk informational pages:
    - `about`
    - `documentation`
    - `privacy`
    - `terms`
    - `forbidden`
    - `404`
-4. Migrate `pages/search-results.vue`
-5. Review whether `pages/now-playing.vue` should remain wrapper-based or be absorbed
-6. Reassess whether the legacy files should remain as reference only or be retired:
+3. Migrate `pages/search-results.vue`
+4. Review whether `pages/now-playing.vue` should remain wrapper-based or be absorbed
+5. Reassess whether the legacy files should remain as reference only or be retired:
    - `src/main.js`
    - `src/App.vue`
    - `src/router/index.js`
    - corresponding `src/views/*` already replaced by Nuxt pages
-7. Do a dedicated SEO cleanup pass after page migration is complete
-8. Do a final deploy/hardening pass around Apache/static hosting assumptions
+6. Do a dedicated SEO cleanup pass after page migration is complete
+7. Do a final deploy/hardening pass around Apache/static hosting assumptions
 
 What is intentionally not done yet:
 - removing the old `src/views/*` layer completely
