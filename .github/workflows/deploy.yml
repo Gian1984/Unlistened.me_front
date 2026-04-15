@@ -22,14 +22,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Sitemap
+      - name: Generate Sitemap to public
         run: npm run generate-sitemap
 
-      - name: Generate OG Images
-        run: npm run generate-og-images
-
-      - name: Build Nuxt (SSG)
-        run: npx nuxi generate
+      - name: Copy public files to output after build
+        run: |
+          npx nuxi generate
+          cp public/.htaccess .output/public/.htaccess 2>/dev/null || echo "htaccess already in output"
+          cp public/robots.txt .output/public/ 2>/dev/null || echo "no robots.txt"
         env:
           NUXT_PUBLIC_API_BASE_URL: ${{ secrets.VITE_BASE_URL }}
 
