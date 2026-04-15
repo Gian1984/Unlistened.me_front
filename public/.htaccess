@@ -3,7 +3,6 @@
   RewriteBase /
 
   # ── Static assets caching ─────────────────────────────────────────────
-  # Cache static files for 1 year
   <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/webp "access plus 1 year"
@@ -31,15 +30,10 @@
   </IfModule>
 
   # ── SPA fallback ───────────────────────────────────────────────────────
-  # All requests that don't match static files go to index.html for SPA
-  RewriteRule ^index\.html$ - [L]
+  # Serve existing files/directories as-is, otherwise fallback to index.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
-</IfModule>
-
-# ── Fallback for older Apache ───────────────────────────────────────────
-<IfModule mod_alias.c>
-  Redirect 301 /podcasts /podcasts/index
-  Redirect 301 /music /music/index
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteCond %{REQUEST_URI} !^/sanctum/
+  RewriteRule ^(.*)$ /index.html [L]
 </IfModule>
