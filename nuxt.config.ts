@@ -9,11 +9,6 @@ export default defineNuxtConfig({
   alias: {
     '@': legacySrcDir,
   },
-  router: {
-    options: {
-      strict: true,
-    },
-  },
   app: {
     head: {
       htmlAttrs: {
@@ -69,8 +64,7 @@ export default defineNuxtConfig({
     '/privacy': { prerender: true },
     
     // Client-side only (protected/auth pages)
-    '/music/playlists/**': { ssr: false },
-    '/music/favorites': { ssr: false },
+    '/music/**': { ssr: false },
     '/settings': { ssr: false },
     '/dashboard': { ssr: false },
     '/bookmarks': { ssr: false },
