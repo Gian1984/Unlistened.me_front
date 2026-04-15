@@ -24,7 +24,7 @@ Relevant commits already completed:
 - `2f0d308 refactor: inline music catalog pages into nuxt pages`
 - `4afb579 refactor: inline auth and library pages into nuxt pages`
 - `819b4ad refactor: inline music playlists pages into nuxt pages`
-- `<pending> refactor: inline admin dashboard page into nuxt page`
+- `117cd48 refactor: inline admin dashboard page into nuxt page`
 
 What is already done and verified:
 - Nuxt static-first scaffolding is in place
