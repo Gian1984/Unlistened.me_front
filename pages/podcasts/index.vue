@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import Footer from '~/src/components/Footer.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
 import { StarIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
@@ -230,5 +229,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Footer />
 </template>

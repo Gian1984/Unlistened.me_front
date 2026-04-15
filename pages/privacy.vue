@@ -11,7 +11,6 @@ import {
   InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import PageHero from '~/src/components/PageHero.vue'
-import Footer from '~/src/components/Footer.vue'
 import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
 
 useStaticPageSeo('privacy')
@@ -256,6 +255,4 @@ const accentClasses = {
       </div>
     </div>
   </div>
-
-  <Footer />
 </template>

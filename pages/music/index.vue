@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ArrowRightIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import Footer from '~/src/components/Footer.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
@@ -279,5 +278,4 @@ onMounted(() => {
       </section>
     </div>
   </div>
-  <Footer />
 </template>

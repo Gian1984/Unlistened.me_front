@@ -1,5 +1,4 @@
 <script setup>
-import Footer from '~/src/components/Footer.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '~/src/stores/playerStore.js'
@@ -179,5 +178,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Footer />
 </template>

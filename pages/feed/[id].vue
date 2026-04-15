@@ -1,5 +1,4 @@
 <script setup>
-import Footer from '~/src/components/Footer.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import PageHero from '~/src/components/PageHero.vue'
@@ -392,5 +391,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Footer />
 </template>

@@ -5,16 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "nuxt:dev": "nuxt dev",
-    "nuxt:generate": "npx nuxi generate",
     "build": "node src/services/generate-sitemap.js && npx nuxi generate",
     "preview": "nuxt preview",
-    "legacy:vite:dev": "vite",
-    "legacy:vite:build": "node scripts/generate-static-seo.js && vite build && cp public/.htaccess dist/.htaccess",
-    "legacy:vite:preview": "vite preview",
     "test:unit": "vitest",
-    "generate-sitemap": "node src/services/generate-sitemap.js",
-    "generate-og-images": "node scripts/generate-og-images.js"
+    "generate-sitemap": "node src/services/generate-sitemap.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.19",

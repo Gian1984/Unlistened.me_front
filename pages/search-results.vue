@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import Footer from '~/src/components/Footer.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import PageHero from '~/src/components/PageHero.vue'
@@ -488,6 +487,4 @@ function closeCategoryFilter() {
       </template>
     </div>
   </div>
-
-  <Footer />
 </template>

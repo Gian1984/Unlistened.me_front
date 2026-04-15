@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { MagnifyingGlassIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import Footer from '~/src/components/Footer.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
@@ -240,5 +239,4 @@ watch([albums, offset, hasMore], persistState, { deep: true })
       </div>
     </div>
   </div>
-  <Footer />
 </template>

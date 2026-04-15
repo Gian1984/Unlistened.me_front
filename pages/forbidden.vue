@@ -1,6 +1,5 @@
 <script setup>
 import ShieldExclamationIcon from '@heroicons/vue/24/outline/esm/ShieldExclamationIcon.js'
-import Footer from '~/src/components/Footer.vue'
 import { useSeo } from '~/src/seo/composables/useSeo.js'
 import { forbiddenSeo } from '~/src/seo/registry/index.js'
 
@@ -57,5 +56,4 @@ useSeo(forbiddenSeo)
       </div>
     </div>
   </div>
-  <Footer />
 </template>

@@ -8,7 +8,6 @@ import { useAuthStore } from '~/src/stores/authStore.js'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import MusicTrackRow from '~/src/components/music/MusicTrackRow.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import Footer from '~/src/components/Footer.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
@@ -340,5 +339,4 @@ watch([tracks, genres, activeGenre, offset, hasMore], persistState, { deep: true
       </div>
     </div>
   </div>
-  <Footer />
 </template>

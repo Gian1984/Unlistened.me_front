@@ -10,7 +10,6 @@ import MusicTrackRow from '~/src/components/music/MusicTrackRow.vue'
 import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
-import Footer from '~/src/components/Footer.vue'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
 import { useSeo } from '~/src/seo/composables/useSeo.js'
 import { buildBreadcrumbSchema } from '~/src/seo/schemas/breadcrumb.js'
@@ -304,5 +303,4 @@ watch(albumId, fetchAlbum)
       </template>
     </div>
   </div>
-  <Footer />
 </template>

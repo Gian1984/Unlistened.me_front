@@ -6,7 +6,6 @@ import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
-import Footer from '~/src/components/Footer.vue'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { usePlayerStore } from '~/src/stores/playerStore.js'
 import { useQueueStore } from '~/src/stores/queueStore.js'
@@ -184,6 +183,4 @@ function asTrack(fav) {
       </p>
     </div>
   </div>
-
-  <Footer />
 </template>

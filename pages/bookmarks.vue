@@ -11,7 +11,6 @@ import {
 import { BookmarkIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
-import Footer from '~/src/components/Footer.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import { podcastService } from '~/src/services/podcastService.js'
@@ -488,6 +487,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
-  <Footer />
 </template>

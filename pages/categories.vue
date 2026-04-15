@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import Footer from '~/src/components/Footer.vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { podcastService } from '~/src/services/podcastService.js'
@@ -152,5 +151,4 @@ onMounted(() => {
       </template>
     </div>
   </div>
-  <Footer />
 </template>
