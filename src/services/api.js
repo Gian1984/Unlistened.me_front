@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { handleUnauthorized } from '@/services/sessionHandler'
 
+const config = useRuntimeConfig()
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: config.public.apiBaseUrl || 'https://www.unlistened.me',
   withCredentials: true,
   withXSRFToken: true,
 })
