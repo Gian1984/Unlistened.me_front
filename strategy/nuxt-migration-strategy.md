@@ -12,6 +12,70 @@ This reduces delivery risk, aligns with the current shared-hosting style deploym
 
 ---
 
+## Current Migration Status
+
+Branch in progress:
+- `feat-nuxt-static-migration`
+
+Relevant commits already completed:
+- `852b499 feat: add nuxt static-first migration base`
+- `0cb16a5 chore: define static policy for dynamic public routes`
+- `0040189 refactor: move core public pages into nuxt pages`
+- `2f0d308 refactor: inline music catalog pages into nuxt pages`
+- `4afb579 refactor: inline auth and library pages into nuxt pages`
+
+What is already done and verified:
+- Nuxt static-first scaffolding is in place
+- `dev` and `build` now point to Nuxt
+- static generation is based on `npx nuxi generate`
+- prerender strategy for known static public routes is active
+- dynamic public routes such as podcast and album detail pages are explicitly treated as client-fetch static shell pages
+- the default layout uses the migrated app shell
+- legacy Vite bootstrap has been isolated as reference-only
+- sitemap generation has been moved off the legacy router and aligned with shared route config
+
+Build verification status:
+- `npx nuxi generate` passes
+- static output is generated in `.output/public`
+
+Pages already migrated from thin wrappers to real Nuxt pages:
+- `/`
+- `/podcasts`
+- `/music`
+- `/music/albums`
+- `/music/singles`
+- `/categories`
+- `/feed/[id]`
+- `/episode/[id]`
+- `/music/album/[id]`
+- `/login`
+- `/signup`
+- `/forgot_password`
+- `/reset_password/[token]`
+- `/favourites`
+- `/bookmarks`
+- `/music/favorites`
+- `/music/playlists`
+- `/music/playlists/[id]`
+
+Pages still using `src/views/*` wrappers right now:
+- `/about`
+- `/documentation`
+- `/privacy`
+- `/terms`
+- `/search-results`
+- `/settings`
+- `/dashboard`
+- `/now-playing`
+- `/forbidden`
+- catch-all `404`
+
+Important clarification:
+- several public pages were already router-cleaned and Nuxt-compatible before this status update, even if some of them are still temporarily wrapped from `src/views`
+- the biggest remaining authenticated page is `settings`, and it should be treated as its own migration pass because it is materially larger than the average page
+
+---
+
 ## Current Baseline
 
 The current frontend is not a minimal SPA. It already includes:
@@ -268,6 +332,11 @@ Deliverables:
 Main risk:
 - route middleware running before auth state is initialized consistently
 
+Current implementation status:
+- largely completed for the main app surface
+- core public routes, auth routes, music library routes, and key dynamic public routes have already been moved into `pages/`
+- remaining route migration work is now concentrated in a smaller set of informational, search, admin, and settings pages
+
 ---
 
 ## Phase 3: State And App Bootstrap Migration
@@ -346,6 +415,12 @@ Deliverables:
 Main risk:
 - over-refactoring existing views during the move
 
+Current implementation status:
+- partially completed
+- `NavigationView` is already being used through `layouts/default.vue`
+- the most important page families no longer depend on thin view wrappers
+- there is still temporary duplication because some legacy `src/views/*` files remain in place as reference and for not-yet-migrated routes
+
 ---
 
 ## Phase 6: SEO Re-architecture
@@ -382,6 +457,12 @@ Main risk:
 
 Important:
 - this phase should be separate from the first working migration unless SEO is the primary business driver
+
+Current implementation status:
+- partially completed
+- a shared static route registry and static page SEO registry already exist
+- dynamic public pages already define an explicit static-shell policy
+- the full cleanup of legacy SEO layers and old crawler-oriented fallbacks is still pending
 
 ---
 
@@ -454,6 +535,42 @@ Reasoning:
 - first get a working Nuxt app
 - then stabilize auth, routing, and core playback flows
 - only after that revisit SEO and hosting strategy
+
+---
+
+## Remaining Work
+
+Recommended next steps from the current branch state:
+1. Migrate `pages/settings.vue` out of the wrapper and into a real Nuxt page
+2. Migrate `pages/dashboard.vue`
+3. Decide whether to inline or leave wrapped the lower-risk informational pages:
+   - `about`
+   - `documentation`
+   - `privacy`
+   - `terms`
+   - `forbidden`
+   - `404`
+4. Migrate `pages/search-results.vue`
+5. Review whether `pages/now-playing.vue` should remain wrapper-based or be absorbed
+6. Reassess whether the legacy files should remain as reference only or be retired:
+   - `src/main.js`
+   - `src/App.vue`
+   - `src/router/index.js`
+   - corresponding `src/views/*` already replaced by Nuxt pages
+7. Do a dedicated SEO cleanup pass after page migration is complete
+8. Do a final deploy/hardening pass around Apache/static hosting assumptions
+
+What is intentionally not done yet:
+- removing the old `src/views/*` layer completely
+- deleting the legacy router/bootstrap files
+- replacing the full old SEO stack
+- changing hosting assumptions beyond static Nuxt output
+
+Recommended milestone grouping from here:
+- Milestone A: finish authenticated/admin wrapper migration
+- Milestone B: finish remaining public wrapper cleanup
+- Milestone C: retire or archive more of the legacy layer
+- Milestone D: SEO and deploy hardening
 
 ---
 
