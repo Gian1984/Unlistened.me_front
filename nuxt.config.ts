@@ -52,12 +52,19 @@ export default defineNuxtConfig({
       routes: staticRoutes.filter((route) => route.prerender).map((route) => route.path),
     },
   },
-  routeRules: Object.fromEntries(
-    dynamicPublicRoutes.map((route) => [
-      route.pattern,
-      {
-        prerender: route.prerender,
-      },
-    ])
-  ),
+  routeRules: {
+    ...Object.fromEntries(
+      dynamicPublicRoutes.map((route) => [
+        route.pattern,
+        { prerender: route.prerender },
+      ])
+    ),
+    '/music/playlists/**': { ssr: false },
+    '/music/favorites': { ssr: false },
+    '/settings': { ssr: false },
+    '/dashboard': { ssr: false },
+    '/bookmarks': { ssr: false },
+    '/favourites': { ssr: false },
+  },
+})
 })
