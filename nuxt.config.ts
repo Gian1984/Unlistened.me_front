@@ -1,6 +1,4 @@
 import { fileURLToPath } from 'node:url'
-import { staticRoutes } from './config/static-routes'
-import { dynamicPublicRoutes } from './config/dynamic-public-routes'
 
 const legacySrcDir = fileURLToPath(new URL('./src', import.meta.url))
 
@@ -49,16 +47,23 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
-      routes: staticRoutes.filter((route) => route.prerender).map((route) => route.path),
+      routes: ['/', '/podcasts', '/music', '/music/albums', '/music/singles', '/categories', '/about', '/documentation', '/terms', '/privacy'],
     },
   },
   routeRules: {
-    ...Object.fromEntries(
-      dynamicPublicRoutes.map((route) => [
-        route.pattern,
-        { prerender: route.prerender },
-      ])
-    ),
+    // Static pages to prerender
+    '/': { prerender: true },
+    '/podcasts': { prerender: true },
+    '/music': { prerender: true },
+    '/music/albums': { prerender: true },
+    '/music/singles': { prerender: true },
+    '/categories': { prerender: true },
+    '/about': { prerender: true },
+    '/documentation': { prerender: true },
+    '/terms': { prerender: true },
+    '/privacy': { prerender: true },
+    
+    // Client-side only (protected/auth pages)
     '/music/playlists/**': { ssr: false },
     '/music/favorites': { ssr: false },
     '/settings': { ssr: false },
