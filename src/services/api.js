@@ -2,7 +2,7 @@ import axios from 'axios'
 import { handleUnauthorized } from '~/src/services/sessionHandler'
 
 const api = axios.create({
-  baseURL: 'https://www.unlistened.me',
+  baseURL: 'https://api.unlistened.me',
   withCredentials: true,
   withXSRFToken: true,
 })
