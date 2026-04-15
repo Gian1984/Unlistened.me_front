@@ -71,4 +71,3 @@ export default defineNuxtConfig({
     '/favourites': { ssr: false },
   },
 })
-})
