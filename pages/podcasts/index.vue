@@ -213,13 +213,13 @@ onMounted(() => {
         </ul>
       </div>
 
-      <div v-if="!loading && hasMore" class="flex justify-center">
+      <div v-if="!loading && hasMore" class="mt-6 flex justify-center">
         <button
           type="button"
-          @click="loadMore"
-          class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:border-indigo-500 hover:text-white"
+          @click="loadMore()"
+          class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300"
         >
-          Load more
+          Show more
         </button>
       </div>
 

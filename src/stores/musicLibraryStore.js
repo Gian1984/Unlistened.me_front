@@ -243,5 +243,27 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
   persist: {
     key: 'musicLibrary',
     pick: ['favoriteIds'],
+    serializer: {
+      serialize: (state) => JSON.stringify({
+        ...state,
+        favoriteIds: state.favoriteIds instanceof Set ? [...state.favoriteIds] : [],
+      }),
+      deserialize: (raw) => {
+        const parsed = JSON.parse(raw)
+        return {
+          ...parsed,
+          favoriteIds: new Set(Array.isArray(parsed.favoriteIds) ? parsed.favoriteIds : []),
+        }
+      },
+    },
+    afterHydrate: (ctx) => {
+      if (!(ctx.store.favoriteIds instanceof Set)) {
+        ctx.store.favoriteIds = new Set(
+          Array.isArray(ctx.store.favoriteIds)
+            ? ctx.store.favoriteIds
+            : Object.keys(ctx.store.favoriteIds || {}),
+        )
+      }
+    },
   }
 })
