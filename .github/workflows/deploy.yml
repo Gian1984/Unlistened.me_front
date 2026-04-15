@@ -22,19 +22,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Generate Sitemap
+        run: npm run generate-sitemap
 
       - name: Generate OG Images
         run: npm run generate-og-images
 
-      - name: Generate Sitemap
-        run: npm run generate-sitemap
+      - name: Build Nuxt (SSG)
+        run: npx nuxi generate
 
-      - name: Verify .htaccess in dist
+      - name: Verify .htaccess in output
         run: |
-          cat dist/.htaccess
-          echo "✓ .htaccess present in dist/"
+          cat .output/public/.htaccess
+          echo "✓ .htaccess present in .output/public/"
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -42,7 +42,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: dist/
+          local-dir: .output/public/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           protocol: ftps
           security: loose

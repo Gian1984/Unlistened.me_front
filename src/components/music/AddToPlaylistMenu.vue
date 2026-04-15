@@ -83,30 +83,31 @@ function onTriggerClick(e) {
 </script>
 
 <template>
-  <Menu as="div" class="relative shrink-0" @click.stop>
-    <MenuButton
-      :title="'Add to playlist'"
-      :aria-label="'Add to playlist'"
-      @click="onTriggerClick"
-      :class="[
-        'inline-flex items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-300',
-        sizeClasses.btn
-      ]"
-    >
-      <PlusIcon :class="sizeClasses.icon" />
-    </MenuButton>
-
-    <transition
-      enter-active-class="transition ease-out duration-100"
-      enter-from-class="transform opacity-0 scale-95"
-      enter-to-class="transform opacity-100 scale-100"
-      leave-active-class="transition ease-in duration-75"
-      leave-from-class="transform opacity-100 scale-100"
-      leave-to-class="transform opacity-0 scale-95"
-    >
-      <MenuItems
-        class="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl focus:outline-none"
+  <ClientOnly>
+    <Menu as="div" class="relative shrink-0" @click.stop>
+      <MenuButton
+        :title="'Add to playlist'"
+        :aria-label="'Add to playlist'"
+        @click="onTriggerClick"
+        :class="[
+          'inline-flex items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-300',
+          sizeClasses.btn
+        ]"
       >
+        <PlusIcon :class="sizeClasses.icon" />
+      </MenuButton>
+
+      <transition
+        enter-active-class="transition ease-out duration-100"
+        enter-from-class="transform opacity-0 scale-95"
+        enter-to-class="transform opacity-100 scale-100"
+        leave-active-class="transition ease-in duration-75"
+        leave-from-class="transform opacity-100 scale-100"
+        leave-to-class="transform opacity-0 scale-95"
+      >
+        <MenuItems
+          class="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl focus:outline-none"
+        >
         <div class="border-b border-gray-800 px-4 py-3">
           <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Add to playlist
@@ -195,6 +196,20 @@ function onTriggerClick(e) {
           </MenuItem>
         </div>
       </MenuItems>
-    </transition>
-  </Menu>
+      </transition>
+    </Menu>
+    <template #fallback">
+      <div class="relative shrink-0">
+        <button
+          :class="[
+            'inline-flex items-center justify-center rounded-full text-gray-500',
+            sizeClasses.btn
+          ]"
+          disabled
+        >
+          <PlusIcon :class="sizeClasses.icon" />
+        </button>
+      </div>
+    </template>
+  </ClientOnly>
 </template>

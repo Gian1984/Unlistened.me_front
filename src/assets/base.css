@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Nuxt Tailwind module loads @tailwind directives from its own config */
 
 *,
 *::before,
@@ -34,8 +32,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Prevent iOS Safari from zooming on input focus.
-   Any font size below 16px triggers the auto zoom on touch devices. */
+/* Prevent iOS Safari from zooming on input focus. */
 input,
 textarea,
 select {
@@ -43,15 +40,13 @@ select {
 }
 
 
-@layer utilities {
-  .animate-shimmer {
-    background: linear-gradient(90deg, #374151 0%, #4b5563 50%, #374151 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
-}
-
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #374151 0%, #4b5563 50%, #374151 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }

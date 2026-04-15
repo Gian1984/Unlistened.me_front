@@ -1,5 +1,29 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import StarIcon from '@heroicons/vue/24/outline/esm/StarIcon.js'
+import HomeIcon from '@heroicons/vue/24/outline/esm/HomeIcon.js'
+import UsersIcon from '@heroicons/vue/24/outline/esm/UsersIcon.js'
+import BookmarkIcon from '@heroicons/vue/24/outline/esm/BookmarkIcon.js'
+import BookOpenIcon from '@heroicons/vue/24/outline/esm/BookOpenIcon.js'
+import AdjustmentsHorizontalIcon from '@heroicons/vue/24/outline/esm/AdjustmentsHorizontalIcon.js'
+import TagIcon from '@heroicons/vue/24/outline/esm/TagIcon.js'
+import ArrowRightOnRectangleIcon from '@heroicons/vue/24/outline/esm/ArrowRightOnRectangleIcon.js'
+import ArrowLeftOnRectangleIcon from '@heroicons/vue/24/outline/esm/ArrowLeftOnRectangleIcon.js'
+import UserPlusIcon from '@heroicons/vue/24/outline/esm/UserPlusIcon.js'
+import MicrophoneIcon from '@heroicons/vue/24/outline/esm/MicrophoneIcon.js'
+import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
+import HeartIcon from '@heroicons/vue/24/outline/esm/HeartIcon.js'
+import ListBulletIcon from '@heroicons/vue/24/outline/esm/ListBulletIcon.js'
+import Bars3Icon from '@heroicons/vue/24/outline/esm/Bars3Icon.js'
+import Cog6ToothIcon from '@heroicons/vue/24/outline/esm/Cog6ToothIcon.js'
+import Squares2X2Icon from '@heroicons/vue/24/outline/esm/Squares2X2Icon.js'
+import XMarkIcon from '@heroicons/vue/24/outline/esm/XMarkIcon.js'
+import ChevronDownIcon from '@heroicons/vue/20/solid/esm/ChevronDownIcon.js'
+import ChevronRightIcon from '@heroicons/vue/20/solid/esm/ChevronRightIcon.js'
+import MagnifyingGlassIcon from '@heroicons/vue/20/solid/esm/MagnifyingGlassIcon.js'
+import ChevronLeftIcon from '@heroicons/vue/20/solid/esm/ChevronLeftIcon.js'
+import XMarkSolid from '@heroicons/vue/20/solid/esm/XMarkIcon.js'
+
 import {
   Dialog,
   DialogPanel,
@@ -9,29 +33,10 @@ import {
   MenuItems,
   TransitionChild,
   TransitionRoot,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
 } from '@headlessui/vue'
-import {
-  Bars3Icon,
-  Cog6ToothIcon,
-  StarIcon,
-  HomeIcon,
-  UsersIcon,
-  XMarkIcon,
-  BookmarkIcon,
-  BookOpenIcon,
-  AdjustmentsHorizontalIcon,
-  TagIcon,
-  Squares2X2Icon,
-  ArrowRightOnRectangleIcon,
-  ArrowLeftOnRectangleIcon,
-  UserPlusIcon,
-  MicrophoneIcon,
-  MusicalNoteIcon,
-  HeartIcon,
-  ListBulletIcon,
-} from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, ChevronRightIcon, MagnifyingGlassIcon, ChevronLeftIcon, XMarkIcon as XMarkSolid } from '@heroicons/vue/20/solid'
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
@@ -45,22 +50,8 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-// Auth computed properties
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const isAdmin = computed(() => authStore.isAdmin)
-
-const userInitials = computed(() => {
-  const source = authStore.user?.name || authStore.user?.email || ''
-  return source
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(w => w[0]?.toUpperCase() || '')
-    .join('')
-})
-
-// Navigation sections
-const navigationSections = [
+// Navigation sections - lazily computed to avoid SSR issues
+const navigationSections = computed(() => [
   {
     label: 'Discover',
     items: [
@@ -84,7 +75,7 @@ const navigationSections = [
       { name: 'Documentation', href: '/documentation', icon: BookOpenIcon },
     ],
   },
-]
+])
 
 const sidebarOpen = ref(false)
 
@@ -379,110 +370,124 @@ watch(
               </button>
 
               <!-- Filter by category / genre popover -->
-              <Popover class="relative shrink-0 hidden sm:block">
-                <PopoverButton
-                    class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300 focus:outline-none sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30 sm:hover:bg-indigo-500/20 sm:hover:text-white"
-                    :title="searchType === 'music' ? 'Filter by genre' : 'Filter by category'"
-                >
-                  <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-                  <span class="hidden sm:inline text-xs font-medium">Filters</span>
-                </PopoverButton>
+              <ClientOnly>
+                <Popover class="relative shrink-0 hidden sm:block">
+                  <PopoverButton
+                      class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300 focus:outline-none sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30 sm:hover:bg-indigo-500/20 sm:hover:text-white"
+                      :title="searchType === 'music' ? 'Filter by genre' : 'Filter by category'"
+                  >
+                    <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                    <span class="hidden sm:inline text-xs font-medium">Filters</span>
+                  </PopoverButton>
 
-                <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
-                  <PopoverPanel v-slot="{ close }" class="absolute right-0 z-50 mt-3 w-[22rem] max-w-[calc(100vw-1.5rem)] origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
-                    <div class="border-b border-gray-800 px-4 pt-4 pb-3">
-                      <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        {{ searchType === 'music' ? 'Browse by genre' : 'Browse by category' }}
-                      </p>
-                      <div class="relative mt-2">
-                        <MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                        <input
-                            v-model="categoryFilter"
-                            type="search"
-                            :placeholder="searchType === 'music' ? 'Filter genres' : 'Filter categories'"
-                            class="w-full rounded-lg border border-gray-800 bg-gray-950 py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        />
-                      </div>
-                    </div>
-                    <div class="max-h-72 overflow-y-auto p-2">
-                      <!-- Music genres -->
-                      <template v-if="searchType === 'music'">
-                        <div v-if="musicGenresLoading" class="grid grid-cols-2 gap-2 p-1">
-                          <div v-for="n in 8" :key="n" class="h-8 rounded-md animate-shimmer bg-gray-800/70" />
+                  <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
+                    <PopoverPanel v-slot="{ close }" class="absolute right-0 z-50 mt-3 w-[22rem] max-w-[calc(100vw-1.5rem)] origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
+                      <div class="border-b border-gray-800 px-4 pt-4 pb-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {{ searchType === 'music' ? 'Browse by genre' : 'Browse by category' }}
+                        </p>
+                        <div class="relative mt-2">
+                          <MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <input
+                              v-model="categoryFilter"
+                              type="search"
+                              :placeholder="searchType === 'music' ? 'Filter genres' : 'Filter categories'"
+                              class="w-full rounded-lg border border-gray-800 bg-gray-950 py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
                         </div>
-                        <p v-else-if="!filteredGenres.length" class="px-2 py-6 text-center text-xs text-gray-500">No genres match.</p>
-                        <ul v-else class="grid grid-cols-2 gap-1">
-                          <li v-for="g in filteredGenres" :key="g.tag">
-                            <button
-                                type="button"
-                                @click="() => { close(); categoryFilter = ''; onGenreClick(g.tag); }"
-                                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-                            >
-                              <MusicalNoteIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
-                              <span class="truncate">{{ g.label }}</span>
-                            </button>
-                          </li>
-                        </ul>
-                      </template>
-                      <!-- Podcast categories -->
-                      <template v-else>
-                        <p v-if="!categories.length" class="px-2 py-6 text-center text-xs text-gray-500">Loading categories...</p>
-                        <p v-else-if="!filteredCategories.length" class="px-2 py-6 text-center text-xs text-gray-500">No categories match.</p>
-                        <ul v-else class="grid grid-cols-2 gap-1">
-                          <li v-for="cat in filteredCategories" :key="cat.id">
-                            <button
-                                type="button"
-                                @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
-                                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-                            >
-                              <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
-                              <span class="truncate">{{ cat.name }}</span>
-                            </button>
-                          </li>
-                        </ul>
-                      </template>
-                    </div>
-                    <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
-                      <NuxtLink
-                          :to="searchType === 'music' ? '/categories?tab=music' : '/categories'"
-                          @click="close"
-                          class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
-                      >
-                        {{ searchType === 'music' ? 'See all genres' : 'See all categories' }}
-                        <ChevronRightIcon class="h-4 w-4" />
-                      </NuxtLink>
-                    </div>
-                  </PopoverPanel>
-                </transition>
-              </Popover>
+                      </div>
+                      <div class="max-h-72 overflow-y-auto p-2">
+                        <!-- Music genres -->
+                        <template v-if="searchType === 'music'">
+                          <div v-if="musicGenresLoading" class="grid grid-cols-2 gap-2 p-1">
+                            <div v-for="n in 8" :key="n" class="h-8 rounded-md animate-shimmer bg-gray-800/70" />
+                          </div>
+                          <p v-else-if="!filteredGenres.length" class="px-2 py-6 text-center text-xs text-gray-500">No genres match.</p>
+                          <ul v-else class="grid grid-cols-2 gap-1">
+                            <li v-for="g in filteredGenres" :key="g.tag">
+                              <button
+                                  type="button"
+                                  @click="() => { close(); categoryFilter = ''; onGenreClick(g.tag); }"
+                                  class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                              >
+                                <MusicalNoteIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                                <span class="truncate">{{ g.label }}</span>
+                              </button>
+                            </li>
+                          </ul>
+                        </template>
+                        <!-- Podcast categories -->
+                        <template v-else>
+                          <p v-if="!categories.length" class="px-2 py-6 text-center text-xs text-gray-500">Loading categories...</p>
+                          <p v-else-if="!filteredCategories.length" class="px-2 py-6 text-center text-xs text-gray-500">No categories match.</p>
+                          <ul v-else class="grid grid-cols-2 gap-1">
+                            <li v-for="cat in filteredCategories" :key="cat.id">
+                              <button
+                                  type="button"
+                                  @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
+                                  class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+                              >
+                                <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                                <span class="truncate">{{ cat.name }}</span>
+                              </button>
+                            </li>
+                          </ul>
+                        </template>
+                      </div>
+                      <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
+                        <NuxtLink
+                            :to="searchType === 'music' ? '/categories?tab=music' : '/categories'"
+                            @click="close"
+                            class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
+                        >
+                          {{ searchType === 'music' ? 'See all genres' : 'See all categories' }}
+                          <ChevronRightIcon class="h-4 w-4" />
+                        </NuxtLink>
+                      </div>
+                    </PopoverPanel>
+                  </transition>
+                </Popover>
+                <template #fallback>
+                  <div class="relative shrink-0 hidden sm:block">
+                    <button
+                        class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30"
+                        disabled
+                    >
+                      <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                      <span class="hidden sm:inline text-xs font-medium">Filters</span>
+                    </button>
+                  </div>
+                </template>
+              </ClientOnly>
             </div>
           </div>
 
           <div class="flex items-center gap-x-2 lg:gap-x-4">
             <!-- Profile dropdown -->
-            <Menu as="div" class="relative shrink-0">
-              <MenuButton class="-m-1.5 flex items-center gap-x-2 rounded-full p-1.5 transition-colors hover:bg-gray-900">
-                <span class="sr-only">Open user menu</span>
-                <div
-                    v-if="authStore.user"
-                    class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-indigo-500/15 text-xs sm:text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30"
-                >
-                  {{ userInitials }}
-                </div>
-                <div
-                    v-else
-                    class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
-                >
-                  <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <span class="hidden lg:flex lg:items-center">
-                  <span v-if="authStore.user" class="text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
-                  <span v-else class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
-                  <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                </span>
-              </MenuButton>
-              <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl focus:outline-none">
+            <ClientOnly>
+              <Menu as="div" class="relative shrink-0">
+                <MenuButton class="-m-1.5 flex items-center gap-x-2 rounded-full p-1.5 transition-colors hover:bg-gray-900">
+                  <span class="sr-only">Open user menu</span>
+                  <div
+                      v-if="authStore.user"
+                      class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-indigo-500/15 text-xs sm:text-sm font-semibold text-indigo-300 ring-1 ring-inset ring-indigo-500/30"
+                  >
+                    {{ userInitials }}
+                  </div>
+                  <div
+                      v-else
+                      class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
+                  >
+                    <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
+                  <span class="hidden lg:flex lg:items-center">
+                    <span v-if="authStore.user" class="text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
+                    <span v-else class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
+                    <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </span>
+                </MenuButton>
+                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                  <MenuItems class="absolute right-0 z-10 mt-2.5 w-72 origin-top-right overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl focus:outline-none">
 
                   <!-- Authenticated header -->
                   <div v-if="authStore.user" class="flex items-center gap-3 border-b border-gray-800 bg-gradient-to-br from-indigo-500/10 to-gray-900 px-4 py-4">
@@ -585,6 +590,20 @@ watch(
                 </MenuItems>
               </transition>
             </Menu>
+            <template #fallback>
+              <div class="relative shrink-0">
+                <div class="flex items-center gap-x-2 rounded-full p-1.5">
+                  <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700">
+                    <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
+                  <span class="hidden lg:flex lg:items-center">
+                    <span class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
+                    <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </span>
+                </div>
+              </div>
+            </template>
+            </ClientOnly>
           </div>
         </div>
       </div>

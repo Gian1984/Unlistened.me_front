@@ -2,16 +2,44 @@
   RewriteEngine On
   RewriteBase /
 
-  # ── Crawler proxy ──────────────────────────────────────────────────
-  # Social-media and search-engine bots get routed to crawler.php which serves
-  # stable HTML metadata for dynamic routes without relying on JS execution.
-  RewriteCond %{HTTP_USER_AGENT} facebookexternalhit|Facebot|Twitterbot|LinkedInBot|TelegramBot|Slackbot|WhatsApp|Discordbot|Pinterest|Applebot|Googlebot|Google-InspectionTool|bingbot|BingPreview [NC]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*)$ /crawler.php [L,QSA]
+  # ── Static assets caching ─────────────────────────────────────────────
+  # Cache static files for 1 year
+  <IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+  </IfModule>
 
-  # ── SPA fallback ───────────────────────────────────────────────────
+  # ── Gzip compression ──────────────────────────────────────────────────
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json application/xml
+  </IfModule>
+
+  # ── Security headers ──────────────────────────────────────────────────
+  <IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+  </IfModule>
+
+  # ── SPA fallback ───────────────────────────────────────────────────────
+  # All requests that don't match static files go to index.html for SPA
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
+</IfModule>
+
+# ── Fallback for older Apache ───────────────────────────────────────────
+<IfModule mod_alias.c>
+  Redirect 301 /podcasts /podcasts/index
+  Redirect 301 /music /music/index
 </IfModule>

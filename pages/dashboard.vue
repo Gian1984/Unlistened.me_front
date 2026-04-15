@@ -538,6 +538,7 @@ onMounted(() => {
                 >
                   <component :is="faq.was_answered ? CheckCircleIcon : XCircleIcon" :class="faq.was_answered ? 'h-5 w-5 text-emerald-400' : 'h-5 w-5 text-amber-400'" aria-hidden="true" />
                 </button>
+                <ClientOnly>
                 <Menu as="div" class="relative flex-none">
                   <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">
                     <span class="sr-only">Open options</span>
@@ -551,6 +552,7 @@ onMounted(() => {
                     </MenuItems>
                   </transition>
                 </Menu>
+                </ClientOnly>
               </div>
             </li>
           </ul>
@@ -638,6 +640,7 @@ onMounted(() => {
                 >
                   <component :is="user.is_admin ? WrenchScrewdriverIcon : UserIcon" :class="user.is_admin ? 'h-5 w-5 text-pink-400' : 'h-5 w-5 text-gray-400'" aria-hidden="true" />
                 </button>
+                <ClientOnly>
                 <Menu as="div" class="relative flex-none">
                   <MenuButton class="-m-2.5 block p-2.5 text-gray-500 hover:text-pink-400">
                     <span class="sr-only">Open options</span>
@@ -651,6 +654,7 @@ onMounted(() => {
                     </MenuItems>
                   </transition>
                 </Menu>
+                </ClientOnly>
               </div>
             </li>
           </ul>
