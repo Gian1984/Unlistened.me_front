@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "build": "node src/services/generate-sitemap.js && npx nuxi generate",
+    "build": "npx nuxi generate",
     "preview": "nuxt preview",
-    "test:unit": "vitest",
-    "generate-sitemap": "node src/services/generate-sitemap.js"
+    "test:unit": "vitest"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.19",

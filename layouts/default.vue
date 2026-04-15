@@ -1,5 +1,5 @@
 <script setup>
-import NavigationView from '~/src/views/NavigationView.vue'
+import NavigationView from '~/components/NavigationView.vue'
 </script>
 
 <template>
