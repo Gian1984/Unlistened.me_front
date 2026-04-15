@@ -709,7 +709,13 @@ Decision needed for dynamic public pages:
 - `/episode/[id]`
 - `/music/album/[id]`
 
-For these routes, choose one of:
+Current branch policy:
+- keep these routes as `client-fetch static shell`
+- explicitly exclude them from prerender
+- rely on static hosting SPA fallback for direct entry
+- preserve the option to introduce curated prerender later from a build-time path source
+
+Future upgrade paths for these routes:
 - prerender only a known curated subset
 - generate from a build-time content list if obtainable
 - keep static shell and fetch content client-side at runtime

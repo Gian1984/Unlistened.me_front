@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { staticRoutes } from './config/static-routes'
+import { dynamicPublicRoutes } from './config/dynamic-public-routes'
 
 const legacySrcDir = fileURLToPath(new URL('./src', import.meta.url))
 
@@ -31,4 +32,12 @@ export default defineNuxtConfig({
       routes: staticRoutes.filter((route) => route.prerender).map((route) => route.path),
     },
   },
+  routeRules: Object.fromEntries(
+    dynamicPublicRoutes.map((route) => [
+      route.pattern,
+      {
+        prerender: route.prerender,
+      },
+    ])
+  ),
 })
