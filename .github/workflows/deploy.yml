@@ -30,6 +30,8 @@ jobs:
 
       - name: Build Nuxt (SSG)
         run: npx nuxi generate
+        env:
+          NUXT_PUBLIC_API_BASE_URL: ${{ secrets.VITE_BASE_URL }}
 
       - name: Verify .htaccess in output
         run: |
