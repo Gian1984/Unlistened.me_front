@@ -23,6 +23,8 @@ const emit = defineEmits(['play'])
 
 const isCurrent = computed(() => props.isPlaying)
 const coverImage = computed(() => props.track?.album_image || props.track?.image || '')
+const albumLabel = computed(() => props.track?.album_name || 'Single')
+const hasLicense = computed(() => Boolean(props.track?.license_ccurl))
 
 function handlePlay() {
   emit('play', props.track)
@@ -73,7 +75,7 @@ function handlePlay() {
       </div>
     </div>
 
-    <!-- Title + artist + license badge -->
+    <!-- Title + artist + rights + album -->
     <div class="flex-1 min-w-0">
       <p
         class="text-sm font-semibold truncate transition-colors cursor-pointer"
@@ -82,9 +84,12 @@ function handlePlay() {
       >
         {{ track.name }}
       </p>
-      <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
-        <span class="truncate">{{ track.artist_name }}</span>
-        <LicenseBadge :url="track.license_ccurl" size="xs" />
+      <p class="mt-0.5 truncate text-xs text-gray-400">
+        {{ track.artist_name }}
+      </p>
+      <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+        <LicenseBadge v-if="hasLicense" :url="track.license_ccurl" size="xs" />
+        <span v-else class="truncate">Creative Commons</span>
       </div>
       <router-link
         v-if="showAlbumLink && track.album_id && track.album_name"
@@ -92,8 +97,14 @@ function handlePlay() {
         class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
         @click.stop
       >
-        <span class="truncate">{{ track.album_name }}</span>
+        <span class="truncate">{{ albumLabel }}</span>
       </router-link>
+      <p
+        v-else
+        class="mt-0.5 truncate text-xs text-gray-500"
+      >
+        {{ albumLabel }}
+      </p>
     </div>
 
     <!-- Duration -->

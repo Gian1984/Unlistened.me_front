@@ -86,6 +86,10 @@ function isCurrentTrack(t) {
   return playerStore.isPlayingTrack(t.jamendo_track_id)
 }
 
+function playlistAlbumLabel(track) {
+  return track.album_name || 'Single'
+}
+
 function playAll() {
   if (!tracks.value.length) return
   playTrack(tracks.value[0], 0)
@@ -300,7 +304,7 @@ function asTrackForLibrary(t) {
               {{ idx + 1 }}
             </span>
 
-            <!-- Title + artist -->
+            <!-- Title + artist + rights + album -->
             <div class="flex-1 min-w-0 min-w-0">
               <p
                 class="text-sm font-semibold truncate transition-colors cursor-pointer"
@@ -309,10 +313,12 @@ function asTrackForLibrary(t) {
               >
                 {{ t.title }}
               </p>
-              <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
-                <span class="truncate">{{ t.artist_name }}</span>
-                <LicenseBadge :url="t.license_ccurl" size="xs" />
+              <p class="mt-0.5 truncate text-xs text-gray-400">{{ t.artist_name }}</p>
+              <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+                <LicenseBadge v-if="t.license_ccurl" :url="t.license_ccurl" size="xs" />
+                <span v-else class="truncate">Creative Commons</span>
               </div>
+              <p class="mt-0.5 truncate text-xs text-gray-500">{{ playlistAlbumLabel(t) }}</p>
             </div>
 
             <!-- Duration + actions -->

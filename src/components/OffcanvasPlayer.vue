@@ -167,29 +167,34 @@
             <p class="text-sm font-semibold text-white truncate leading-tight">
               {{ playerStore.currentEpisode.title }}
             </p>
-            <!-- Music: artist + license + via Jamendo -->
-            <div
-              v-if="playerStore.isMusic"
-              class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-gray-400 leading-tight"
-            >
-              <span class="truncate">{{ playerStore.currentEpisode.feedTitle }}</span>
-              <LicenseBadge
-                v-if="playerStore.currentEpisode.licenseUrl"
-                :url="playerStore.currentEpisode.licenseUrl"
-                size="xs"
-              />
-              <a
-                v-if="playerStore.currentEpisode.shareUrl"
-                :href="playerStore.currentEpisode.shareUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                @click.stop
-                class="hidden sm:inline shrink-0 text-gray-500 hover:text-indigo-400 transition-colors"
-                title="Open on Jamendo"
-              >
-                · via Jamendo
-              </a>
-            </div>
+            <!-- Music: artist + rights + album -->
+            <template v-if="playerStore.isMusic">
+              <p class="mt-0.5 truncate text-xs text-gray-400 leading-tight">
+                {{ currentArtistLabel }}
+              </p>
+              <div class="mt-0.5 min-h-5 text-xs text-gray-400 leading-tight">
+                <LicenseBadge
+                  v-if="playerStore.currentEpisode.licenseUrl"
+                  :url="playerStore.currentEpisode.licenseUrl"
+                  size="xs"
+                />
+                <span v-else class="truncate">Creative Commons</span>
+              </div>
+              <div class="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-gray-500 leading-tight">
+                <span class="truncate">{{ currentAlbumLabel }}</span>
+                <a
+                  v-if="playerStore.currentEpisode.shareUrl"
+                  :href="playerStore.currentEpisode.shareUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                  class="shrink-0 text-gray-500 hover:text-indigo-400 transition-colors"
+                  title="Open on Jamendo"
+                >
+                  · via Jamendo
+                </a>
+              </div>
+            </template>
             <!-- Podcast: feed title -->
             <p
               v-else-if="playerStore.currentEpisode.feedTitle"
@@ -256,6 +261,8 @@ const currentMusicTrack = computed(() => {
     shareurl: ep.shareUrl,
   }
 })
+const currentArtistLabel = computed(() => playerStore.currentEpisode?.feedTitle || 'Unknown artist')
+const currentAlbumLabel = computed(() => playerStore.currentEpisode?.albumName || 'Single')
 
 const audioEl = ref(null)
 const isPlaying = ref(false)

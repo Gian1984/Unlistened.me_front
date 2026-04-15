@@ -52,6 +52,10 @@ function isCurrentTrack(fav) {
   return playerStore.isPlayingTrack(fav.jamendo_track_id)
 }
 
+function favoriteAlbumLabel(fav) {
+  return fav.album_name || 'Single'
+}
+
 async function removeOne(fav) {
   try {
     await library.removeFavorite(fav.jamendo_track_id)
@@ -141,7 +145,7 @@ function asTrack(fav) {
             </div>
           </div>
 
-          <!-- Title + artist -->
+          <!-- Title + artist + rights + album -->
           <div class="flex-1 min-w-0 min-w-0">
             <p
               class="text-sm font-semibold truncate transition-colors cursor-pointer"
@@ -150,17 +154,19 @@ function asTrack(fav) {
             >
               {{ fav.title }}
             </p>
-            <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
-              <span class="truncate">{{ fav.artist_name }}</span>
-              <LicenseBadge :url="fav.license_ccurl" size="xs" />
+            <p class="mt-0.5 truncate text-xs text-gray-400">{{ fav.artist_name }}</p>
+            <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+              <LicenseBadge v-if="fav.license_ccurl" :url="fav.license_ccurl" size="xs" />
+              <span v-else class="truncate">Creative Commons</span>
             </div>
             <router-link
               v-if="fav.album_id && fav.album_name"
               :to="{ name: 'MusicAlbum', params: { id: fav.album_id } }"
               class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
             >
-              <span class="truncate">{{ fav.album_name }}</span>
+              <span class="truncate">{{ favoriteAlbumLabel(fav) }}</span>
             </router-link>
+            <p v-else class="mt-0.5 truncate text-xs text-gray-500">{{ favoriteAlbumLabel(fav) }}</p>
           </div>
 
           <!-- Duration -->

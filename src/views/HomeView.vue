@@ -84,6 +84,10 @@ function isCurrentTrack(track) {
   return playerStore.isPlayingTrack(track.id)
 }
 
+function homeTrackAlbumLabel(track) {
+  return track.album_name || 'Single'
+}
+
 function getDailySeed() {
   const now = new Date()
   return Number(`${now.getUTCFullYear()}${now.getUTCMonth() + 1}${now.getUTCDate()}`)
@@ -381,17 +385,19 @@ onMounted(() => {
               >
                 {{ track.name }}
               </p>
-              <div class="flex flex-wrap items-center gap-1 text-xs text-gray-400">
-                <span class="truncate">{{ track.artist_name }}</span>
-                <LicenseBadge :url="track.license_ccurl" size="xs" />
+              <p class="mt-0.5 truncate text-xs text-gray-400">{{ track.artist_name }}</p>
+              <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+                <LicenseBadge v-if="track.license_ccurl" :url="track.license_ccurl" size="xs" />
+                <span v-else class="truncate">Creative Commons</span>
               </div>
               <router-link
                 v-if="track.album_id && track.album_name"
                 :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
                 class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
               >
-                <span class="truncate">{{ track.album_name }}</span>
+                <span class="truncate">{{ homeTrackAlbumLabel(track) }}</span>
               </router-link>
+              <p v-else class="mt-0.5 truncate text-xs text-gray-500">{{ homeTrackAlbumLabel(track) }}</p>
             </div>
 
             <span class="hidden sm:block shrink-0 text-xs text-gray-500 tabular-nums">
