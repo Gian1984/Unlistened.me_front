@@ -10,29 +10,34 @@ export const useAuthStore = defineStore('auth', {
         loginMessage: '',
         isInitialized: false,
         isInitializing: false,
+        initPromise: null,
     }),
     actions: {
         async initializeAuth(force = false) {
             if (this.isInitialized && !force) return this.isAuthenticated
-            if (this.isInitializing && !force) return this.isAuthenticated
+            if (this.isInitializing && this.initPromise && !force) return this.initPromise
 
             this.isInitializing = true
-            try {
-                const response = await authService.currentUser()
-                this.setUser(response.data?.user ?? response.data)
-                return true
-            } catch (error) {
-                if (error.response?.status === 401 || error.response?.status === 419) {
+            this.initPromise = (async () => {
+                try {
+                    const response = await authService.currentUser()
+                    this.setUser(response.data?.user ?? response.data)
+                    return true
+                } catch (error) {
+                    if (error.response?.status === 401 || error.response?.status === 419) {
+                        this.clearUser()
+                        return false
+                    }
                     this.clearUser()
                     return false
+                } finally {
+                    this.isInitializing = false
+                    this.initPromise = null
+                    this.isInitialized = true
                 }
+            })()
 
-                this.clearUser()
-                return false
-            } finally {
-                this.isInitializing = false
-                this.isInitialized = true
-            }
+            return this.initPromise
         },
         setUser(userData) {
             this.isAuthenticated = true

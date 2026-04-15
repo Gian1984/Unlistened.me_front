@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import { ArrowRightIcon, ListBulletIcon, PlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import EmptyState from '~/src/components/EmptyState.vue'
-import Footer from '~/src/components/Footer.vue'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { useMessageStore } from '~/src/stores/messageStore.js'
 import { useSeo } from '~/src/seo/composables/useSeo.js'
@@ -139,6 +138,4 @@ async function onDelete(playlist) {
       </ul>
     </div>
   </div>
-
-  <Footer />
 </template>

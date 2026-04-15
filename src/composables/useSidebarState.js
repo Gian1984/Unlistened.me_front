@@ -22,10 +22,13 @@ watch(isDesktopCollapsed, (val) => {
 })
 
 export function useSidebarState() {
-  restoreState()
+  if (import.meta.client) {
+    restoreState()
+  }
 
   const toggleDesktopCollapse = () => {
     isDesktopCollapsed.value = !isDesktopCollapsed.value
+    storage.setItem(STORAGE_KEY, String(isDesktopCollapsed.value))
   }
 
   return {

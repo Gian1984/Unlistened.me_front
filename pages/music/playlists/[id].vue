@@ -16,7 +16,6 @@ import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
-import Footer from '~/src/components/Footer.vue'
 import { musicService } from '~/src/services/musicService.js'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { usePlayerStore } from '~/src/stores/playerStore.js'
@@ -330,6 +329,4 @@ function asTrackForLibrary(track) {
       </p>
     </div>
   </div>
-
-  <Footer />
 </template>

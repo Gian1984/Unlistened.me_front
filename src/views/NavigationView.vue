@@ -23,6 +23,7 @@ import ChevronRightIcon from '@heroicons/vue/20/solid/esm/ChevronRightIcon.js'
 import MagnifyingGlassIcon from '@heroicons/vue/20/solid/esm/MagnifyingGlassIcon.js'
 import ChevronLeftIcon from '@heroicons/vue/20/solid/esm/ChevronLeftIcon.js'
 import XMarkSolid from '@heroicons/vue/20/solid/esm/XMarkIcon.js'
+import Footer from '@/components/Footer.vue'
 
 import {
   Dialog,
@@ -230,7 +231,7 @@ watch(
                         </li>
                       </ul>
                     </li>
-                    <li v-if="isAuthenticated" class="mt-auto">
+                    <li v-if="authStore.isAuthenticated" class="mt-auto">
                       <div class="mb-2 border-t border-gray-800" />
                       <ul role="list" class="-mx-2 space-y-1">
                         <li>
@@ -239,7 +240,7 @@ watch(
                             Settings
                           </NuxtLink>
                         </li>
-                        <li v-if="isAdmin">
+                        <li v-if="authStore.isAdmin">
                           <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
                             <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Dashboard
@@ -293,7 +294,7 @@ watch(
                 <span v-if="!isDesktopCollapsed">Collapse</span>
               </button>
             </li>
-            <li v-if="isAuthenticated" class="mt-auto">
+            <li v-if="authStore.isAuthenticated" class="mt-auto">
               <div class="mb-2 border-t border-gray-800" :class="isDesktopCollapsed ? 'mx-2' : '-mx-2'" />
               <ul role="list" class="space-y-1" :class="isDesktopCollapsed ? '' : '-mx-2'">
                 <li>
@@ -302,7 +303,7 @@ watch(
                     <span v-if="!isDesktopCollapsed">Settings</span>
                   </NuxtLink>
                 </li>
-                <li v-if="isAdmin">
+                <li v-if="authStore.isAdmin">
                   <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
                     <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">Dashboard</span>
@@ -315,7 +316,7 @@ watch(
       </div>
     </div>
 
-    <div :class="['transition-all duration-300 overflow-hidden w-full', isDesktopCollapsed ? 'lg:pl-20 pl-0' : 'lg:pl-72 pl-0']">
+    <div :class="['transition-all duration-300 min-h-screen flex flex-col', isDesktopCollapsed ? 'lg:pl-20 pl-0' : 'lg:pl-72 pl-0']">
       <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-2 border-b border-gray-800 bg-gray-950/95 px-3 shadow-sm backdrop-blur-md sm:gap-x-4 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-400 transition-colors hover:text-white lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
@@ -619,10 +620,11 @@ watch(
         </div>
       </div>
 
-      <main class="overflow-x-hidden">
+      <div class="flex-1 overflow-x-hidden">
         <slot />
-      </main>
+      </div>
 
+      <Footer />
     </div>
   </div>
 </template>

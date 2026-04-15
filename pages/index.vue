@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import PageHero from '~/src/components/PageHero.vue'
-import Footer from '~/src/components/Footer.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
@@ -507,5 +506,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <Footer />
 </template>

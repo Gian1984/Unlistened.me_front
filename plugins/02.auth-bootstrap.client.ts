@@ -8,14 +8,22 @@ export default defineNuxtPlugin(async () => {
   const router = useRouter()
 
   registerUnauthorizedHandler(() => {
-    authStore.clearUser()
-    messageStore.setMessage('Session expired. Please login again.')
+    // Only redirect if we are not already on login/signup/forgot-password
+    const publicAuthRoutes = ['/login', '/signup', '/forgot_password', '/reset_password']
+    const isPublicRoute = publicAuthRoutes.some(path => router.currentRoute.value.path.startsWith(path))
 
-    if (router.currentRoute.value.path !== '/login') {
+    authStore.clearUser()
+    
+    if (!isPublicRoute) {
+      messageStore.setMessage('Session expired. Please login again.')
       router.push('/login')
     }
   })
 
+  // Start initialization but don't necessarily await it here if we want 
+  // the app to render the shell immediately.
+  // However, for Nuxt, awaiting here ensures that the first page 
+  // loaded (even if public) knows if the user is logged in.
   if (!authStore.isInitialized) {
     await authStore.initializeAuth()
   }

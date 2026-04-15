@@ -7,6 +7,8 @@ import CookieConsent from '@/components/CookieConsent.vue'
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <OffcanvasPlayer />
-  <CookieConsent />
+  <ClientOnly>
+    <OffcanvasPlayer />
+    <CookieConsent />
+  </ClientOnly>
 </template>
