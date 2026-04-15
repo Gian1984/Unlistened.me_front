@@ -1,28 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import StarIcon from '@heroicons/vue/24/outline/esm/StarIcon.js'
-import HomeIcon from '@heroicons/vue/24/outline/esm/HomeIcon.js'
-import UsersIcon from '@heroicons/vue/24/outline/esm/UsersIcon.js'
-import BookmarkIcon from '@heroicons/vue/24/outline/esm/BookmarkIcon.js'
-import BookOpenIcon from '@heroicons/vue/24/outline/esm/BookOpenIcon.js'
-import AdjustmentsHorizontalIcon from '@heroicons/vue/24/outline/esm/AdjustmentsHorizontalIcon.js'
-import TagIcon from '@heroicons/vue/24/outline/esm/TagIcon.js'
-import ArrowRightOnRectangleIcon from '@heroicons/vue/24/outline/esm/ArrowRightOnRectangleIcon.js'
-import ArrowLeftOnRectangleIcon from '@heroicons/vue/24/outline/esm/ArrowLeftOnRectangleIcon.js'
-import UserPlusIcon from '@heroicons/vue/24/outline/esm/UserPlusIcon.js'
-import MicrophoneIcon from '@heroicons/vue/24/outline/esm/MicrophoneIcon.js'
-import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
-import HeartIcon from '@heroicons/vue/24/outline/esm/HeartIcon.js'
-import ListBulletIcon from '@heroicons/vue/24/outline/esm/ListBulletIcon.js'
-import Bars3Icon from '@heroicons/vue/24/outline/esm/Bars3Icon.js'
-import Cog6ToothIcon from '@heroicons/vue/24/outline/esm/Cog6ToothIcon.js'
-import Squares2X2Icon from '@heroicons/vue/24/outline/esm/Squares2X2Icon.js'
-import XMarkIcon from '@heroicons/vue/24/outline/esm/XMarkIcon.js'
-import ChevronDownIcon from '@heroicons/vue/20/solid/esm/ChevronDownIcon.js'
-import ChevronRightIcon from '@heroicons/vue/20/solid/esm/ChevronRightIcon.js'
-import MagnifyingGlassIcon from '@heroicons/vue/20/solid/esm/MagnifyingGlassIcon.js'
-import ChevronLeftIcon from '@heroicons/vue/20/solid/esm/ChevronLeftIcon.js'
-import XMarkSolid from '@heroicons/vue/20/solid/esm/XMarkIcon.js'
+import * as OutlineIcons from '@heroicons/vue/24/outline'
+import * as SolidIcons from '@heroicons/vue/20/solid'
 import Footer from '@/components/Footer.vue'
 
 import {
@@ -67,24 +46,24 @@ const navigationSections = computed(() => [
   {
     label: 'Discover',
     items: [
-      { name: 'Home', href: '/', icon: HomeIcon },
-      { name: 'Podcasts', href: '/podcasts', icon: MicrophoneIcon },
-      { name: 'Music', href: '/music', icon: MusicalNoteIcon },
+      { name: 'Home', href: '/', icon: OutlineIcons.HomeIcon },
+      { name: 'Podcasts', href: '/podcasts', icon: OutlineIcons.MicrophoneIcon },
+      { name: 'Music', href: '/music', icon: OutlineIcons.MusicalNoteIcon },
     ],
   },
   {
     label: 'Library',
     items: [
-      { name: 'Podcasts favourites', href: '/favourites', icon: StarIcon },
-      { name: 'Episode bookmarks', href: '/bookmarks', icon: BookmarkIcon },
-      { name: 'Music favorites', href: '/music/favorites', icon: HeartIcon },
-      { name: 'Music playlists', href: '/music/playlists', icon: ListBulletIcon },
+      { name: 'Podcasts favourites', href: '/favourites', icon: OutlineIcons.StarIcon },
+      { name: 'Episode bookmarks', href: '/bookmarks', icon: OutlineIcons.BookmarkIcon },
+      { name: 'Music favorites', href: '/music/favorites', icon: OutlineIcons.HeartIcon },
+      { name: 'Music playlists', href: '/music/playlists', icon: OutlineIcons.ListBulletIcon },
     ],
   },
   {
     label: 'More',
     items: [
-      { name: 'Documentation', href: '/documentation', icon: BookOpenIcon },
+      { name: 'Documentation', href: '/documentation', icon: OutlineIcons.BookOpenIcon },
     ],
   },
 ])
@@ -207,7 +186,7 @@ watch(
                 <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
                   <button type="button" class="-m-2.5 p-2.5 focus:outline-none focus:ring-0 focus:border-none active:border-none" @click="sidebarOpen = false">
                     <span class="sr-only">Close sidebar</span>
-                    <XMarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
+                    <OutlineIcons.XMarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
                   </button>
                 </div>
               </TransitionChild>
@@ -236,13 +215,13 @@ watch(
                       <ul role="list" class="-mx-2 space-y-1">
                         <li>
                           <NuxtLink to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
-                            <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                            <OutlineIcons.Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Settings
                           </NuxtLink>
                         </li>
                         <li v-if="authStore.isAdmin">
                           <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
-                            <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                            <OutlineIcons.Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Dashboard
                           </NuxtLink>
                         </li>
@@ -290,7 +269,7 @@ watch(
             <!-- Collapse toggle -->
             <li>
               <button @click="toggleDesktopCollapse" class="group flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : '-mx-2'" :title="isDesktopCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
-                <ChevronLeftIcon :class="['h-6 w-6 shrink-0 transition-transform duration-300', isDesktopCollapsed ? 'rotate-180' : '']" aria-hidden="true" />
+                <OutlineIcons.ChevronLeftIcon :class="['h-6 w-6 shrink-0 transition-transform duration-300', isDesktopCollapsed ? 'rotate-180' : '']" aria-hidden="true" />
                 <span v-if="!isDesktopCollapsed">Collapse</span>
               </button>
             </li>
@@ -299,13 +278,13 @@ watch(
               <ul role="list" class="space-y-1" :class="isDesktopCollapsed ? '' : '-mx-2'">
                 <li>
                   <NuxtLink to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
-                    <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                    <OutlineIcons.Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">Settings</span>
                   </NuxtLink>
                 </li>
                 <li v-if="authStore.isAdmin">
                   <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
-                    <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
+                    <OutlineIcons.Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">Dashboard</span>
                   </NuxtLink>
                 </li>
@@ -320,7 +299,7 @@ watch(
       <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-2 border-b border-gray-800 bg-gray-950/95 px-3 shadow-sm backdrop-blur-md sm:gap-x-4 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-400 transition-colors hover:text-white lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
-          <Bars3Icon class="h-6 w-6" aria-hidden="true" />
+          <OutlineIcons.Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
 
         <div class="flex flex-1 items-center gap-x-2 self-stretch sm:gap-x-4">
@@ -347,7 +326,7 @@ watch(
                   :class="searchType === 'music' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'"
                   title="Search music"
                 >
-                  <MusicalNoteIcon class="h-3.5 w-3.5" />
+                  <OutlineIcons.MusicalNoteIcon class="h-3.5 w-3.5" />
                 </button>
               </div>
 
@@ -357,7 +336,7 @@ watch(
                   class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300"
               >
                 <span class="sr-only">Search</span>
-                <MagnifyingGlassIcon class="h-4 w-4" aria-hidden="true" />
+                <SolidIcons.MagnifyingGlassIcon class="h-4 w-4" aria-hidden="true" />
               </button>
 
               <label for="search-field" class="sr-only">Search</label>
@@ -378,7 +357,7 @@ watch(
                   class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-800 hover:text-white"
                   aria-label="Clear search"
               >
-                <XMarkSolid class="h-3.5 w-3.5" />
+                <SolidIcons.XMarkIcon class="h-3.5 w-3.5" />
               </button>
 
               <!-- Filter by category / genre popover -->
@@ -388,7 +367,7 @@ watch(
                       class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-indigo-300 focus:outline-none sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30 sm:hover:bg-indigo-500/20 sm:hover:text-white"
                       :title="searchType === 'music' ? 'Filter by genre' : 'Filter by category'"
                   >
-                    <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                    <OutlineIcons.AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                     <span class="hidden sm:inline text-xs font-medium">Filters</span>
                   </PopoverButton>
 
@@ -399,7 +378,7 @@ watch(
                           {{ searchType === 'music' ? 'Browse by genre' : 'Browse by category' }}
                         </p>
                         <div class="relative mt-2">
-                          <MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                          <SolidIcons.MagnifyingGlassIcon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                           <input
                               v-model="categoryFilter"
                               type="search"
@@ -422,7 +401,7 @@ watch(
                                   @click="() => { close(); categoryFilter = ''; onGenreClick(g.tag); }"
                                   class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                               >
-                                <MusicalNoteIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                                <OutlineIcons.MusicalNoteIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
                                 <span class="truncate">{{ g.label }}</span>
                               </button>
                             </li>
@@ -439,7 +418,7 @@ watch(
                                   @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
                                   class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                               >
-                                <TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
+                                <OutlineIcons.TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
                                 <span class="truncate">{{ cat.name }}</span>
                               </button>
                             </li>
@@ -453,7 +432,7 @@ watch(
                             class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
                         >
                           {{ searchType === 'music' ? 'See all genres' : 'See all categories' }}
-                          <ChevronRightIcon class="h-4 w-4" />
+                          <SolidIcons.ChevronRightIcon class="h-4 w-4" />
                         </NuxtLink>
                       </div>
                     </PopoverPanel>
@@ -465,7 +444,7 @@ watch(
                         class="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 sm:h-7 sm:w-auto sm:gap-1 sm:rounded-full sm:bg-indigo-500/10 sm:px-2.5 sm:text-indigo-300 sm:ring-1 sm:ring-inset sm:ring-indigo-500/30"
                         disabled
                     >
-                      <AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                      <OutlineIcons.AdjustmentsHorizontalIcon class="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                       <span class="hidden sm:inline text-xs font-medium">Filters</span>
                     </button>
                   </div>
@@ -490,12 +469,12 @@ watch(
                       v-else
                       class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700"
                   >
-                    <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
+                    <OutlineIcons.UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <span class="hidden lg:flex lg:items-center">
                     <span v-if="authStore.user" class="text-sm font-semibold leading-6 text-white" aria-hidden="true">{{ authStore.user.name }}</span>
                     <span v-else class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
-                    <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <SolidIcons.ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                   </span>
                 </MenuButton>
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
@@ -526,7 +505,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <Cog6ToothIcon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.Cog6ToothIcon class="h-4 w-4 text-gray-500" />
                         Account settings
                       </NuxtLink>
                     </MenuItem>
@@ -536,7 +515,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <StarIcon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.StarIcon class="h-4 w-4 text-gray-500" />
                         My favourites
                       </NuxtLink>
                     </MenuItem>
@@ -546,7 +525,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <BookmarkIcon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.BookmarkIcon class="h-4 w-4 text-gray-500" />
                         My bookmarks
                       </NuxtLink>
                     </MenuItem>
@@ -556,7 +535,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <Squares2X2Icon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.Squares2X2Icon class="h-4 w-4 text-gray-500" />
                         Admin dashboard
                       </NuxtLink>
                     </MenuItem>
@@ -570,7 +549,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-500" />
                         Sign in
                       </NuxtLink>
                     </MenuItem>
@@ -580,7 +559,7 @@ watch(
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <UserPlusIcon class="h-4 w-4 text-gray-500" />
+                        <OutlineIcons.UserPlusIcon class="h-4 w-4 text-gray-500" />
                         Create account
                       </NuxtLink>
                     </MenuItem>
@@ -594,7 +573,7 @@ watch(
                           @click="logout"
                           :class="[active ? 'bg-red-500/10 text-red-300' : 'text-red-400', 'flex w-full items-center gap-3 px-4 py-2 text-sm']"
                       >
-                        <ArrowLeftOnRectangleIcon class="h-4 w-4" />
+                        <OutlineIcons.ArrowLeftOnRectangleIcon class="h-4 w-4" />
                         Sign out
                       </button>
                     </MenuItem>
@@ -606,11 +585,11 @@ watch(
               <div class="relative shrink-0">
                 <div class="flex items-center gap-x-2 rounded-full p-1.5">
                   <div class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gray-800 text-gray-400 ring-1 ring-inset ring-gray-700">
-                    <UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
+                    <OutlineIcons.UsersIcon class="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <span class="hidden lg:flex lg:items-center">
                     <span class="text-sm font-semibold leading-6 text-gray-300">Guest</span>
-                    <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <SolidIcons.ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                   </span>
                 </div>
               </div>
