@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
 import { authService } from '@/services/authService.js'
-import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { resetSeo } from '@/seo/registry/index.js'
 
@@ -30,7 +29,7 @@ async function resetPassword() {
   try {
     await authService.resetPassword(email.value, password.value, password_confirmation.value, route.params.token)
     sending.value = false
-    router.push({ name: 'Login' })
+    router.push('/login')
   } catch (error) {
     sending.value = false
     errors.value = error.response ? error.response.data : 'An error occurred'
@@ -161,9 +160,9 @@ function closeAlertEmpty() {
 
       <p class="mt-6 text-center text-sm text-gray-500">
         Back to
-        <router-link to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+        <NuxtLink to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
           Sign in
-        </router-link>
+        </NuxtLink>
       </p>
     </div>
   </div>

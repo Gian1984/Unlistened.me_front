@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { PlusIcon, ListBulletIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/authStore.js'
@@ -76,7 +75,7 @@ function onTriggerClick(e) {
   e?.stopPropagation?.()
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('Sign in to create playlists.')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
   ensureLoaded()

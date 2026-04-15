@@ -37,12 +37,12 @@ useSeo(forbiddenSeo)
                   This page is reserved for authorized users. If you need access, contact our support team and we will help you out.
                 </p>
                 <div class="mt-6 flex flex-wrap items-center gap-3">
-                  <router-link
+                  <NuxtLink
                       to="/"
                       class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
                   >
                     Back to home
-                  </router-link>
+                  </NuxtLink>
                   <a
                       href="mailto:support@unlistened.me?subject=Problem with admin access"
                       class="inline-flex items-center gap-2 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-gray-500 hover:text-white"

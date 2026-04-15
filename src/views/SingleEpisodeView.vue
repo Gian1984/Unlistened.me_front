@@ -8,7 +8,6 @@ import { usePlayerStore } from '@/stores/playerStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { stripHtmlTags } from '@/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { buildEpisodeSchema } from '@/seo/schemas/episode.js'
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
@@ -153,21 +152,21 @@ onMounted(() => {
               <!-- Actions -->
               <div class="mt-8 border-t border-gray-800 pt-6">
                 <div class="flex flex-wrap items-center gap-3">
-                  <router-link
+                  <NuxtLink
                       v-if="isPlaying"
                       to="/now-playing"
                       class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
                   >
                     <span>Back to Now Playing</span>
-                  </router-link>
+                  </NuxtLink>
 
-                  <router-link
+                  <NuxtLink
                       v-if="episode.feedId"
                       :to="'/feed/' + episode.feedId"
                       class="inline-flex items-center gap-2 rounded-full bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
                   >
                     <span>Open podcast</span>
-                  </router-link>
+                  </NuxtLink>
                 </div>
               </div>
             </div>

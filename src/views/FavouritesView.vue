@@ -1,6 +1,5 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { favouritesSeo } from '@/seo/registry/index.js'
 import {
@@ -411,7 +410,7 @@ onMounted(() => {
                   </span>
 
                   <!-- Cover image -->
-                  <router-link :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
+                  <NuxtLink :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
                     <img
                       v-if="feedInfo(element)?.image"
                       :src="feedInfo(element).image"
@@ -422,15 +421,15 @@ onMounted(() => {
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <MicrophoneIcon class="h-5 w-5 text-gray-500" />
                     </div>
-                  </router-link>
+                  </NuxtLink>
 
                   <!-- Info -->
                   <div class="flex-1 min-w-0">
-                    <router-link :to="'/feed/' + element.feed_id" class="block">
+                    <NuxtLink :to="'/feed/' + element.feed_id" class="block">
                       <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
                         {{ element.title }}
                       </p>
-                    </router-link>
+                    </NuxtLink>
                     <p v-if="feedInfo(element)?.author" class="text-xs text-gray-400 truncate mt-0.5">
                       {{ feedInfo(element).author }}
                     </p>
@@ -441,13 +440,13 @@ onMounted(() => {
 
                   <!-- Actions -->
                   <div class="flex shrink-0 items-center gap-0.5">
-                    <router-link
+                    <NuxtLink
                         :to="'/feed/' + element.feed_id"
                         class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Episodes"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
-                    </router-link>
+                    </NuxtLink>
 
                     <button
                         @click="deleteFavourite(element.feed_id, 'main')"
@@ -513,7 +512,7 @@ onMounted(() => {
                   </span>
 
                   <!-- Cover image -->
-                  <router-link :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
+                  <NuxtLink :to="'/feed/' + element.feed_id" class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden bg-gray-700">
                     <img
                       v-if="feedInfo(element)?.image"
                       :src="feedInfo(element).image"
@@ -524,15 +523,15 @@ onMounted(() => {
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <MicrophoneIcon class="h-5 w-5 text-gray-500" />
                     </div>
-                  </router-link>
+                  </NuxtLink>
 
                   <!-- Info -->
                   <div class="flex-1 min-w-0">
-                    <router-link :to="'/feed/' + element.feed_id" class="block">
+                    <NuxtLink :to="'/feed/' + element.feed_id" class="block">
                       <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
                         {{ element.title }}
                       </p>
-                    </router-link>
+                    </NuxtLink>
                     <p v-if="feedInfo(element)?.author" class="text-xs text-gray-400 truncate mt-0.5">
                       {{ feedInfo(element).author }}
                     </p>
@@ -543,13 +542,13 @@ onMounted(() => {
 
                   <!-- Actions -->
                   <div class="flex shrink-0 items-center gap-0.5">
-                    <router-link
+                    <NuxtLink
                         :to="'/feed/' + element.feed_id"
                         class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Episodes"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
-                    </router-link>
+                    </NuxtLink>
 
                     <button
                         @click="deleteFavourite(element.feed_id, section.name)"

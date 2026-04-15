@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useQueueStore } from '@/stores/queueStore.js'
+import { getSafeSessionStorage } from '@/utils/browserStorage'
 
 export const usePlayerStore = defineStore('player', () => {
   const currentEpisode = ref(null)
@@ -81,6 +82,6 @@ export const usePlayerStore = defineStore('player', () => {
   persist: {
     key: 'player',
     pick: ['currentEpisode', 'isVisible'],
-    storage: sessionStorage,
+    storage: getSafeSessionStorage(),
   }
 })

@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import {
   PlayIcon,
   PauseIcon,
@@ -58,7 +57,7 @@ async function fetchPlaylist() {
   } catch (err) {
     if (err?.response?.status === 404) {
       messageStore.setMessage('Playlist not found.')
-      router.push({ name: 'MusicPlaylists' })
+      router.push('/music/playlists')
     } else if (err?.response?.status !== 401) {
       messageStore.setMessage('Could not load the playlist.')
     }
@@ -137,7 +136,7 @@ async function onDeletePlaylist() {
   try {
     await library.deletePlaylist(playlistId.value)
     messageStore.setMessage('Playlist deleted')
-    router.push({ name: 'MusicPlaylists' })
+    router.push('/music/playlists')
   } catch {
     messageStore.setMessage('Could not delete. Please try again.')
   }
@@ -163,13 +162,13 @@ function asTrackForLibrary(t) {
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
       <!-- Back link -->
-      <router-link
-        :to="{ name: 'MusicPlaylists' }"
+      <NuxtLink
+        to="/music/playlists"
         class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-indigo-300"
       >
         <ArrowLeftIcon class="h-3.5 w-3.5" />
         All playlists
-      </router-link>
+      </NuxtLink>
 
       <!-- Header -->
       <div class="mt-4 mb-8 flex items-start gap-5">

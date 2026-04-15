@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
@@ -149,7 +148,7 @@ async function fetchAlbums() {
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
 
@@ -247,13 +246,13 @@ onMounted(() => {
       <section class="mb-12">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending podcasts</h2>
-          <router-link
+          <NuxtLink
             to="/podcasts"
             class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             See all
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </NuxtLink>
         </div>
 
         <!-- Loading skeleton -->
@@ -268,7 +267,7 @@ onMounted(() => {
             :key="feed.id"
             class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
           >
-            <router-link :to="'/feed/' + feed.id" class="block">
+            <NuxtLink :to="'/feed/' + feed.id" class="block">
               <div class="flex items-center gap-3 p-4">
                 <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
                   <img
@@ -297,7 +296,7 @@ onMounted(() => {
                   {{ catName }}
                 </span>
               </div>
-            </router-link>
+            </NuxtLink>
             <div class="flex items-center gap-2 px-4 pb-3">
               <button
                 @click.prevent="addFavourite(feed.id, feed.title)"
@@ -307,13 +306,13 @@ onMounted(() => {
                 <StarIcon class="h-4 w-4" />
                 <span class="hidden sm:inline">Save</span>
               </button>
-              <router-link
+              <NuxtLink
                 :to="'/feed/' + feed.id"
                 class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
               >
                 <span>Episodes</span>
                 <ArrowRightIcon class="h-3.5 w-3.5" />
-              </router-link>
+              </NuxtLink>
             </div>
           </li>
         </ul>
@@ -323,13 +322,13 @@ onMounted(() => {
       <section class="mb-12">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending music</h2>
-          <router-link
+          <NuxtLink
             to="/music"
             class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             See all
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </NuxtLink>
         </div>
 
         <!-- Loading skeleton -->
@@ -390,13 +389,13 @@ onMounted(() => {
                 <LicenseBadge v-if="track.license_ccurl" :url="track.license_ccurl" size="xs" />
                 <span v-else class="truncate">Creative Commons</span>
               </div>
-              <router-link
+              <NuxtLink
                 v-if="track.album_id && track.album_name"
-                :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
+                :to="`/music/album/${track.album_id}`"
                 class="mt-1 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
               >
                 <span class="truncate">{{ homeTrackAlbumLabel(track) }}</span>
-              </router-link>
+              </NuxtLink>
               <p v-else class="mt-1 truncate text-xs text-gray-500">{{ homeTrackAlbumLabel(track) }}</p>
             </div>
 
@@ -411,13 +410,13 @@ onMounted(() => {
       <section class="mb-12">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending albums</h2>
-          <router-link
-            :to="{ name: 'MusicAlbums' }"
+          <NuxtLink
+            to="/music/albums"
             class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             See all
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </NuxtLink>
         </div>
 
         <div v-if="loadingAlbums" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -438,7 +437,7 @@ onMounted(() => {
             :key="album.id"
             class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
           >
-            <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+            <NuxtLink :to="`/music/album/${album.id}`" class="block">
               <div class="flex items-center gap-3 p-4">
                 <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
                   <img
@@ -462,16 +461,16 @@ onMounted(() => {
                   </p>
                 </div>
               </div>
-            </router-link>
+            </NuxtLink>
             <div class="flex items-center gap-2 px-4 pb-3">
               <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
-              <router-link
-                :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+              <NuxtLink
+                :to="`/music/album/${album.id}`"
                 class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
               >
                 <span>Album</span>
                 <ArrowRightIcon class="h-3.5 w-3.5" />
-              </router-link>
+              </NuxtLink>
             </div>
           </li>
         </ul>
@@ -480,7 +479,7 @@ onMounted(() => {
       <!-- Quick links -->
       <div class="pt-8 border-t border-gray-800">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <router-link to="/podcasts" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
+          <NuxtLink to="/podcasts" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/10">
               <svg class="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" /></svg>
             </div>
@@ -488,8 +487,8 @@ onMounted(() => {
               <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">Podcasts</p>
               <p class="text-xs text-gray-500">Browse all trending shows</p>
             </div>
-          </router-link>
-          <router-link to="/music" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
+          </NuxtLink>
+          <NuxtLink to="/music" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/10">
               <MusicalNoteIcon class="h-5 w-5 text-indigo-400" />
             </div>
@@ -497,8 +496,8 @@ onMounted(() => {
               <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">Music</p>
               <p class="text-xs text-gray-500">Free Creative Commons tracks</p>
             </div>
-          </router-link>
-          <router-link to="/categories" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
+          </NuxtLink>
+          <NuxtLink to="/categories" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/10">
               <svg class="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" /></svg>
             </div>
@@ -506,8 +505,8 @@ onMounted(() => {
               <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">Categories</p>
               <p class="text-xs text-gray-500">Explore podcasts by genre</p>
             </div>
-          </router-link>
-          <router-link to="/about" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
+          </NuxtLink>
+          <NuxtLink to="/about" class="flex items-center gap-3 p-4 rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-colors group">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/10">
               <ArrowRightIcon class="h-5 w-5 text-indigo-400" />
             </div>
@@ -515,7 +514,7 @@ onMounted(() => {
               <p class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">About</p>
               <p class="text-xs text-gray-500">Learn about Unlistened.me</p>
             </div>
-          </router-link>
+          </NuxtLink>
         </div>
       </div>
     </div>

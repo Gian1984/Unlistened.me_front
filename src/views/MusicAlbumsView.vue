@@ -1,6 +1,5 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { MagnifyingGlassIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import Footer from '@/components/Footer.vue'
 import PageHero from '@/components/PageHero.vue'
@@ -193,7 +192,7 @@ watch([albums, offset, hasMore], persistState, { deep: true })
           :key="album.id"
           class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
         >
-          <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+          <NuxtLink :to="`/music/album/${album.id}`" class="block">
             <div class="flex items-center gap-3 p-4">
               <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
                 <img
@@ -217,18 +216,18 @@ watch([albums, offset, hasMore], persistState, { deep: true })
                 </p>
               </div>
             </div>
-          </router-link>
+          </NuxtLink>
           <div class="flex items-center gap-2 px-4 pb-3">
             <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
-            <router-link
-              :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+            <NuxtLink
+              :to="`/music/album/${album.id}`"
               class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
             >
               <span>Album</span>
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.75L21 12m0 0l-3.75 3.25M21 12H3" />
               </svg>
-            </router-link>
+            </NuxtLink>
           </div>
         </li>
       </ul>

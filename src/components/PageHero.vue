@@ -1,6 +1,4 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-
 defineProps({
   eyebrow: {
     type: String,
@@ -35,7 +33,7 @@ defineProps({
       <ol class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
         <li v-for="(item, index) in breadcrumbs" :key="`${item.label}-${index}`" class="flex items-center gap-2">
           <component
-            :is="item.to ? RouterLink : 'span'"
+            :is="item.to ? 'NuxtLink' : 'span'"
             v-bind="item.to ? { to: item.to } : {}"
             class="transition-colors"
             :class="item.to ? 'hover:text-gray-300' : 'text-gray-400'"

@@ -61,10 +61,10 @@ const links = [
                 </div>
                 <div class="flex-auto min-w-0">
                   <h3 class="text-sm font-semibold text-white">
-                    <router-link :to="link.href">
+                    <NuxtLink :to="link.href">
                       <span class="absolute inset-0" aria-hidden="true" />
                       {{ link.name }}
-                    </router-link>
+                    </NuxtLink>
                   </h3>
                   <p class="mt-1 text-sm text-gray-400">{{ link.description }}</p>
                 </div>
@@ -76,13 +76,13 @@ const links = [
 
         <!-- Back to home -->
         <section class="pb-6">
-          <router-link
+          <NuxtLink
               to="/"
               class="text-sm font-semibold text-indigo-400 transition-colors hover:text-pink-400"
           >
             <span aria-hidden="true">&larr;</span>
             Back to home
-          </router-link>
+          </NuxtLink>
         </section>
       </div>
     </div>

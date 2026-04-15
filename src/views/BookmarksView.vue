@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { bookmarksSeo } from '@/seo/registry/index.js'
 import {
@@ -385,24 +384,24 @@ onMounted(() => {
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <router-link :to="'/episode/' + element.episode_id" class="block">
+                    <NuxtLink :to="'/episode/' + element.episode_id" class="block">
                       <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
                         {{ element.title }}
                       </p>
-                    </router-link>
+                    </NuxtLink>
                     <p class="mt-0.5 text-xs text-gray-400">
                       Saved episode
                     </p>
                   </div>
 
                   <div class="flex shrink-0 items-center gap-0.5">
-                    <router-link
+                    <NuxtLink
                         :to="'/episode/' + element.episode_id"
                         class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Open episode"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
-                    </router-link>
+                    </NuxtLink>
 
                     <button
                         @click="deleteBookmark(element.episode_id, 'main')"
@@ -472,24 +471,24 @@ onMounted(() => {
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <router-link :to="'/episode/' + element.episode_id" class="block">
+                    <NuxtLink :to="'/episode/' + element.episode_id" class="block">
                       <p class="text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
                         {{ element.title }}
                       </p>
-                    </router-link>
+                    </NuxtLink>
                     <p class="mt-0.5 text-xs text-gray-400">
                       Saved episode
                     </p>
                   </div>
 
                   <div class="flex shrink-0 items-center gap-0.5">
-                    <router-link
+                    <NuxtLink
                         :to="'/episode/' + element.episode_id"
                         class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-400"
                         title="Open episode"
                     >
                       <ArrowRightIcon class="h-4 w-4" />
-                    </router-link>
+                    </NuxtLink>
 
                     <button
                         @click="deleteBookmark(element.episode_id, section.name)"

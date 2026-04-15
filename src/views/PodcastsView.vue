@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import Footer from '../components/Footer.vue'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '../components/SkeletonCard.vue'
@@ -35,7 +34,7 @@ const show = ref(false)
 const { visibleItems, hasMore, loadMore } = usePagination(feeds, 12)
 
 function selectCategory(catId, catName) {
-  router.push({ name: 'SearchResults', query: { s: catId, name: catName } })
+  router.push({ path: '/search-results', query: { s: catId, name: catName } })
 }
 
 function resumeEntry(entry) {
@@ -79,7 +78,7 @@ async function fetchCategories() {
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
 
@@ -148,12 +147,12 @@ onMounted(() => {
           >
             {{ cat.name }}
           </button>
-          <router-link
+          <NuxtLink
             to="/categories"
             class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors bg-gray-800 text-indigo-400 hover:bg-gray-700 border border-gray-700"
           >
             All categories &rarr;
-          </router-link>
+          </NuxtLink>
         </div>
         <!-- Category pills skeleton -->
         <div v-else class="flex flex-wrap gap-2">

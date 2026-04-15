@@ -146,7 +146,7 @@
         </div>
 
         <!-- Info — mobile: bottom row; desktop: left side -->
-        <router-link
+        <NuxtLink
           to="/now-playing"
           class="flex items-center gap-3 min-w-0 sm:order-1 sm:flex-1 cursor-pointer"
         >
@@ -203,7 +203,7 @@
               {{ playerStore.currentEpisode.feedTitle }}
             </p>
           </div>
-        </router-link>
+        </NuxtLink>
       </div>
     </div>
   </transition>

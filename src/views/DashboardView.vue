@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { dashboardSeo } from '@/seo/registry/index.js'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'

@@ -14,7 +14,7 @@ defineEmits(['favorite'])
   <li
     class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
   >
-    <router-link :to="'/feed/' + feed.id" class="block">
+    <NuxtLink :to="'/feed/' + feed.id" class="block">
       <div class="flex items-center gap-3 p-4">
         <!-- Cover -->
         <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
@@ -46,7 +46,7 @@ defineEmits(['favorite'])
           {{ catName }}
         </span>
       </div>
-    </router-link>
+    </NuxtLink>
     <!-- Action buttons -->
     <div class="flex items-center gap-2 px-4 pb-3">
       <button
@@ -57,13 +57,13 @@ defineEmits(['favorite'])
         <StarIcon class="h-4 w-4" />
         <span class="hidden sm:inline">Save</span>
       </button>
-      <router-link
+      <NuxtLink
         :to="'/feed/' + feed.id"
         class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
       >
         <span>Episodes</span>
         <ArrowRightIcon class="h-3.5 w-3.5" />
-      </router-link>
+      </NuxtLink>
     </div>
   </li>
 </template>

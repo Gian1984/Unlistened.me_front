@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getSafeLocalStorage } from '@/utils/browserStorage'
 
 const STORAGE_KEY = 'unlistened.history.v1'
 const MAX_ENTRIES = 50
@@ -8,7 +9,7 @@ const RESUME_MIN_SECONDS = 5
 
 function loadFromStorage() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = getSafeLocalStorage().getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : []
@@ -19,7 +20,7 @@ function loadFromStorage() {
 
 function saveToStorage(entries) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
+    getSafeLocalStorage().setItem(STORAGE_KEY, JSON.stringify(entries))
   } catch {
     // quota exceeded or storage disabled — fail silently
   }

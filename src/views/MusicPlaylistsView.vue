@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   ListBulletIcon,
   PlusIcon,
@@ -33,7 +32,7 @@ async function onCreate() {
     const playlist = await library.createPlaylist(name)
     newName.value = ''
     messageStore.setMessage(`Created "${playlist.name}"`)
-    router.push({ name: 'MusicPlaylistDetail', params: { id: playlist.id } })
+    router.push(`/music/playlists/${playlist.id}`)
   } catch {
     messageStore.setMessage('Could not create the playlist. Please try again.')
   } finally {
@@ -126,13 +125,13 @@ async function onDelete(playlist) {
             </p>
           </div>
           <div class="flex shrink-0 items-center gap-0.5">
-            <router-link
-              :to="{ name: 'MusicPlaylistDetail', params: { id: p.id } }"
+            <NuxtLink
+              :to="`/music/playlists/${p.id}`"
               class="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-700 hover:text-indigo-300"
               :title="'Open playlist'"
             >
               <ArrowRightIcon class="h-4 w-4" />
-            </router-link>
+            </NuxtLink>
             <button
               type="button"
               @click="onDelete(p)"

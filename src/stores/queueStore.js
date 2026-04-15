@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getSafeSessionStorage } from '@/utils/browserStorage'
 
 /**
  * Playback queue. Single source of truth for what comes "next" and
@@ -91,6 +92,6 @@ export const useQueueStore = defineStore('queue', () => {
 }, {
   persist: {
     key: 'queue',
-    storage: sessionStorage,
+    storage: getSafeSessionStorage(),
   }
 })

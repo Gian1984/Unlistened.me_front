@@ -270,14 +270,14 @@ const accentClasses = {
           </ul>
 
           <div class="mt-6">
-            <router-link
+            <NuxtLink
                 to="/documentation"
                 class="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:border-indigo-500/40 hover:text-white"
             >
               <BookOpenIcon class="h-4 w-4" />
               Read the user guide
               <span aria-hidden="true">&rarr;</span>
-            </router-link>
+            </NuxtLink>
           </div>
         </section>
 
@@ -414,12 +414,12 @@ const accentClasses = {
         <!-- Terms link -->
         <section class="pb-6">
           <div class="border-t border-gray-800 pt-6">
-            <router-link
+            <NuxtLink
                 to="/terms"
                 class="text-sm font-semibold text-indigo-400 transition-colors hover:text-pink-400"
             >
               Read our terms and conditions &rarr;
-            </router-link>
+            </NuxtLink>
           </div>
         </section>
       </div>

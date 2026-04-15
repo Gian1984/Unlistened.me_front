@@ -1,3 +1,5 @@
+// Legacy Vite SPA bootstrap kept only as migration reference.
+// The active application runtime is Nuxt via app.vue, pages/, layouts/, and plugins/.
 import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

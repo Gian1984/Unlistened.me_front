@@ -1,3 +1,5 @@
+// Legacy Vite router kept only as migration reference.
+// The active application routing now lives in Nuxt pages/ and middleware/.
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore';
 import { useMessageStore } from '@/stores/messageStore'

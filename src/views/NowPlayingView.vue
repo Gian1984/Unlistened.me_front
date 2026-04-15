@@ -1,6 +1,5 @@
 <script setup>
 import { computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
@@ -100,13 +99,13 @@ function formatDuration(seconds) {
           v-if="isMusic"
           class="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500"
         >
-          <router-link
+          <NuxtLink
             v-if="ep.albumId && ep.albumName"
-            :to="{ name: 'MusicAlbum', params: { id: ep.albumId } }"
+            :to="`/music/album/${ep.albumId}`"
             class="transition-colors hover:text-indigo-300"
           >
             {{ ep.albumName }}
-          </router-link>
+          </NuxtLink>
           <span v-else-if="ep.albumName">{{ ep.albumName }}</span>
           <span v-if="ep.albumName && ep.duration" class="text-gray-700">&middot;</span>
           <span v-if="ep.duration">{{ formatDuration(ep.duration) }}</span>
@@ -118,12 +117,12 @@ function formatDuration(seconds) {
           v-if="!isMusic && ep.feedId"
           class="mt-3"
         >
-          <router-link
+          <NuxtLink
             :to="`/feed/${ep.feedId}`"
             class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             View all episodes
-          </router-link>
+          </NuxtLink>
         </div>
       </div>
 
@@ -141,20 +140,20 @@ function formatDuration(seconds) {
         v-if="!isMusic"
         class="mt-8 flex items-center justify-center gap-3"
       >
-        <router-link
+        <NuxtLink
           v-if="ep.id"
           :to="`/episode/${ep.id}`"
           class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
         >
           Episode details
-        </router-link>
-        <router-link
+        </NuxtLink>
+        <NuxtLink
           v-if="ep.feedId"
           :to="`/feed/${ep.feedId}`"
           class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
         >
           Open podcast
-        </router-link>
+        </NuxtLink>
       </div>
 
     </div>

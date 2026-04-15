@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { settingsSeo } from '@/seo/registry/index.js'
 import {
@@ -209,10 +208,16 @@ function closeDeleteConfirm() {
 }
 
 async function confirmDeleteAccount() {
+  if (!authStore.user?.id) {
+    confirmDeleteOpen.value = false
+    showNotification('No authenticated user available.', 'error')
+    return
+  }
+
   try {
     await userService.deleteAccount(authStore.user.id)
     authStore.clearUser()
-    router.push({ name: 'Login' })
+    router.push('/login')
   } catch (error) {
     confirmDeleteOpen.value = false
     showNotification('There was an error while deleting your account, please try later.', 'error')
@@ -313,7 +318,7 @@ async function confirmDeleteAccount() {
                     type="text"
                     name="username"
                     id="username"
-                    :placeholder="authStore.user.name"
+                    :placeholder="authStore.user?.name || 'Username'"
                     required
                     class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                 />
@@ -328,7 +333,7 @@ async function confirmDeleteAccount() {
                     id="email"
                     name="email"
                     type="email"
-                    :placeholder="authStore.user.email"
+                    :placeholder="authStore.user?.email || 'Email address'"
                     autocomplete="email"
                     required
                     class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
@@ -345,7 +350,7 @@ async function confirmDeleteAccount() {
                     name="location"
                     class="block w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                 >
-                  <option v-if="authStore.user.preferred_language" selected value="">{{ languages[authStore.user.preferred_language] || authStore.user.preferred_language }}</option>
+                  <option v-if="authStore.user?.preferred_language" selected value="">{{ languages[authStore.user.preferred_language] || authStore.user.preferred_language }}</option>
                   <option v-else selected value="">Your language</option>
                   <option v-for="(lang, code) in languages" :key="code" :value="code">
                     {{ lang }}

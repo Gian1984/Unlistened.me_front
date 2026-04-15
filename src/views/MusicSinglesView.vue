@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { musicService } from '@/services/musicService.js'
 import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
@@ -154,7 +153,7 @@ async function fetchTrending(genre = '', reset = true) {
 function selectGenre(tag) {
   if (activeGenre.value === tag) return
   activeGenre.value = tag
-  router.replace({ query: tag ? { genre: tag } : {} })
+  router.replace({ path: '/music/singles', query: tag ? { genre: tag } : {} })
   fetchTrending(tag, true)
 }
 

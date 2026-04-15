@@ -1,6 +1,5 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeftIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { PlayIcon } from '@heroicons/vue/24/solid'
 import { musicService } from '@/services/musicService.js'
@@ -141,7 +140,7 @@ async function fetchAlbum() {
 
     if (!album.value) {
       messageStore.setMessage('Album not found.')
-      router.push({ name: 'Music' })
+      router.push('/music')
     }
   } catch (error) {
     if (error?.response?.status === 404) {
@@ -149,7 +148,7 @@ async function fetchAlbum() {
     } else {
       messageStore.setMessage('Could not load the album.')
     }
-    router.push({ name: 'Music' })
+    router.push('/music')
   } finally {
     loading.value = false
   }
@@ -185,7 +184,7 @@ function goBack() {
     return
   }
 
-  router.push({ name: 'Music' })
+  router.push('/music')
 }
 
 const trackCountLabel = computed(() => {

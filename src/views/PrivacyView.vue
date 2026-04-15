@@ -246,12 +246,12 @@ const accentClasses = {
         <!-- Terms link -->
         <section class="pb-6">
           <div class="border-t border-gray-800 pt-6">
-            <router-link
+            <NuxtLink
                 to="/terms"
                 class="text-sm font-semibold text-indigo-400 transition-colors hover:text-pink-400"
             >
               Read our terms and conditions &rarr;
-            </router-link>
+            </NuxtLink>
           </div>
         </section>
       </div>

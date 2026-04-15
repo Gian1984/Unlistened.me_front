@@ -38,6 +38,8 @@ function upsertMeta(attrName, attrValue, content) {
  * @param {Array}    [config.jsonLd]     — Array di oggetti JSON-LD schema.org
  */
 export function useSeo(config) {
+  if (import.meta.server) return
+
   watchEffect(() => {
     const cfg = isRef(config) ? config.value : config
     if (!cfg) return

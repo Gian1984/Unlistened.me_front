@@ -91,14 +91,14 @@ function handlePlay() {
         <LicenseBadge v-if="hasLicense" :url="track.license_ccurl" size="xs" />
         <span v-else class="truncate">Creative Commons</span>
       </div>
-      <router-link
+      <NuxtLink
         v-if="showAlbumLink && track.album_id && track.album_name"
-        :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
+        :to="`/music/album/${track.album_id}`"
         class="mt-1 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
         @click.stop
       >
         <span class="truncate">{{ albumLabel }}</span>
-      </router-link>
+      </NuxtLink>
       <p
         v-else
         class="mt-1 truncate text-xs text-gray-500"

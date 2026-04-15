@@ -4,7 +4,6 @@ import Footer from '../components/Footer.vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { podcastService } from '@/services/podcastService.js'
-import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { categoriesSeo } from '@/seo/registry/index.js'
 import { useMusicGenres } from '@/composables/useMusicGenres.js'
@@ -43,17 +42,17 @@ async function fetchSearchCat() {
 }
 
 function onPodcastCatClick(id, name) {
-  router.push({ name: 'SearchResults', query: { s: id, name } })
+  router.push({ path: '/search-results', query: { s: id, name } })
 }
 
 function onGenreClick(tag) {
-  router.push({ name: 'MusicSingles', query: { genre: tag } })
+  router.push({ path: '/music/singles', query: { genre: tag } })
 }
 
 function switchTab(tab) {
   activeTab.value = tab
   searchFilter.value = ''
-  router.replace({ query: tab === 'music' ? { tab: 'music' } : {} })
+  router.replace({ path: '/categories', query: tab === 'music' ? { tab: 'music' } : {} })
 }
 
 onMounted(() => {

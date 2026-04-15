@@ -22,7 +22,6 @@ import { usePlayerStore } from '@/stores/playerStore.js'
 import { useQueueStore } from '@/stores/queueStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { musicService } from '@/services/musicService.js'
-import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import { stripHtmlTags } from '@/utils/text.js'
@@ -139,7 +138,7 @@ async function fetchSearchResults(param, value) {
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
 
@@ -277,7 +276,7 @@ watch(
                 :key="feed.id"
                 class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
             >
-              <router-link :to="'/feed/' + feed.id" class="block">
+              <NuxtLink :to="'/feed/' + feed.id" class="block">
                 <div class="flex items-center gap-3 p-4">
                   <!-- Cover -->
                   <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
@@ -316,7 +315,7 @@ watch(
                     {{ catName }}
                   </span>
                 </div>
-              </router-link>
+              </NuxtLink>
 
               <!-- Actions -->
               <div class="flex items-center gap-2 px-4 pb-3">
@@ -329,13 +328,13 @@ watch(
                   <span class="hidden sm:inline">Save</span>
                 </button>
 
-                <router-link
+                <NuxtLink
                     :to="'/feed/' + feed.id"
                     class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
                 >
                   <span>Episodes</span>
                   <ArrowRightIcon class="h-3.5 w-3.5" />
-                </router-link>
+                </NuxtLink>
               </div>
             </li>
           </ul>
@@ -400,13 +399,13 @@ watch(
                   <LicenseBadge v-if="track.license_ccurl" :url="track.license_ccurl" size="xs" />
                   <span v-else class="truncate">Creative Commons</span>
                 </div>
-                <router-link
+                <NuxtLink
                   v-if="track.album_id && track.album_name"
-                  :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
+                  :to="`/music/album/${track.album_id}`"
                   class="mt-1 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
                 >
                   <span class="truncate">{{ trackAlbumLabel(track) }}</span>
-                </router-link>
+                </NuxtLink>
                 <p v-else class="mt-1 truncate text-xs text-gray-500">{{ trackAlbumLabel(track) }}</p>
               </div>
 

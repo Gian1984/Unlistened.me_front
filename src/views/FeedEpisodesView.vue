@@ -15,7 +15,6 @@ import { useHistoryStore } from '@/stores/historyStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { stripHtmlTags } from '@/utils/text.js'
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { buildPodcastSchema } from '@/seo/schemas/podcast.js'
 import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
@@ -157,7 +156,7 @@ async function fetchEpisodes(feedId) {
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
 
@@ -175,7 +174,7 @@ async function addFavourite(feedId, feedTitle) {
 async function addBookmarks(episodeId, episodeTitle) {
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
 
@@ -329,13 +328,13 @@ onMounted(() => {
             <!-- Title + info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <router-link
+                <NuxtLink
                   :to="`/episode/${episode.id}`"
                   class="truncate text-sm font-semibold transition-colors"
                   :class="isPlayingEpisode(episode) ? 'text-indigo-300' : (episodeProgress(episode.id)?.completed ? 'text-gray-400' : 'text-white group-hover:text-indigo-300')"
                 >
                   {{ episode.title }}
-                </router-link>
+                </NuxtLink>
                 <CheckCircleIcon
                   v-if="episodeProgress(episode.id)?.completed"
                   class="h-4 w-4 shrink-0 text-green-500"

@@ -4,7 +4,6 @@ import { XCircleIcon } from '@heroicons/vue/20/solid'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useMessageStore } from '@/stores/messageStore.js'
 import { authService } from '@/services/authService.js'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { loginSeo } from '@/seo/registry/index.js'
 
@@ -81,12 +80,12 @@ function closeAlert() {
           <div>
             <div class="flex items-center justify-between">
               <label for="password" class="block text-sm font-medium leading-6 text-white">Password</label>
-              <router-link
+              <NuxtLink
                   to="/forgot_password"
                   class="text-sm font-semibold text-indigo-400 transition-colors hover:text-pink-400"
               >
                 Forgot password?
-              </router-link>
+              </NuxtLink>
             </div>
             <div class="mt-2">
               <input
@@ -139,9 +138,9 @@ function closeAlert() {
 
       <p class="mt-6 text-center text-sm text-gray-500">
         New to Unlistened.me?
-        <router-link to="/sign_up" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+        <NuxtLink to="/sign_up" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
           Create an account
-        </router-link>
+        </NuxtLink>
       </p>
     </div>
   </div>

@@ -110,21 +110,21 @@ function closeAlert() {
             </button>
           </template>
 
-          <router-link
+          <NuxtLink
               v-else
               to="/login"
               class="flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
           >
             Go to login
-          </router-link>
+          </NuxtLink>
         </div>
       </div>
 
       <p class="mt-6 text-center text-sm text-gray-500">
         Remember your password?
-        <router-link to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+        <NuxtLink to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
           Sign in
-        </router-link>
+        </NuxtLink>
       </p>
     </div>
   </div>

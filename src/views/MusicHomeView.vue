@@ -174,13 +174,13 @@ onMounted(() => {
       <section class="mb-12">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending albums</h2>
-          <router-link
-            :to="{ name: 'MusicAlbums' }"
+          <NuxtLink
+            to="/music/albums"
             class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             See all
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </NuxtLink>
         </div>
 
         <div v-if="loadingAlbums" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -201,7 +201,7 @@ onMounted(() => {
             :key="album.id"
             class="rounded-lg bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
           >
-            <router-link :to="{ name: 'MusicAlbum', params: { id: album.id } }" class="block">
+            <NuxtLink :to="`/music/album/${album.id}`" class="block">
               <div class="flex items-center gap-3 p-4">
                 <div class="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-700">
                   <img
@@ -225,16 +225,16 @@ onMounted(() => {
                   </p>
                 </div>
               </div>
-            </router-link>
+            </NuxtLink>
             <div class="flex items-center gap-2 px-4 pb-3">
               <span class="text-xs text-gray-500">{{ album.zip_allowed ? 'Downloadable' : 'Streaming' }}</span>
-              <router-link
-                :to="{ name: 'MusicAlbum', params: { id: album.id } }"
+              <NuxtLink
+                :to="`/music/album/${album.id}`"
                 class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
               >
                 <span>Album</span>
                 <ArrowRightIcon class="h-3.5 w-3.5" />
-              </router-link>
+              </NuxtLink>
             </div>
           </li>
         </ul>
@@ -243,13 +243,13 @@ onMounted(() => {
       <section class="mb-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-300">Trending songs</h2>
-          <router-link
-            :to="{ name: 'MusicSingles' }"
+          <NuxtLink
+            to="/music/singles"
             class="flex items-center gap-1.5 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
           >
             See all
             <ArrowRightIcon class="h-4 w-4" />
-          </router-link>
+          </NuxtLink>
         </div>
 
         <div v-if="loadingSongs" class="space-y-2">

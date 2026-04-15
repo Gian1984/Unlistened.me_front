@@ -3,8 +3,15 @@ import forms from '@tailwindcss/forms'
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    './app.vue',
+    './components/**/*.{vue,js,ts,jsx,tsx}',
+    './layouts/**/*.{vue,js,ts,jsx,tsx}',
+    './middleware/**/*.{js,ts}',
+    './pages/**/*.{vue,js,ts,jsx,tsx}',
+    './plugins/**/*.{js,ts}',
+    './utils/**/*.{js,ts}',
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {},
@@ -13,4 +20,3 @@ export default {
     forms,
   ],
 }
-

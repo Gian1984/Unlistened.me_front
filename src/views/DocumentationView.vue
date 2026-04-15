@@ -304,13 +304,13 @@ function scrollToSection(id) {
                 Head back to the home page and explore the podcast library. Your next favourite show is just a click away.
               </p>
             </div>
-            <router-link
+            <NuxtLink
                 to="/"
                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
             >
               Open Home
               <ArrowRightIcon class="h-4 w-4" />
-            </router-link>
+            </NuxtLink>
           </div>
         </section>
       </div>

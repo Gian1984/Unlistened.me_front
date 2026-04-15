@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import {
   Dialog,
   DialogPanel,
@@ -117,7 +116,7 @@ function setSearchType(type) {
 
 function submitSearch() {
   if (searchQuery.value.trim() === '') return
-  router.push({ name: 'SearchResults', query: { q: searchQuery.value, type: searchType.value } })
+  router.push({ path: '/search-results', query: { q: searchQuery.value, type: searchType.value } })
   searchQuery.value = ''
 }
 
@@ -136,11 +135,11 @@ function clearSearch() {
 }
 
 function onFilterClick(id) {
-  router.push({ name: 'SearchResults', query: { s: id } })
+  router.push({ path: '/search-results', query: { s: id } })
 }
 
 function onGenreClick(tag) {
-  router.push({ name: 'MusicSingles', query: { genre: tag } })
+  router.push({ path: '/music/singles', query: { genre: tag } })
 }
 
 async function logout() {
@@ -149,7 +148,7 @@ async function logout() {
     authStore.clearUser()
     const messageStore = useMessageStore()
     messageStore.setMessage('Successfully logged out')
-    router.push({ name: 'Login' })
+    router.push('/login')
   } catch (error) {
     const messageStore = useMessageStore()
     messageStore.setMessage('Failed to log out')
@@ -175,11 +174,9 @@ async function detectBrowserLanguage() {
   }
 }
 
-// Lifecycle: created() equivalent - runs immediately
-fetchSearchCat()
-
 // Lifecycle: mounted()
 onMounted(() => {
+  fetchSearchCat()
   detectBrowserLanguage()
   loadGenres()
 })
@@ -214,9 +211,9 @@ watch(
               <!-- Sidebar component, swap this element with another sidebar if you like -->
               <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
                 <div class="flex h-24 shrink-0 items-center">
-                  <router-link to="/" @click="sidebarOpen = false">
+                  <NuxtLink to="/" @click="sidebarOpen = false">
                     <img class="h-12 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="unlistened.me logo"/>
-                  </router-link>
+                  </NuxtLink>
                 </div>
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-5">
@@ -224,10 +221,10 @@ watch(
                       <p class="px-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ section.label }}</p>
                       <ul role="list" class="mt-1 -mx-2 space-y-1">
                         <li v-for="item in section.items" :key="item.name">
-                          <router-link :to="item.href" :class="[ $route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" @click="sidebarOpen = false">
+                          <NuxtLink :to="item.href" :class="[ route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" @click="sidebarOpen = false">
                             <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                             {{ item.name }}
-                          </router-link>
+                          </NuxtLink>
                         </li>
                       </ul>
                     </li>
@@ -235,16 +232,16 @@ watch(
                       <div class="mb-2 border-t border-gray-800" />
                       <ul role="list" class="-mx-2 space-y-1">
                         <li>
-                          <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
+                          <NuxtLink to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
                             <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Settings
-                          </router-link>
+                          </NuxtLink>
                         </li>
                         <li v-if="isAdmin">
-                          <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
+                          <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" @click="sidebarOpen = false">
                             <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                             Dashboard
-                          </router-link>
+                          </NuxtLink>
                         </li>
                       </ul>
                     </li>
@@ -264,9 +261,9 @@ watch(
     ]">
       <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-3 pb-4" :class="isDesktopCollapsed ? 'items-center' : 'px-6'">
         <div class="flex h-24 shrink-0 items-center" :class="isDesktopCollapsed ? 'justify-center' : ''">
-          <router-link to="/">
+          <NuxtLink to="/">
             <img class="h-12 w-auto" src="/images/unlistened_transparen_logo_176.png" alt="Unlistened.me logo" />
-          </router-link>
+          </NuxtLink>
         </div>
         <nav class="flex flex-1 flex-col" :class="isDesktopCollapsed ? 'w-full' : ''">
           <ul role="list" class="flex flex-1 flex-col gap-y-5">
@@ -280,10 +277,10 @@ watch(
               <div v-else class="mx-auto h-px w-6 bg-gray-800" aria-hidden="true" />
               <ul role="list" class="mt-1 -mx-2 space-y-1">
                 <li v-for="item in section.items" :key="item.name">
-                  <router-link :to="item.href" :class="[$route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', isDesktopCollapsed ? 'justify-center' : '']" :title="isDesktopCollapsed ? item.name : undefined">
+                  <NuxtLink :to="item.href" :class="[route.path === item.href ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', isDesktopCollapsed ? 'justify-center' : '']" :title="isDesktopCollapsed ? item.name : undefined">
                     <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">{{ item.name }}</span>
-                  </router-link>
+                  </NuxtLink>
                 </li>
               </ul>
             </li>
@@ -298,16 +295,16 @@ watch(
               <div class="mb-2 border-t border-gray-800" :class="isDesktopCollapsed ? 'mx-2' : '-mx-2'" />
               <ul role="list" class="space-y-1" :class="isDesktopCollapsed ? '' : '-mx-2'">
                 <li>
-                  <router-link to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
+                  <NuxtLink to="/settings" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Settings' : undefined">
                     <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">Settings</span>
-                  </router-link>
+                  </NuxtLink>
                 </li>
                 <li v-if="isAdmin">
-                  <router-link to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
+                  <NuxtLink to="/dashboard" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white" :class="isDesktopCollapsed ? 'justify-center' : ''" :title="isDesktopCollapsed ? 'Dashboard' : undefined">
                     <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span v-if="!isDesktopCollapsed">Dashboard</span>
-                  </router-link>
+                  </NuxtLink>
                 </li>
               </ul>
             </li>
@@ -446,14 +443,14 @@ watch(
                       </template>
                     </div>
                     <div class="border-t border-gray-800 bg-gray-950/60 px-4 py-2.5">
-                      <router-link
+                      <NuxtLink
                           :to="searchType === 'music' ? '/categories?tab=music' : '/categories'"
                           @click="close"
                           class="flex items-center justify-between text-xs font-semibold text-indigo-400 transition-colors hover:text-pink-400"
                       >
                         {{ searchType === 'music' ? 'See all genres' : 'See all categories' }}
                         <ChevronRightIcon class="h-4 w-4" />
-                      </router-link>
+                      </NuxtLink>
                     </div>
                   </PopoverPanel>
                 </transition>
@@ -507,68 +504,68 @@ watch(
                   <!-- Authenticated links -->
                   <div v-if="authStore.user" class="py-1">
                     <MenuItem v-slot="{ active, close }">
-                      <router-link
+                      <NuxtLink
                           to="/settings"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <Cog6ToothIcon class="h-4 w-4 text-gray-500" />
                         Account settings
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                     <MenuItem v-slot="{ active, close }">
-                      <router-link
+                      <NuxtLink
                           to="/favourites"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <StarIcon class="h-4 w-4 text-gray-500" />
                         My favourites
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                     <MenuItem v-slot="{ active, close }">
-                      <router-link
+                      <NuxtLink
                           to="/bookmarks"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <BookmarkIcon class="h-4 w-4 text-gray-500" />
                         My bookmarks
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                     <MenuItem v-if="isAdmin" v-slot="{ active, close }">
-                      <router-link
+                      <NuxtLink
                           to="/dashboard"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <Squares2X2Icon class="h-4 w-4 text-gray-500" />
                         Admin dashboard
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                   </div>
 
                   <!-- Guest links -->
                   <div v-else class="py-1">
                     <MenuItem v-slot="{ active, close }">
-                      <router-link
-                          :to="{ name: 'Login' }"
+                      <NuxtLink
+                          to="/login"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <ArrowRightOnRectangleIcon class="h-4 w-4 text-gray-500" />
                         Sign in
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                     <MenuItem v-slot="{ active, close }">
-                      <router-link
-                          :to="{ name: 'Signup' }"
+                      <NuxtLink
+                          to="/signup"
                           @click="close"
                           :class="[active ? 'bg-gray-800 text-white' : 'text-gray-300', 'flex items-center gap-3 px-4 py-2 text-sm']"
                       >
                         <UserPlusIcon class="h-4 w-4 text-gray-500" />
                         Create account
-                      </router-link>
+                      </NuxtLink>
                     </MenuItem>
                   </div>
 
@@ -593,7 +590,7 @@ watch(
       </div>
 
       <main class="overflow-x-hidden">
-        <RouterView />
+        <slot />
       </main>
 
     </div>

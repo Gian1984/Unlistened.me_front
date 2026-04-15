@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { HeartIcon as HeartOutline } from '@heroicons/vue/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/vue/24/solid'
 import { useAuthStore } from '@/stores/authStore.js'
@@ -40,7 +39,7 @@ async function onClick(e) {
   e?.stopPropagation?.()
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('Sign in to save tracks to your favorites.')
-    router.push({ name: 'Login' })
+    router.push('/login')
     return
   }
   if (busy.value || !trackId.value) return

@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
 import { authService } from '@/services/authService.js'
-import { useRouter } from 'vue-router'
 import { useSeo } from '@/seo/composables/useSeo.js'
 import { signupSeo } from '@/seo/registry/index.js'
 
@@ -127,13 +126,13 @@ function closeAlertEmpty() {
             />
             <label for="terms" class="text-sm text-gray-300">
               I accept the
-              <router-link to="/terms" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+              <NuxtLink to="/terms" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
                 terms and conditions
-              </router-link>
+              </NuxtLink>
               and the
-              <router-link to="/privacy" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+              <NuxtLink to="/privacy" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
                 privacy policy
-              </router-link>
+              </NuxtLink>
             </label>
           </div>
 
@@ -187,9 +186,9 @@ function closeAlertEmpty() {
 
       <p class="mt-6 text-center text-sm text-gray-500">
         Already have an account?
-        <router-link to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
+        <NuxtLink to="/login" class="font-semibold text-indigo-400 transition-colors hover:text-pink-400">
           Sign in
-        </router-link>
+        </NuxtLink>
       </p>
     </div>
   </div>

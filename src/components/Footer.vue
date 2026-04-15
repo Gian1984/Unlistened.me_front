@@ -1,6 +1,8 @@
 <script setup>
 import { defineComponent, h } from "vue"
 
+const route = useRoute()
+
 const currentYear = new Date().getFullYear()
 
 const FooterNavigation = {
@@ -76,15 +78,15 @@ const FooterNavigation = {
     <div class="mx-auto max-w-7xl px-6 pt-10 pb-6 lg:px-8">
       <!-- Navigation links -->
       <nav class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm" aria-label="Footer">
-        <router-link
+        <NuxtLink
           v-for="item in FooterNavigation.main"
           :key="item.name"
           :to="item.href"
-          :class="[$route.path === item.href ? 'text-indigo-400 font-semibold' : 'text-gray-400 hover:text-pink-400']"
+          :class="[route.path === item.href ? 'text-indigo-400 font-semibold' : 'text-gray-400 hover:text-pink-400']"
           class="transition-colors"
         >
           {{ item.name }}
-        </router-link>
+        </NuxtLink>
       </nav>
 
       <!-- Social icons -->
@@ -117,8 +119,8 @@ const FooterNavigation = {
 
       <!-- Legal links -->
       <div class="mt-3 flex justify-center gap-6 text-xs">
-        <router-link to="/terms" class="text-gray-500 transition-colors hover:text-pink-400">Terms &amp; conditions</router-link>
-        <router-link to="/privacy" class="text-gray-500 transition-colors hover:text-pink-400">Privacy policy</router-link>
+        <NuxtLink to="/terms" class="text-gray-500 transition-colors hover:text-pink-400">Terms &amp; conditions</NuxtLink>
+        <NuxtLink to="/privacy" class="text-gray-500 transition-colors hover:text-pink-400">Privacy policy</NuxtLink>
       </div>
 
       <!-- Copyright -->
