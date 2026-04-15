@@ -3,7 +3,16 @@ import { fileURLToPath } from 'node:url'
 const legacySrcDir = fileURLToPath(new URL('./src', import.meta.url))
 
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/sitemap'],
+  site: {
+    url: 'https://www.unlistened.me',
+  },
+  sitemap: {
+    sources: [
+      '/api/sitemap-urls', // Esempio se avessi un endpoint per i podcast
+    ],
+    exclude: ['/forbidden', '/dashboard', '/settings'],
+  },
   compatibilityDate: '2025-01-01',
   devtools: { enabled: true },
   alias: {

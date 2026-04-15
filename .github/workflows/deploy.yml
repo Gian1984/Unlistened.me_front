@@ -22,16 +22,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Sitemap to public
-        run: npm run generate-sitemap
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd
 
-      - name: Copy public files to output after build
-        run: |
-          npx nuxi generate
-          cp public/.htaccess .output/public/.htaccess 2>/dev/null || echo "htaccess already in output"
-          cp public/robots.txt .output/public/ 2>/dev/null || echo "no robots.txt"
+      - name: Generate OG Images
+        run: php scripts/generate-og-images.php
+
+      - name: Generate Site (Nuxt)
+        run: npx nuxi generate
         env:
           NUXT_PUBLIC_API_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+
+      - name: Post-generation assets copy
+        run: |
+          cp public/.htaccess .output/public/.htaccess 2>/dev/null || echo "htaccess already in output"
+          cp public/robots.txt .output/public/ 2>/dev/null || echo "no robots.txt"
+
 
       - name: Verify .htaccess in output
         run: |
