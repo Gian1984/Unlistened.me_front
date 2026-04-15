@@ -12,9 +12,9 @@ import PageHero from '~/src/components/PageHero.vue'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
 import { seedMusicGenresFromTracks, useMusicGenres } from '~/src/composables/useMusicGenres.js'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('musicSingles')
+usePageSeo('musicSingles')
 
 const route = useRoute()
 const router = useRouter()

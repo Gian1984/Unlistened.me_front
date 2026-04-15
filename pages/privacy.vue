@@ -11,9 +11,9 @@ import {
   InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import PageHero from '~/src/components/PageHero.vue'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('privacy')
+usePageSeo('privacy')
 
 const lastUpdated = 'April 2026'
 

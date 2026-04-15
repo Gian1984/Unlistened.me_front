@@ -12,9 +12,9 @@ import { useHistoryStore } from '~/src/stores/historyStore.js'
 import { useAuthStore } from '~/src/stores/authStore.js'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('music')
+usePageSeo('music')
 
 const playerStore = usePlayerStore()
 const queueStore = useQueueStore()

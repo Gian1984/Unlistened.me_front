@@ -12,9 +12,9 @@ import { podcastService } from '~/src/services/podcastService.js'
 import { stripHtmlTags } from '~/src/utils/text.js'
 import { usePagination } from '~/src/composables/usePagination.js'
 import PodcastCardItem from '~/src/components/podcast/PodcastCardItem.vue'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('podcasts')
+usePageSeo('podcasts')
 
 const authStore = useAuthStore()
 const messageStore = useMessageStore()

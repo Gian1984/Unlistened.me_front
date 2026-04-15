@@ -6,9 +6,9 @@ import {
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
 import PageHero from '~/src/components/PageHero.vue'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('terms')
+usePageSeo('terms')
 
 const termsSections = [
   {

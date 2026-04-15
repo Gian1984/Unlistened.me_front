@@ -17,9 +17,9 @@ import { musicService } from '~/src/services/musicService.js'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
 import { formatDuration } from '~/src/utils/formatTime.js'
 import { stripHtmlTags } from '~/src/utils/text.js'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('home')
+usePageSeo('home')
 
 const authStore = useAuthStore()
 const messageStore = useMessageStore()

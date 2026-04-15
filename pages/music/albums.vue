@@ -5,9 +5,9 @@ import PageHero from '~/src/components/PageHero.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import SkeletonCard from '~/src/components/SkeletonCard.vue'
 import { musicService } from '~/src/services/musicService.js'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('musicAlbums')
+usePageSeo('musicAlbums')
 
 const route = useRoute()
 

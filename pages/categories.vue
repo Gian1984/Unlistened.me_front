@@ -4,9 +4,9 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { podcastService } from '~/src/services/podcastService.js'
 import { useMusicGenres } from '~/src/composables/useMusicGenres.js'
-import { useStaticPageSeo } from '~/composables/useStaticPageSeo'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useStaticPageSeo('categories')
+usePageSeo('categories')
 
 const router = useRouter()
 const route = useRoute()
