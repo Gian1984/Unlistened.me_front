@@ -9,6 +9,11 @@ export default defineNuxtConfig({
   alias: {
     '@': legacySrcDir,
   },
+  router: {
+    options: {
+      strict: true,
+    },
+  },
   app: {
     head: {
       htmlAttrs: {

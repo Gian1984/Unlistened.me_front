@@ -2,6 +2,10 @@
   RewriteEngine On
   RewriteBase /
 
+  # ── Fix double index issue ─────────────────────────────────────────────
+  RewriteRule ^(.*)/index/index/(.*)$ $1/index/$2 [L,R=301]
+  RewriteRule ^(.*)/index/(.*)$ $1/$2 [L,R=301]
+
   # ── Static assets caching ─────────────────────────────────────────────
   <IfModule mod_expires.c>
     ExpiresActive On
@@ -30,7 +34,6 @@
   </IfModule>
 
   # ── SPA fallback ───────────────────────────────────────────────────────
-  # Serve existing files/directories as-is, otherwise fallback to index.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !^/api/
