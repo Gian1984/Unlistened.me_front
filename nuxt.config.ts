@@ -57,7 +57,12 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
-      routes: ['/', '/podcasts', '/music', '/music/albums', '/music/singles', '/categories', '/about', '/documentation', '/terms', '/privacy'],
+      routes: [
+        '/', '/podcasts', '/music', '/music/albums', '/music/singles',
+        '/categories', '/about', '/documentation', '/terms', '/privacy',
+        // Dynamic-route shells that .htaccess rewrites to for bot OG fallback
+        '/feed', '/episode', '/music/album',
+      ],
     },
   },
   routeRules: {
@@ -73,7 +78,12 @@ export default defineNuxtConfig({
     '/documentation': { prerender: true },
     '/terms': { prerender: true },
     '/privacy': { prerender: true },
-    
+
+    // Shell pages prerendered with parent-section OG for dynamic routes
+    '/feed': { prerender: true },
+    '/episode': { prerender: true },
+    '/music/album': { prerender: true, ssr: true },
+
     // Client-side only routes
     '/music/**': { ssr: false },
   },

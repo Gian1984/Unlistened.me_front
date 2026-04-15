@@ -33,6 +33,21 @@
     Header set X-XSS-Protection "1; mode=block"
   </IfModule>
 
+  # ── Route-family fallbacks (parent-section OG for bot crawlers) ───────
+  # Dynamic pages aren't prerendered per-id, so route their shells to
+  # prebuilt index.html files that carry the correct parent-section OG.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^feed/.+$ /feed/index.html [L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^episode/.+$ /episode/index.html [L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^music/album/.+$ /music/album/index.html [L]
+
   # ── SPA fallback ───────────────────────────────────────────────────────
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
