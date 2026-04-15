@@ -169,10 +169,10 @@
             </p>
             <!-- Music: artist + rights + album -->
             <template v-if="playerStore.isMusic">
-              <p class="mt-0.5 truncate text-xs text-gray-400 leading-tight">
+              <p class="mt-1 truncate text-xs text-gray-400 leading-tight">
                 {{ currentArtistLabel }}
               </p>
-              <div class="mt-0.5 min-h-5 text-xs text-gray-400 leading-tight">
+              <div class="mt-1 min-h-5 text-xs text-gray-400 leading-tight">
                 <LicenseBadge
                   v-if="playerStore.currentEpisode.licenseUrl"
                   :url="playerStore.currentEpisode.licenseUrl"
@@ -180,7 +180,7 @@
                 />
                 <span v-else class="truncate">Creative Commons</span>
               </div>
-              <div class="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-gray-500 leading-tight">
+              <div class="mt-1 flex min-w-0 items-center gap-1 text-xs text-gray-500 leading-tight">
                 <span class="truncate">{{ currentAlbumLabel }}</span>
                 <a
                   v-if="playerStore.currentEpisode.shareUrl"

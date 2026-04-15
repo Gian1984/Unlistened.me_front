@@ -84,24 +84,24 @@ function handlePlay() {
       >
         {{ track.name }}
       </p>
-      <p class="mt-0.5 truncate text-xs text-gray-400">
+      <p class="mt-1 truncate text-xs text-gray-400">
         {{ track.artist_name }}
       </p>
-      <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+      <div class="mt-1 min-h-5 text-xs text-gray-400">
         <LicenseBadge v-if="hasLicense" :url="track.license_ccurl" size="xs" />
         <span v-else class="truncate">Creative Commons</span>
       </div>
       <router-link
         v-if="showAlbumLink && track.album_id && track.album_name"
         :to="{ name: 'MusicAlbum', params: { id: track.album_id } }"
-        class="mt-0.5 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
+        class="mt-1 inline-flex max-w-full text-xs text-gray-500 transition-colors hover:text-indigo-300"
         @click.stop
       >
         <span class="truncate">{{ albumLabel }}</span>
       </router-link>
       <p
         v-else
-        class="mt-0.5 truncate text-xs text-gray-500"
+        class="mt-1 truncate text-xs text-gray-500"
       >
         {{ albumLabel }}
       </p>

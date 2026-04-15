@@ -313,12 +313,12 @@ function asTrackForLibrary(t) {
               >
                 {{ t.title }}
               </p>
-              <p class="mt-0.5 truncate text-xs text-gray-400">{{ t.artist_name }}</p>
-              <div class="mt-0.5 min-h-5 text-xs text-gray-400">
+              <p class="mt-1 truncate text-xs text-gray-400">{{ t.artist_name }}</p>
+              <div class="mt-1 min-h-5 text-xs text-gray-400">
                 <LicenseBadge v-if="t.license_ccurl" :url="t.license_ccurl" size="xs" />
                 <span v-else class="truncate">Creative Commons</span>
               </div>
-              <p class="mt-0.5 truncate text-xs text-gray-500">{{ playlistAlbumLabel(t) }}</p>
+              <p class="mt-1 truncate text-xs text-gray-500">{{ playlistAlbumLabel(t) }}</p>
             </div>
 
             <!-- Duration + actions -->
