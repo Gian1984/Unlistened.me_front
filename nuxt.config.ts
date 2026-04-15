@@ -55,6 +55,7 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/podcasts': { prerender: true },
     '/music': { prerender: true },
+    '/music/index': { prerender: true },
     '/music/albums': { prerender: true },
     '/music/singles': { prerender: true },
     '/categories': { prerender: true },
@@ -63,11 +64,7 @@ export default defineNuxtConfig({
     '/terms': { prerender: true },
     '/privacy': { prerender: true },
     
-    // Client-side only (protected/auth pages)
+    // Client-side only routes
     '/music/**': { ssr: false },
-    '/settings': { ssr: false },
-    '/dashboard': { ssr: false },
-    '/bookmarks': { ssr: false },
-    '/favourites': { ssr: false },
   },
 })
