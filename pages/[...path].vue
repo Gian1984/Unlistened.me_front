@@ -3,10 +3,9 @@ import ChevronRightIcon from '@heroicons/vue/20/solid/esm/ChevronRightIcon.js'
 import BookmarkSquareIcon from '@heroicons/vue/24/solid/esm/BookmarkSquareIcon.js'
 import BookOpenIcon from '@heroicons/vue/24/solid/esm/BookOpenIcon.js'
 import UserGroupIcon from '@heroicons/vue/24/solid/esm/UserGroupIcon.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { notFoundSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useSeo(notFoundSeo)
+usePageSeo('notFound')
 
 const links = [
   {

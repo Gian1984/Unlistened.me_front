@@ -20,7 +20,6 @@ import { usePlayerStore } from '~/src/stores/playerStore.js'
 import { useQueueStore } from '~/src/stores/queueStore.js'
 import { podcastService } from '~/src/services/podcastService.js'
 import { musicService } from '~/src/services/musicService.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
 import { stripHtmlTags } from '~/src/utils/text.js'
 
@@ -79,8 +78,6 @@ const seoConfig = computed(() => ({
   description: pageDescription.value,
 }))
 
-useSeo(seoConfig.value)
-
 const musicSeoConfig = computed(() => ({
   title: route.query.q
     ? `"${route.query.q}" — Music Search | Unlistened.me`
@@ -88,13 +85,17 @@ const musicSeoConfig = computed(() => ({
   description: 'Search results for Creative Commons music from independent artists.',
 }))
 
-watch(searchType, (type) => {
-  if (type === 'music') {
-    useSeo(musicSeoConfig.value)
-  } else {
-    useSeo(seoConfig.value)
-  }
-}, { immediate: true })
+const activeSeo = computed(() => (searchType.value === 'music' ? musicSeoConfig.value : seoConfig.value))
+
+useSeoMeta({
+  title: () => activeSeo.value.title,
+  description: () => activeSeo.value.description,
+  ogTitle: () => activeSeo.value.title,
+  ogDescription: () => activeSeo.value.description,
+  twitterTitle: () => activeSeo.value.title,
+  twitterDescription: () => activeSeo.value.description,
+  robots: 'noindex, follow',
+})
 
 async function fetchPodcastResults() {
   if (!route.query.q && !route.query.s) {

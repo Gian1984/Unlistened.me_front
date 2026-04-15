@@ -23,8 +23,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { dashboardSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 import { useAuthStore } from '~/src/stores/authStore.js'
 import { useMessageStore } from '~/src/stores/messageStore.js'
 import { adminService } from '~/src/services/adminService.js'
@@ -33,7 +32,7 @@ definePageMeta({
   middleware: ['admin'],
 })
 
-useSeo(dashboardSeo)
+usePageSeo('dashboard')
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 

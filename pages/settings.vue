@@ -13,8 +13,7 @@ import {
 import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
 import { XCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid/index.js'
 import PageHero from '~/src/components/PageHero.vue'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { settingsSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 import { useAuthStore } from '~/src/stores/authStore.js'
 import { userService } from '~/src/services/userService.js'
 
@@ -22,7 +21,7 @@ definePageMeta({
   middleware: ['auth'],
 })
 
-useSeo(settingsSeo)
+usePageSeo('settings')
 
 const authStore = useAuthStore()
 const router = useRouter()

@@ -13,9 +13,6 @@ import { useHistoryStore } from '~/src/stores/historyStore.js'
 import { podcastService } from '~/src/services/podcastService.js'
 import { stripHtmlTags } from '~/src/utils/text.js'
 import { ref, computed, onMounted } from 'vue'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { buildPodcastSchema } from '~/src/seo/schemas/podcast.js'
-import { buildBreadcrumbSchema } from '~/src/seo/schemas/breadcrumb.js'
 
 definePageMeta({
   dynamicContentMode: 'client-fetch-static-shell',
@@ -47,6 +44,7 @@ const seoConfig = computed(() => {
       description: 'The podcast you are looking for could not be found.',
       canonical: fallbackCanonical,
       robots: 'noindex,nofollow',
+      ogImage: '',
     }
   }
 
@@ -55,26 +53,37 @@ const seoConfig = computed(() => {
       title: 'Podcast Episodes | Unlistened.me',
       description: 'Browse podcast episodes on Unlistened.me.',
       canonical: fallbackCanonical,
+      robots: 'index,follow',
+      ogImage: '',
     }
   }
 
   return {
     title: `${feedInfo.value.title} — Episodes | Unlistened.me`,
-    description: feedInfo.value.description,
+    description: stripHtmlTags(feedInfo.value.description || ''),
     canonical: `https://www.unlistened.me/feed/${feedInfo.value.id}`,
     ogType: 'website',
-    ogImage: feedInfo.value.image,
-    jsonLd: [
-      buildPodcastSchema(feedInfo.value),
-      buildBreadcrumbSchema([
-        { name: 'Home', url: 'https://www.unlistened.me/' },
-        { name: feedInfo.value.title, url: `https://www.unlistened.me/feed/${feedInfo.value.id}` },
-      ]),
-    ].filter(Boolean),
+    ogImage: feedInfo.value.image || '',
+    robots: 'index,follow',
   }
 })
 
-useSeo(seoConfig)
+useSeoMeta({
+  title: () => seoConfig.value.title,
+  description: () => seoConfig.value.description,
+  ogTitle: () => seoConfig.value.title,
+  ogDescription: () => seoConfig.value.description,
+  ogImage: () => seoConfig.value.ogImage,
+  ogType: () => seoConfig.value.ogType || 'website',
+  twitterTitle: () => seoConfig.value.title,
+  twitterDescription: () => seoConfig.value.description,
+  twitterImage: () => seoConfig.value.ogImage,
+  robots: () => seoConfig.value.robots,
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: () => seoConfig.value.canonical }],
+})
 
 const visibleCount = ref(15)
 const loading = ref(true)

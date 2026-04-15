@@ -11,8 +11,6 @@ import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
 import EmptyState from '~/src/components/EmptyState.vue'
 import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { buildBreadcrumbSchema } from '~/src/seo/schemas/breadcrumb.js'
 
 definePageMeta({
   dynamicContentMode: 'client-fetch-static-shell',
@@ -47,18 +45,27 @@ const seoConfig = computed(() => {
     description,
     canonical,
     ogType: 'music.album',
-    ogImage: albumValue?.image || albumValue?.album_image,
-    jsonLd: [
-      buildBreadcrumbSchema([
-        { name: 'Home', url: 'https://www.unlistened.me/' },
-        { name: 'Music', url: 'https://www.unlistened.me/music' },
-        { name: albumValue?.name || 'Album', url: canonical },
-      ]),
-    ],
+    ogImage: albumValue?.image || albumValue?.album_image || '',
+    robots: 'index,follow',
   }
 })
 
-useSeo(seoConfig)
+useSeoMeta({
+  title: () => seoConfig.value.title,
+  description: () => seoConfig.value.description,
+  ogTitle: () => seoConfig.value.title,
+  ogDescription: () => seoConfig.value.description,
+  ogImage: () => seoConfig.value.ogImage,
+  ogType: () => seoConfig.value.ogType || 'website',
+  twitterTitle: () => seoConfig.value.title,
+  twitterDescription: () => seoConfig.value.description,
+  twitterImage: () => seoConfig.value.ogImage,
+  robots: () => seoConfig.value.robots,
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: () => seoConfig.value.canonical }],
+})
 
 function normalizeAlbumResponse(data) {
   const candidate = data?.results?.[0] ?? data?.result ?? data?.data ?? data

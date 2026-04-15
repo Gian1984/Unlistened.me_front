@@ -1,9 +1,8 @@
 <script setup>
 import ShieldExclamationIcon from '@heroicons/vue/24/outline/esm/ShieldExclamationIcon.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { forbiddenSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 
-useSeo(forbiddenSeo)
+usePageSeo('forbidden')
 </script>
 
 <template>

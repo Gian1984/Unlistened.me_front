@@ -15,6 +15,7 @@ export function usePageSeo(key: string) {
     meta: [
       { name: 'description', content: seo.description },
       { name: 'keywords', content: seo.keywords || '' },
+      { name: 'robots', content: seo.robots || 'index,follow' },
       // Open Graph
       { property: 'og:title', content: seo.title },
       { property: 'og:description', content: seo.description },

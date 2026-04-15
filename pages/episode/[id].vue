@@ -5,9 +5,6 @@ import { usePlayerStore } from '~/src/stores/playerStore.js'
 import { podcastService } from '~/src/services/podcastService.js'
 import { stripHtmlTags } from '~/src/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { buildEpisodeSchema } from '~/src/seo/schemas/episode.js'
-import { buildBreadcrumbSchema } from '~/src/seo/schemas/breadcrumb.js'
 
 definePageMeta({
   dynamicContentMode: 'client-fetch-static-shell',
@@ -29,6 +26,7 @@ const seoConfig = computed(() => {
       description: 'The episode you are looking for could not be found.',
       canonical: fallbackCanonical,
       robots: 'noindex,nofollow',
+      ogImage: '',
     }
   }
 
@@ -37,31 +35,39 @@ const seoConfig = computed(() => {
       title: 'Episode | Unlistened.me',
       description: 'Listen to podcast episodes on Unlistened.me.',
       canonical: fallbackCanonical,
+      robots: 'index,follow',
+      ogImage: '',
     }
   }
-
-  const breadcrumbs = [{ name: 'Home', url: 'https://www.unlistened.me/' }]
-  if (episode.value.feedId && episode.value.feedTitle) {
-    breadcrumbs.push({ name: episode.value.feedTitle, url: `https://www.unlistened.me/feed/${episode.value.feedId}` })
-  }
-  breadcrumbs.push({ name: episode.value.title, url: `https://www.unlistened.me/episode/${episode.value.id}` })
 
   return {
     title: episode.value.feedTitle
       ? `${episode.value.title} — ${episode.value.feedTitle} | Unlistened.me`
       : `${episode.value.title} | Unlistened.me`,
-    description: episode.value.description,
+    description: stripHtmlTags(episode.value.description || ''),
     canonical: `https://www.unlistened.me/episode/${episode.value.id}`,
     ogType: 'article',
-    ogImage: episode.value.image,
-    jsonLd: [
-      buildEpisodeSchema(episode.value),
-      buildBreadcrumbSchema(breadcrumbs),
-    ].filter(Boolean),
+    ogImage: episode.value.image || '',
+    robots: 'index,follow',
   }
 })
 
-useSeo(seoConfig)
+useSeoMeta({
+  title: () => seoConfig.value.title,
+  description: () => seoConfig.value.description,
+  ogTitle: () => seoConfig.value.title,
+  ogDescription: () => seoConfig.value.description,
+  ogImage: () => seoConfig.value.ogImage,
+  ogType: () => seoConfig.value.ogType || 'website',
+  twitterTitle: () => seoConfig.value.title,
+  twitterDescription: () => seoConfig.value.description,
+  twitterImage: () => seoConfig.value.ogImage,
+  robots: () => seoConfig.value.robots,
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: () => seoConfig.value.canonical }],
+})
 
 const isPlaying = computed(() => playerStore.isVisible && playerStore.currentEpisode)
 

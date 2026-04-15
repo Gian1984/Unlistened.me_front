@@ -15,14 +15,13 @@ import draggable from 'vuedraggable'
 import EmptyState from '~/src/components/EmptyState.vue'
 import PageHero from '~/src/components/PageHero.vue'
 import { podcastService } from '~/src/services/podcastService.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { favouritesSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 
 definePageMeta({
   middleware: ['auth'],
 })
 
-useSeo(favouritesSeo)
+usePageSeo('favourites')
 
 const favorites = ref([])
 const isLoading = ref(true)

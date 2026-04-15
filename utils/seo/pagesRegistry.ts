@@ -8,6 +8,7 @@ export interface PageSeo {
   keywords?: string
   structuredData?: any
   faqSchema?: any
+  robots?: string
 }
 
 export interface RegistryEntry {
@@ -112,6 +113,87 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
       title: `Privacy Policy – ${BRAND}`,
       description: 'Our commitment to your privacy and data protection.',
       ogImage: '/images/og/privacy.png'
+    }
+  },
+  dashboard: {
+    title: 'Admin Dashboard',
+    description: 'Platform statistics and management.',
+    seo: {
+      title: `Dashboard – ${BRAND}`,
+      description: 'Internal administration dashboard.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  settings: {
+    title: 'Account Settings',
+    description: 'Manage your profile and preferences.',
+    seo: {
+      title: `Settings – ${BRAND}`,
+      description: 'Update your account settings on Unlistened.me.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  bookmarks: {
+    title: 'My Bookmarks',
+    description: 'Your saved episodes and listening progress.',
+    seo: {
+      title: `Bookmarks – ${BRAND}`,
+      description: 'Access your saved podcast episodes.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  favourites: {
+    title: 'My Favourites',
+    description: 'Your followed podcasts.',
+    seo: {
+      title: `Favourites – ${BRAND}`,
+      description: 'Access your favourite podcast shows.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  musicFavorites: {
+    title: 'Liked Songs',
+    description: 'Your library of liked music tracks.',
+    seo: {
+      title: `Music Favorites – ${BRAND}`,
+      description: 'Your collection of liked music tracks on Unlistened.me.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  musicPlaylists: {
+    title: 'My Playlists',
+    description: 'Your custom music collections.',
+    seo: {
+      title: `Music Playlists – ${BRAND}`,
+      description: 'Browse and manage your music playlists.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  nowPlaying: {
+    title: 'Now Playing',
+    description: 'Currently playing track details.',
+    seo: {
+      title: `Now Playing – ${BRAND}`,
+      description: 'Full screen player view.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  forbidden: {
+    title: 'Access Denied',
+    description: 'You do not have permission to view this page.',
+    seo: {
+      title: `403 Forbidden – ${BRAND}`,
+      description: 'Access denied.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  notFound: {
+    title: 'Page Not Found',
+    description: 'The page you are looking for does not exist.',
+    seo: {
+      title: `404 Not Found – ${BRAND}`,
+      description: 'Page not found.',
+      robots: 'noindex, nofollow'
     }
   }
 }

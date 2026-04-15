@@ -10,8 +10,7 @@ import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { usePlayerStore } from '~/src/stores/playerStore.js'
 import { useQueueStore } from '~/src/stores/queueStore.js'
 import { useMessageStore } from '~/src/stores/messageStore.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { musicFavoritesSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 import { backendRowToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
 import { formatDuration } from '~/src/utils/formatTime.js'
 
@@ -19,7 +18,7 @@ definePageMeta({
   middleware: ['auth'],
 })
 
-useSeo(musicFavoritesSeo)
+usePageSeo('musicFavorites')
 
 const library = useMusicLibraryStore()
 const playerStore = usePlayerStore()

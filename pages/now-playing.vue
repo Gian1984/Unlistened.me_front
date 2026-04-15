@@ -5,7 +5,7 @@ import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
 import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
 import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 
 const router = useRouter()
 const playerStore = usePlayerStore()
@@ -36,19 +36,7 @@ const musicTrack = computed(() => {
   }
 })
 
-const seoConfig = computed(() => {
-  if (!ep.value) return { title: 'Now Playing | Unlistened.me', robots: 'noindex' }
-  return {
-    title: `${ep.value.title} | Unlistened.me`,
-    description: isMusic.value
-      ? `Listening to ${ep.value.title} by ${ep.value.feedTitle} on Unlistened.me`
-      : `Listening to ${ep.value.title} from ${ep.value.feedTitle || 'Unlistened.me'}`,
-    ogImage: ep.value.image,
-    robots: 'noindex',
-  }
-})
-
-useSeo(seoConfig)
+usePageSeo('nowPlaying')
 
 function formatDuration(seconds) {
   if (!seconds || isNaN(seconds)) return null

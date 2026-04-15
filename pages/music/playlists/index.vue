@@ -4,14 +4,13 @@ import { ArrowRightIcon, ListBulletIcon, PlusIcon, TrashIcon } from '@heroicons/
 import EmptyState from '~/src/components/EmptyState.vue'
 import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
 import { useMessageStore } from '~/src/stores/messageStore.js'
-import { useSeo } from '~/src/seo/composables/useSeo.js'
-import { musicPlaylistsSeo } from '~/src/seo/registry/index.js'
+import { usePageSeo } from '~/composables/usePageSeo'
 
 definePageMeta({
   middleware: ['auth'],
 })
 
-useSeo(musicPlaylistsSeo)
+usePageSeo('musicPlaylists')
 
 const router = useRouter()
 const library = useMusicLibraryStore()
