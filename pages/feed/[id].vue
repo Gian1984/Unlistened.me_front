@@ -382,9 +382,9 @@ onMounted(() => {
         <div v-if="visibleCount < episodes.length" class="mt-6 flex justify-center">
           <button
             @click="loadMore"
-            class="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-5 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
+            class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-indigo-300"
           >
-            Load more episodes
+            Show more
           </button>
         </div>
       </div>

@@ -58,7 +58,6 @@ jobs:
           protocol: ftps
           security: loose
           state-name: .ftp-deploy-sync-state.json
-          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
