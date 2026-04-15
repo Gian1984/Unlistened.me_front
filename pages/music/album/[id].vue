@@ -19,10 +19,6 @@ definePageMeta({
   dynamicContentMode: 'client-fetch-static-shell',
 })
 
-defineRouteRules({
-  prerender: false,
-})
-
 const route = useRoute()
 const router = useRouter()
 const playerStore = usePlayerStore()

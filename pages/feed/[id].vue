@@ -22,10 +22,6 @@ definePageMeta({
   dynamicContentMode: 'client-fetch-static-shell',
 })
 
-defineRouteRules({
-  prerender: false,
-})
-
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
 messageStore.initializeMessage()
