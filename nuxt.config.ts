@@ -4,6 +4,7 @@ const legacySrcDir = fileURLToPath(new URL('./src', import.meta.url))
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/sitemap'],
+  css: ['~/src/assets/main.css'],
   site: {
     url: 'https://www.unlistened.me',
   },
