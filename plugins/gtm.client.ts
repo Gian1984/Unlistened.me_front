@@ -1,3 +1,5 @@
+import { nextTick } from 'vue'
+
 const GTM_ID = 'GTM-MF5TLTDF'
 const CONSENT_STORAGE_KEY = 'unlistened_cookie_consent_v1'
 
@@ -51,13 +53,24 @@ export default defineNuxtPlugin((nuxtApp) => {
   s.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`
   document.head.appendChild(s)
 
+  // Skip the first afterEach: GA4 Config (auto send_page_view) already
+  // covers the initial page view at GTM load. Only fire manual page_view
+  // events on SPA navigations so we don't double-count in GA4.
+  let initialNavigationHandled = false
   const router = nuxtApp.$router as { afterEach: (fn: (to: { fullPath: string }) => void) => void }
   router.afterEach((to) => {
-    w.dataLayer.push({
-      event: 'page_view',
-      page_location: window.location.href,
-      page_path: to.fullPath,
-      page_title: document.title,
+    if (!initialNavigationHandled) {
+      initialNavigationHandled = true
+      return
+    }
+    // Wait for Nuxt's useHead to apply the new document.title before pushing.
+    nextTick(() => {
+      w.dataLayer.push({
+        event: 'page_view',
+        page_location: window.location.href,
+        page_path: to.fullPath,
+        page_title: document.title,
+      })
     })
   })
 })
