@@ -106,9 +106,9 @@ async function fetchPodcastResults() {
   try {
     let response
     if (route.query.q) {
-      response = await podcastService.search(route.query.q)
+      response = await podcastService.searchByTitle(route.query.q)
     } else if (route.query.s) {
-      response = await podcastService.getByCategory(route.query.s)
+      response = await podcastService.searchByCategory(route.query.s)
     }
     const results = response.data?.feeds || []
     feeds.value = results
@@ -129,7 +129,7 @@ async function fetchMusicResults() {
   }
 
   try {
-    const response = await musicService.searchTracks(route.query.q)
+    const response = await musicService.search(route.query.q)
     const results = response.data?.results || []
     musicTracks.value = results
     noResult.value = results.length === 0
