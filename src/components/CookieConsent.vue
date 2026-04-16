@@ -94,42 +94,29 @@ function reopenBanner() {
 }
 
 onMounted(() => {
-  // Set Consent Mode defaults before anything else — "denied" until the user decides
-  if (typeof window !== 'undefined') {
-    window.dataLayer = window.dataLayer || []
-    function gtag() { window.dataLayer.push(arguments) }
+  // Consent Mode v2 defaults are set before GTM loads in plugins/gtm.client.ts.
+  // This component is only responsible for reflecting the stored decision in
+  // local state, showing the banner if none exists, and pushing `consent update`
+  // when the user changes preferences.
+  if (typeof window === 'undefined') return
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        preferences.value = {
-          necessary: true,
-          analytics: !!parsed.analytics,
-          marketing: !!parsed.marketing,
-        }
-        hasDecision.value = true
-        pushConsent(preferences.value)
-        return
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      preferences.value = {
+        necessary: true,
+        analytics: !!parsed.analytics,
+        marketing: !!parsed.marketing,
       }
-    } catch (e) {
-      // ignore parse errors
+      hasDecision.value = true
+      return
     }
-
-    // No decision yet — set denied defaults and show the banner
-    gtag('consent', 'default', {
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      analytics_storage: 'denied',
-      functionality_storage: 'granted',
-      personalization_storage: 'denied',
-      security_storage: 'granted',
-      wait_for_update: 500,
-    })
-
-    bannerVisible.value = true
+  } catch (e) {
+    // ignore parse errors
   }
+
+  bannerVisible.value = true
 })
 
 // Re-show banner when user clicks the floating cookie icon

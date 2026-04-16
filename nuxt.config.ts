@@ -47,6 +47,12 @@ export default defineNuxtConfig({
       bodyAttrs: {
         class: 'bg-gray-950 text-gray-200',
       },
+      noscript: [
+        {
+          innerHTML: '<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MF5TLTDF" height="0" width="0" style="display:none;visibility:hidden"></iframe>',
+          tagPosition: 'bodyOpen',
+        },
+      ],
     },
   },
   runtimeConfig: {
