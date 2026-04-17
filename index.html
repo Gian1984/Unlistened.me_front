@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Legacy Vite entry kept only as migration reference. Nuxt does not use this file. -->
+    <!-- Consent Mode v2 defaults (must run before GTM) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      (function () {
+        var stored = null;
+        try { stored = JSON.parse(localStorage.getItem('unlistened_cookie_consent_v1')); } catch (e) {}
+        if (stored) {
+          gtag('consent', 'default', {
+            ad_storage: stored.marketing ? 'granted' : 'denied',
+            ad_user_data: stored.marketing ? 'granted' : 'denied',
+            ad_personalization: stored.marketing ? 'granted' : 'denied',
+            analytics_storage: stored.analytics ? 'granted' : 'denied',
+            functionality_storage: 'granted',
+            personalization_storage: stored.analytics ? 'granted' : 'denied',
+            security_storage: 'granted'
+          });
+        } else {
+          gtag('consent', 'default', {
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            analytics_storage: 'denied',
+            functionality_storage: 'granted',
+            personalization_storage: 'denied',
+            security_storage: 'granted',
+            wait_for_update: 500
+          });
+        }
+      })();
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MF5TLTDF');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Podcasts & Music — No Tracking | Unlistened.me</title>
+    <meta name="description" content="Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required.">
+
+    <!-- Open Graph (fallback for crawlers that don't execute JS) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Unlistened.me">
+    <meta property="og:title" content="Free Podcasts & Music — No Tracking | Unlistened.me">
+    <meta property="og:description" content="Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required.">
+    <meta property="og:image" content="https://www.unlistened.me/images/og/home.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://www.unlistened.me/">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free Podcasts & Music — No Tracking | Unlistened.me">
+    <meta name="twitter:description" content="Discover and stream thousands of podcasts and free Creative Commons music. No cookies, no tracking, no accounts required.">
+    <meta name="twitter:image" content="https://www.unlistened.me/images/og/home.png">
+  </head>
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MF5TLTDF"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,51 +1,26 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
-import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
-import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
-import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
-import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
-import { usePageSeo } from '~/composables/usePageSeo'
+import { computed, watch } from 'vue'
+import { usePlayerStore } from '@/stores/playerStore.js'
+import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
+import { useSeo } from '@/seo/composables/useSeo.js'
 
 const router = useRouter()
 const playerStore = usePlayerStore()
 
 const ep = computed(() => playerStore.currentEpisode)
 const isMusic = computed(() => playerStore.isMusic)
-const episodeDetails = ref(null)
-const detailsLoading = ref(false)
 
+// Redirect to home if nothing is playing
 watch(
   () => playerStore.isVisible,
   (visible) => { if (!visible) router.replace('/') },
   { immediate: true },
 )
 
-watch(
-  () => (!isMusic.value && ep.value?.id) ? ep.value.id : null,
-  async (id) => {
-    episodeDetails.value = null
-    if (!id) return
-    detailsLoading.value = true
-    try {
-      const response = await podcastService.getEpisode(id)
-      episodeDetails.value = response.data.episode || null
-    } catch {
-      episodeDetails.value = null
-    } finally {
-      detailsLoading.value = false
-    }
-  },
-  { immediate: true },
-)
-
-const podcastDescription = computed(() => {
-  const raw = episodeDetails.value?.description
-  return raw ? stripHtmlTags(raw) : ''
-})
-
+// Build a track object in the shape FavoriteMusicButton / AddToPlaylistMenu expect
 const musicTrack = computed(() => {
   if (!ep.value || ep.value.contentType !== 'music') return null
   return {
@@ -63,7 +38,19 @@ const musicTrack = computed(() => {
   }
 })
 
-usePageSeo('nowPlaying')
+const seoConfig = computed(() => {
+  if (!ep.value) return { title: 'Now Playing | Unlistened.me', robots: 'noindex' }
+  return {
+    title: `${ep.value.title} | Unlistened.me`,
+    description: isMusic.value
+      ? `Listening to ${ep.value.title} by ${ep.value.feedTitle} on Unlistened.me`
+      : `Listening to ${ep.value.title} from ${ep.value.feedTitle || 'Unlistened.me'}`,
+    ogImage: ep.value.image,
+    robots: 'noindex',
+  }
+})
+
+useSeo(seoConfig)
 
 function formatDuration(seconds) {
   if (!seconds || isNaN(seconds)) return null
@@ -74,9 +61,10 @@ function formatDuration(seconds) {
 </script>
 
 <template>
-  <div class="bg-gray-950 min-h-screen pb-28">
+  <div class="bg-gray-900 min-h-screen pb-28">
     <div v-if="ep" class="mx-auto max-w-2xl px-4 pt-8 sm:pt-14">
 
+      <!-- Cover art -->
       <div class="flex justify-center">
         <div class="w-64 sm:w-80 overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl">
           <img
@@ -93,6 +81,7 @@ function formatDuration(seconds) {
         </div>
       </div>
 
+      <!-- Track info -->
       <div class="mt-8 text-center">
         <h1 class="text-2xl sm:text-3xl font-bold text-white leading-tight">
           {{ ep.title }}
@@ -105,6 +94,7 @@ function formatDuration(seconds) {
           {{ ep.feedTitle }}
         </p>
 
+        <!-- Music: album + duration + license -->
         <div
           v-if="isMusic"
           class="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500"
@@ -122,39 +112,21 @@ function formatDuration(seconds) {
           <LicenseBadge v-if="ep.licenseUrl" :url="ep.licenseUrl" size="sm" />
         </div>
 
+        <!-- Podcast: link to feed -->
         <div
-          v-if="!isMusic"
-          class="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500"
+          v-if="!isMusic && ep.feedId"
+          class="mt-3"
         >
-          <span class="inline-flex rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-400">
-            Episode
-          </span>
-          <time
-            v-if="episodeDetails?.datePublishedPretty"
-            :datetime="episodeDetails.newestItemPubdate"
+          <NuxtLink
+            :to="`/feed/${ep.feedId}`"
+            class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
           >
-            {{ episodeDetails.datePublishedPretty }}
-          </time>
+            View all episodes
+          </NuxtLink>
         </div>
       </div>
 
-      <div
-        v-if="!isMusic"
-        class="mx-auto mt-8 max-w-2xl"
-      >
-        <div v-if="detailsLoading && !podcastDescription" class="space-y-3">
-          <div class="h-4 w-full rounded animate-shimmer"></div>
-          <div class="h-4 w-full rounded animate-shimmer"></div>
-          <div class="h-4 w-4/5 rounded animate-shimmer"></div>
-        </div>
-        <p
-          v-else-if="podcastDescription"
-          class="whitespace-pre-line text-base leading-8 text-gray-400"
-        >
-          {{ podcastDescription }}
-        </p>
-      </div>
-
+      <!-- Music actions: favorite + add to playlist + Jamendo link -->
       <div
         v-if="isMusic && musicTrack"
         class="mt-8 flex items-center justify-center gap-3"
@@ -163,11 +135,20 @@ function formatDuration(seconds) {
         <AddToPlaylistMenu :track="musicTrack" size="md" />
       </div>
 
+      <!-- Podcast actions: episode page + bookmark -->
       <div
-        v-if="!isMusic && ep.feedId"
+        v-if="!isMusic"
         class="mt-8 flex items-center justify-center gap-3"
       >
         <NuxtLink
+          v-if="ep.id"
+          :to="`/episode/${ep.id}`"
+          class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
+        >
+          Episode details
+        </NuxtLink>
+        <NuxtLink
+          v-if="ep.feedId"
           :to="`/feed/${ep.feedId}`"
           class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
         >

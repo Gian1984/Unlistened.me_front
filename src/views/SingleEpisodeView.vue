@@ -1,18 +1,19 @@
 <script setup>
-import EmptyState from '~/src/components/EmptyState.vue'
-import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import Footer from '../components/Footer.vue'
+import EmptyState from '../components/EmptyState.vue'
+import {
+  ExclamationTriangleIcon,
+} from '@heroicons/vue/24/outline'
+import { usePlayerStore } from '@/stores/playerStore.js'
+import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
-
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
+import { useSeo } from '@/seo/composables/useSeo.js'
+import { buildEpisodeSchema } from '@/seo/schemas/episode.js'
+import { buildBreadcrumbSchema } from '@/seo/schemas/breadcrumb.js'
 
 const playerStore = usePlayerStore()
 const route = useRoute()
-const router = useRouter()
 
 const episode = ref(null)
 const error = ref(null)
@@ -27,7 +28,6 @@ const seoConfig = computed(() => {
       description: 'The episode you are looking for could not be found.',
       canonical: fallbackCanonical,
       robots: 'noindex,nofollow',
-      ogImage: '',
     }
   }
 
@@ -36,58 +36,32 @@ const seoConfig = computed(() => {
       title: 'Episode | Unlistened.me',
       description: 'Listen to podcast episodes on Unlistened.me.',
       canonical: fallbackCanonical,
-      robots: 'index,follow',
-      ogImage: '',
     }
   }
+  const breadcrumbs = [{ name: 'Home', url: 'https://www.unlistened.me/' }]
+  if (episode.value.feedId && episode.value.feedTitle) {
+    breadcrumbs.push({ name: episode.value.feedTitle, url: `https://www.unlistened.me/feed/${episode.value.feedId}` })
+  }
+  breadcrumbs.push({ name: episode.value.title, url: `https://www.unlistened.me/episode/${episode.value.id}` })
 
   return {
     title: episode.value.feedTitle
       ? `${episode.value.title} — ${episode.value.feedTitle} | Unlistened.me`
       : `${episode.value.title} | Unlistened.me`,
-    description: stripHtmlTags(episode.value.description || ''),
+    description: episode.value.description,
     canonical: `https://www.unlistened.me/episode/${episode.value.id}`,
     ogType: 'article',
-    ogImage: episode.value.image || '',
-    robots: 'index,follow',
+    ogImage: episode.value.image,
+    jsonLd: [
+      buildEpisodeSchema(episode.value),
+      buildBreadcrumbSchema(breadcrumbs),
+    ].filter(Boolean),
   }
 })
 
-useSeoMeta({
-  title: () => seoConfig.value.title,
-  description: () => seoConfig.value.description,
-  ogTitle: () => seoConfig.value.title,
-  ogDescription: () => seoConfig.value.description,
-  ogImage: () => seoConfig.value.ogImage,
-  ogType: () => seoConfig.value.ogType || 'website',
-  twitterTitle: () => seoConfig.value.title,
-  twitterDescription: () => seoConfig.value.description,
-  twitterImage: () => seoConfig.value.ogImage,
-  robots: () => seoConfig.value.robots,
-})
+useSeo(seoConfig)
 
-useHead({
-  link: [{ rel: 'canonical', href: () => seoConfig.value.canonical }],
-})
-
-const isCurrentEpisode = computed(
-  () => !!episode.value && playerStore.isCurrent(episode.value.id),
-)
-
-function playEpisode() {
-  if (!episode.value) return
-  playerStore.play({
-    contentType: 'podcast',
-    id: episode.value.id,
-    title: episode.value.title,
-    enclosureUrl: episode.value.enclosureUrl,
-    image: episode.value.image || '',
-    feedTitle: episode.value.feedTitle || '',
-    feedId: episode.value.feedId || null,
-    duration: episode.value.duration,
-  })
-  router.push('/now-playing')
-}
+const isPlaying = computed(() => playerStore.isVisible && playerStore.currentEpisode)
 
 async function fetchEpisode(podcastId) {
   try {
@@ -97,7 +71,7 @@ async function fetchEpisode(podcastId) {
     if (!episode.value || Object.keys(episode.value).length === 0) {
       error.value = 'No podcast information found.'
     }
-  } catch {
+  } catch (err) {
     error.value = 'Error fetching episode'
   } finally {
     loading.value = false
@@ -112,9 +86,10 @@ onMounted(() => {
 <template>
   <div class="bg-gray-950 min-h-screen">
     <div class="p-6 sm:p-8">
+      <!-- Loading -->
       <div v-if="loading" class="mx-auto max-w-6xl">
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-          <div class="aspect-square rounded-2xl border border-gray-700 bg-gray-800 animate-shimmer"></div>
+          <div class="aspect-square rounded-2xl bg-gray-800 animate-shimmer border border-gray-700"></div>
 
           <div class="space-y-4">
             <div class="h-4 w-40 rounded animate-shimmer"></div>
@@ -126,39 +101,46 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Content -->
       <div v-else-if="episode && !error" class="mx-auto max-w-6xl">
+        <!-- Episode hero -->
         <section class="rounded-3xl border border-gray-800 bg-gray-900/30 p-5 sm:p-6 lg:p-8">
           <div class="grid grid-cols-1 gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+            <!-- Cover -->
             <div>
               <div class="overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-lg">
                 <img
-                  :src="episode.image || '/images/image_not_available_500.webp'"
-                  :alt="episode.title"
-                  loading="lazy"
-                  class="aspect-square w-full object-cover"
+                    :src="episode.image || '/images/image_not_available_500.webp'"
+                    :alt="episode.title"
+                    loading="lazy"
+                    class="aspect-square w-full object-cover"
                 />
               </div>
             </div>
 
+            <!-- Content -->
             <div class="min-w-0">
-              <div class="mb-4 flex flex-wrap items-center gap-3">
+              <div class="flex flex-wrap items-center gap-3 mb-4">
                 <span class="inline-flex rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-400">
                   Episode
                 </span>
                 <time
-                  v-if="episode.datePublishedPretty"
-                  :datetime="episode.newestItemPubdate"
-                  class="text-sm text-gray-500"
+                    v-if="episode.datePublishedPretty"
+                    :datetime="episode.newestItemPubdate"
+                    class="text-sm text-gray-500"
                 >
                   {{ episode.datePublishedPretty }}
                 </time>
               </div>
 
-              <h1 class="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
+              <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl leading-tight">
                 {{ episode.title }}
               </h1>
 
-              <p v-if="episode.feedTitle" class="mt-3 text-sm text-gray-400">
+              <p
+                  v-if="episode.feedTitle"
+                  class="mt-3 text-sm text-gray-400"
+              >
                 From
                 <span class="font-medium text-gray-300">{{ episode.feedTitle }}</span>
               </p>
@@ -167,29 +149,21 @@ onMounted(() => {
                 {{ stripHtmlTags(episode.description) }}
               </p>
 
+              <!-- Actions -->
               <div class="mt-8 border-t border-gray-800 pt-6">
                 <div class="flex flex-wrap items-center gap-3">
                   <NuxtLink
-                    v-if="isCurrentEpisode"
-                    to="/now-playing"
-                    class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                      v-if="isPlaying"
+                      to="/now-playing"
+                      class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
                   >
-                    <span>Go to Now Playing</span>
+                    <span>Back to Now Playing</span>
                   </NuxtLink>
 
-                  <button
-                    v-else-if="episode.enclosureUrl"
-                    type="button"
-                    class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
-                    @click="playEpisode"
-                  >
-                    <span>Play episode</span>
-                  </button>
-
                   <NuxtLink
-                    v-if="episode.feedId"
-                    :to="'/feed/' + episode.feedId"
-                    class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
+                      v-if="episode.feedId"
+                      :to="'/feed/' + episode.feedId"
+                      class="inline-flex items-center gap-2 rounded-full bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
                   >
                     <span>Open podcast</span>
                   </NuxtLink>
@@ -200,15 +174,18 @@ onMounted(() => {
         </section>
       </div>
 
+      <!-- Error -->
       <div v-else class="mx-auto max-w-5xl py-16">
         <EmptyState
-          :icon="ExclamationTriangleIcon"
-          title="Not found"
-          description="We could not find the episode you are looking for. Please go back and try again."
-          action-text="Back to listing"
-          action-link="/"
+            :icon="ExclamationTriangleIcon"
+            title="Not found"
+            description="We could not find the episode you are looking for. Please go back and try again."
+            action-text="Back to listing"
+            action-link="/"
         />
       </div>
     </div>
   </div>
+
+  <Footer />
 </template>
