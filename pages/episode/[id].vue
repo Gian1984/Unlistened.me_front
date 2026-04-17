@@ -191,7 +191,7 @@ onMounted(() => {
                     :to="'/feed/' + episode.feedId"
                     class="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
                   >
-                    <span>Open podcast</span>
+                    <span>View all episodes</span>
                   </NuxtLink>
                 </div>
               </div>

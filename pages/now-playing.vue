@@ -171,7 +171,7 @@ function formatDuration(seconds) {
           :to="`/feed/${ep.feedId}`"
           class="inline-flex items-center gap-1.5 rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500 hover:text-indigo-400"
         >
-          Open podcast
+          View all episodes
         </NuxtLink>
       </div>
 
