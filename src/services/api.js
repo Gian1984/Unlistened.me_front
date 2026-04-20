@@ -5,6 +5,9 @@ const api = axios.create({
   baseURL: 'https://api.unlistened.me',
   withCredentials: true,
   withXSRFToken: true,
+  headers: {
+    Accept: 'application/json',
+  },
 })
 
 api.interceptors.response.use(
