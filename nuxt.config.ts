@@ -63,6 +63,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
+      fallback: '200.html',
       routes: [
         '/', '/podcasts', '/music', '/music/albums', '/music/singles',
         '/categories', '/about', '/documentation', '/terms', '/privacy',
@@ -90,7 +91,11 @@ export default defineNuxtConfig({
     '/episode': { prerender: true },
     '/music/album': { prerender: true, ssr: true },
 
-    // Client-side only routes
-    '/music/**': { ssr: false },
+    // Private library routes: user-specific, non-indexable, client-only
+    '/favourites': { ssr: false },
+    '/bookmarks': { ssr: false },
+    '/music/favorites': { ssr: false },
+    '/music/playlists': { ssr: false },
+    '/music/playlists/**': { ssr: false },
   },
 })
