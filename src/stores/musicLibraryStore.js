@@ -100,6 +100,16 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
     }
   }
 
+  async function reorderFavorites() {
+    const ordered = favorites.value.map((f, idx) => ({
+      jamendo_track_id: String(f.jamendo_track_id),
+      position: idx,
+    }))
+    try {
+      await musicService.reorderFavorites(ordered)
+    } catch {}
+  }
+
   async function removeFavorite(trackId) {
     const id = String(trackId)
     if (!favoriteIds.value.has(id)) return
@@ -228,6 +238,7 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
     loadFavorites,
     addFavorite,
     removeFavorite,
+    reorderFavorites,
     toggleFavorite,
     // playlists actions
     loadPlaylists,

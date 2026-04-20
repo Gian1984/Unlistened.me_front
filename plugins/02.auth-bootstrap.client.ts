@@ -1,6 +1,7 @@
 import { registerUnauthorizedHandler } from '@/services/sessionHandler'
 import { useAuthStore } from '@/stores/authStore'
 import { useMessageStore } from '@/stores/messageStore'
+import { useHistoryStore } from '@/stores/historyStore'
 
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore()
@@ -26,5 +27,10 @@ export default defineNuxtPlugin(async () => {
   // loaded (even if public) knows if the user is logged in.
   if (!authStore.isInitialized) {
     await authStore.initializeAuth()
+  }
+
+  if (authStore.isAuthenticated) {
+    const historyStore = useHistoryStore()
+    historyStore.loadFromAPI()
   }
 })

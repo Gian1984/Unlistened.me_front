@@ -58,6 +58,10 @@ function playAll() {
   playerStore.play(all[0])
 }
 
+function onDragEnd() {
+  library.reorderFavorites()
+}
+
 async function removeOne(fav) {
   try {
     await library.removeFavorite(fav.jamendo_track_id)
@@ -128,6 +132,7 @@ function asTrack(fav) {
         tag="ul"
         handle=".drag-handle"
         class="space-y-2"
+        @change="onDragEnd"
       >
         <template #item="{ element: fav, index: idx }">
         <li

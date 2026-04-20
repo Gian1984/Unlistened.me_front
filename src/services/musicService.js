@@ -16,6 +16,7 @@ export const musicService = {
   addFavorite: (track)                    => api.post('api/music/favorites', track),
   removeFavorite: (trackId)               => api.delete(`api/music/favorites/${trackId}`),
   checkFavorite: (trackId)                => api.get(`api/music/favorites/check/${trackId}`),
+  reorderFavorites: (tracks)              => api.put('api/music/favorites/reorder', { tracks }),
 
   // Playlists — Sanctum auth required
   getPlaylists: ()                        => api.get('api/music/playlists'),
