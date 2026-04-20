@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted } from 'vue'
 import { HeartIcon as HeartSolid, PauseIcon, PlayIcon } from '@heroicons/vue/24/solid'
-import { MusicalNoteIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, MusicalNoteIcon, PlayIcon as PlayOutline, TrashIcon } from '@heroicons/vue/24/outline'
+import draggable from 'vuedraggable'
 import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
 import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
 import SkeletonRow from '~/src/components/SkeletonRow.vue'
@@ -50,6 +51,13 @@ function favoriteAlbumLabel(fav) {
   return fav.album_name || 'Single'
 }
 
+function playAll() {
+  if (!library.favorites.length) return
+  const all = library.favorites.map(backendRowToPlayerPayload)
+  queueStore.setQueue(all, 0)
+  playerStore.play(all[0])
+}
+
 async function removeOne(fav) {
   try {
     await library.removeFavorite(fav.jamendo_track_id)
@@ -87,6 +95,16 @@ function asTrack(fav) {
         <p class="mt-4 max-w-3xl text-base leading-7 text-gray-400">
           Tracks you have hearted, all in one place. Independent artists, Creative Commons licensed, no tracking.
         </p>
+        <div v-if="library.favorites.length" class="mt-6">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+            @click="playAll"
+          >
+            <PlayOutline class="h-4 w-4" />
+            Play all ({{ library.favorites.length }})
+          </button>
+        </div>
       </div>
 
       <div v-if="library.favoritesLoading && !library.favorites.length" class="space-y-2">
@@ -103,12 +121,22 @@ function asTrack(fav) {
         />
       </div>
 
-      <ul v-else class="space-y-2">
+      <draggable
+        v-else
+        v-model="library.favorites"
+        item-key="jamendo_track_id"
+        tag="ul"
+        handle=".drag-handle"
+        class="space-y-2"
+      >
+        <template #item="{ element: fav, index: idx }">
         <li
-          v-for="(fav, idx) in library.favorites"
-          :key="fav.jamendo_track_id"
           class="group flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-900/40 p-2 transition-colors hover:border-indigo-500/40 hover:bg-gray-800/60 sm:gap-3 sm:p-3"
         >
+          <div class="drag-handle hidden h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-full bg-gray-700 text-gray-400 active:cursor-grabbing sm:flex" title="Drag to reorder">
+            <Bars3Icon class="h-4 w-4" />
+          </div>
+
           <span class="hidden w-5 shrink-0 text-center text-xs text-gray-500 tabular-nums sm:block">
             {{ idx + 1 }}
           </span>
@@ -173,7 +201,8 @@ function asTrack(fav) {
             </button>
           </div>
         </li>
-      </ul>
+        </template>
+      </draggable>
 
       <p class="mt-10 text-center text-xs text-gray-600">
         Music provided by
