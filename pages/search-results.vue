@@ -68,17 +68,17 @@ const pageDescription = computed(() => {
 
 const seoConfig = computed(() => ({
   title: route.query.q
-    ? `"${route.query.q}" — Podcast Search | Unlistened.me`
+    ? `"${route.query.q}" — Podcast Search`
     : route.query.name
-      ? `${route.query.name} Podcasts | Unlistened.me`
-      : 'Search Results | Unlistened.me',
+      ? `${route.query.name} Podcasts`
+      : 'Search Results',
   description: pageDescription.value,
 }))
 
 const musicSeoConfig = computed(() => ({
   title: route.query.q
-    ? `"${route.query.q}" — Music Search | Unlistened.me`
-    : 'Music Search | Unlistened.me',
+    ? `"${route.query.q}" — Music Search`
+    : 'Music Search',
   description: 'Search results for Creative Commons music from independent artists.',
 }))
 

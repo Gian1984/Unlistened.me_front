@@ -18,11 +18,14 @@ export interface RegistryEntry {
 }
 
 export const pagesRegistry: Record<string, RegistryEntry> = {
+  // Note: titles below MUST NOT include the brand. The global titleTemplate
+  // in nuxt.config.ts (`%s | Unlistened.me`) appends it; embedding it here too
+  // produces the duplicated "Foo – Unlistened.me | Unlistened.me" we used to ship.
   home: {
     title: 'Podcasts and music, all in one place',
     description: 'Discover trending podcasts or explore free Creative Commons music from independent artists.',
     seo: {
-      title: `Unlistened.me: Podcasts & Free Music Streaming`,
+      title: 'Free Podcasts & Music — No Tracking',
       description: 'The open audio platform. Discover trending podcasts via PodcastIndex or explore free Creative Commons music from independent artists. No ads, no tracking.',
       ogImage: '/images/og/home.png',
       keywords: 'podcasts, free music, creative commons music, podcast discovery, jamendo, podcastindex',
@@ -38,7 +41,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Discover Trending Podcasts',
     description: 'Explore thousands of podcasts from the PodcastIndex library.',
     seo: {
-      title: `Trending Podcasts – ${BRAND}`,
+      title: 'Trending Podcasts',
       description: 'Browse the latest trending podcasts across all categories on Unlistened.me.',
       ogImage: '/images/og/podcasts.png'
     }
@@ -47,7 +50,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Free Creative Commons Music',
     description: 'Discover independent artists and high-quality free music.',
     seo: {
-      title: `Explore Free Music – ${BRAND}`,
+      title: 'Explore Free Music',
       description: 'Stream thousands of Creative Commons tracks from independent artists.',
       ogImage: '/images/og/music.png'
     }
@@ -56,7 +59,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Browse Music Albums',
     description: 'Explore albums from independent artists on Jamendo.',
     seo: {
-      title: `Music Albums – ${BRAND}`,
+      title: 'Music Albums',
       description: 'Discover and stream full albums from independent artists under Creative Commons.',
       ogImage: '/images/og/music.png'
     }
@@ -65,7 +68,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Search Free Tracks',
     description: 'Find individual tracks and singles by genre or artist.',
     seo: {
-      title: `Music Singles – ${BRAND}`,
+      title: 'Music Singles',
       description: 'Search and discover thousands of free tracks across all genres.',
       ogImage: '/images/og/music.png'
     }
@@ -74,7 +77,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Browse by Category',
     description: 'Find podcasts and music across various genres and categories.',
     seo: {
-      title: `Categories – ${BRAND}`,
+      title: 'Categories',
       description: 'Explore podcasts and music by genre, from True Crime to Electronic.',
       ogImage: '/images/og/categories.png'
     }
@@ -83,7 +86,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'About Unlistened.me',
     description: 'The story behind the open audio platform.',
     seo: {
-      title: `About Us – ${BRAND}`,
+      title: 'About Us',
       description: 'Learn how Unlistened.me connects you to open audio libraries.',
       ogImage: '/images/og/about.png'
     }
@@ -92,7 +95,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Documentation',
     description: 'How to use Unlistened.me and technical details.',
     seo: {
-      title: `Documentation – ${BRAND}`,
+      title: 'Documentation',
       description: 'App guide and technical documentation for Unlistened.me.',
       ogImage: '/images/og/documentation.png'
     }
@@ -101,7 +104,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Terms and Conditions',
     description: 'Rules and guidelines for using our platform.',
     seo: {
-      title: `Terms & Conditions – ${BRAND}`,
+      title: 'Terms & Conditions',
       description: 'Terms of service and usage guidelines for Unlistened.me.',
       ogImage: '/images/og/terms.png'
     }
@@ -110,7 +113,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Privacy Policy',
     description: 'How we handle your data and cookies.',
     seo: {
-      title: `Privacy Policy – ${BRAND}`,
+      title: 'Privacy Policy',
       description: 'Our commitment to your privacy and data protection.',
       ogImage: '/images/og/privacy.png'
     }
@@ -119,7 +122,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Admin Dashboard',
     description: 'Platform statistics and management.',
     seo: {
-      title: `Dashboard – ${BRAND}`,
+      title: 'Dashboard',
       description: 'Internal administration dashboard.',
       robots: 'noindex, nofollow'
     }
@@ -128,7 +131,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Account Settings',
     description: 'Manage your profile and preferences.',
     seo: {
-      title: `Settings – ${BRAND}`,
+      title: 'Settings',
       description: 'Update your account settings on Unlistened.me.',
       robots: 'noindex, nofollow'
     }
@@ -137,7 +140,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'My Bookmarks',
     description: 'Your saved episodes and listening progress.',
     seo: {
-      title: `Bookmarks – ${BRAND}`,
+      title: 'Bookmarks',
       description: 'Access your saved podcast episodes.',
       robots: 'noindex, nofollow'
     }
@@ -146,7 +149,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'My Favourites',
     description: 'Your followed podcasts.',
     seo: {
-      title: `Favourites – ${BRAND}`,
+      title: 'Favourites',
       description: 'Access your favourite podcast shows.',
       robots: 'noindex, nofollow'
     }
@@ -155,7 +158,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Liked Songs',
     description: 'Your library of liked music tracks.',
     seo: {
-      title: `Music Favorites – ${BRAND}`,
+      title: 'Music Favorites',
       description: 'Your collection of liked music tracks on Unlistened.me.',
       robots: 'noindex, nofollow'
     }
@@ -164,7 +167,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'My Playlists',
     description: 'Your custom music collections.',
     seo: {
-      title: `Music Playlists – ${BRAND}`,
+      title: 'Music Playlists',
       description: 'Browse and manage your music playlists.',
       robots: 'noindex, nofollow'
     }
@@ -173,7 +176,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Now Playing',
     description: 'Currently playing track details.',
     seo: {
-      title: `Now Playing – ${BRAND}`,
+      title: 'Now Playing',
       description: 'Full screen player view.',
       robots: 'noindex, nofollow'
     }
@@ -182,7 +185,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Access Denied',
     description: 'You do not have permission to view this page.',
     seo: {
-      title: `403 Forbidden – ${BRAND}`,
+      title: '403 Forbidden',
       description: 'Access denied.',
       robots: 'noindex, nofollow'
     }
@@ -191,7 +194,7 @@ export const pagesRegistry: Record<string, RegistryEntry> = {
     title: 'Page Not Found',
     description: 'The page you are looking for does not exist.',
     seo: {
-      title: `404 Not Found – ${BRAND}`,
+      title: '404 Not Found',
       description: 'Page not found.',
       robots: 'noindex, nofollow'
     }

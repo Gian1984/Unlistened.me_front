@@ -32,7 +32,7 @@ const seoConfig = computed(() => {
 
   if (error.value) {
     return {
-      title: 'Podcast Not Found | Unlistened.me',
+      title: 'Podcast Not Found',
       description: 'The podcast you are looking for could not be found.',
       canonical: fallbackCanonical,
       robots: 'noindex,nofollow',
@@ -42,7 +42,7 @@ const seoConfig = computed(() => {
 
   if (!feedInfo.value) {
     return {
-      title: 'Podcast Episodes | Unlistened.me',
+      title: 'Podcast Episodes',
       description: 'Browse podcast episodes on Unlistened.me.',
       canonical: fallbackCanonical,
       robots: 'index,follow',
@@ -51,7 +51,7 @@ const seoConfig = computed(() => {
   }
 
   return {
-    title: `${feedInfo.value.title} — Episodes | Unlistened.me`,
+    title: `${feedInfo.value.title} — Episodes`,
     description: stripHtmlTags(feedInfo.value.description || ''),
     canonical: `https://www.unlistened.me/feed/${feedInfo.value.id}`,
     ogType: 'website',

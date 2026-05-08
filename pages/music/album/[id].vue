@@ -26,8 +26,8 @@ const albumDownloadUrl = computed(() => album.value?.zip || '')
 const seoConfig = computed(() => {
   const albumValue = album.value
   const title = albumValue?.name
-    ? `${albumValue.name} | Album | Unlistened.me`
-    : 'Music album | Unlistened.me'
+    ? `${albumValue.name} — Album`
+    : 'Music album'
   const description = albumValue?.name
     ? `Listen to ${albumValue.name} by ${albumValue.artist_name || 'an independent artist'} on Unlistened.me. Free Creative Commons music, no tracking.`
     : 'Discover Creative Commons music albums on Unlistened.me.'
