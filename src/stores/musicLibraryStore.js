@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 
 /**
  * Single source of truth for the user's Jamendo music library:

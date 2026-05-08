@@ -1,5 +1,7 @@
 import { api, csrf } from './api'
 
+type Id = string | number
+
 export const adminService = {
   async getStats() {
     await csrf()
@@ -11,12 +13,12 @@ export const adminService = {
     return api.get('api/faqs')
   },
 
-  async updateFaqStatus(faqId, wasAnswered) {
+  async updateFaqStatus(faqId: Id, wasAnswered: boolean) {
     await csrf()
     return api.post('api/update-faq-status', { faq_id: faqId, was_answered: wasAnswered })
   },
 
-  async deleteFaq(id) {
+  async deleteFaq(id: Id) {
     await csrf()
     return api.delete(`api/delete_faq/${id}`)
   },
@@ -26,12 +28,12 @@ export const adminService = {
     return api.get('api/users')
   },
 
-  async updateAdminStatus(userId, isAdmin) {
+  async updateAdminStatus(userId: Id, isAdmin: boolean) {
     await csrf()
     return api.post('api/update-status', { user_id: userId, is_admin: isAdmin })
   },
 
-  async deleteUser(id) {
+  async deleteUser(id: Id) {
     await csrf()
     return api.delete(`api/delete_users/${id}`)
   },

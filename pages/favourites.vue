@@ -14,7 +14,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
 import EmptyState from '@/components/EmptyState.vue'
 import PageHero from '@/components/PageHero.vue'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 definePageMeta({

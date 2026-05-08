@@ -2,16 +2,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { ArrowLeftIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import { PlayIcon } from '@heroicons/vue/24/solid'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
-
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
 
 const route = useRoute()
 const router = useRouter()

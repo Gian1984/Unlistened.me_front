@@ -17,9 +17,9 @@ import {
   PopoverButton,
   PopoverPanel,
 } from '@headlessui/vue'
-import { podcastService } from '@/services/podcastService.js'
-import { musicService } from '@/services/musicService.js'
-import { authService } from '@/services/authService.js'
+import { podcastService } from '@/services/podcastService'
+import { musicService } from '@/services/musicService'
+import { authService } from '@/services/authService'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 import { useMusicGenres } from '@/composables/useMusicGenres.js'
 

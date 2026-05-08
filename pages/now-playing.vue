@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { stripHtmlTags } from '@/utils/text.js'
 import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
 import LicenseBadge from '@/components/music/LicenseBadge.vue'

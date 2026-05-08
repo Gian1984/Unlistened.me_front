@@ -16,7 +16,7 @@ import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import { formatDuration } from '@/utils/formatTime.js'
 

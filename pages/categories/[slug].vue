@@ -5,12 +5,8 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { stripHtmlTags } from '@/utils/text.js'
-
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
 
 const route = useRoute()
 const router = useRouter()

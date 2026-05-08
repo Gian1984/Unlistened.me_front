@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import PageHero from '@/components/PageHero.vue'

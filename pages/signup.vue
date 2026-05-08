@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { XCircleIcon } from '@heroicons/vue/20/solid'
-import { authService } from '@/services/authService.js'
+import { authService } from '@/services/authService'
 
 definePageMeta({
   middleware: ['guest'],

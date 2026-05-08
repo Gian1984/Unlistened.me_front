@@ -1,13 +1,9 @@
 <script setup>
 import EmptyState from '@/components/EmptyState.vue'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { stripHtmlTags } from '@/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
-
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
 
 const playerStore = usePlayerStore()
 const route = useRoute()

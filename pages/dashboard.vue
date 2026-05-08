@@ -24,7 +24,7 @@ import {
   Legend,
 } from 'chart.js'
 import { usePageSeo } from '~/composables/usePageSeo'
-import { adminService } from '@/services/adminService.js'
+import { adminService } from '@/services/adminService'
 
 definePageMeta({
   middleware: ['admin'],

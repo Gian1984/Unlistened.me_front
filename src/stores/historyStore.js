@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getSafeLocalStorage } from '@/utils/browserStorage'
-import { historyService } from '@/services/historyService.js'
+import { historyService } from '@/services/historyService'
 
 const STORAGE_KEY = 'unlistened.history.v1'
 const MAX_ENTRIES = 50

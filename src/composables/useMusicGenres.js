@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 
 const FALLBACK_GENRES = [
   { label: 'Electronic', tag: 'electronic' },

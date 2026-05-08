@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 

@@ -5,13 +5,9 @@ import PageHero from '@/components/PageHero.vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { BookmarkIcon, StarIcon, CheckCircleIcon, MusicalNoteIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { stripHtmlTags } from '@/utils/text.js'
 import { ref, computed, onMounted } from 'vue'
-
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
 
 const authStore = useAuthStore()
 const messageStore = useMessageStore()

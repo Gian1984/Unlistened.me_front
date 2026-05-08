@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 import { useMusicGenres } from '@/composables/useMusicGenres.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 

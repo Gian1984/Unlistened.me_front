@@ -4,10 +4,6 @@ import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('musicAlbums')
 
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
-
 const router = useRouter()
 
 // Apache rewrites /music/album/:id → /music/album/index.html for non-bots,

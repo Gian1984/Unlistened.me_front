@@ -4,10 +4,6 @@ import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('podcasts')
 
-definePageMeta({
-  dynamicContentMode: 'client-fetch-static-shell',
-})
-
 const router = useRouter()
 
 // Apache rewrites /episode/:id → /episode/index.html for non-bots,

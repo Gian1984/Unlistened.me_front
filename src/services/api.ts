@@ -1,5 +1,17 @@
 import axios from 'axios'
-import { handleUnauthorized } from '~/src/services/sessionHandler'
+import { handleUnauthorized } from '@/services/sessionHandler'
+
+// Per-request opt-out of the global 401 redirect; set on the Axios config
+// when calling endpoints whose 401 must surface to the caller (e.g. the auth
+// bootstrap probe at app start).
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipAuthRedirect?: boolean
+  }
+  interface InternalAxiosRequestConfig {
+    skipAuthRedirect?: boolean
+  }
+}
 
 // baseURL is set at runtime by plugins/00.api-config.ts from runtimeConfig.public.apiBaseUrl
 // (driven by the NUXT_PUBLIC_API_BASE_URL env var). The literal here is a last-resort
@@ -14,16 +26,16 @@ const api = axios.create({
 })
 
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
       handleUnauthorized(error)
     }
     return Promise.reject(error)
-  }
+  },
 )
 
-async function csrf() {
+async function csrf(): Promise<void> {
   await api.get('sanctum/csrf-cookie')
 }
 

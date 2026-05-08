@@ -141,7 +141,7 @@ Fully static generation (`npx nuxi generate`). Output is written to `.output/pub
 - The `useAsyncData` shape (vs. the older `onMounted` pattern) gives back-navigation caching and reactive `pending`/`error` refs for free
 
 **Client-driven routes** (static shell, client fetch):
-- `/feed/[id]`, `/episode/[id]`, `/music/album/[id]`, `/categories/[slug]` (all use `dynamicContentMode: 'client-fetch-static-shell'`)
+- `/feed/[id]`, `/episode/[id]`, `/music/album/[id]`, `/categories/[slug]` — the Nitro prerender step bakes the parent shell (`/feed`, `/episode`, etc.) and the dynamic ID is fetched client-side from the API on mount
 - all `/music/**` routes are configured `ssr: false` to avoid SSR-only code paths
 - auth pages, library, settings, dashboard — rely on the Sanctum client bootstrap
 
@@ -416,9 +416,7 @@ npm run test:unit
 
 Items known to be short-term tech debt. Roughly ordered by impact / risk:
 
-**Considered, not yet done:**
-- Convert services from `.js` to `.ts` for richer types in pages
-- `definePageMeta({ dynamicContentMode: 'client-fetch-static-shell' })` is a custom (non-Nuxt) flag used in feed/episode/album/category pages — document or drop
+_Roadmap items in this section are complete. New tech debt should be added as it emerges._
 
 **Resolved (kept here as a recent-changelog):**
 - Removed pre-Nuxt SPA artifacts: `src/views/` (30 files), `src/App.vue`, `src/main.js`, `src/router/`, `src/stores/counter.js`, `src/components/icons/Icon*.vue`
@@ -434,6 +432,8 @@ Items known to be short-term tech debt. Roughly ordered by impact / risk:
 - `pages/podcasts/index.vue` migrated to `useAsyncData` — trending feeds and categories are now baked into the prerendered HTML at build time
 - `pages/index.vue` and `pages/music/index.vue` migrated to `useAsyncData(..., { server: false })` — same reactive shape, but stays client-only to preserve daily rotation
 - Consolidated `nitro.prerender.routes` into `routeRules` (single source of truth)
+- All `src/services/*.js` migrated to `.ts` (param types + `skipAuthRedirect` Axios augmentation); `.js` extensions stripped from service imports
+- Removed the no-op `definePageMeta({ dynamicContentMode: 'client-fetch-static-shell' })` flag — Nuxt didn't read it; the rendering strategy for those pages is documented above
 
 ---
 

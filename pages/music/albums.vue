@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import PageHero from '@/components/PageHero.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
-import { musicService } from '@/services/musicService.js'
+import { musicService } from '@/services/musicService'
 import { getSafeSessionStorage } from '@/utils/browserStorage.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 

@@ -1,4 +1,4 @@
-import { podcastService } from '@/services/podcastService.js'
+import { podcastService } from '@/services/podcastService'
 
 // Intent encoding: `<type>:<encodedArg1>:<encodedArg2>...`
 // Each arg is encodeURIComponent'd at build time and decoded here.
