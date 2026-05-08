@@ -3,7 +3,7 @@ import { pagesRegistry } from '~/utils/seo/pagesRegistry'
 export function usePageSeo(key: string) {
   const entry = pagesRegistry[key]
   if (!entry) {
-    console.warn(`SEO key "${key}" not found in pagesRegistry.`)
+    if (import.meta.dev) console.warn(`SEO key "${key}" not found in pagesRegistry.`)
     return
   }
 

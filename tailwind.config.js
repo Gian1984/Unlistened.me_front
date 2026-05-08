@@ -10,7 +10,6 @@ export default {
     './pages/**/*.{vue,js,ts,jsx,tsx}',
     './plugins/**/*.{js,ts}',
     './utils/**/*.{js,ts}',
-    './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {

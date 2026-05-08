@@ -1,4 +1,5 @@
 import { nextTick } from 'vue'
+import { getSafeLocalStorage } from '@/utils/browserStorage.js'
 
 const GTM_ID = 'GTM-MF5TLTDF'
 const CONSENT_STORAGE_KEY = 'unlistened_cookie_consent_v1'
@@ -15,7 +16,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   let stored: StoredConsent | null = null
   try {
-    const raw = localStorage.getItem(CONSENT_STORAGE_KEY)
+    const raw = getSafeLocalStorage().getItem(CONSENT_STORAGE_KEY)
     if (raw) stored = JSON.parse(raw)
   } catch {
     stored = null

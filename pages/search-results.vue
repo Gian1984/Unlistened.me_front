@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import SkeletonCard from '~/src/components/SkeletonCard.vue'
-import EmptyState from '~/src/components/EmptyState.vue'
-import PageHero from '~/src/components/PageHero.vue'
-import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
-import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
-import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import PlayIcon from '@heroicons/vue/24/solid/esm/PlayIcon.js'
 import PauseIcon from '@heroicons/vue/24/solid/esm/PauseIcon.js'
 import ArrowRightIcon from '@heroicons/vue/24/outline/esm/ArrowRightIcon.js'
@@ -14,14 +14,10 @@ import CheckCircleIcon from '@heroicons/vue/24/outline/esm/CheckCircleIcon.js'
 import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
 import XMarkIcon from '@heroicons/vue/20/solid/esm/XMarkIcon.js'
 import MagnifyingGlassIcon from '@heroicons/vue/24/outline/esm/MagnifyingGlassIcon.js'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { musicService } from '~/src/services/musicService.js'
-import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import { podcastService } from '@/services/podcastService.js'
+import { musicService } from '@/services/musicService.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { stripHtmlTags } from '@/utils/text.js'
 
 const authStore = useAuthStore()
 
@@ -113,8 +109,7 @@ async function fetchPodcastResults() {
     const results = response.data?.feeds || []
     feeds.value = results
     noResult.value = results.length === 0
-  } catch (error) {
-    console.error('Error fetching search results:', error)
+  } catch {
     feeds.value = []
     noResult.value = true
   } finally {
@@ -133,8 +128,7 @@ async function fetchMusicResults() {
     const results = response.data?.results || []
     musicTracks.value = results
     noResult.value = results.length === 0
-  } catch (error) {
-    console.error('Error fetching music search results:', error)
+  } catch {
     musicTracks.value = []
     noResult.value = true
   } finally {

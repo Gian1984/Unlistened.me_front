@@ -8,6 +8,7 @@ import {
   Cog6ToothIcon,
 } from '@heroicons/vue/24/outline'
 import { usePlayerStore } from '@/stores/playerStore.js'
+import { getSafeLocalStorage } from '@/utils/browserStorage.js'
 
 const playerStore = usePlayerStore()
 
@@ -50,11 +51,11 @@ function pushConsent(prefs) {
 
 function saveDecision(prefs) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    getSafeLocalStorage().setItem(STORAGE_KEY, JSON.stringify({
       ...prefs,
       timestamp: Date.now(),
     }))
-  } catch (e) {
+  } catch {
     // localStorage not available — ignore
   }
   hasDecision.value = true
@@ -101,7 +102,7 @@ onMounted(() => {
   if (typeof window === 'undefined') return
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = getSafeLocalStorage().getItem(STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
       preferences.value = {

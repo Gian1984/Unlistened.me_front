@@ -3,7 +3,11 @@ import { fileURLToPath } from 'node:url'
 const legacySrcDir = fileURLToPath(new URL('./src', import.meta.url))
 
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/sitemap'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/sitemap', '@pinia/nuxt'],
+  pinia: {
+    // Stores live under src/stores/ (legacy layout); register that path so they are auto-imported
+    storesDirs: ['./src/stores/**'],
+  },
   css: ['~/src/assets/main.css'],
   site: {
     url: 'https://www.unlistened.me',
@@ -57,7 +61,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://www.unlistened.me',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://api.unlistened.me',
     },
   },
   nitro: {

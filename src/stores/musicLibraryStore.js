@@ -40,8 +40,8 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
       favorites.value = list
       favoriteIds.value = new Set(list.map(f => String(f.jamendo_track_id)))
       favoritesLoaded.value = true
-    } catch (err) {
-      console.error('Failed to load music favorites:', err)
+    } catch {
+      // Best-effort; UI surfaces an empty list if this fails.
     } finally {
       favoritesLoading.value = false
     }
@@ -148,8 +148,8 @@ export const useMusicLibraryStore = defineStore('musicLibrary', () => {
       const list = Array.isArray(data) ? data : (data?.data ?? data?.results ?? [])
       playlists.value = list
       playlistsLoaded.value = true
-    } catch (err) {
-      console.error('Failed to load music playlists:', err)
+    } catch {
+      // Best-effort; UI surfaces an empty list if this fails.
     } finally {
       playlistsLoading.value = false
     }

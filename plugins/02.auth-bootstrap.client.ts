@@ -1,7 +1,4 @@
 import { registerUnauthorizedHandler } from '@/services/sessionHandler'
-import { useAuthStore } from '@/stores/authStore'
-import { useMessageStore } from '@/stores/messageStore'
-import { useHistoryStore } from '@/stores/historyStore'
 
 export default defineNuxtPlugin(async () => {
   const authStore = useAuthStore()

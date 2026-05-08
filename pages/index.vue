@@ -1,22 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import PageHero from '~/src/components/PageHero.vue'
-import SkeletonCard from '~/src/components/SkeletonCard.vue'
-import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
+import PageHero from '@/components/PageHero.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
 import { StarIcon, ArrowRightIcon, PlayIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
 import { MusicalNoteIcon, PlayIcon as PlaySolid, PauseIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
-import { useHistoryStore } from '~/src/stores/historyStore.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { musicService } from '~/src/services/musicService.js'
-import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { formatDuration } from '~/src/utils/formatTime.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import { podcastService } from '@/services/podcastService.js'
+import { musicService } from '@/services/musicService.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { formatDuration } from '@/utils/formatTime.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('home')
@@ -114,8 +109,8 @@ async function fetchTrending() {
     const response = await podcastService.getTrending()
     const podcastFeeds = response.data?.feeds || []
     feeds.value = seededShuffle(podcastFeeds, getDailySeed() ^ 101).slice(0, HOME_PODCAST_VISIBLE_COUNT)
-  } catch (error) {
-    console.error('Error fetching feeds:', error)
+  } catch {
+    // Falls back to empty state; 401s are handled by the global session handler.
   } finally {
     loadingPodcasts.value = false
   }
@@ -126,8 +121,8 @@ async function fetchMusic() {
     const response = await musicService.getTrending(HOME_MUSIC_POOL_SIZE)
     const tracks = response.data?.results || []
     musicTracks.value = seededShuffle(tracks, getDailySeed()).slice(0, HOME_MUSIC_VISIBLE_COUNT)
-  } catch (error) {
-    console.error('Error fetching music:', error)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loadingMusic.value = false
   }
@@ -138,8 +133,8 @@ async function fetchAlbums() {
     const response = await musicService.getAlbums({ limit: HOME_ALBUMS_POOL_SIZE })
     const albumRows = response.data?.results || []
     albums.value = seededShuffle(albumRows, getDailySeed() ^ 202).slice(0, HOME_ALBUMS_VISIBLE_COUNT)
-  } catch (error) {
-    console.error('Error fetching albums:', error)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loadingAlbums.value = false
   }

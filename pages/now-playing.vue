@@ -1,12 +1,11 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import MusicalNoteIcon from '@heroicons/vue/24/outline/esm/MusicalNoteIcon.js'
-import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
-import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
-import AddToPlaylistMenu from '~/src/components/music/AddToPlaylistMenu.vue'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import AddToPlaylistMenu from '@/components/music/AddToPlaylistMenu.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 const router = useRouter()

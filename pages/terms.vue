@@ -5,7 +5,7 @@ import {
   ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
-import PageHero from '~/src/components/PageHero.vue'
+import PageHero from '@/components/PageHero.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('terms')

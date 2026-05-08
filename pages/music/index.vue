@@ -1,17 +1,12 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ArrowRightIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import PageHero from '~/src/components/PageHero.vue'
-import SkeletonCard from '~/src/components/SkeletonCard.vue'
-import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import MusicTrackRow from '~/src/components/music/MusicTrackRow.vue'
-import { musicService } from '~/src/services/musicService.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { useHistoryStore } from '~/src/stores/historyStore.js'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
-import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
+import PageHero from '@/components/PageHero.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
+import { musicService } from '@/services/musicService.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('music')
@@ -61,8 +56,7 @@ async function fetchAlbums() {
     const response = await musicService.getAlbums({ limit: ALBUMS_POOL_SIZE })
     const albumRows = response.data?.results || []
     albums.value = seededShuffle(albumRows, getDailySeed() ^ 303).slice(0, ALBUMS_PREVIEW_COUNT)
-  } catch (error) {
-    console.error('Error fetching albums:', error)
+  } catch {
     albums.value = []
   } finally {
     loadingAlbums.value = false
@@ -74,8 +68,7 @@ async function fetchSongs() {
     const response = await musicService.getTrending(SONGS_POOL_SIZE)
     const tracks = response.data?.results || []
     songs.value = seededShuffle(tracks, getDailySeed()).slice(0, SONGS_PREVIEW_COUNT)
-  } catch (error) {
-    console.error('Error fetching songs:', error)
+  } catch {
     songs.value = []
   } finally {
     loadingSongs.value = false

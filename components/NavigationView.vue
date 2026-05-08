@@ -17,8 +17,6 @@ import {
   PopoverButton,
   PopoverPanel,
 } from '@headlessui/vue'
-import { useAuthStore } from '@/stores/authStore.js'
-import { useMessageStore } from '@/stores/messageStore.js'
 import { podcastService } from '@/services/podcastService.js'
 import { authService } from '@/services/authService.js'
 import { useSidebarState } from '@/composables/useSidebarState.js'
@@ -141,8 +139,8 @@ async function fetchSearchCat() {
   try {
     const response = await podcastService.getCategories()
     categories.value = response.data.feeds
-  } catch (error) {
-    console.error('Error fetching search results:', error)
+  } catch {
+    // Falls back to empty filter list.
   }
 }
 
@@ -150,9 +148,8 @@ async function detectBrowserLanguage() {
   preferredLanguage.value = navigator.language || navigator.userLanguage
   try {
     await authService.detectLanguage(preferredLanguage.value)
-    console.log('Browser lang update')
-  } catch (error) {
-    console.log('Error while lang update')
+  } catch {
+    // Best-effort; language hint is not critical.
   }
 }
 

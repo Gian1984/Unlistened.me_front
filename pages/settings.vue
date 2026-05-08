@@ -12,10 +12,9 @@ import {
 } from '@heroicons/vue/24/outline/index.js'
 import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js'
 import { XCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid/index.js'
-import PageHero from '~/src/components/PageHero.vue'
+import PageHero from '@/components/PageHero.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { userService } from '~/src/services/userService.js'
+import { userService } from '@/services/userService.js'
 
 definePageMeta({
   middleware: ['auth'],

@@ -1,17 +1,12 @@
 <script setup>
-import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import EmptyState from '~/src/components/EmptyState.vue'
-import PageHero from '~/src/components/PageHero.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
 import { PlayIcon, PauseIcon } from '@heroicons/vue/24/solid'
 import { BookmarkIcon, StarIcon, CheckCircleIcon, MusicalNoteIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { useHistoryStore } from '~/src/stores/historyStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { ref, computed, onMounted } from 'vue'
 
 definePageMeta({
@@ -161,8 +156,8 @@ async function fetchEpisodes(feedId) {
   try {
     const response = await podcastService.getEpisodes(feedId)
     episodes.value = response.data.items
-  } catch (err) {
-    console.error('Error fetching episodes:', err)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loading.value = false
   }

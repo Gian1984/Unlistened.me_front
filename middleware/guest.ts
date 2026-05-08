@@ -1,4 +1,3 @@
-import { useAuthStore } from '@/stores/authStore'
 
 export default defineNuxtRouteMiddleware(async () => {
   if (import.meta.server) return

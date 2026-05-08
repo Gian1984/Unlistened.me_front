@@ -1,17 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import PageHero from '~/src/components/PageHero.vue'
-import SkeletonCard from '~/src/components/SkeletonCard.vue'
+import PageHero from '@/components/PageHero.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
 import { StarIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
-import { useHistoryStore } from '~/src/stores/historyStore.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
-import { usePagination } from '~/src/composables/usePagination.js'
-import PodcastCardItem from '~/src/components/podcast/PodcastCardItem.vue'
+import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
+import { usePagination } from '@/composables/usePagination.js'
+import PodcastCardItem from '@/components/podcast/PodcastCardItem.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('podcasts')
@@ -55,8 +51,8 @@ async function fetchTrending() {
   try {
     const response = await podcastService.getTrending()
     feeds.value = response.data.feeds
-  } catch (error) {
-    console.error('Error fetching feeds:', error)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loading.value = false
   }
@@ -66,8 +62,8 @@ async function fetchCategories() {
   try {
     const response = await podcastService.getCategories()
     categories.value = response.data.feeds
-  } catch (error) {
-    console.error('Error fetching categories:', error)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loadingCategories.value = false
   }

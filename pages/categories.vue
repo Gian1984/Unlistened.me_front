@@ -2,8 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import { podcastService } from '~/src/services/podcastService.js'
-import { useMusicGenres } from '~/src/composables/useMusicGenres.js'
+import { podcastService } from '@/services/podcastService.js'
+import { useMusicGenres } from '@/composables/useMusicGenres.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('categories')
@@ -32,8 +32,8 @@ async function fetchSearchCategories() {
   try {
     const response = await podcastService.getCategories()
     categories.value = response.data.feeds
-  } catch (error) {
-    console.error('Error fetching categories:', error)
+  } catch {
+    // Falls back to empty state.
   } finally {
     loading.value = false
   }

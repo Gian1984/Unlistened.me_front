@@ -12,17 +12,13 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/outline'
 import draggable from 'vuedraggable'
-import LicenseBadge from '~/src/components/music/LicenseBadge.vue'
-import FavoriteMusicButton from '~/src/components/music/FavoriteMusicButton.vue'
-import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import EmptyState from '~/src/components/EmptyState.vue'
-import { musicService } from '~/src/services/musicService.js'
-import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
-import { backendRowToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { formatDuration } from '~/src/utils/formatTime.js'
+import LicenseBadge from '@/components/music/LicenseBadge.vue'
+import FavoriteMusicButton from '@/components/music/FavoriteMusicButton.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import { musicService } from '@/services/musicService.js'
+import { backendRowToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { formatDuration } from '@/utils/formatTime.js'
 
 definePageMeta({
   middleware: ['auth'],

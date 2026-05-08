@@ -1,9 +1,8 @@
 <script setup>
-import EmptyState from '~/src/components/EmptyState.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { podcastService } from '~/src/services/podcastService.js'
-import { stripHtmlTags } from '~/src/utils/text.js'
+import { podcastService } from '@/services/podcastService.js'
+import { stripHtmlTags } from '@/utils/text.js'
 import { ref, onMounted, computed } from 'vue'
 
 definePageMeta({

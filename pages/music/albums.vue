@@ -1,10 +1,11 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { MagnifyingGlassIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import PageHero from '~/src/components/PageHero.vue'
-import EmptyState from '~/src/components/EmptyState.vue'
-import SkeletonCard from '~/src/components/SkeletonCard.vue'
-import { musicService } from '~/src/services/musicService.js'
+import PageHero from '@/components/PageHero.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import { musicService } from '@/services/musicService.js'
+import { getSafeSessionStorage } from '@/utils/browserStorage.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('musicAlbums')
@@ -33,7 +34,7 @@ function normalizeAlbums(payload) {
 
 function restoreState() {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = getSafeSessionStorage().getItem(STORAGE_KEY)
     if (!raw) return false
 
     const saved = JSON.parse(raw)
@@ -56,7 +57,7 @@ function restoreState() {
 
 function persistState() {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+    getSafeSessionStorage().setItem(STORAGE_KEY, JSON.stringify({
       query: query.value.trim(),
       albums: albums.value,
       offset: offset.value,
@@ -89,8 +90,7 @@ async function fetchAlbums(reset = true) {
     hasMore.value = batch.length === PAGE_SIZE
     offset.value += batch.length
     persistState()
-  } catch (error) {
-    console.error('Error loading albums:', error)
+  } catch {
     if (reset) albums.value = []
     hasMore.value = false
   } finally {

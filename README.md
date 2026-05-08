@@ -13,9 +13,9 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 | Build | `npx nuxi generate` (Vite under the hood) | — |
 | Styling | Tailwind CSS 3 + `@tailwindcss/forms` (via `@nuxtjs/tailwindcss`) | 3.4.x |
 | UI components | Headless UI, Heroicons (ESM-per-icon imports for SSR safety) | 1.7.x / 2.1.x |
-| HTTP | Axios (centralized instance in `src/services/api.js`) | 1.15.x |
+| HTTP | Axios (centralized instance in `src/services/api.js`; `baseURL` set at boot by `plugins/00.api-config.ts` from `runtimeConfig.public.apiBaseUrl`) | 1.15.x |
 | Auth | Laravel Sanctum (cookie-backed session, client-side bootstrap via Nuxt plugin) | — |
-| State | Pinia — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.x |
+| State | Pinia (auto-imported via `@pinia/nuxt`, `storesDirs: ['./src/stores/**']`) — authStore, messageStore, playerStore, historyStore, queueStore, musicLibraryStore | 2.1.x · `@pinia/nuxt` 0.5.x |
 | State persistence | Player/queue → sessionStorage · Music cache → localStorage · History → localStorage · `authStore` intentionally re-validated at bootstrap | 3.2.x |
 | Routing | Nuxt file-based routing (`pages/`) + route middleware (`middleware/`) | — |
 | SEO | Registry-driven (`utils/seo/pagesRegistry.ts`) + `composables/usePageSeo.ts` for static pages; `useSeoMeta`+`useHead` for dynamic detail pages | — |
@@ -55,12 +55,18 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 │   ├── auth.ts                     # Auth-required routes
 │   ├── admin.ts                    # Admin-only routes
 │   └── guest.ts                    # Guest-only redirect for login/signup
+├── components/
+│   └── NavigationView.vue          # Top-level nav: sidebar, header, search bar, mobile drawer
 ├── composables/
 │   └── usePageSeo.ts               # Consumes pagesRegistry, wires useHead (title, meta, OG, Twitter, robots, JSON-LD)
+├── config/
+│   └── static-routes.js            # Static-route metadata (path/seoKey/prerender/changefreq/priority/title/description) — feeds the sitemap
 ├── plugins/
-│   ├── 01.pinia.ts                 # Pinia setup with persistedstate
-│   ├── 02.auth-bootstrap.client.ts # Validates Sanctum session at app start
-│   └── draggable.client.ts         # vuedraggable global registration
+│   ├── 00.api-config.ts            # Wires runtimeConfig.public.apiBaseUrl into the Axios instance at boot
+│   ├── 01.pinia.ts                 # Registers pinia-plugin-persistedstate on the Pinia instance created by @pinia/nuxt
+│   ├── 02.auth-bootstrap.client.ts # Validates Sanctum session at app start; loads history if logged in
+│   ├── draggable.client.ts         # vuedraggable global registration
+│   └── gtm.client.ts               # Google Tag Manager + Consent Mode v2 (id GTM-MF5TLTDF), SPA page_view dispatch
 ├── utils/
 │   └── seo/
 │       └── pagesRegistry.ts        # Single source of truth for static-page SEO (title/desc/OG/JSON-LD/robots)
@@ -72,7 +78,7 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 │   └── images/
 ├── scripts/
 │   └── generate-og-images.php      # PHP GD OG image generator (runs in CI before generate)
-├── src/                            # Legacy-but-active modules, referenced via '@' alias
+├── src/                            # Active domain modules, referenced via the '@' alias declared in nuxt.config.ts
 │   ├── assets/
 │   │   ├── base.css                # Global CSS (dark theme base, shimmer)
 │   │   └── main.css
@@ -80,27 +86,27 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 │   │   ├── OffcanvasPlayer.vue     # Unified sticky bottom player (podcast + music)
 │   │   ├── CookieConsent.vue | Footer.vue | PageHero.vue | EmptyState.vue
 │   │   ├── SkeletonCard.vue | SkeletonRow.vue
-│   │   ├── icons/
 │   │   ├── music/                  # LicenseBadge, FavoriteMusicButton, AddToPlaylistMenu, MusicTrackRow
 │   │   └── podcast/                # PodcastCardItem
 │   ├── composables/
 │   │   ├── useSidebarState.js | usePagination.js
 │   │   └── useMusicPlayback.js | useMusicGenres.js
 │   ├── stores/
-│   │   ├── authStore.js            # Sanctum-backed, not restored from storage
+│   │   ├── authStore.js            # Sanctum-backed, not restored from storage; clears musicLibraryStore on logout
 │   │   ├── messageStore.js         # Global toasts with auto-clear
-│   │   ├── playerStore.js          # Session-scoped player state
+│   │   ├── playerStore.js          # Session-scoped player state (composition-style + persistedstate via getSafeSessionStorage)
 │   │   ├── queueStore.js           # Playback queue (session)
-│   │   ├── historyStore.js         # Local listening history + resume
+│   │   ├── historyStore.js         # Local listening history + resume (localStorage 'unlistened.history.v1', max 50)
 │   │   ├── musicLibraryStore.js    # Music favorites/playlists cache
 │   │   └── __tests__/              # Vitest specs (auth, history, queue)
 │   ├── services/
-│   │   ├── api.js                  # Axios instance: baseURL from runtimeConfig, CSRF, 401 interceptor
-│   │   ├── sessionHandler.js
+│   │   ├── api.js                  # Axios instance, withCredentials/withXSRFToken, 401 interceptor (skipAuthRedirect supported); baseURL set by plugins/00.api-config.ts
+│   │   ├── sessionHandler.js       # registerUnauthorizedHandler / handleUnauthorized
 │   │   ├── podcastService.js | musicService.js
-│   │   ├── authService.js | userService.js | adminService.js
+│   │   ├── historyService.js       # Listening-history API client (upsert, fetch list)
+│   │   └── authService.js | userService.js | adminService.js
 │   └── utils/
-│       ├── formatTime.js | text.js | musicTrackPayload.js | browserStorage.js
+│       └── formatTime.js | text.js | musicTrackPayload.js | browserStorage.js
 ├── strategy/                       # Product/roadmap docs (not shipped)
 ├── .env.production                 # NUXT_PUBLIC_API_BASE_URL=https://api.unlistened.me/
 ├── tailwind.config.js              # Scans pages/, layouts/, components/, middleware/, plugins/, utils/, src/
@@ -108,7 +114,9 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 └── package.json
 ```
 
-Note on the `src/` layout: the Nuxt migration kept stable domain code (components, stores, services, composables, utils) under `src/` and wired it through the `@` alias declared in `nuxt.config.ts`. New Nuxt-specific code (pages, layouts, middleware, plugins, the SEO registry) lives at the project root.
+Note on the `src/` layout: the Nuxt migration kept stable domain code (components, stores, services, composables, utils) under `src/` and wired it through the `@` alias declared in `nuxt.config.ts`. New Nuxt-specific code (pages, layouts, middleware, plugins, the SEO registry) lives at the project root. All imports use the `@/...` alias.
+
+Stores under `src/stores/` are auto-imported via `@pinia/nuxt` (`pinia.storesDirs: ['./src/stores/**']` in `nuxt.config.ts`), so pages/components/middleware/plugins can use `useAuthStore()`, `usePlayerStore()`, etc. without explicit `import` statements.
 
 ---
 
@@ -177,11 +185,24 @@ Key features:
 
 `src/stores/messageStore.js`: `notify(message, type, duration)` shows a toast and auto-clears after `duration` ms (`'info' | 'success' | 'error'`). `clearMessage()` cancels it.
 
+## Analytics / Consent
+
+`plugins/gtm.client.ts` injects the GTM container (`GTM-MF5TLTDF`) and configures **Google Consent Mode v2**:
+- On first visit, every non-essential storage type is denied with a 500 ms `wait_for_update` so the cookie banner can collect a decision before tags fire.
+- Returning visitors with a stored consent in `localStorage['unlistened_cookie_consent_v1']` see their decision honored at boot.
+- A SPA `page_view` event is dispatched on every route change after the first (the initial view is covered by GA4's auto `send_page_view`), with `document.title` resolved on `nextTick` so `useHead` has applied the new title.
+
+The cookie banner is `src/components/CookieConsent.vue` and is mounted from `app.vue` inside `<ClientOnly>`.
+
 ## API / Auth
 
-All HTTP calls go through `src/services/api.js` (centralized Axios instance, `withCredentials: true`, `withXSRFToken: true`). The base URL comes from `runtimeConfig.public.apiBaseUrl` (env var `NUXT_PUBLIC_API_BASE_URL`). Auth uses Laravel Sanctum session cookies.
+All HTTP calls go through `src/services/api.js` (centralized Axios instance, `withCredentials: true`, `withXSRFToken: true`). Auth uses Laravel Sanctum session cookies.
 
-At app boot, `plugins/02.auth-bootstrap.client.ts` validates the current user against the backend before protected routes evaluate. Unauthorized handling is registered once via `src/services/sessionHandler.js` so a 401 clears auth state, resets protected caches, and redirects to `/login`.
+The Axios `baseURL` is set at boot by `plugins/00.api-config.ts`, which reads `runtimeConfig.public.apiBaseUrl` (driven by the `NUXT_PUBLIC_API_BASE_URL` env var, with a fallback to `https://api.unlistened.me`). Set this in your `.env` to point local dev at a local Laravel backend.
+
+At app boot, `plugins/02.auth-bootstrap.client.ts` validates the current user against the backend before protected routes evaluate, and (if authenticated) calls `historyStore.loadFromAPI()` to hydrate listening history from the backend.
+
+Unauthorized handling is registered once via `src/services/sessionHandler.js`. A 401 response clears auth state, resets protected caches, and redirects to `/login` — unless the originating request set `skipAuthRedirect: true` on its Axios config, in which case the 401 is surfaced to the caller without a redirect. The middleware short-circuits if the user is already on `/login`, `/signup`, `/forgot_password`, or `/reset_password`.
 
 ## Music Discovery / Genres
 
@@ -310,11 +331,11 @@ The search bar features a podcast/music toggle that switches both the search tar
 
 **Pipeline** (`.github/workflows/deploy.yml`):
 1. Checkout code
-2. Set up Node 20
+2. Set up Node 22
 3. `npm ci`
 4. Set up PHP 8.2 + GD
 5. `php scripts/generate-og-images.php` — regenerates OG assets
-6. `npx nuxi generate` — produces `.output/public/` (env: `NUXT_PUBLIC_API_BASE_URL`)
+6. `npx nuxi generate` — produces `.output/public/` (env: `NUXT_PUBLIC_API_BASE_URL` from the `VITE_BASE_URL` secret)
 7. Copy `public/.htaccess` and `public/robots.txt` into `.output/public/`
 8. Verify `.htaccess` is in place
 9. Deploy `.output/public/` via FTPS (`SamKirkland/FTP-Deploy-Action@v4.3.5`, `dangerous-clean-slate: true`)
@@ -353,6 +374,30 @@ npm run test:unit
 **Environment:**
 - Local dev: create a `.env` with `NUXT_PUBLIC_API_BASE_URL=http://localhost/` (or your Laravel API URL)
 - Production: `.env.production` sets `NUXT_PUBLIC_API_BASE_URL=https://api.unlistened.me/` (CI overrides via the `VITE_BASE_URL` secret)
+
+---
+
+## Pending Cleanup
+
+Items known to be short-term tech debt. Roughly ordered by impact / risk:
+
+**Inconsistencies / pending fixes:**
+- `historyStore.continueListeningMusic` is computed and exposed but no UI surfaces it (resume is podcast-only). Either ship a UI or drop the getter
+- `routeRules` and `nitro.prerender.routes` in `nuxt.config.ts` overlap; consolidate to one source
+
+**Considered, not yet done:**
+- Migrate prerendered home/listing pages from `onMounted` fan-out fetches to `useAsyncData` so SSG captures initial data
+- Convert services from `.js` to `.ts` for richer types in pages
+- `definePageMeta({ dynamicContentMode: 'client-fetch-static-shell' })` is a custom (non-Nuxt) flag used in feed/episode/album pages — document or drop
+
+**Resolved (kept here as a recent-changelog):**
+- Removed pre-Nuxt SPA artifacts: `src/views/` (30 files), `src/App.vue`, `src/main.js`, `src/router/`, `src/stores/counter.js`, `src/components/icons/Icon*.vue`
+- Removed orphan `composables/useStaticPageSeo.ts` + `utils/seo/staticPagesRegistry.ts`
+- `src/services/api.js` `baseURL` now read from `runtimeConfig.public.apiBaseUrl` via `plugins/00.api-config.ts`
+- Unified import alias on `@/...` across the codebase (no more `~/src/...`)
+- Adopted `@pinia/nuxt` (`storesDirs: ['./src/stores/**']`); manual `useXStore` imports removed from 26 pages, 1 component, 3 middleware, 1 plugin
+- All direct `sessionStorage`/`localStorage` calls in production code now go through `src/utils/browserStorage.js` (SSR-safe)
+- Production `console.error` / `console.warn` calls removed from pages, components, stores; the one remaining `console.warn` in `composables/usePageSeo.ts` is guarded by `import.meta.dev`
 
 ---
 

@@ -11,9 +11,9 @@ import {
 import { BookmarkIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import draggable from 'vuedraggable'
-import EmptyState from '~/src/components/EmptyState.vue'
-import PageHero from '~/src/components/PageHero.vue'
-import { podcastService } from '~/src/services/podcastService.js'
+import EmptyState from '@/components/EmptyState.vue'
+import PageHero from '@/components/PageHero.vue'
+import { podcastService } from '@/services/podcastService.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 definePageMeta({
@@ -50,10 +50,8 @@ async function fetchBookmarks() {
       const items = response.data.filter(item => item.section === sectionName)
       sections.value.push({ name: sectionName, items })
     })
-  } catch (error) {
-    if (error.response?.status !== 401) {
-      console.error('Error fetching bookmarks')
-    }
+  } catch {
+    // 401s redirect via session handler; other errors fall to empty state.
   } finally {
     isLoading.value = false
   }
@@ -102,8 +100,7 @@ async function updateBookmarkSection(favoriteId, section) {
       show.value = false
       message.value = null
     }, 3000)
-  } catch (error) {
-    console.error('There was an error updating the section:', error)
+  } catch {
     notificationType.value = 'error'
     message.value = 'Unable to update bookmark section.'
     show.value = true

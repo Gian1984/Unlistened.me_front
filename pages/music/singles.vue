@@ -1,17 +1,13 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { musicService } from '~/src/services/musicService.js'
-import { usePlayerStore } from '~/src/stores/playerStore.js'
-import { useQueueStore } from '~/src/stores/queueStore.js'
-import { useHistoryStore } from '~/src/stores/historyStore.js'
-import { useAuthStore } from '~/src/stores/authStore.js'
-import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
-import MusicTrackRow from '~/src/components/music/MusicTrackRow.vue'
-import SkeletonRow from '~/src/components/SkeletonRow.vue'
-import PageHero from '~/src/components/PageHero.vue'
+import { musicService } from '@/services/musicService.js'
+import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
+import SkeletonRow from '@/components/SkeletonRow.vue'
+import PageHero from '@/components/PageHero.vue'
 import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
-import { jamendoToPlayerPayload } from '~/src/utils/musicTrackPayload.js'
-import { seedMusicGenresFromTracks, useMusicGenres } from '~/src/composables/useMusicGenres.js'
+import { jamendoToPlayerPayload } from '@/utils/musicTrackPayload.js'
+import { getSafeSessionStorage } from '@/utils/browserStorage.js'
+import { seedMusicGenresFromTracks, useMusicGenres } from '@/composables/useMusicGenres.js'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 usePageSeo('musicSingles')
@@ -39,7 +35,7 @@ const continueListeningMusic = computed(() => historyStore.continueListeningMusi
 
 function restoreState() {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = getSafeSessionStorage().getItem(STORAGE_KEY)
     if (!raw) return false
 
     const saved = JSON.parse(raw)
@@ -63,7 +59,7 @@ function restoreState() {
 
 function persistState() {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+    getSafeSessionStorage().setItem(STORAGE_KEY, JSON.stringify({
       activeGenre: activeGenre.value,
       tracks: tracks.value,
       genres: genres.value,
@@ -139,8 +135,7 @@ async function fetchTrending(genre = '', reset = true) {
     hasMore.value = newTracks.length === pageSize
     offset.value += newTracks.length
     persistState()
-  } catch (error) {
-    console.error('Error fetching music:', error)
+  } catch {
     tracks.value = []
   } finally {
     loading.value = false

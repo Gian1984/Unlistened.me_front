@@ -1,9 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { ArrowRightIcon, ListBulletIcon, PlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
-import EmptyState from '~/src/components/EmptyState.vue'
-import { useMusicLibraryStore } from '~/src/stores/musicLibraryStore.js'
-import { useMessageStore } from '~/src/stores/messageStore.js'
+import EmptyState from '@/components/EmptyState.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
 
 definePageMeta({
