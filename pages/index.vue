@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
 import SkeletonRow from '@/components/SkeletonRow.vue'
@@ -25,12 +25,6 @@ const queueStore = useQueueStore()
 const router = useRouter()
 const { redirectToLogin } = useAuthIntent()
 
-const feeds = ref([])
-const musicTracks = ref([])
-const albums = ref([])
-const loadingPodcasts = ref(true)
-const loadingMusic = ref(true)
-const loadingAlbums = ref(true)
 const show = ref(false)
 
 const HOME_PODCAST_POOL_SIZE = 18
@@ -105,41 +99,37 @@ function seededShuffle(items, seed) {
   return result
 }
 
-async function fetchTrending() {
-  try {
+// Client-only fetches: the daily seed must be evaluated at runtime so the rotation
+// stays fresh between deploys. SSG would freeze the seed at build time.
+const { data: feeds, pending: loadingPodcasts } = useAsyncData(
+  'home-podcasts',
+  async () => {
     const response = await podcastService.getTrending()
     const podcastFeeds = response.data?.feeds || []
-    feeds.value = seededShuffle(podcastFeeds, getDailySeed() ^ 101).slice(0, HOME_PODCAST_VISIBLE_COUNT)
-  } catch {
-    // Falls back to empty state; 401s are handled by the global session handler.
-  } finally {
-    loadingPodcasts.value = false
-  }
-}
+    return seededShuffle(podcastFeeds, getDailySeed() ^ 101).slice(0, HOME_PODCAST_VISIBLE_COUNT)
+  },
+  { server: false, default: () => [] }
+)
 
-async function fetchMusic() {
-  try {
+const { data: musicTracks, pending: loadingMusic } = useAsyncData(
+  'home-music',
+  async () => {
     const response = await musicService.getTrending(HOME_MUSIC_POOL_SIZE)
     const tracks = response.data?.results || []
-    musicTracks.value = seededShuffle(tracks, getDailySeed()).slice(0, HOME_MUSIC_VISIBLE_COUNT)
-  } catch {
-    // Falls back to empty state.
-  } finally {
-    loadingMusic.value = false
-  }
-}
+    return seededShuffle(tracks, getDailySeed()).slice(0, HOME_MUSIC_VISIBLE_COUNT)
+  },
+  { server: false, default: () => [] }
+)
 
-async function fetchAlbums() {
-  try {
+const { data: albums, pending: loadingAlbums } = useAsyncData(
+  'home-albums',
+  async () => {
     const response = await musicService.getAlbums({ limit: HOME_ALBUMS_POOL_SIZE })
     const albumRows = response.data?.results || []
-    albums.value = seededShuffle(albumRows, getDailySeed() ^ 202).slice(0, HOME_ALBUMS_VISIBLE_COUNT)
-  } catch {
-    // Falls back to empty state.
-  } finally {
-    loadingAlbums.value = false
-  }
-}
+    return seededShuffle(albumRows, getDailySeed() ^ 202).slice(0, HOME_ALBUMS_VISIBLE_COUNT)
+  },
+  { server: false, default: () => [] }
+)
 
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
@@ -163,11 +153,6 @@ async function addFavourite(feedId, feedTitle) {
   }
 }
 
-onMounted(() => {
-  fetchTrending()
-  fetchMusic()
-  fetchAlbums()
-})
 </script>
 
 <template>

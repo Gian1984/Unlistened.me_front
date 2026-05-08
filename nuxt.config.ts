@@ -66,22 +66,16 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
+      // Don't auto-discover routes; rely on routeRules below as the single source of truth.
       crawlLinks: false,
       fallback: '200.html',
-      routes: [
-        '/', '/podcasts', '/music', '/music/albums', '/music/singles',
-        '/categories', '/about', '/documentation', '/terms', '/privacy',
-        // Dynamic-route shells that .htaccess rewrites to for bot OG fallback
-        '/feed', '/episode', '/music/album',
-      ],
     },
   },
   routeRules: {
-    // Static pages to prerender
+    // Static pages to prerender (single source of truth — Nitro picks these up at build time).
     '/': { prerender: true },
     '/podcasts': { prerender: true },
     '/music': { prerender: true },
-    '/music/index': { prerender: true },
     '/music/albums': { prerender: true },
     '/music/singles': { prerender: true },
     '/categories': { prerender: true },
@@ -91,6 +85,7 @@ export default defineNuxtConfig({
     '/privacy': { prerender: true },
 
     // Shell pages prerendered with parent-section OG for dynamic routes
+    // (.htaccess rewrites bot traffic to these for OG fallback).
     '/feed': { prerender: true },
     '/episode': { prerender: true },
     '/music/album': { prerender: true, ssr: true },

@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
 import { StarIcon, CheckCircleIcon, PlayIcon } from '@heroicons/vue/24/outline'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { podcastService } from '@/services/podcastService.js'
-import { stripHtmlTags } from '@/utils/text.js'
 import { usePagination } from '@/composables/usePagination.js'
 import PodcastCardItem from '@/components/podcast/PodcastCardItem.vue'
 import { usePageSeo } from '~/composables/usePageSeo'
@@ -20,12 +19,22 @@ const playerStore = usePlayerStore()
 const router = useRouter()
 const { redirectToLogin } = useAuthIntent()
 
-const feeds = ref([])
-const categories = ref([])
-const loading = ref(true)
-const loadingCategories = ref(true)
-const show = ref(false)
+// SSG-baked: the build captures the trending feeds + categories so bots and
+// first-paint visitors see hydrated cards instead of skeletons. Refreshes after
+// deploy fall back to whatever the build snapshot contains until the next deploy.
+const { data: feeds, pending: loading } = await useAsyncData(
+  'podcasts-trending',
+  async () => (await podcastService.getTrending()).data?.feeds ?? [],
+  { default: () => [] }
+)
 
+const { data: categories, pending: loadingCategories } = await useAsyncData(
+  'podcasts-categories',
+  async () => (await podcastService.getCategories()).data?.feeds ?? [],
+  { default: () => [] }
+)
+
+const show = ref(false)
 const { visibleItems, hasMore, loadMore } = usePagination(feeds, 12)
 
 function selectCategory(catId, catName) {
@@ -46,28 +55,6 @@ function resumeEntry(entry) {
 function entryProgressPercent(entry) {
   if (!entry.duration || entry.duration <= 0) return 0
   return Math.min(100, Math.max(0, (entry.currentTime / entry.duration) * 100))
-}
-
-async function fetchTrending() {
-  try {
-    const response = await podcastService.getTrending()
-    feeds.value = response.data.feeds
-  } catch {
-    // Falls back to empty state.
-  } finally {
-    loading.value = false
-  }
-}
-
-async function fetchCategories() {
-  try {
-    const response = await podcastService.getCategories()
-    categories.value = response.data.feeds
-  } catch {
-    // Falls back to empty state.
-  } finally {
-    loadingCategories.value = false
-  }
 }
 
 async function addFavourite(feedId, feedTitle) {
@@ -91,11 +78,6 @@ async function addFavourite(feedId, feedTitle) {
     }
   }
 }
-
-onMounted(() => {
-  fetchTrending()
-  fetchCategories()
-})
 </script>
 
 <template>

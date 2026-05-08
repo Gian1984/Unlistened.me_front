@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ArrowRightIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline'
 import PageHero from '@/components/PageHero.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
@@ -16,11 +16,6 @@ const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
 const authStore = useAuthStore()
 const library = useMusicLibraryStore()
-
-const albums = ref([])
-const songs = ref([])
-const loadingAlbums = ref(true)
-const loadingSongs = ref(true)
 
 const ALBUMS_POOL_SIZE = 18
 const ALBUMS_PREVIEW_COUNT = 6
@@ -51,29 +46,27 @@ function seededShuffle(items, seed) {
   return result
 }
 
-async function fetchAlbums() {
-  try {
+// Client-only: the daily seed must be evaluated at runtime so the rotation
+// stays fresh between deploys (SSG would freeze it at build time).
+const { data: albums, pending: loadingAlbums } = useAsyncData(
+  'music-home-albums',
+  async () => {
     const response = await musicService.getAlbums({ limit: ALBUMS_POOL_SIZE })
     const albumRows = response.data?.results || []
-    albums.value = seededShuffle(albumRows, getDailySeed() ^ 303).slice(0, ALBUMS_PREVIEW_COUNT)
-  } catch {
-    albums.value = []
-  } finally {
-    loadingAlbums.value = false
-  }
-}
+    return seededShuffle(albumRows, getDailySeed() ^ 303).slice(0, ALBUMS_PREVIEW_COUNT)
+  },
+  { server: false, default: () => [] }
+)
 
-async function fetchSongs() {
-  try {
+const { data: songs, pending: loadingSongs } = useAsyncData(
+  'music-home-songs',
+  async () => {
     const response = await musicService.getTrending(SONGS_POOL_SIZE)
     const tracks = response.data?.results || []
-    songs.value = seededShuffle(tracks, getDailySeed()).slice(0, SONGS_PREVIEW_COUNT)
-  } catch {
-    songs.value = []
-  } finally {
-    loadingSongs.value = false
-  }
-}
+    return seededShuffle(tracks, getDailySeed()).slice(0, SONGS_PREVIEW_COUNT)
+  },
+  { server: false, default: () => [] }
+)
 
 function playTrack(track) {
   if (playerStore.isCurrent(track.id)) {
@@ -116,8 +109,6 @@ function playHistoryEntry(entry) {
 }
 
 onMounted(() => {
-  fetchAlbums()
-  fetchSongs()
   if (authStore.isAuthenticated) {
     library.loadFavorites()
     library.loadPlaylists()

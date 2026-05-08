@@ -128,11 +128,20 @@ Stores under `src/stores/` are auto-imported via `@pinia/nuxt` (`pinia.storesDir
 
 Fully static generation (`npx nuxi generate`). Output is written to `.output/public/` and deployed as plain files.
 
-**Prerendered routes** (see `nuxt.config.ts` `nitro.prerender.routes` + `routeRules`):
-- `/`, `/podcasts`, `/music`, `/music/albums`, `/music/singles`, `/categories`, `/about`, `/documentation`, `/terms`, `/privacy`
+**Prerendered routes** declared in `routeRules` (single source of truth):
+- Static content pages: `/`, `/podcasts`, `/music`, `/music/albums`, `/music/singles`, `/categories`, `/about`, `/documentation`, `/terms`, `/privacy`
+- Dynamic-route shells (used by `.htaccess` rewrites for bot OG fallback): `/feed`, `/episode`, `/music/album`
+- The `nitro.prerender.routes` array was removed — `routeRules: { prerender: true }` is the canonical declaration
+
+**SSG-baked data** (resolved at build time via `useAsyncData`, hydrated in the static HTML):
+- `pages/podcasts/index.vue` bakes `getTrending()` + `getCategories()` into the prerendered output, so bots and first-paint visitors see hydrated podcast cards instead of skeletons (the `/podcasts` HTML is ~115 KB with the feeds inlined)
+
+**Client-only data** (`useAsyncData(..., { server: false })`):
+- `pages/index.vue` and `pages/music/index.vue` keep their fetches client-side because they apply a `getDailySeed()` shuffle that must be computed at runtime — SSG would freeze the rotation to the build date
+- The `useAsyncData` shape (vs. the older `onMounted` pattern) gives back-navigation caching and reactive `pending`/`error` refs for free
 
 **Client-driven routes** (static shell, client fetch):
-- `/feed/[id]`, `/episode/[id]`, `/music/album/[id]`
+- `/feed/[id]`, `/episode/[id]`, `/music/album/[id]`, `/categories/[slug]` (all use `dynamicContentMode: 'client-fetch-static-shell'`)
 - all `/music/**` routes are configured `ssr: false` to avoid SSR-only code paths
 - auth pages, library, settings, dashboard — rely on the Sanctum client bootstrap
 
@@ -407,13 +416,9 @@ npm run test:unit
 
 Items known to be short-term tech debt. Roughly ordered by impact / risk:
 
-**Inconsistencies / pending fixes:**
-- `routeRules` and `nitro.prerender.routes` in `nuxt.config.ts` overlap; consolidate to one source
-
 **Considered, not yet done:**
-- Migrate prerendered home/listing pages from `onMounted` fan-out fetches to `useAsyncData` so SSG captures initial data
 - Convert services from `.js` to `.ts` for richer types in pages
-- `definePageMeta({ dynamicContentMode: 'client-fetch-static-shell' })` is a custom (non-Nuxt) flag used in feed/episode/album pages — document or drop
+- `definePageMeta({ dynamicContentMode: 'client-fetch-static-shell' })` is a custom (non-Nuxt) flag used in feed/episode/album/category pages — document or drop
 
 **Resolved (kept here as a recent-changelog):**
 - Removed pre-Nuxt SPA artifacts: `src/views/` (30 files), `src/App.vue`, `src/main.js`, `src/router/`, `src/stores/counter.js`, `src/components/icons/Icon*.vue`
@@ -426,6 +431,9 @@ Items known to be short-term tech debt. Roughly ordered by impact / risk:
 - Login intent-preservation: auth-gated favorite/bookmark actions now redirect to `/login?redirect=…&intent=…` and replay on success (see Auth Intent Replay section)
 - Deep-linkable category pages: `/categories/<id>-<kebab-name>` replaces the previous `/search-results?s=…` flow; categories list, podcasts hub, and sidebar filter popover all link to the new URL
 - Sidebar search now offers debounced autocomplete suggestions (podcasts and music) with kind-aware deep links
+- `pages/podcasts/index.vue` migrated to `useAsyncData` — trending feeds and categories are now baked into the prerendered HTML at build time
+- `pages/index.vue` and `pages/music/index.vue` migrated to `useAsyncData(..., { server: false })` — same reactive shape, but stays client-only to preserve daily rotation
+- Consolidated `nitro.prerender.routes` into `routeRules` (single source of truth)
 
 ---
 
