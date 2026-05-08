@@ -8,7 +8,7 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 
 | Layer | Technology | Version |
 |---|---|---|
-| Framework | Nuxt 3 (static-first, Nitro `static` preset) | 3.21.x |
+| Framework | Nuxt 3 (static-first, Nitro `static` preset) | 3.21.4 |
 | View layer | Vue 3 (`<script setup>` Composition API) | 3.5.x |
 | Build | `npx nuxi generate` (Vite under the hood) | — |
 | Styling | Tailwind CSS 3 + `@tailwindcss/forms` (via `@nuxtjs/tailwindcss`) | 3.4.x |
