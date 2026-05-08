@@ -78,6 +78,11 @@ export const useHistoryStore = defineStore('history', () => {
   }
 
   async function syncEntryToAPI(entry) {
+    // Backend sync is a feature for authenticated users; guests keep their
+    // history in localStorage only. Skipping the call here also prevents the
+    // global 401 handler from kicking the user to /login on every play.
+    const authStore = useAuthStore()
+    if (!authStore.isAuthenticated) return
     try {
       const { data } = await historyService.upsert(entryToAPIPayload(entry))
       const backendId = data?.data?.id ?? data?.id

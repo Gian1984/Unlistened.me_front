@@ -5,7 +5,6 @@ import { authService } from '@/services/authService'
 
 definePageMeta({
   middleware: ['guest'],
-  layout: false,
 })
 
 useSeoMeta({
