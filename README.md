@@ -43,11 +43,13 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 │   ├── feed/[id].vue               # Podcast detail (client-fetch static shell)
 │   ├── episode/[id].vue            # Episode detail (client-fetch static shell)
 │   ├── music/album/[id].vue        # Album detail (client-fetch static shell)
+│   ├── categories/index.vue        # Browse podcast categories + music genres
+│   ├── categories/[slug].vue       # Deep-linkable per-category podcast page (slug = "<id>-<kebab-name>")
 │   ├── search-results.vue          # Unified podcast/music search (noindex)
 │   ├── now-playing.vue             # Full-screen player
 │   ├── login.vue | signup.vue | forgot_password.vue | reset_password/[token].vue
 │   ├── favourites.vue | bookmarks.vue | settings.vue | dashboard.vue
-│   ├── categories.vue | about.vue | documentation.vue | terms.vue | privacy.vue
+│   ├── about.vue | documentation.vue | terms.vue | privacy.vue
 │   ├── forbidden.vue | [...path].vue  # 403 and catch-all 404
 ├── layouts/
 │   └── default.vue                 # App shell: sidebar, search bar, slot, footer
@@ -58,7 +60,8 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 ├── components/
 │   └── NavigationView.vue          # Top-level nav: sidebar, header, search bar, mobile drawer
 ├── composables/
-│   └── usePageSeo.ts               # Consumes pagesRegistry, wires useHead (title, meta, OG, Twitter, robots, JSON-LD)
+│   ├── usePageSeo.ts               # Consumes pagesRegistry, wires useHead (title, meta, OG, Twitter, robots, JSON-LD)
+│   └── useAuthIntent.ts            # redirectToLogin({ intent, message }) + consumeAuthIntent(query) + buildIntent helper for action replay after login
 ├── config/
 │   └── static-routes.js            # Static-route metadata (path/seoKey/prerender/changefreq/priority/title/description) — feeds the sitemap
 ├── plugins/
@@ -68,8 +71,9 @@ Nuxt 3 podcast & music streaming app backed by a **Laravel 11 API** (`api.unlist
 │   ├── draggable.client.ts         # vuedraggable global registration
 │   └── gtm.client.ts               # Google Tag Manager + Consent Mode v2 (id GTM-MF5TLTDF), SPA page_view dispatch
 ├── utils/
-│   └── seo/
-│       └── pagesRegistry.ts        # Single source of truth for static-page SEO (title/desc/OG/JSON-LD/robots)
+│   ├── seo/
+│   │   └── pagesRegistry.ts        # Single source of truth for static-page SEO (title/desc/OG/JSON-LD/robots)
+│   └── slugify.ts                  # kebabCase / categorySlug / parseCategorySlug for URL-segment generation (e.g. /categories/12-comedy)
 ├── public/
 │   ├── .htaccess                   # SPA fallback rules for Apache shared hosting
 │   ├── favicon.ico
@@ -179,7 +183,29 @@ Key features:
 `src/stores/historyStore.js` persists all played episodes to `localStorage`:
 - `recordPlay(episode)` / `updateProgress(id, t, d)` / `getProgress(id)` / `markCompleted(id)`
 - `continueListening` computed (progress > 5s and not completed) — surfaced on Home and Podcasts
-- `continueListeningMusic` is exposed but resume is currently saved for podcasts only
+- `continueListeningMusic` filters the same set to music tracks only — surfaced on `/music` and `/music/singles`. Both flows use the same `recordPlay` / `updateProgress` calls dispatched by `OffcanvasPlayer.vue` (the `contentType` discriminator distinguishes podcast vs music)
+
+## Auth Intent Replay
+
+Auth-gated actions (favorite a podcast, bookmark an episode) preserve user intent across the login flow:
+
+- A logged-out click calls `redirectToLogin({ message, intent })` from `composables/useAuthIntent.ts`.
+- The user is sent to `/login?redirect=<path>&intent=<encoded>` with a contextual toast ("Sign in to save this podcast — we'll add it after you log in.").
+- After successful login, `pages/login.vue` calls `consumeAuthIntent(route.query)` which dispatches the intent through a small handler registry (`fav` → `podcastService.addFavorite`, `bm` → `podcastService.addBookmark`) and then navigates to `redirect`.
+- Build intents with `buildIntent('fav', feedId, feedTitle)` (URL-encodes each arg).
+- The `auth` and `admin` middleware also pass `?redirect=<original path>` so private-route bounces return the user to where they were after login.
+- Music actions (favorite track, add to playlist) only preserve the redirect path, not the action — replay would require refetching the full track, which isn't worth the complexity.
+
+## Search Autocomplete
+
+The sidebar search bar (`components/NavigationView.vue`) suggests results inline as the user types:
+
+- 300 ms debounce on the input; minimum 2 chars before fetching.
+- Podcasts → `podcastService.searchByTitle(q)` (top 6 feeds, links to `/feed/:id`).
+- Music → `musicService.search(q)` (top 6 tracks, links to `/music/album/:album_id` when available).
+- Out-of-order responses are dropped via a sequence guard.
+- Esc closes the dropdown; blur closes after a 150 ms delay so item clicks register first.
+- A "See all results for …" footer links to the existing `/search-results` page for full results.
 
 ## Notifications / Messages
 
@@ -382,7 +408,6 @@ npm run test:unit
 Items known to be short-term tech debt. Roughly ordered by impact / risk:
 
 **Inconsistencies / pending fixes:**
-- `historyStore.continueListeningMusic` is computed and exposed but no UI surfaces it (resume is podcast-only). Either ship a UI or drop the getter
 - `routeRules` and `nitro.prerender.routes` in `nuxt.config.ts` overlap; consolidate to one source
 
 **Considered, not yet done:**
@@ -398,6 +423,9 @@ Items known to be short-term tech debt. Roughly ordered by impact / risk:
 - Adopted `@pinia/nuxt` (`storesDirs: ['./src/stores/**']`); manual `useXStore` imports removed from 26 pages, 1 component, 3 middleware, 1 plugin
 - All direct `sessionStorage`/`localStorage` calls in production code now go through `src/utils/browserStorage.js` (SSR-safe)
 - Production `console.error` / `console.warn` calls removed from pages, components, stores; the one remaining `console.warn` in `composables/usePageSeo.ts` is guarded by `import.meta.dev`
+- Login intent-preservation: auth-gated favorite/bookmark actions now redirect to `/login?redirect=…&intent=…` and replay on success (see Auth Intent Replay section)
+- Deep-linkable category pages: `/categories/<id>-<kebab-name>` replaces the previous `/search-results?s=…` flow; categories list, podcasts hub, and sidebar filter popover all link to the new URL
+- Sidebar search now offers debounced autocomplete suggestions (podcasts and music) with kind-aware deep links
 
 ---
 

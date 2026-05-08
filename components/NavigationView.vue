@@ -18,6 +18,7 @@ import {
   PopoverPanel,
 } from '@headlessui/vue'
 import { podcastService } from '@/services/podcastService.js'
+import { musicService } from '@/services/musicService.js'
 import { authService } from '@/services/authService.js'
 import { useSidebarState } from '@/composables/useSidebarState.js'
 import { useMusicGenres } from '@/composables/useMusicGenres.js'
@@ -88,14 +89,85 @@ const filteredGenres = computed(() => {
   return musicGenres.value.filter(g => g.label.toLowerCase().includes(q))
 })
 
+// Search autocomplete
+const suggestions = ref([])
+const suggestionsLoading = ref(false)
+const suggestionsOpen = ref(false)
+let suggestTimer = null
+let suggestSeq = 0
+
+function closeSuggestions() {
+  suggestionsOpen.value = false
+}
+
+async function fetchSuggestions(query, type) {
+  const q = query.trim()
+  if (q.length < 2) {
+    suggestions.value = []
+    suggestionsLoading.value = false
+    return
+  }
+  const seq = ++suggestSeq
+  suggestionsLoading.value = true
+  try {
+    if (type === 'music') {
+      const res = await musicService.search(q)
+      if (seq !== suggestSeq) return
+      suggestions.value = (res.data?.results || []).slice(0, 6).map((t) => ({
+        kind: 'music',
+        id: t.id,
+        title: t.name,
+        meta: t.artist_name,
+        image: t.album_image || t.image,
+        to: t.album_id ? `/music/album/${t.album_id}` : null,
+      }))
+    } else {
+      const res = await podcastService.searchByTitle(q)
+      if (seq !== suggestSeq) return
+      suggestions.value = (res.data?.feeds || []).slice(0, 6).map((f) => ({
+        kind: 'podcast',
+        id: f.id,
+        title: f.title,
+        meta: f.author,
+        image: f.image,
+        to: `/feed/${f.id}`,
+      }))
+    }
+  } catch {
+    if (seq === suggestSeq) suggestions.value = []
+  } finally {
+    if (seq === suggestSeq) suggestionsLoading.value = false
+  }
+}
+
+watch([searchQuery, searchType], ([q]) => {
+  if (suggestTimer) clearTimeout(suggestTimer)
+  if (q.trim().length < 2) {
+    suggestions.value = []
+    suggestionsOpen.value = false
+    return
+  }
+  suggestionsOpen.value = true
+  suggestTimer = setTimeout(() => fetchSuggestions(searchQuery.value, searchType.value), 300)
+})
+
+function selectSuggestion(s) {
+  closeSuggestions()
+  searchQuery.value = ''
+  if (s?.to) router.push(s.to)
+  else if (s?.title) router.push({ path: '/search-results', query: { q: s.title, type: s.kind } })
+}
+
 // Methods
 function setSearchType(type) {
   searchType.value = type
   categoryFilter.value = ''
+  suggestions.value = []
 }
 
 function submitSearch() {
   if (searchQuery.value.trim() === '') return
+  closeSuggestions()
   router.push({ path: '/search-results', query: { q: searchQuery.value, type: searchType.value } })
   searchQuery.value = ''
 }
@@ -114,8 +186,8 @@ function clearSearch() {
   searchQuery.value = ''
 }
 
-function onFilterClick(id) {
-  router.push({ path: '/search-results', query: { s: id } })
+function onFilterClick(id, name) {
+  router.push(`/categories/${categorySlug(id, name)}`)
 }
 
 function onGenreClick(tag) {
@@ -341,9 +413,13 @@ watch(
                   id="search-field"
                   v-model="searchQuery"
                   @keyup.enter="searchType === 'music' ? onMusicSearchClick() : onSearchClick()"
+                  @keyup.escape="closeSuggestions"
+                  @focus="searchQuery.trim().length >= 2 && (suggestionsOpen = true)"
+                  @blur="setTimeout(closeSuggestions, 150)"
                   type="text"
                   name="search"
                   placeholder="Search..."
+                  autocomplete="off"
                   class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-0"
               />
 
@@ -412,7 +488,7 @@ watch(
                             <li v-for="cat in filteredCategories" :key="cat.id">
                               <button
                                   type="button"
-                                  @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id); }"
+                                  @click="() => { close(); categoryFilter = ''; onFilterClick(cat.id, cat.name); }"
                                   class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                               >
                                 <OutlineIcons.TagIcon class="h-3.5 w-3.5 shrink-0 text-gray-500" />
@@ -447,6 +523,46 @@ watch(
                   </div>
                 </template>
               </ClientOnly>
+
+              <!-- Autocomplete suggestions dropdown -->
+              <div
+                v-if="suggestionsOpen && (suggestionsLoading || suggestions.length)"
+                class="absolute left-0 right-0 top-full mt-2 z-40 overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-xl ring-1 ring-black/5"
+                @mousedown.prevent
+              >
+                <div v-if="suggestionsLoading && !suggestions.length" class="px-4 py-3 text-xs text-gray-500">
+                  Searching…
+                </div>
+                <ul v-else class="max-h-80 overflow-y-auto py-1">
+                  <li v-for="s in suggestions" :key="`${s.kind}-${s.id}`">
+                    <button
+                      type="button"
+                      @click="selectSuggestion(s)"
+                      class="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-gray-800"
+                    >
+                      <div class="h-9 w-9 shrink-0 overflow-hidden rounded bg-gray-800">
+                        <img v-if="s.image" :src="s.image" :alt="s.title" class="h-full w-full object-cover" loading="lazy" />
+                        <div v-else class="flex h-full w-full items-center justify-center">
+                          <OutlineIcons.MusicalNoteIcon v-if="s.kind === 'music'" class="h-4 w-4 text-gray-500" />
+                          <OutlineIcons.MicrophoneIcon v-else class="h-4 w-4 text-gray-500" />
+                        </div>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm text-white">{{ s.title }}</p>
+                        <p v-if="s.meta" class="truncate text-xs text-gray-500">{{ s.meta }}</p>
+                      </div>
+                      <span class="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">{{ s.kind }}</span>
+                    </button>
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  @click="searchType === 'music' ? onMusicSearchClick() : onSearchClick()"
+                  class="block w-full border-t border-gray-800 px-3 py-2 text-left text-xs text-indigo-400 transition-colors hover:bg-gray-800"
+                >
+                  See all results for "{{ searchQuery }}" →
+                </button>
+              </div>
             </div>
           </div>
 

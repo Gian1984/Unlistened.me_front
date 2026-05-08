@@ -21,6 +21,7 @@ const queueStore = useQueueStore()
 const historyStore = useHistoryStore()
 const route = useRoute()
 const router = useRouter()
+const { redirectToLogin } = useAuthIntent()
 
 function episodeProgress(episodeId) {
   return historyStore.getProgress(episodeId)
@@ -165,8 +166,10 @@ async function fetchEpisodes(feedId) {
 
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push('/login')
+    redirectToLogin({
+      message: 'Sign in to save this podcast — we\'ll add it after you log in.',
+      intent: buildIntent('fav', feedId, feedTitle),
+    })
     return
   }
 
@@ -183,8 +186,10 @@ async function addFavourite(feedId, feedTitle) {
 
 async function addBookmarks(episodeId, episodeTitle) {
   if (!authStore.isAuthenticated) {
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push('/login')
+    redirectToLogin({
+      message: 'Sign in to bookmark this episode — we\'ll save it after you log in.',
+      intent: buildIntent('bm', episodeId, episodeTitle),
+    })
     return
   }
 

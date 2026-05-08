@@ -20,6 +20,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
 const library = useMusicLibraryStore()
+const { redirectToLogin } = useAuthIntent()
 
 const trackId = computed(() =>
   String(props.track?.id ?? props.track?.jamendo_track_id ?? '')
@@ -38,8 +39,7 @@ const sizeClasses = computed(() => {
 async function onClick(e) {
   e?.stopPropagation?.()
   if (!authStore.isAuthenticated) {
-    messageStore.setMessage('Sign in to save tracks to your favorites.')
-    router.push('/login')
+    redirectToLogin({ message: 'Sign in to save tracks to your favorites.' })
     return
   }
   if (busy.value || !trackId.value) return

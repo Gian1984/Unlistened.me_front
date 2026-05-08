@@ -40,7 +40,7 @@ async function fetchSearchCategories() {
 }
 
 function onPodcastCategoryClick(id, name) {
-  router.push({ path: '/search-results', query: { s: id, name } })
+  router.push(`/categories/${categorySlug(id, name)}`)
 }
 
 function onGenreClick(tag) {

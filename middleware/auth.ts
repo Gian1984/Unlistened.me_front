@@ -1,5 +1,5 @@
 
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.server) return
 
   const authStore = useAuthStore()
@@ -12,6 +12,6 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (!authStore.isAuthenticated) {
     messageStore.setMessage('To access this page you have to be logged in.')
-    return navigateTo('/login')
+    return navigateTo({ path: '/login', query: { redirect: to.fullPath } })
   }
 })

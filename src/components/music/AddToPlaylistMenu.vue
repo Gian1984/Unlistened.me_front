@@ -15,6 +15,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
 const library = useMusicLibraryStore()
+const { redirectToLogin } = useAuthIntent()
 
 const sizeClasses = computed(() => {
   switch (props.size) {
@@ -74,8 +75,7 @@ async function onCreateAndAdd(close) {
 function onTriggerClick(e) {
   e?.stopPropagation?.()
   if (!authStore.isAuthenticated) {
-    messageStore.setMessage('Sign in to create playlists.')
-    router.push('/login')
+    redirectToLogin({ message: 'Sign in to create playlists.' })
     return
   }
   ensureLoaded()

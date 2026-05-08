@@ -16,6 +16,8 @@ useSeoMeta({
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
 const router = useRouter()
+const route = useRoute()
+const { consumeAuthIntent } = useAuthIntent()
 
 const email = ref('')
 const password = ref('')
@@ -30,8 +32,9 @@ async function login() {
     const response = await authService.login(email.value, password.value)
     authStore.setUser(response.data.user)
     messageStore.clearMessage()
+    const redirect = await consumeAuthIntent(route.query)
     sending.value = false
-    router.push('/')
+    router.push(redirect || '/')
   } catch (error) {
     messageStore.clearMessage()
     sending.value = false

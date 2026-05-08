@@ -29,6 +29,7 @@ const queueStore = useQueueStore()
 
 const route = useRoute()
 const router = useRouter()
+const { redirectToLogin } = useAuthIntent()
 
 const feeds = ref([])
 const musicTracks = ref([])
@@ -197,8 +198,10 @@ function playFeed(feed) {
 
 async function addFavourite(feedId, feedTitle) {
   if (!authStore.isAuthenticated) {
-    messageStore.setMessage('To access this functionality you have to be logged in')
-    router.push('/login')
+    redirectToLogin({
+      message: 'Sign in to save this podcast — we\'ll add it after you log in.',
+      intent: buildIntent('fav', feedId, feedTitle),
+    })
     return
   }
 
